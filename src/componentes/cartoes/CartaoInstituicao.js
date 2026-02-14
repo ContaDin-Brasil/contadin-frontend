@@ -2,18 +2,39 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-const InstitutionCard = ({ 
-  name, 
-  balance, 
-  icon, 
-  color = '#999', 
-  onPress, 
-  variant = 'grid' // 'grid' or 'list'
+const InstitutionCard = ({
+  name,
+  balance,
+  icon,
+  color = '#999',
+  onPress,
+  variant = 'grid' // 'grid', 'list', or 'carousel'
 }) => {
+  if (variant === 'carousel') {
+    return (
+      <TouchableOpacity
+        style={[styles.carouselCard, { borderColor: color, borderWidth: 3 }]}
+        onPress={onPress}
+      >
+        <View style={styles.carouselCardContent}>
+          <View style={styles.carouselTopRow}>
+            <View style={[styles.carouselIconContainer, { backgroundColor: color }]}>
+              {icon}
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.carouselName}>{name}</Text>
+              <Text style={styles.carouselBalance}>Saldo Atual: {balance}</Text>
+            </View>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  }
+
   if (variant === 'list') {
     return (
-      <TouchableOpacity 
-        style={[styles.listCard, { borderLeftColor: color, borderLeftWidth: 0 }]} 
+      <TouchableOpacity
+        style={[styles.listCard, { borderLeftColor: color, borderLeftWidth: 0 }]}
         onPress={onPress}
       >
         <View style={styles.listCardContent}>
@@ -31,15 +52,17 @@ const InstitutionCard = ({
 
   // Grid variant
   return (
-    <TouchableOpacity 
-      style={[styles.gridCard, { borderColor: color, borderWidth: 3 }]} 
+    <TouchableOpacity
+      style={[styles.gridCard, { borderColor: color, borderWidth: 3 }]}
       onPress={onPress}
     >
       <View style={styles.gridCardContent}>
-        <View style={[styles.gridIconContainer, { backgroundColor: color }]}>
-          {icon}
+        <View style={styles.gridCardRow}>
+          <View style={[styles.gridIconContainer, { backgroundColor: color }]}>
+            {icon}
+          </View>
+          <Text style={styles.gridName}>{name}</Text>
         </View>
-        <Text style={styles.gridName}>{name}</Text>
         <Text style={styles.gridBalance}>Saldo Atual: {balance}</Text>
       </View>
     </TouchableOpacity>
@@ -47,6 +70,15 @@ const InstitutionCard = ({
 };
 
 const AddCard = ({ onPress, variant = 'grid' }) => {
+  if (variant === 'carousel') {
+    return (
+      <TouchableOpacity style={styles.addCarouselCard} onPress={onPress}>
+        <Ionicons name="add" size={56} color="#999" />
+        <Text style={styles.addCarouselText}>Adicionar</Text>
+      </TouchableOpacity>
+    );
+  }
+
   if (variant === 'grid') {
     return (
       <TouchableOpacity style={styles.addGridCard} onPress={onPress}>
@@ -62,7 +94,7 @@ const styles = StyleSheet.create({
   gridCard: {
     backgroundColor: '#FFF',
     borderRadius: 16,
-    padding: 16,
+    padding: 8,
     width: '48%',
     marginBottom: 12,
     elevation: 2,
@@ -70,6 +102,13 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
+  },
+  gridCardRow: {
+    flexDirection: 'row',
+    flex: 1,
+    alignItems: 'flex-start',
+    marginBottom: 4,
+    gap: 12,
   },
   gridCardContent: {
     alignItems: 'flex-start',
@@ -103,14 +142,14 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    minHeight: 140,
+    minHeight: 'auto',
   },
 
   // List styles
   listCard: {
     backgroundColor: '#FFF',
     borderRadius: 12,
-    padding: 16,
+    padding: 8,
     marginBottom: 10,
     flexDirection: 'row',
     alignItems: 'center',
@@ -141,8 +180,68 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   listBalance: {
-    fontSize: 13,
+    fontSize: 12,
     color: '#666',
+  },
+
+  // Carousel styles
+  carouselCard: {
+    backgroundColor: '#FFF',
+    borderRadius: 16,
+    padding: 20,
+    width: '0%',
+    minHeight: 130,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+  },
+  carouselCardContent: {
+    justifyContent: 'space-between',
+    flex: 1,
+  },
+  carouselTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  carouselIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  carouselName: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#000',
+    flex: 1,
+  },
+  carouselBalance: {
+    fontSize: 15,
+    color: '#666',
+    fontWeight: '500',
+  },
+  addCarouselCard: {
+    backgroundColor: '#FFF',
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: '#E0E0E0',
+    borderStyle: 'dashed',
+    padding: 20,
+    width: '100%',
+    minHeight: 130,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  addCarouselText: {
+    fontSize: 16,
+    color: '#999',
+    fontWeight: '600',
+    marginTop: 12,
   },
 });
 
