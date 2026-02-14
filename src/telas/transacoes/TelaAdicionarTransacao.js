@@ -1,63 +1,42 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Switch } from 'react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, Switch, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import ModalSelecaoInstituicao from '../componentes/modais/ModalSelecaoInstituicao';
-import ModalAdicionarInstituicao from '../componentes/modais/ModalAdicionarInstituicao';
+import ModalSelecaoInstituicao from '../../componentes/modais/ModalSelecaoInstituicao';
+import ModalAdicionarInstituicao from '../../componentes/modais/ModalAdicionarInstituicao';
+import { useFormularioTransacao } from './hooks/useFormularioTransacao';
+import { useProcessamentoIA } from './hooks/useProcessamentoIA';
+import { CATEGORIES, FREQUENCIES } from './constants/constantesTransacao';
+import { getCategoryIcon } from './utils/utilitariosTransacao';
+import { styles } from './styles/TelaAdicionarTransacao.styles';
 
 const TelaAdicionarTransacao = ({ navigation }) => {
-  const [description, setDescription] = useState('');
-  const [transactionType, setTransactionType] = useState('income'); // 'expense' ou 'income'
-  const [categorySearch, setCategorySearch] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('salary');
-  const [isRecurring, setIsRecurring] = useState(false);
-  const [frequency, setFrequency] = useState('monthly');
-  const [institutionType, setInstitutionType] = useState('banks'); // 'vouchers' ou 'banks'
-  const [selectedInstitutions, setSelectedInstitutions] = useState([
-    { id: 1, name: 'Santander', color: '#E31C23', icon: 'S' },
-    { id: 2, name: 'Nubank', color: '#820AD1', icon: 'Nu' },
-    { id: 3, name: 'Itaú', color: '#FF6600', icon: 'I' },
-    { id: 4, name: 'Flash', color: '#FF1493', icon: 'F' },
-  ]);
   const [selectionModalVisible, setSelectionModalVisible] = useState(false);
   const [customModalVisible, setCustomModalVisible] = useState(false);
 
-  const categories = [
-    { id: 'food', name: 'Alimentação', icon: 'restaurant' },
-    { id: 'leisure', name: 'Lazer', icon: 'happy' },
-    { id: 'salary', name: 'Salário', icon: 'cash' },
-  ];
-
-  const frequencies = [
-    { id: 'annual', name: 'Anual' },
-    { id: 'monthly', name: 'Mensal' },
-    { id: 'weekly', name: 'Semanal' },
-    { id: 'daily', name: 'Diária' },
-  ];
+  // Hooks customizados
+  const formState = useFormularioTransacao();
+  const aiState = useProcessamentoIA();
 
   const handleSelectInstitution = (institution) => {
-    const exists = selectedInstitutions.find(i => i.id === institution.id);
-    if (!exists) {
-      setSelectedInstitutions([...selectedInstitutions, institution]);
-    }
+    formState.handleSelectInstitution(institution);
     setSelectionModalVisible(false);
   };
 
   const handleAddCustomInstitution = (institution) => {
-    setSelectedInstitutions([...selectedInstitutions, institution]);
+    formState.handleAddCustomInstitution(institution);
     setCustomModalVisible(false);
   };
 
+  const applyAISuggestion = () => {
+    if (aiState.aiSuggestion) {
+      formState.applyAISuggestion(aiState.aiSuggestion);
+      aiState.dismissAISuggestion();
+    }
+  };
+
   const handleSaveTransaction = () => {
-    // Implementar lógica de salvar transação
-    console.log('Transação salva:', {
-      description,
-      transactionType,
-      selectedCategory,
-      isRecurring,
-      frequency: isRecurring ? frequency : null,
-      institutions: selectedInstitutions,
-      institutionType
-    });
+    const data = formState.getFormData();
+    console.log('Transação salva:', data);
     navigation.goBack();
   };
 
@@ -71,6 +50,94 @@ const TelaAdicionarTransacao = ({ navigation }) => {
         <View style={{ width: 24 }} />
       </View>
 
+      {/* Botões de OCR/Áudio */}
+      <View style={styles.aiSection}>
+        <Text style={styles.aiSectionTitle}>✨ Adicionar via IA</Text>
+        <View style={styles.aiButtons}>
+          <TouchableOpacity 
+            style={styles.aiButton}
+            onPress={aiState.handlePhotoOCR}
+            disabled={aiState.isProcessing}
+          >
+            <Ionicons name="camera" size={24} color="#5BA3FF" />
+            <Text style={styles.aiButtonText}>Foto</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.aiButton}
+            onPress={aiState.handleAudioInput}
+            disabled={aiState.isProcessing}
+          >
+            <Ionicons name="mic" size={24} color="#5BA3FF" />
+            <Text style={styles.aiButtonText}>Áudio</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Indicador de processamento */}
+        {aiState.isProcessing && (
+          <View style={styles.processingCard}>
+            <View style={styles.processingHeader}>
+              <Animated.View style={[
+                styles.loadingDot, 
+                { transform: [{ scale: aiState.pulseAnim }] }
+              ]} />
+              <Text style={styles.processingText}>
+                {aiState.processingType === 'photo' ? 'Analisando foto...' : 'Transcrevendo áudio...'}
+              </Text>
+            </View>
+            <Text style={styles.processingSubtext}>
+              A IA está extraindo as informações da transação
+            </Text>
+          </View>
+        )}
+
+        {/* Card de sugestão da IA */}
+        {aiState.aiSuggestion && !aiState.isProcessing && (
+          <View style={styles.suggestionCard}>
+            <View style={styles.suggestionHeader}>
+              <Ionicons name="sparkles" size={20} color="#5BA3FF" />
+              <Text style={styles.suggestionTitle}>Sugestão da IA</Text>
+            </View>
+            <View style={styles.suggestionContent}>
+              <View style={styles.suggestionRow}>
+                <Text style={styles.suggestionLabel}>Descrição:</Text>
+                <Text style={styles.suggestionValue}>{aiState.aiSuggestion.descricao}</Text>
+              </View>
+              <View style={styles.suggestionRow}>
+                <Text style={styles.suggestionLabel}>Valor:</Text>
+                <Text style={styles.suggestionValue}>{aiState.aiSuggestion.valor}</Text>
+              </View>
+              {aiState.aiSuggestion.data && (
+                <View style={styles.suggestionRow}>
+                  <Text style={styles.suggestionLabel}>Data:</Text>
+                  <Text style={styles.suggestionValue}>{aiState.aiSuggestion.data}</Text>
+                </View>
+              )}
+              <View style={styles.suggestionRow}>
+                <Text style={styles.suggestionLabel}>Tipo:</Text>
+                <Text style={styles.suggestionValue}>
+                  {aiState.aiSuggestion.tipo === 'RECEITA' ? 'Receita' : 'Gasto'}
+                </Text>
+              </View>
+            </View>
+            <View style={styles.suggestionButtons}>
+              <TouchableOpacity 
+                style={styles.suggestionButtonReject}
+                onPress={aiState.dismissAISuggestion}
+              >
+                <Text style={styles.suggestionButtonRejectText}>Descartar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.suggestionButtonAccept}
+                onPress={applyAISuggestion}
+              >
+                <Ionicons name="checkmark" size={18} color="#FFF" />
+                <Text style={styles.suggestionButtonAcceptText}>Aplicar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+      </View>
+
       {/* Descrição da transação */}
       <View style={styles.section}>
         <Text style={styles.label}>Descrição da transação:</Text>
@@ -78,9 +145,42 @@ const TelaAdicionarTransacao = ({ navigation }) => {
           style={styles.input}
           placeholder="Salário Avanade"
           placeholderTextColor="#999"
-          value={description}
-          onChangeText={setDescription}
+          value={formState.descricao}
+          onChangeText={formState.setDescricao}
         />
+      </View>
+
+      {/* Valor da transação */}
+      <View style={styles.section}>
+        <Text style={styles.label}>Valor:</Text>
+        <View style={styles.amountInputContainer}>
+          <Text style={styles.currencySymbol}>R$</Text>
+          <TextInput
+            style={styles.amountInput}
+            placeholder="0,00"
+            placeholderTextColor="#999"
+            value={formState.valor}
+            onChangeText={formState.setValor}
+            keyboardType="decimal-pad"
+          />
+        </View>
+      </View>
+
+      {/* Data da transação */}
+      <View style={styles.section}>
+        <Text style={styles.label}>Data:</Text>
+        <View style={styles.dateInputContainer}>
+          <Ionicons name="calendar-outline" size={20} color="#5BA3FF" />
+          <TextInput
+            style={styles.dateInput}
+            placeholder="DD/MM/AAAA"
+            placeholderTextColor="#999"
+            value={formState.date}
+            onChangeText={formState.handleDateChange}
+            keyboardType="numeric"
+            maxLength={10}
+          />
+        </View>
       </View>
 
       {/* Tipo da transação */}
@@ -90,13 +190,13 @@ const TelaAdicionarTransacao = ({ navigation }) => {
           <TouchableOpacity
             style={[
               styles.typeButton,
-              transactionType === 'expense' && styles.typeButtonActive
+              formState.tipo === 'GASTO' && styles.typeButtonActive
             ]}
-            onPress={() => setTransactionType('expense')}
+            onPress={() => formState.setTipo('GASTO')}
           >
             <Text style={[
               styles.typeButtonText,
-              transactionType === 'expense' && styles.typeButtonTextActive
+              formState.tipo === 'GASTO' && styles.typeButtonTextActive
             ]}>
               Gasto
             </Text>
@@ -105,13 +205,13 @@ const TelaAdicionarTransacao = ({ navigation }) => {
             style={[
               styles.typeButton,
               styles.typeButtonIncome,
-              transactionType === 'income' && styles.typeButtonActive
+              formState.tipo === 'RECEITA' && styles.typeButtonActive
             ]}
-            onPress={() => setTransactionType('income')}
+            onPress={() => formState.setTipo('RECEITA')}
           >
             <Text style={[
               styles.typeButtonText,
-              transactionType === 'income' && styles.typeButtonTextActive
+              formState.tipo === 'RECEITA' && styles.typeButtonTextActive
             ]}>
               Receita
             </Text>
@@ -128,30 +228,30 @@ const TelaAdicionarTransacao = ({ navigation }) => {
             style={styles.searchInput}
             placeholder="Pesquisar"
             placeholderTextColor="#999"
-            value={categorySearch}
-            onChangeText={setCategorySearch}
+            value={formState.categorySearch}
+            onChangeText={formState.setCategorySearch}
           />
         </View>
         <View style={styles.categoryButtons}>
-          {categories.map(category => (
+          {CATEGORIES.map(category => (
             <TouchableOpacity
               key={category.id}
               style={[
                 styles.categoryButton,
-                selectedCategory === category.id && styles.categoryButtonActive
+                formState.selectedCategory === category.id && styles.categoryButtonActive
               ]}
-              onPress={() => setSelectedCategory(category.id)}
+              onPress={() => formState.setSelectedCategory(category.id)}
             >
               <Ionicons
-                name={category.icon}
+                name={getCategoryIcon(category.nome)}
                 size={20}
-                color={selectedCategory === category.id ? '#FFF' : '#333'}
+                color={formState.selectedCategory === category.id ? '#FFF' : '#333'}
               />
               <Text style={[
                 styles.categoryButtonText,
-                selectedCategory === category.id && styles.categoryButtonTextActive
+                formState.selectedCategory === category.id && styles.categoryButtonTextActive
               ]}>
-                {category.name}
+                {category.nome}
               </Text>
             </TouchableOpacity>
           ))}
@@ -162,29 +262,29 @@ const TelaAdicionarTransacao = ({ navigation }) => {
       <View style={styles.section}>
         <View style={styles.recurringRow}>
           <Switch
-            value={isRecurring}
-            onValueChange={setIsRecurring}
+            value={formState.isRecurring}
+            onValueChange={formState.setIsRecurring}
             trackColor={{ false: '#D0D0D0', true: '#5BA3FF' }}
             thumbColor="#FFF"
           />
           <Text style={styles.recurringText}>Recorrência</Text>
         </View>
-        {isRecurring && (
+        {formState.isRecurring && (
           <View style={styles.frequencyButtons}>
-            {frequencies.map(freq => (
+            {FREQUENCIES.map(freq => (
               <TouchableOpacity
                 key={freq.id}
                 style={[
                   styles.frequencyButton,
-                  frequency === freq.id && styles.frequencyButtonActive
+                  formState.frequency === freq.id && styles.frequencyButtonActive
                 ]}
-                onPress={() => setFrequency(freq.id)}
+                onPress={() => formState.setFrequency(freq.id)}
               >
                 <Text style={[
                   styles.frequencyButtonText,
-                  frequency === freq.id && styles.frequencyButtonTextActive
+                  formState.frequency === freq.id && styles.frequencyButtonTextActive
                 ]}>
-                  {freq.name}
+                  {freq.nome}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -199,13 +299,13 @@ const TelaAdicionarTransacao = ({ navigation }) => {
           <TouchableOpacity
             style={[
               styles.institutionTypeButton,
-              institutionType === 'vouchers' && styles.institutionTypeButtonActive
+              formState.institutionType === 'vouchers' && styles.institutionTypeButtonActive
             ]}
-            onPress={() => setInstitutionType('vouchers')}
+            onPress={() => formState.setInstitutionType('vouchers')}
           >
             <Text style={[
               styles.institutionTypeButtonText,
-              institutionType === 'vouchers' && styles.institutionTypeButtonTextActive
+              formState.institutionType === 'vouchers' && styles.institutionTypeButtonTextActive
             ]}>
               Vales
             </Text>
@@ -213,13 +313,13 @@ const TelaAdicionarTransacao = ({ navigation }) => {
           <TouchableOpacity
             style={[
               styles.institutionTypeButton,
-              institutionType === 'banks' && styles.institutionTypeButtonActive
+              formState.institutionType === 'banks' && styles.institutionTypeButtonActive
             ]}
-            onPress={() => setInstitutionType('banks')}
+            onPress={() => formState.setInstitutionType('banks')}
           >
             <Text style={[
               styles.institutionTypeButtonText,
-              institutionType === 'banks' && styles.institutionTypeButtonTextActive
+              formState.institutionType === 'banks' && styles.institutionTypeButtonTextActive
             ]}>
               Bancos
             </Text>
@@ -232,12 +332,12 @@ const TelaAdicionarTransacao = ({ navigation }) => {
           onPress={() => setSelectionModalVisible(true)}
         >
           <View style={styles.institutionIcons}>
-            {selectedInstitutions.slice(0, 4).map(institution => (
+            {formState.selectedInstitutions.slice(0, 4).map(institution => (
               <View
                 key={institution.id}
-                style={[styles.institutionIcon, { backgroundColor: institution.color }]}
+                style={[styles.institutionIcon, { backgroundColor: institution.cor }]}
               >
-                <Text style={styles.institutionIconText}>{institution.icon}</Text>
+                <Text style={styles.institutionIconText}>{institution.icone}</Text>
               </View>
             ))}
           </View>
@@ -270,225 +370,5 @@ const TelaAdicionarTransacao = ({ navigation }) => {
     </ScrollView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFF',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 20,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  section: {
-    paddingHorizontal: 20,
-    marginBottom: 25,
-  },
-  label: {
-    fontSize: 16,
-    color: '#333',
-    marginBottom: 10,
-    fontWeight: '500',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderRadius: 10,
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    fontSize: 16,
-    color: '#333',
-  },
-  typeButtons: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  typeButton: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    alignItems: 'center',
-    backgroundColor: '#FFF',
-  },
-  typeButtonIncome: {
-    backgroundColor: '#FFF',
-  },
-  typeButtonActive: {
-    backgroundColor: '#5BA3FF',
-    borderColor: '#5BA3FF',
-  },
-  typeButtonText: {
-    fontSize: 16,
-    color: '#333',
-    fontWeight: '500',
-  },
-  typeButtonTextActive: {
-    color: '#FFF',
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderRadius: 10,
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    marginBottom: 15,
-    gap: 10,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 16,
-    color: '#333',
-  },
-  categoryButtons: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-  },
-  categoryButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    backgroundColor: '#FFF',
-    gap: 8,
-  },
-  categoryButtonActive: {
-    backgroundColor: '#5BA3FF',
-    borderColor: '#5BA3FF',
-  },
-  categoryButtonText: {
-    fontSize: 14,
-    color: '#333',
-    fontWeight: '500',
-  },
-  categoryButtonTextActive: {
-    color: '#FFF',
-  },
-  recurringRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 15,
-    gap: 10,
-  },
-  recurringText: {
-    fontSize: 16,
-    color: '#333',
-    fontWeight: '500',
-  },
-  frequencyButtons: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  frequencyButton: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    alignItems: 'center',
-    backgroundColor: '#FFF',
-  },
-  frequencyButtonActive: {
-    backgroundColor: '#5BA3FF',
-    borderColor: '#5BA3FF',
-  },
-  frequencyButtonText: {
-    fontSize: 14,
-    color: '#333',
-    fontWeight: '500',
-  },
-  frequencyButtonTextActive: {
-    color: '#FFF',
-  },
-  institutionTypeButtons: {
-    flexDirection: 'row',
-    gap: 10,
-    marginBottom: 15,
-  },
-  institutionTypeButton: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    alignItems: 'center',
-    backgroundColor: '#FFF',
-  },
-  institutionTypeButtonActive: {
-    backgroundColor: '#5BA3FF',
-    borderColor: '#5BA3FF',
-  },
-  institutionTypeButtonText: {
-    fontSize: 16,
-    color: '#333',
-    fontWeight: '500',
-  },
-  institutionTypeButtonTextActive: {
-    color: '#FFF',
-  },
-  institutionSelector: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderRadius: 10,
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-  },
-  institutionIcons: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  institutionIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  institutionIconText: {
-    color: '#FFF',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  saveButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#5BA3FF',
-    marginHorizontal: 20,
-    marginVertical: 30,
-    paddingVertical: 16,
-    borderRadius: 15,
-    gap: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  saveButtonText: {
-    color: '#FFF',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-});
 
 export default TelaAdicionarTransacao;

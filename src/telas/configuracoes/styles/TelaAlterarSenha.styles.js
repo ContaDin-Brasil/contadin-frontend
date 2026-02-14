@@ -1,0 +1,66 @@
+import { StyleSheet } from 'react-native';
+
+export const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F5F5F5',
+  },
+  contentContainer: {
+    padding: 20,
+    paddingBottom: 100,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 30,
+    marginTop: 20,
+    gap: 12,
+  },
+  backButton: {
+    padding: 4,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+  },
+  formContainer: {
+    marginTop: 20,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: '500',
+    marginBottom: 8,
+    marginTop: 16,
+    color: '#333',
+  },
+  input: {
+    backgroundColor: '#E0E0E0',
+    padding: 16,
+    borderRadius: 8,
+    fontSize: 16,
+  },
+  requirementsContainer: {
+    marginTop: 24,
+    marginBottom: 32,
+  },
+  requirementText: {
+    fontSize: 14,
+    color: '#333',
+    marginBottom: 8,
+    lineHeight: 20,
+  },
+  saveButton: {
+    backgroundColor: '#6BA7FF',
+    paddingVertical: 16,
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+  },
+  saveButtonText: {
+    color: '#000',
+    fontSize: 18,
+    fontWeight: '600',
+  },
+});
