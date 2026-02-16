@@ -62,9 +62,6 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 12,
   },
-  listContainer: {
-    marginBottom: 12,
-  },
   addButton: {
     backgroundColor: '#4A9EFF',
     flexDirection: 'row',

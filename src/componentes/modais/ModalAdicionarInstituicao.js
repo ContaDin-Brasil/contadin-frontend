@@ -18,10 +18,10 @@ const AddCustomInstitutionModal = ({ visible, onClose, onAdd }) => {
     if (name.trim()) {
       const newInstitution = {
         id: Date.now(),
-        name: name.trim(),
-        type: type.trim(),
-        color: selectedColor,
-        icon: name.charAt(0).toUpperCase(),
+        nome: name.trim(),
+        tipoInstituicao: type === 'Banco' ? 'banco' : 'vale',
+        cor: selectedColor,
+        icone: name.charAt(0).toUpperCase(),
         balance: 'R$ 0,00',
         expenses: 'R$ 0,00',
       };

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   TransactionType, 
   InstitutionType, 
@@ -6,7 +6,7 @@ import {
   Institution,
   AISuggestion 
 } from '../types/transacao.types';
-import { DEFAULT_INSTITUTIONS } from '../constants/constantesTransacao';
+import { instituicaoService, categoriaService } from '../../../api';
 
 /**
  * Obtém a data de hoje no formato DD/MM/YYYY
@@ -29,11 +29,64 @@ export const useFormularioTransacao = () => {
   const [date, setDate] = useState(getTodayDate());
   const [tipo, setTipo] = useState<TransactionType>('RECEITA');
   const [categorySearch, setCategorySearch] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState(3); // ID da categoria Salário
+  const [selectedCategory, setSelectedCategory] = useState(1); // ID da primeira categoria
   const [isRecurring, setIsRecurring] = useState(false);
   const [frequency, setFrequency] = useState<FrequencyType>('MENSAL');
   const [institutionType, setInstitutionType] = useState<InstitutionType>('banks');
-  const [selectedInstitutions, setSelectedInstitutions] = useState<Institution[]>(DEFAULT_INSTITUTIONS);
+  const [selectedInstitutions, setSelectedInstitutions] = useState<Institution[]>([]);
+  
+  // Estados para dados da API
+  const [categorias, setCategorias] = useState<any[]>([]);
+  const [instituicoes, setInstituicoes] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const usuarioId = 1;
+
+  /**
+   * Carrega categorias e instituições ao montar
+   */
+  useEffect(() => {
+    carregarDados();
+  }, []);
+
+  /**
+   * Carrega dados da API
+   */
+  const carregarDados = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const [categoriasData, instituicoesData] = await Promise.all([
+        categoriaService.listarPorUsuario(usuarioId),
+        instituicaoService.listarPorUsuario(usuarioId)
+      ]);
+      
+      setCategorias(categoriasData);
+      
+      // Mapeia instituições para o formato esperado
+      const instituicoesFormatadas = instituicoesData.map((inst: any) => ({
+        id: inst.id,
+        nome: inst.nome,
+        cor: inst.cor,
+        icone: inst.icone
+      }));
+      
+      setInstituicoes(instituicoesFormatadas);
+      setSelectedInstitutions(instituicoesFormatadas);
+      
+      // Define primeira categoria como padrão
+      if (categoriasData.length > 0) {
+        setSelectedCategory(categoriasData[0].id);
+      }
+    } catch (err: any) {
+      console.error('Erro ao carregar dados:', err);
+      setError(err.message || 'Erro ao carregar dados');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   /**
    * Formata a data enquanto o usuário digita (DD/MM/YYYY)
@@ -109,11 +162,13 @@ export const useFormularioTransacao = () => {
     setDate(getTodayDate());
     setTipo('RECEITA');
     setCategorySearch('');
-    setSelectedCategory(3); // ID da categoria Salário
+    if (categorias.length > 0) {
+      setSelectedCategory(categorias[0].id);
+    }
     setIsRecurring(false);
     setFrequency('MENSAL');
     setInstitutionType('banks');
-    setSelectedInstitutions(DEFAULT_INSTITUTIONS);
+    setSelectedInstitutions(instituicoes);
   };
 
   return {
@@ -128,6 +183,10 @@ export const useFormularioTransacao = () => {
     frequency,
     institutionType,
     selectedInstitutions,
+    categorias,
+    instituicoes,
+    loading,
+    error,
     
     // Modificadores
     setDescricao,
@@ -146,5 +205,6 @@ export const useFormularioTransacao = () => {
     applyAISuggestion,
     getFormData,
     resetForm,
+    carregarDados,
   };
 };

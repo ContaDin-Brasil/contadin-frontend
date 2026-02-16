@@ -1,28 +1,51 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { MOCK_TRANSACTIONS, CATEGORIES, DEFAULT_INSTITUTIONS } from './constants/constantesTransacao';
+import { useGerenciarTransacoes } from './hooks/useGerenciarTransacoes';
 import { 
   formatCurrency, 
   formatDateLabel, 
   groupTransactionsByDate,
-  getCategoryById,
-  getInstitutionById,
   getCategoryIcon
 } from './utils/utilitariosTransacao';
 import { styles } from './styles/TelaTransacoes.styles';
 
 const TelaTransacoes = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [periodFilter, setPeriodFilter] = useState('Período Completo');
-  const [sortFilter, setSortFilter] = useState('Mais recentes');
-  const [transactions] = useState(MOCK_TRANSACTIONS);
+  const gerenciador = useGerenciarTransacoes();
 
-  const groupedTransactions = groupTransactionsByDate(transactions);
+  // Mostra loading
+  if (gerenciador.loading) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color="#8A05BE" />
+        <Text style={{ marginTop: 16, color: '#666' }}>Carregando transações...</Text>
+      </View>
+    );
+  }
+
+  // Mostra erro
+  if (gerenciador.error) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center', padding: 20 }]}>
+        <Ionicons name="alert-circle-outline" size={64} color="#E31C23" />
+        <Text style={{ marginTop: 16, color: '#E31C23', textAlign: 'center' }}>{gerenciador.error}</Text>
+        <TouchableOpacity 
+          style={[styles.filterButton, { marginTop: 20, paddingHorizontal: 20 }]}
+          onPress={gerenciador.carregarDados}
+        >
+          <Ionicons name="refresh" size={20} color="#666" />
+          <Text style={styles.filterButtonText}>Tentar Novamente</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  const groupedTransactions = groupTransactionsByDate(gerenciador.transacoes);
 
   const renderTransactionItem = (item) => {
-    const category = getCategoryById(CATEGORIES, item.fk_categoria);
-    const institution = getInstitutionById(DEFAULT_INSTITUTIONS, item.fk_instituicao);
+    const category = gerenciador.buscarCategoria(item.fk_categoria);
+    const institution = gerenciador.buscarInstituicao(item.fk_instituicao);
     const categoryName = category?.nome || 'Sem categoria';
     const institutionName = institution?.nome || 'Sem instituição';
     
@@ -60,7 +83,7 @@ const TelaTransacoes = ({ navigation }) => {
       {/* Filtro de Período */}
       <TouchableOpacity style={styles.periodFilter}>
         <Ionicons name="calendar-outline" size={20} color="#666" />
-        <Text style={styles.periodFilterText}>{periodFilter}</Text>
+        <Text style={styles.periodFilterText}>{gerenciador.periodo}</Text>
         <Ionicons name="chevron-down" size={20} color="#666" />
       </TouchableOpacity>
 
@@ -79,7 +102,7 @@ const TelaTransacoes = ({ navigation }) => {
       {/* Filtros */}
       <View style={styles.filtersRow}>
         <TouchableOpacity style={styles.sortFilter}>
-          <Text style={styles.sortFilterText}>{sortFilter}</Text>
+          <Text style={styles.sortFilterText}>{gerenciador.ordenacao}</Text>
           <Ionicons name="chevron-down" size={16} color="#666" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.filterButton}>

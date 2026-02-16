@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import CustomModal from '../../componentes/modais/ModalBase';
 import InstitutionSelectionModal from '../../componentes/modais/ModalSelecaoInstituicao';
@@ -15,6 +15,24 @@ const EditVouchersScreen = ({ navigation }) => {
       <Text style={styles.iconText}>{text}</Text>
     </View>
   );
+
+  // Mostra loading
+  if (editor.loading) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <Ionicons name="arrow-back" size={28} color="#000" />
+          </TouchableOpacity>
+          <Text style={styles.title}>Editar Vales</Text>
+        </View>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color="#8A05BE" />
+          <Text style={{ marginTop: 16, color: '#666' }}>Carregando vales...</Text>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
@@ -78,6 +96,7 @@ const EditVouchersScreen = ({ navigation }) => {
         onClose={() => editor.setSelectionModalVisible(false)}
         onSelectInstitution={editor.handleSelectInstitution}
         onAddCustom={editor.handleAddCustomInstitution}
+        tipo="vale"
       />
 
       <AddCustomInstitutionModal
@@ -94,7 +113,13 @@ const EditVouchersScreen = ({ navigation }) => {
         showButtons={false}
       >
         <View style={styles.modalContent}>
-          <TouchableOpacity style={styles.deleteInstitutionButton}>
+          <TouchableOpacity 
+            style={styles.deleteInstitutionButton}
+            onPress={() => {
+              editor.handleDelete(editor.selectedVoucher);
+              editor.setEditModalVisible(false);
+            }}
+          >
             <Ionicons name="trash-outline" size={20} color="#FFF" />
             <Text style={styles.deleteInstitutionText}>Excluir instituição</Text>
           </TouchableOpacity>
