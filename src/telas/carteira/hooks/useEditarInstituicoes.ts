@@ -58,7 +58,7 @@ export const useEditarBancos = () => {
   const handleDelete = async (id: number) => {
     try {
       await instituicaoService.deletar(id);
-      setBanks(banks.filter(bank => bank.id !== id));
+      await carregarBancos(); // Recarrega a lista após deletar
     } catch (err) {
       console.error('Erro ao deletar banco:', err);
       setError('Erro ao deletar banco');
@@ -78,7 +78,7 @@ export const useEditarBancos = () => {
    */
   const handleSelectInstitution = async (institution: Instituicao) => {
     try {
-      const novaInstituicao = await instituicaoService.criar({
+      await instituicaoService.criar({
         nome: institution.nome,
         icone: institution.icone,
         cor: institution.cor,
@@ -86,16 +86,7 @@ export const useEditarBancos = () => {
         fk_usuario: usuarioId,
       });
       
-      const newBank: Banco = {
-        id: novaInstituicao.id,
-        nome: novaInstituicao.nome,
-        balance: 'R$ 0,00',
-        expenses: 'R$ 0,00',
-        cor: novaInstituicao.cor,
-        icone: novaInstituicao.icone,
-        tipoInstituicao: 'banco',
-      };
-      setBanks([...banks, newBank]);
+      await carregarBancos(); // Recarrega a lista após adicionar
     } catch (err) {
       console.error('Erro ao adicionar banco:', err);
       setError('Erro ao adicionar banco');
@@ -241,7 +232,7 @@ export const useEditarVales = () => {
   const handleDelete = async (voucher: Vale) => {
     try {
       await instituicaoService.deletar(voucher.id);
-      setVouchers(vouchers.filter(v => v.id !== voucher.id));
+      await carregarVales(); // Recarrega a lista após deletar
     } catch (err) {
       console.error('Erro ao deletar vale:', err);
       setError('Erro ao deletar vale');
@@ -253,7 +244,7 @@ export const useEditarVales = () => {
    */
   const handleSelectInstitution = async (institution: Instituicao) => {
     try {
-      const novaInstituicao = await instituicaoService.criar({
+      await instituicaoService.criar({
         nome: institution.nome,
         icone: institution.icone,
         cor: institution.cor,
@@ -261,15 +252,7 @@ export const useEditarVales = () => {
         fk_usuario: usuarioId,
       });
       
-      const newVoucher: Vale = {
-        id: novaInstituicao.id,
-        nome: novaInstituicao.nome,
-        balance: 'R$ 0,00',
-        cor: novaInstituicao.cor,
-        icone: novaInstituicao.icone,
-        tipoInstituicao: 'vale',
-      };
-      setVouchers([...vouchers, newVoucher]);
+      await carregarVales(); // Recarrega a lista após adicionar
     } catch (err) {
       console.error('Erro ao adicionar vale:', err);
       setError('Erro ao adicionar vale');

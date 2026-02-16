@@ -126,6 +126,14 @@
       "tipoInstituicao": "banco",
       "fk_usuario": 1,
       "id": 12
+    },
+    {
+      "nome": "Sodexo",
+      "icone": "Sd",
+      "cor": "#E2231A",
+      "tipoInstituicao": "vale",
+      "fk_usuario": 1,
+      "id": 13
     }
   ],
   "transacao": [

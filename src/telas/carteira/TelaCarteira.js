@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import { InstitutionCard, AddCard } from '../../componentes/cartoes/CartaoInstituicao';
 import InstitutionSelectionModal from '../../componentes/modais/ModalSelecaoInstituicao';
 import AddCustomInstitutionModal from '../../componentes/modais/ModalAdicionarInstituicao';
@@ -9,6 +10,13 @@ import { styles } from './styles/TelaCarteira.styles';
 
 const WalletScreen = ({ navigation }) => {
   const carteira = useGerenciarCarteira();
+
+  // Recarrega dados quando a tela recebe foco
+  useFocusEffect(
+    React.useCallback(() => {
+      carteira.carregarInstituicoes();
+    }, [])
+  );
 
   const renderIcon = (text, color) => (
     <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#FFF' }}>{text}</Text>

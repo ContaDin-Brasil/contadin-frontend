@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity, TextInput, ActivityIndicator, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import CustomModal from '../../componentes/modais/ModalBase';
 import InstitutionSelectionModal from '../../componentes/modais/ModalSelecaoInstituicao';
 import AddCustomInstitutionModal from '../../componentes/modais/ModalAdicionarInstituicao';
@@ -10,6 +11,13 @@ import { styles } from './styles/TelaEditarBancos.styles';
 
 const EditBanksScreen = ({ navigation }) => {
   const editor = useEditarBancos();
+
+  // Recarrega bancos quando a tela recebe foco
+  useFocusEffect(
+    React.useCallback(() => {
+      editor.carregarBancos();
+    }, [])
+  );
 
   const renderIcon = (text, color, institutionName) => {
     const logo = getLogoByName(institutionName);

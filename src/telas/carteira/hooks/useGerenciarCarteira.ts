@@ -98,7 +98,7 @@ export const useGerenciarCarteira = () => {
         return;
       }
       
-      const novaInstituicao = await instituicaoService.criar({
+      await instituicaoService.criar({
         nome: institution.nome,
         icone: institution.icone,
         cor: institution.cor,
@@ -106,16 +106,7 @@ export const useGerenciarCarteira = () => {
         fk_usuario: usuarioId,
       });
       
-      const newBank: Banco = {
-        id: novaInstituicao.id,
-        nome: novaInstituicao.nome,
-        balance: 'R$ 0,00',
-        expenses: 'R$ 0,00',
-        cor: novaInstituicao.cor,
-        icone: novaInstituicao.icone,
-        tipoInstituicao: 'banco',
-      };
-      setBanks([...banks, newBank]);
+      await carregarInstituicoes(); // Recarrega a lista após adicionar
     } catch (err) {
       console.error('Erro ao adicionar banco:', err);
       setError('Erro ao adicionar banco');
@@ -182,7 +173,7 @@ export const useGerenciarCarteira = () => {
         return;
       }
       
-      const novaInstituicao = await instituicaoService.criar({
+      await instituicaoService.criar({
         nome: institution.nome,
         icone: institution.icone,
         cor: institution.cor,
@@ -190,15 +181,7 @@ export const useGerenciarCarteira = () => {
         fk_usuario: usuarioId,
       });
       
-      const newVoucher: Vale = {
-        id: novaInstituicao.id,
-        nome: novaInstituicao.nome,
-        balance: 'R$ 0,00',
-        cor: novaInstituicao.cor,
-        icone: novaInstituicao.icone,
-        tipoInstituicao: 'vale',
-      };
-      setVouchers([...vouchers, newVoucher]);
+      await carregarInstituicoes(); // Recarrega a lista após adicionar
     } catch (err) {
       console.error('Erro ao adicionar vale:', err);
       setError('Erro ao adicionar vale');
