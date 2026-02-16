@@ -75,6 +75,7 @@ export const styles = StyleSheet.create({
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
+    overflow: 'hidden',
   },
   iconText: {
     fontSize: 14,

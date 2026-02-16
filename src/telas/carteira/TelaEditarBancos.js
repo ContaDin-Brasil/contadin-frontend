@@ -1,20 +1,33 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, TextInput, ActivityIndicator, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import CustomModal from '../../componentes/modais/ModalBase';
 import InstitutionSelectionModal from '../../componentes/modais/ModalSelecaoInstituicao';
 import AddCustomInstitutionModal from '../../componentes/modais/ModalAdicionarInstituicao';
 import { useEditarBancos } from './hooks/useEditarInstituicoes';
+import { getLogoByName } from '../../componentes/modais/logosInstituicoes';
 import { styles } from './styles/TelaEditarBancos.styles';
 
 const EditBanksScreen = ({ navigation }) => {
   const editor = useEditarBancos();
 
-  const renderIcon = (text, color) => (
-    <View style={[styles.iconContainer, { backgroundColor: color }]}>
-      <Text style={styles.iconText}>{text}</Text>
-    </View>
-  );
+  const renderIcon = (text, color, institutionName) => {
+    const logo = getLogoByName(institutionName);
+    
+    return (
+      <View style={[styles.iconContainer, { backgroundColor: logo ? '#FFF' : color }]}>
+        {logo ? (
+          <Image 
+            source={logo} 
+            style={{ width: 36, height: 36 }}
+            resizeMode="contain"
+          />
+        ) : (
+          <Text style={styles.iconText}>{text}</Text>
+        )}
+      </View>
+    );
+  };
 
   // Mostra loading
   if (editor.loading) {
@@ -61,7 +74,7 @@ const EditBanksScreen = ({ navigation }) => {
               activeOpacity={0.7}
             >
               <View style={styles.bankInfo}>
-                {renderIcon(bank.icone, bank.cor)}
+                {renderIcon(bank.icone, bank.cor, bank.nome)}
                 <View style={styles.bankDetails}>
                   <Text style={styles.bankName}>{bank.nome}</Text>
                   <Text style={styles.bankBalance}>Saldo Atual: {bank.balance}</Text>
@@ -97,6 +110,7 @@ const EditBanksScreen = ({ navigation }) => {
         onSelectInstitution={editor.handleSelectInstitution}
         onAddCustom={editor.handleAddCustomInstitution}
         tipo="banco"
+        existingInstitutions={editor.banks}
       />
 
       <AddCustomInstitutionModal

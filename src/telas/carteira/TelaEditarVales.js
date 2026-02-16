@@ -1,20 +1,33 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, TextInput, ActivityIndicator, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import CustomModal from '../../componentes/modais/ModalBase';
 import InstitutionSelectionModal from '../../componentes/modais/ModalSelecaoInstituicao';
 import AddCustomInstitutionModal from '../../componentes/modais/ModalAdicionarInstituicao';
 import { useEditarVales } from './hooks/useEditarInstituicoes';
+import { getLogoByName } from '../../componentes/modais/logosInstituicoes';
 import { styles } from './styles/TelaEditarVales.styles';
 
 const EditVouchersScreen = ({ navigation }) => {
   const editor = useEditarVales();
 
-  const renderIcon = (text, color) => (
-    <View style={[styles.iconContainer, { backgroundColor: color }]}>
-      <Text style={styles.iconText}>{text}</Text>
-    </View>
-  );
+  const renderIcon = (text, color, institutionName) => {
+    const logo = getLogoByName(institutionName);
+    
+    return (
+      <View style={[styles.iconContainer, { backgroundColor: logo ? '#FFF' : color }]}>
+        {logo ? (
+          <Image 
+            source={logo} 
+            style={{ width: 36, height: 36 }}
+            resizeMode="contain"
+          />
+        ) : (
+          <Text style={styles.iconText}>{text}</Text>
+        )}
+      </View>
+    );
+  };
 
   // Mostra loading
   if (editor.loading) {
@@ -61,7 +74,7 @@ const EditVouchersScreen = ({ navigation }) => {
               activeOpacity={0.7}
             >
               <View style={styles.voucherInfo}>
-                {renderIcon(voucher.icone, voucher.cor)}
+                {renderIcon(voucher.icone, voucher.cor, voucher.nome)}
                 <View style={styles.voucherDetails}>
                   <Text style={styles.voucherName}>{voucher.nome}</Text>
                   <Text style={styles.voucherBalance}>Saldo Atual: {voucher.balance}</Text>
@@ -97,6 +110,7 @@ const EditVouchersScreen = ({ navigation }) => {
         onSelectInstitution={editor.handleSelectInstitution}
         onAddCustom={editor.handleAddCustomInstitution}
         tipo="vale"
+        existingInstitutions={editor.vouchers}
       />
 
       <AddCustomInstitutionModal

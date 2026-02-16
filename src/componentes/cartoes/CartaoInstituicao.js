@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { getLogoByName } from '../modais/logosInstituicoes';
 
 const InstitutionCard = ({
   name,
@@ -9,6 +10,8 @@ const InstitutionCard = ({
   color = '#999',
   onPress,
 }) => {
+  const logo = getLogoByName(name);
+  
   return (
     <TouchableOpacity
       style={[styles.gridCard, { borderColor: color, borderWidth: 3 }]}
@@ -17,8 +20,16 @@ const InstitutionCard = ({
     >
       <View style={styles.gridCardContent}>
         <View style={styles.gridCardRow}>
-          <View style={[styles.gridIconContainer, { backgroundColor: color }]}>
-            {icon}
+          <View style={[styles.gridIconContainer, { backgroundColor: logo ? '#FFF' : color }]}>
+            {logo ? (
+              <Image 
+                source={logo} 
+                style={styles.logoImage}
+                resizeMode="contain"
+              />
+            ) : (
+              icon
+            )}
           </View>
           <Text style={styles.gridName}>{name}</Text>
         </View>
@@ -67,12 +78,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 12,
+    overflow: 'hidden',
+  },
+  logoImage: {
+    width: 36,
+    height: 36,
   },
   gridName: {
     fontSize: 16,
     fontWeight: '700',
     color: '#000',
     marginBottom: 4,
+    flexWrap: 'wrap',
+    flex: 1,
   },
   gridBalance: {
     fontSize: 13,

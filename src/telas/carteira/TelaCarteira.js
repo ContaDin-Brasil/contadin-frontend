@@ -131,6 +131,7 @@ const WalletScreen = ({ navigation }) => {
         onSelectInstitution={carteira.handleSelectBank}
         onAddCustom={carteira.handleAddCustomBank}
         tipo="banco"
+        existingInstitutions={carteira.banks}
       />
 
       <AddCustomInstitutionModal
@@ -145,6 +146,7 @@ const WalletScreen = ({ navigation }) => {
         onSelectInstitution={carteira.handleSelectVoucher}
         onAddCustom={carteira.handleAddCustomVoucher}
         tipo="vale"
+        existingInstitutions={carteira.vouchers}
       />
 
       <AddCustomInstitutionModal

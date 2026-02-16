@@ -56,39 +56,7 @@
   ],
   "instituicao": [
     {
-      "id": 1,
-      "nome": "Banco do Brasil",
-      "icone": "BB",
-      "cor": "#FFDD00",
-      "tipoInstituicao": "banco",
-      "fk_usuario": 1
-    },
-    {
-      "id": 2,
-      "nome": "Nubank",
-      "icone": "N",
-      "cor": "#8A05BE",
-      "tipoInstituicao": "banco",
-      "fk_usuario": 1
-    },
-    {
-      "id": 3,
-      "nome": "Inter",
-      "icone": "I",
-      "cor": "#FF7A00",
-      "tipoInstituicao": "banco",
-      "fk_usuario": 1
-    },
-    {
       "id": 4,
-      "nome": "Vale Refeição",
-      "icone": "V",
-      "cor": "#4CAF50",
-      "tipoInstituicao": "vale",
-      "fk_usuario": 1
-    },
-    {
-      "id": 5,
       "nome": "Carteira",
       "icone": "C",
       "cor": "#795548",
@@ -101,12 +69,19 @@
       "cor": "#21C25E",
       "tipoInstituicao": "banco",
       "fk_usuario": 1,
-      "id": 6
+      "id": 5
     },
     {
       "nome": "Bradesco",
       "icone": "B",
       "cor": "#CC092F",
+      "fk_usuario": 1,
+      "id": 6
+    },
+    {
+      "nome": "Next",
+      "icone": "N",
+      "cor": "#00AB63",
       "fk_usuario": 1,
       "id": 7
     },
@@ -118,11 +93,39 @@
       "id": 8
     },
     {
-      "nome": "Next",
-      "icone": "N",
-      "cor": "#00AB63",
+      "nome": "Alelo",
+      "icone": "VA",
+      "cor": "#FF9800",
+      "tipoInstituicao": "vale",
+      "logoUrl": "https://logodownload.org/wp-content/uploads/2021/04/vr-beneficios-logo-1.png",
       "fk_usuario": 1,
       "id": 9
+    },
+    {
+      "nome": "Ticket",
+      "icone": "Tk",
+      "cor": "#FF6600",
+      "tipoInstituicao": "vale",
+      "logoUrl": "https://logodownload.org/wp-content/uploads/2020/04/ticket-logo.png",
+      "fk_usuario": 1,
+      "id": 10
+    },
+    {
+      "nome": "Flash",
+      "icone": "Fl",
+      "cor": "#00A859",
+      "tipoInstituicao": "vale",
+      "logoUrl": "https://logodownload.org/wp-content/uploads/2021/08/flash-beneficios-logo.png",
+      "fk_usuario": 1,
+      "id": 11
+    },
+    {
+      "nome": "Bradesco",
+      "icone": "B",
+      "cor": "#CC092F",
+      "tipoInstituicao": "banco",
+      "fk_usuario": 1,
+      "id": 12
     }
   ],
   "transacao": [

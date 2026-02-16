@@ -102,6 +102,7 @@ export const useGerenciarCarteira = () => {
         nome: institution.nome,
         icone: institution.icone,
         cor: institution.cor,
+        tipoInstituicao: 'banco',
         fk_usuario: usuarioId,
       });
       
