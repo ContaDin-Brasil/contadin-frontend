@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity, Switch, Animated } from 'react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, Switch, Animated, ActivityIndicator, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import ModalSelecaoInstituicao from '../../componentes/modais/ModalSelecaoInstituicao';
 import ModalAdicionarInstituicao from '../../componentes/modais/ModalAdicionarInstituicao';
 import { useFormularioTransacao } from './hooks/useFormularioTransacao';
 import { useProcessamentoIA } from './hooks/useProcessamentoIA';
-import { CATEGORIES, FREQUENCIES } from './constants/constantesTransacao';
+import { transacaoService } from '../../api';
+import { FREQUENCIES } from './constants/constantesTransacao';
 import { getCategoryIcon } from './utils/utilitariosTransacao';
 import { styles } from './styles/TelaAdicionarTransacao.styles';
 
 const TelaAdicionarTransacao = ({ navigation }) => {
   const [selectionModalVisible, setSelectionModalVisible] = useState(false);
   const [customModalVisible, setCustomModalVisible] = useState(false);
+  const [salvando, setSalvando] = useState(false);
 
   // Hooks customizados
   const formState = useFormularioTransacao();
@@ -34,10 +36,47 @@ const TelaAdicionarTransacao = ({ navigation }) => {
     }
   };
 
-  const handleSaveTransaction = () => {
-    const data = formState.getFormData();
-    console.log('Transação salva:', data);
-    navigation.goBack();
+  const handleSaveTransaction = async () => {
+    setSalvando(true);
+    
+    try {
+      const data = formState.getFormData();
+      
+      // Valida dados básicos
+      if (!data.descricao || !data.valor) {
+        Alert.alert('Erro', 'Preencha descrição e valor');
+        setSalvando(false);
+        return;
+      }
+
+      // Converte data DD/MM/YYYY para ISO
+      const [day, month, year] = data.date.split('/');
+      const dataISO = new Date(`${year}-${month}-${day}`).toISOString();
+
+      // Prepara dados para envio
+      const transacao = {
+        descricao: data.descricao,
+        valor: parseFloat(data.valor),
+        tipo: data.tipo,
+        data_transacao: dataISO,
+        parcelado: false, // TODO: Implementar lógica de parcelamento
+        recorrencia: data.isRecurring ? data.frequency : null,
+        fim_recorrencia: null,
+        fk_instituicao: data.institutions[0]?.id || 1, // Usa primeira instituição selecionada
+        fk_categoria: data.selectedCategory,
+      };
+
+      await transacaoService.criar(transacao);
+      
+      Alert.alert('Sucesso', 'Transação criada com sucesso!', [
+        { text: 'OK', onPress: () => navigation.goBack() }
+      ]);
+    } catch (error) {
+      console.error('Erro ao salvar transação:', error);
+      Alert.alert('Erro', 'Não foi possível salvar a transação');
+    } finally {
+      setSalvando(false);
+    }
   };
 
   return (
@@ -233,7 +272,7 @@ const TelaAdicionarTransacao = ({ navigation }) => {
           />
         </View>
         <View style={styles.categoryButtons}>
-          {CATEGORIES.map(category => (
+          {formState.categorias.map(category => (
             <TouchableOpacity
               key={category.id}
               style={[
@@ -346,10 +385,31 @@ const TelaAdicionarTransacao = ({ navigation }) => {
       </View>
 
       {/* Botão Salvar */}
-      <TouchableOpacity style={styles.saveButton} onPress={handleSaveTransaction}>
-        <Ionicons name="save-outline" size={24} color="#FFF" />
-        <Text style={styles.saveButtonText}>Salvar Transação</Text>
+      <TouchableOpacity 
+        style={[styles.saveButton, salvando && { opacity: 0.6 }]} 
+        onPress={handleSaveTransaction}
+        disabled={salvando || formState.loading}
+      >
+        {salvando ? (
+          <>
+            <ActivityIndicator size="small" color="#FFF" />
+            <Text style={[styles.saveButtonText, { marginLeft: 8 }]}>Salvando...</Text>
+          </>
+        ) : (
+          <>
+            <Ionicons name="save-outline" size={24} color="#FFF" />
+            <Text style={styles.saveButtonText}>Salvar Transação</Text>
+          </>
+        )}
       </TouchableOpacity>
+
+      {/* Indicador de carregamento de dados */}
+      {formState.loading && (
+        <View style={{ padding: 20, alignItems: 'center' }}>
+          <ActivityIndicator size="small" color="#8A05BE" />
+          <Text style={{ marginTop: 8, color: '#666' }}>Carregando dados...</Text>
+        </View>
+      )}
 
       {/* Modais */}
       <ModalSelecaoInstituicao

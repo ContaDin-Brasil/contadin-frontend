@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import { InstitutionCard, AddCard } from '../../componentes/cartoes/CartaoInstituicao';
 import InstitutionSelectionModal from '../../componentes/modais/ModalSelecaoInstituicao';
 import AddCustomInstitutionModal from '../../componentes/modais/ModalAdicionarInstituicao';
@@ -10,9 +11,43 @@ import { styles } from './styles/TelaCarteira.styles';
 const WalletScreen = ({ navigation }) => {
   const carteira = useGerenciarCarteira();
 
+  // Recarrega dados quando a tela recebe foco
+  useFocusEffect(
+    React.useCallback(() => {
+      carteira.carregarInstituicoes();
+    }, [])
+  );
+
   const renderIcon = (text, color) => (
     <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#FFF' }}>{text}</Text>
   );
+
+  // Mostra loading enquanto carrega dados
+  if (carteira.loading) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color="#8A05BE" />
+        <Text style={{ marginTop: 16, color: '#666' }}>Carregando instituições...</Text>
+      </View>
+    );
+  }
+
+  // Mostra erro se houver
+  if (carteira.error) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center', padding: 20 }]}>
+        <Ionicons name="alert-circle-outline" size={64} color="#E31C23" />
+        <Text style={{ marginTop: 16, color: '#E31C23', textAlign: 'center' }}>{carteira.error}</Text>
+        <TouchableOpacity 
+          style={[styles.addButton, { marginTop: 20 }]}
+          onPress={carteira.carregarInstituicoes}
+        >
+          <Ionicons name="refresh" size={20} color="#FFF" />
+          <Text style={styles.addButtonText}>Tentar Novamente</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
@@ -35,7 +70,7 @@ const WalletScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        <View style={carteira.viewMode === 'grid' ? styles.gridContainer : styles.listContainer}>
+        <View style={styles.gridContainer}>
           {carteira.banks.map((bank) => (
             <InstitutionCard
               key={bank.id}
@@ -43,11 +78,10 @@ const WalletScreen = ({ navigation }) => {
               balance={bank.balance}
               color={bank.cor}
               icon={renderIcon(bank.icone, bank.cor)}
-              variant={carteira.viewMode}
               onPress={() => {}}
             />
           ))}
-          {carteira.viewMode === 'grid' && <AddCard onPress={() => carteira.setBankSelectionModalVisible(true)} variant="grid" />}
+          <AddCard onPress={() => carteira.setBankSelectionModalVisible(true)} />
         </View>
 
         <TouchableOpacity 
@@ -76,7 +110,7 @@ const WalletScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        <View style={carteira.viewMode === 'grid' ? styles.gridContainer : styles.listContainer}>
+        <View style={styles.gridContainer}>
           {carteira.vouchers.map((voucher) => (
             <InstitutionCard
               key={voucher.id}
@@ -84,11 +118,10 @@ const WalletScreen = ({ navigation }) => {
               balance={voucher.balance}
               color={voucher.cor}
               icon={renderIcon(voucher.icone, voucher.cor)}
-              variant={carteira.viewMode}
               onPress={() => {}}
             />
           ))}
-          {carteira.viewMode === 'grid' && <AddCard onPress={() => carteira.setVoucherSelectionModalVisible(true)} variant="grid" />}
+          <AddCard onPress={() => carteira.setVoucherSelectionModalVisible(true)} />
         </View>
 
         <TouchableOpacity 
@@ -105,6 +138,8 @@ const WalletScreen = ({ navigation }) => {
         onClose={() => carteira.setBankSelectionModalVisible(false)}
         onSelectInstitution={carteira.handleSelectBank}
         onAddCustom={carteira.handleAddCustomBank}
+        tipo="banco"
+        existingInstitutions={carteira.banks}
       />
 
       <AddCustomInstitutionModal
@@ -118,6 +153,8 @@ const WalletScreen = ({ navigation }) => {
         onClose={() => carteira.setVoucherSelectionModalVisible(false)}
         onSelectInstitution={carteira.handleSelectVoucher}
         onAddCustom={carteira.handleAddCustomVoucher}
+        tipo="vale"
+        existingInstitutions={carteira.vouchers}
       />
 
       <AddCustomInstitutionModal

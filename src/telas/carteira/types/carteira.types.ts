@@ -1,12 +1,10 @@
-// Tipos de visualização (apenas UI - não existe no DB)
-export type ViewMode = 'grid' | 'list';
-
 // Interface base para instituições financeiras (alinhado com DB: instituicao)
 export interface Instituicao {
   id: number;
   nome: string;
   icone: string;
   cor: string;
+  tipoInstituicao: 'banco' | 'vale';
   balance: string; // Calculado, não armazenado no DB
   fk_usuario?: number;
 }
@@ -23,7 +21,6 @@ export interface Vale extends Instituicao {}
 export interface CarteiraState {
   banks: Banco[];
   vouchers: Vale[];
-  viewMode: ViewMode;
   bankSelectionModalVisible: boolean;
   bankCustomModalVisible: boolean;
   voucherSelectionModalVisible: boolean;

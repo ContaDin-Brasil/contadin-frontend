@@ -34,7 +34,7 @@ export const formatDateLabel = (dateString: string): string => {
 export const groupTransactionsByDate = (transactions: Transaction[]): Record<string, Transaction[]> => {
   const grouped: Record<string, Transaction[]> = {};
   transactions.forEach(transaction => {
-    const dateKey = transaction.data_transacao.toLocaleDateString('pt-BR');
+    const dateKey = new Date(transaction.data_transacao).toLocaleDateString('pt-BR');
     if (!grouped[dateKey]) {
       grouped[dateKey] = [];
     }

@@ -1,0 +1,227 @@
+{
+  "usuario": [
+    {
+      "id": 1,
+      "nome": "João",
+      "sobrenome": "Silva",
+      "email": "joao.silva@email.com",
+      "senha": "$2a$10$hash_exemplo_senha",
+      "tel": "(11) 98765-4321",
+      "ativo": true
+    },
+    {
+      "id": 2,
+      "nome": "Maria",
+      "sobrenome": "Santos",
+      "email": "maria.santos@email.com",
+      "senha": "$2a$10$hash_exemplo_senha",
+      "tel": "(21) 99876-5432",
+      "ativo": true
+    }
+  ],
+  "token_recuperar_senha": [
+    {
+      "id": 1,
+      "value": "abc123def456",
+      "data_expiracao": "2026-02-15T23:59:59",
+      "fk_usuario": 1
+    }
+  ],
+  "categoria": [
+    {
+      "id": 1,
+      "nome": "Alimentação",
+      "fk_usuario": 1
+    },
+    {
+      "id": 2,
+      "nome": "Transporte",
+      "fk_usuario": 1
+    },
+    {
+      "id": 3,
+      "nome": "Moradia",
+      "fk_usuario": 1
+    },
+    {
+      "id": 4,
+      "nome": "Salário",
+      "fk_usuario": 1
+    },
+    {
+      "id": 5,
+      "nome": "Lazer",
+      "fk_usuario": 2
+    }
+  ],
+  "instituicao": [
+    {
+      "id": 4,
+      "nome": "Carteira",
+      "icone": "C",
+      "cor": "#795548",
+      "tipoInstituicao": "banco",
+      "fk_usuario": 2
+    },
+    {
+      "nome": "PicPay",
+      "icone": "P",
+      "cor": "#21C25E",
+      "tipoInstituicao": "banco",
+      "fk_usuario": 1,
+      "id": 5
+    },
+    {
+      "nome": "Bradesco",
+      "icone": "B",
+      "cor": "#CC092F",
+      "fk_usuario": 1,
+      "id": 6
+    },
+    {
+      "nome": "Next",
+      "icone": "N",
+      "cor": "#00AB63",
+      "fk_usuario": 1,
+      "id": 7
+    },
+    {
+      "nome": "Next",
+      "icone": "N",
+      "cor": "#00AB63",
+      "fk_usuario": 1,
+      "id": 8
+    },
+    {
+      "nome": "Alelo",
+      "icone": "VA",
+      "cor": "#FF9800",
+      "tipoInstituicao": "vale",
+      "logoUrl": "https://logodownload.org/wp-content/uploads/2021/04/vr-beneficios-logo-1.png",
+      "fk_usuario": 1,
+      "id": 9
+    },
+    {
+      "nome": "Ticket",
+      "icone": "Tk",
+      "cor": "#FF6600",
+      "tipoInstituicao": "vale",
+      "logoUrl": "https://logodownload.org/wp-content/uploads/2020/04/ticket-logo.png",
+      "fk_usuario": 1,
+      "id": 10
+    },
+    {
+      "nome": "Flash",
+      "icone": "Fl",
+      "cor": "#00A859",
+      "tipoInstituicao": "vale",
+      "logoUrl": "https://logodownload.org/wp-content/uploads/2021/08/flash-beneficios-logo.png",
+      "fk_usuario": 1,
+      "id": 11
+    },
+    {
+      "nome": "Bradesco",
+      "icone": "B",
+      "cor": "#CC092F",
+      "tipoInstituicao": "banco",
+      "fk_usuario": 1,
+      "id": 12
+    },
+    {
+      "nome": "Sodexo",
+      "icone": "Sd",
+      "cor": "#E2231A",
+      "tipoInstituicao": "vale",
+      "fk_usuario": 1,
+      "id": 13
+    },
+    {
+      "nome": "Mercado Pago",
+      "icone": "MP",
+      "cor": "#009EE3",
+      "tipoInstituicao": "banco",
+      "fk_usuario": 1,
+      "id": 14
+    }
+  ],
+  "transacao": [
+    {
+      "id": 1,
+      "valor": 150.5,
+      "tipo": "GASTO",
+      "descricao": "Supermercado",
+      "data_transacao": "2026-02-10T10:30:00",
+      "parcelado": false,
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 2,
+      "fk_categoria": 1
+    },
+    {
+      "id": 2,
+      "valor": 80,
+      "tipo": "GASTO",
+      "descricao": "Combustível",
+      "data_transacao": "2026-02-12T08:15:00",
+      "parcelado": false,
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 1,
+      "fk_categoria": 2
+    },
+    {
+      "id": 3,
+      "valor": 3500,
+      "tipo": "RECEITA",
+      "descricao": "Salário",
+      "data_transacao": "2026-02-05T00:00:00",
+      "parcelado": false,
+      "recorrencia": "MENSAL",
+      "fim_recorrencia": null,
+      "fk_instituicao": 1,
+      "fk_categoria": 4
+    },
+    {
+      "id": 4,
+      "valor": 1200,
+      "tipo": "GASTO",
+      "descricao": "Aluguel",
+      "data_transacao": "2026-02-01T00:00:00",
+      "parcelado": false,
+      "recorrencia": "MENSAL",
+      "fim_recorrencia": null,
+      "fk_instituicao": 1,
+      "fk_categoria": 3
+    },
+    {
+      "id": 5,
+      "valor": 599.99,
+      "tipo": "GASTO",
+      "descricao": "Notebook",
+      "data_transacao": "2026-02-08T14:20:00",
+      "parcelado": true,
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 2,
+      "fk_categoria": 5
+    }
+  ],
+  "meta_gasto": [
+    {
+      "id": 1,
+      "nome": "Meta Alimentação",
+      "valor": 500,
+      "data_fim_meta": "2026-02-28",
+      "fk_usuario": 1,
+      "fk_categoria": 1
+    },
+    {
+      "id": 2,
+      "nome": "Meta Transporte",
+      "valor": 300,
+      "data_fim_meta": "2026-02-28",
+      "fk_usuario": 1,
+      "fk_categoria": 2
+    }
+  ]
+}
