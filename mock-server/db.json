@@ -134,6 +134,14 @@
       "tipoInstituicao": "vale",
       "fk_usuario": 1,
       "id": 13
+    },
+    {
+      "nome": "Mercado Pago",
+      "icone": "MP",
+      "cor": "#009EE3",
+      "tipoInstituicao": "banco",
+      "fk_usuario": 1,
+      "id": 14
     }
   ],
   "transacao": [
