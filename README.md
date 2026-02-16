@@ -1,4 +1,4 @@
-# 💰 TestesFinance - Aplicativo de Gestão Financeira
+# 💰 ContaDin - Aplicativo de Gestão Financeira
 
 Aplicativo React Native/Expo para gerenciamento de finanças pessoais com controle de carteiras, transações, categorias e metas de gastos.
 
