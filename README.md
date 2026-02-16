@@ -1,4 +1,4 @@
-# 💰 TestesFinance - Aplicativo de Gestão Financeira
+# 💰 ContaDin - Aplicativo de Gestão Financeira
 
 Aplicativo React Native/Expo para gerenciamento de finanças pessoais com controle de carteiras, transações, categorias e metas de gastos.
 
@@ -25,8 +25,8 @@ Aplicativo React Native/Expo para gerenciamento de finanças pessoais com contro
 
 1. Clone o repositório:
 ```bash
-git clone <url-do-repositorio>
-cd TestesFinance
+git clone https://github.com/ContaDin-Brasil/contadin-frontend
+cd contadin-frontend
 ```
 
 2. Instale as dependências do projeto:
