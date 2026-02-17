@@ -7,7 +7,7 @@ import ModalAdicionarInstituicao from '../../componentes/modais/ModalAdicionarIn
 import { useFormularioTransacao } from './hooks/useFormularioTransacao';
 import { useProcessamentoIA } from './hooks/useProcessamentoIA';
 import { transacaoService } from '../../api';
-import { FREQUENCIES } from './constants/constantesTransacao';
+import { FREQUENCIES, INSTALLMENT_OPTIONS } from './constants/constantesTransacao';
 import { getCategoryIcon } from './utils/utilitariosTransacao';
 import { styles } from './styles/TelaAdicionarTransacao.styles';
 
@@ -50,9 +50,23 @@ const TelaAdicionarTransacao = ({ navigation }) => {
         return;
       }
 
+      // Valida se uma instituição foi selecionada
+      if (!data.selectedInstitution) {
+        Alert.alert('Erro', 'Selecione uma instituição');
+        setSalvando(false);
+        return;
+      }
+
       // Converte data DD/MM/YYYY para ISO
       const [day, month, year] = data.date.split('/');
       const dataISO = new Date(`${year}-${month}-${day}`).toISOString();
+
+      // Converte data fim de recorrência se houver
+      let fimRecorrenciaISO = null;
+      if (data.hasRecurrenceEndDate && data.recurrenceEndDate) {
+        const [endDay, endMonth, endYear] = data.recurrenceEndDate.split('/');
+        fimRecorrenciaISO = new Date(`${endYear}-${endMonth}-${endDay}`).toISOString();
+      }
 
       // Prepara dados para envio
       const transacao = {
@@ -60,12 +74,15 @@ const TelaAdicionarTransacao = ({ navigation }) => {
         valor: parseFloat(data.valor),
         tipo: data.tipo,
         data_transacao: dataISO,
-        parcelado: false, // TODO: Implementar lógica de parcelamento
+        parcelado: data.parcelado,
+        qtdParcelas: data.qtdParcelas,
         recorrencia: data.isRecurring ? data.frequency : null,
-        fim_recorrencia: null,
-        fk_instituicao: data.institutions[0]?.id || 1, // Usa primeira instituição selecionada
+        fim_recorrencia: fimRecorrenciaISO,
+        fk_instituicao: data.selectedInstitution.id,
         fk_categoria: data.selectedCategory,
       };
+
+      console.log('💾 Salvando transação:', transacao);
 
       await transacaoService.criar(transacao);
       
@@ -298,101 +315,186 @@ const TelaAdicionarTransacao = ({ navigation }) => {
         </View>
       </View>
 
-      {/* Recorrência */}
+      {/* Recorrência e Parcelamento */}
       <View style={styles.section}>
-        <View style={styles.recurringRow}>
-          <Switch
-            value={formState.isRecurring}
-            onValueChange={formState.setIsRecurring}
-            trackColor={{ false: '#D0D0D0', true: '#5BA3FF' }}
-            thumbColor="#FFF"
-          />
-          <Text style={styles.recurringText}>Recorrência</Text>
-        </View>
+        {/* Toggle de Recorrência */}
+        {!formState.isInstallment && (
+          <View style={styles.recurringRow}>
+            <Switch
+              value={formState.isRecurring}
+              onValueChange={formState.handleToggleRecurring}
+              trackColor={{ false: '#D0D0D0', true: '#5BA3FF' }}
+              thumbColor="#FFF"
+            />
+            <Text style={styles.recurringText}>Recorrência</Text>
+          </View>
+        )}
         {formState.isRecurring && (
-          <View style={styles.frequencyButtons}>
-            {FREQUENCIES.map(freq => (
+          <>
+            <View style={styles.frequencyButtons}>
+              {FREQUENCIES.map(freq => (
+                <TouchableOpacity
+                  key={freq.id}
+                  style={[
+                    styles.frequencyButton,
+                    formState.frequency === freq.id && styles.frequencyButtonActive
+                  ]}
+                  onPress={() => formState.setFrequency(freq.id)}
+                >
+                  <Text style={[
+                    styles.frequencyButtonText,
+                    formState.frequency === freq.id && styles.frequencyButtonTextActive
+                  ]}>
+                    {freq.nome}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <View style={styles.recurringRow}>
+              <Switch
+                value={formState.hasRecurrenceEndDate}
+                onValueChange={formState.setHasRecurrenceEndDate}
+                trackColor={{ false: '#D0D0D0', true: '#5BA3FF' }}
+                thumbColor="#FFF"
+              />
+              <Text style={styles.recurringText}>Data limite da recorrência</Text>
+            </View>
+            {formState.hasRecurrenceEndDate && (
+              <View style={styles.dateInput}>
+                <Ionicons name="calendar-outline" size={20} color="#666" />
+                <TextInput
+                  style={styles.dateInputText}
+                  placeholder="DD/MM/AAAA"
+                  placeholderTextColor="#999"
+                  value={formState.recurrenceEndDate}
+                  onChangeText={formState.handleRecurrenceEndDateChange}
+                  keyboardType="numeric"
+                  maxLength={10}
+                />
+              </View>
+            )}
+          </>
+        )}
+
+        {/* Toggle de Parcelamento */}
+        {!formState.isRecurring && (
+          <View style={[styles.recurringRow, formState.isInstallment && styles.marginTop0]}>
+            <Switch
+              value={formState.isInstallment}
+              onValueChange={formState.handleToggleInstallment}
+              trackColor={{ false: '#D0D0D0', true: '#5BA3FF' }}
+              thumbColor="#FFF"
+            />
+            <Text style={styles.recurringText}>Parcelado</Text>
+          </View>
+        )}
+        {formState.isInstallment && (
+          <View style={styles.installmentButtons}>
+            {INSTALLMENT_OPTIONS.map(option => (
               <TouchableOpacity
-                key={freq.id}
+                key={option.value}
                 style={[
-                  styles.frequencyButton,
-                  formState.frequency === freq.id && styles.frequencyButtonActive
+                  styles.installmentButton,
+                  formState.installmentCount === option.value && !formState.customInstallmentCount && styles.installmentButtonActive
                 ]}
-                onPress={() => formState.setFrequency(freq.id)}
+                onPress={() => {
+                  formState.setInstallmentCount(option.value);
+                  formState.setCustomInstallmentCount('');
+                }}
               >
                 <Text style={[
-                  styles.frequencyButtonText,
-                  formState.frequency === freq.id && styles.frequencyButtonTextActive
+                  styles.installmentButtonText,
+                  formState.installmentCount === option.value && !formState.customInstallmentCount && styles.installmentButtonTextActive
                 ]}>
-                  {freq.nome}
+                  {option.label}
                 </Text>
               </TouchableOpacity>
             ))}
+            <View style={[
+              styles.installmentButton,
+              styles.customInstallmentButton,
+              formState.customInstallmentCount && styles.installmentButtonActive
+            ]}>
+              <Text style={[
+                styles.installmentButtonText,
+                formState.customInstallmentCount && styles.installmentButtonTextActive
+              ]}>
+                Outro:
+              </Text>
+              <TextInput
+                style={[
+                  styles.customInstallmentInput,
+                  formState.customInstallmentCount && styles.customInstallmentInputActive
+                ]}
+                placeholder="0"
+                placeholderTextColor="#999"
+                value={formState.customInstallmentCount}
+                onChangeText={(text) => {
+                  const cleaned = text.replace(/\D/g, '');
+                  const value = parseInt(cleaned) || 0;
+                  if (value <= 720) {
+                    formState.setCustomInstallmentCount(cleaned);
+                  }
+                }}
+                keyboardType="numeric"
+                maxLength={3}
+              />
+            </View>
           </View>
         )}
       </View>
 
       {/* Seleção de instituição */}
       <View style={styles.section}>
-        <Text style={styles.label}>Selecione a instituição:</Text>
-        <View style={styles.institutionTypeButtons}>
-          <TouchableOpacity
-            style={[
-              styles.institutionTypeButton,
-              formState.institutionType === 'vouchers' && styles.institutionTypeButtonActive
-            ]}
-            onPress={() => formState.setInstitutionType('vouchers')}
-          >
-            <Text style={[
-              styles.institutionTypeButtonText,
-              formState.institutionType === 'vouchers' && styles.institutionTypeButtonTextActive
-            ]}>
-              Vales
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.institutionTypeButton,
-              formState.institutionType === 'banks' && styles.institutionTypeButtonActive
-            ]}
-            onPress={() => formState.setInstitutionType('banks')}
-          >
-            <Text style={[
-              styles.institutionTypeButtonText,
-              formState.institutionType === 'banks' && styles.institutionTypeButtonTextActive
-            ]}>
-              Bancos
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Instituições selecionadas */}
+        <Text style={styles.label}>Instituição:</Text>
+        
+        {/* Campo de seleção com chip */}
         <TouchableOpacity
-          style={styles.institutionSelector}
+          style={styles.institutionChipContainer}
           onPress={() => setSelectionModalVisible(true)}
+          activeOpacity={0.7}
         >
-          <View style={styles.institutionIcons}>
-            {formState.selectedInstitutions.slice(0, 4).map(institution => {
-              const institutionLogo = getLogoByName(institution.nome);
-              return (
-                <View
-                  key={institution.id}
-                  style={[styles.institutionIcon, { backgroundColor: institutionLogo ? '#FFF' : institution.cor }]}
-                >
-                  {institutionLogo ? (
-                    <Image 
-                      source={institutionLogo} 
-                      style={styles.institutionLogoImage}
-                      resizeMode="contain"
-                    />
-                  ) : (
-                    <Text style={styles.institutionIconText}>{institution.icone}</Text>
-                  )}
-                </View>
-              );
-            })}
-          </View>
-          <Ionicons name="chevron-down" size={24} color="#333" />
+          {formState.selectedInstitution ? (
+            <View style={styles.institutionChipWrapper}>
+              <View style={[styles.institutionChip, { borderColor: formState.selectedInstitution.cor }]}>
+                {(() => {
+                  const institutionLogo = getLogoByName(formState.selectedInstitution.nome);
+                  return (
+                    <>
+                      <View style={[styles.chipIconContainer, { backgroundColor: institutionLogo ? '#FFF' : formState.selectedInstitution.cor }]}>
+                        {institutionLogo ? (
+                          <Image 
+                            source={institutionLogo} 
+                            style={styles.chipLogoImage}
+                            resizeMode="contain"
+                          />
+                        ) : (
+                          <Text style={styles.chipIconText}>{formState.selectedInstitution.icone}</Text>
+                        )}
+                      </View>
+                      <Text style={styles.chipText}>{formState.selectedInstitution.nome}</Text>
+                      <TouchableOpacity 
+                        style={styles.chipRemoveButton}
+                        onPress={(e) => {
+                          e.stopPropagation();
+                          formState.handleSelectInstitution(null);
+                        }}
+                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                      >
+                        <Ionicons name="close-circle" size={20} color="#666" />
+                      </TouchableOpacity>
+                    </>
+                  );
+                })()}
+              </View>
+            </View>
+          ) : (
+            <View style={styles.institutionPlaceholderContainer}>
+              <Ionicons name="business-outline" size={20} color="#999" />
+              <Text style={styles.institutionPlaceholderText}>Toque para selecionar uma instituição</Text>
+            </View>
+          )}
+          <Ionicons name="chevron-forward" size={20} color="#999" />
         </TouchableOpacity>
       </View>
 
@@ -432,6 +534,7 @@ const TelaAdicionarTransacao = ({ navigation }) => {
           setSelectionModalVisible(false);
           setCustomModalVisible(true);
         }}
+        availableInstitutions={formState.instituicoes}
       />
 
       <ModalAdicionarInstituicao
