@@ -75,29 +75,15 @@
       "nome": "Bradesco",
       "icone": "B",
       "cor": "#CC092F",
+      "tipoInstituicao": "banco",
       "fk_usuario": 1,
       "id": 6
-    },
-    {
-      "nome": "Next",
-      "icone": "N",
-      "cor": "#00AB63",
-      "fk_usuario": 1,
-      "id": 7
-    },
-    {
-      "nome": "Next",
-      "icone": "N",
-      "cor": "#00AB63",
-      "fk_usuario": 1,
-      "id": 8
     },
     {
       "nome": "Alelo",
       "icone": "VA",
       "cor": "#FF9800",
       "tipoInstituicao": "vale",
-      "logoUrl": "https://logodownload.org/wp-content/uploads/2021/04/vr-beneficios-logo-1.png",
       "fk_usuario": 1,
       "id": 9
     },
@@ -106,7 +92,6 @@
       "icone": "Tk",
       "cor": "#FF6600",
       "tipoInstituicao": "vale",
-      "logoUrl": "https://logodownload.org/wp-content/uploads/2020/04/ticket-logo.png",
       "fk_usuario": 1,
       "id": 10
     },
@@ -115,17 +100,8 @@
       "icone": "Fl",
       "cor": "#00A859",
       "tipoInstituicao": "vale",
-      "logoUrl": "https://logodownload.org/wp-content/uploads/2021/08/flash-beneficios-logo.png",
       "fk_usuario": 1,
       "id": 11
-    },
-    {
-      "nome": "Bradesco",
-      "icone": "B",
-      "cor": "#CC092F",
-      "tipoInstituicao": "banco",
-      "fk_usuario": 1,
-      "id": 12
     },
     {
       "nome": "Sodexo",
@@ -142,6 +118,38 @@
       "tipoInstituicao": "banco",
       "fk_usuario": 1,
       "id": 14
+    },
+    {
+      "nome": "Banco do Brasil",
+      "icone": "BB",
+      "cor": "#FFED00",
+      "tipoInstituicao": "banco",
+      "fk_usuario": 1,
+      "id": 15
+    },
+    {
+      "nome": "Caixa",
+      "icone": "C",
+      "cor": "#005CA9",
+      "tipoInstituicao": "banco",
+      "fk_usuario": 1,
+      "id": 16
+    },
+    {
+      "nome": "Santander",
+      "icone": "S",
+      "cor": "#E31C23",
+      "tipoInstituicao": "banco",
+      "fk_usuario": 1,
+      "id": 19
+    },
+    {
+      "nome": "Itaú",
+      "icone": "I",
+      "cor": "#FF6600",
+      "tipoInstituicao": "banco",
+      "fk_usuario": 1,
+      "id": 20
     }
   ],
   "transacao": [
@@ -149,24 +157,24 @@
       "id": 1,
       "valor": 150.5,
       "tipo": "GASTO",
-      "descricao": "Supermercado",
+      "descricao": "Supermercado Extra",
       "data_transacao": "2026-02-10T10:30:00",
       "parcelado": false,
       "recorrencia": null,
       "fim_recorrencia": null,
-      "fk_instituicao": 2,
+      "fk_instituicao": 5,
       "fk_categoria": 1
     },
     {
       "id": 2,
       "valor": 80,
       "tipo": "GASTO",
-      "descricao": "Combustível",
+      "descricao": "Combustível Shell",
       "data_transacao": "2026-02-12T08:15:00",
       "parcelado": false,
       "recorrencia": null,
       "fim_recorrencia": null,
-      "fk_instituicao": 1,
+      "fk_instituicao": 6,
       "fk_categoria": 2
     },
     {
@@ -178,7 +186,7 @@
       "parcelado": false,
       "recorrencia": "MENSAL",
       "fim_recorrencia": null,
-      "fk_instituicao": 1,
+      "fk_instituicao": 15,
       "fk_categoria": 4
     },
     {
@@ -190,20 +198,308 @@
       "parcelado": false,
       "recorrencia": "MENSAL",
       "fim_recorrencia": null,
-      "fk_instituicao": 1,
+      "fk_instituicao": 15,
       "fk_categoria": 3
     },
     {
       "id": 5,
       "valor": 599.99,
       "tipo": "GASTO",
-      "descricao": "Notebook",
+      "descricao": "Notebook Dell",
       "data_transacao": "2026-02-08T14:20:00",
       "parcelado": true,
       "recorrencia": null,
       "fim_recorrencia": null,
-      "fk_instituicao": 2,
+      "fk_instituicao": 13,
       "fk_categoria": 5
+    },
+    {
+      "id": 6,
+      "valor": 45.9,
+      "tipo": "GASTO",
+      "descricao": "Almoço Restaurante",
+      "data_transacao": "2026-02-14T13:00:00",
+      "parcelado": false,
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 9,
+      "fk_categoria": 1
+    },
+    {
+      "id": 7,
+      "valor": 120,
+      "tipo": "GASTO",
+      "descricao": "Academia - Mensalidade",
+      "data_transacao": "2026-02-03T00:00:00",
+      "parcelado": false,
+      "recorrencia": "MENSAL",
+      "fim_recorrencia": null,
+      "fk_instituicao": 13,
+      "fk_categoria": 5
+    },
+    {
+      "id": 8,
+      "valor": 89.9,
+      "tipo": "GASTO",
+      "descricao": "Netflix",
+      "data_transacao": "2026-02-01T00:00:00",
+      "parcelado": false,
+      "recorrencia": "MENSAL",
+      "fim_recorrencia": null,
+      "fk_instituicao": 13,
+      "fk_categoria": 5
+    },
+    {
+      "id": 9,
+      "valor": 250,
+      "tipo": "GASTO",
+      "descricao": "Compras Farmácia",
+      "data_transacao": "2026-02-11T16:45:00",
+      "parcelado": false,
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 5,
+      "fk_categoria": 1
+    },
+    {
+      "id": 10,
+      "valor": 180,
+      "tipo": "GASTO",
+      "descricao": "Uber - Corridas do mês",
+      "data_transacao": "2026-02-13T22:30:00",
+      "parcelado": false,
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 5,
+      "fk_categoria": 2
+    },
+    {
+      "id": 11,
+      "valor": 65.5,
+      "tipo": "GASTO",
+      "descricao": "Supermercado Carrefour",
+      "data_transacao": "2026-02-15T19:20:00",
+      "parcelado": false,
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 10,
+      "fk_categoria": 1
+    },
+    {
+      "id": 12,
+      "valor": 320,
+      "tipo": "GASTO",
+      "descricao": "Conta de Luz",
+      "data_transacao": "2026-02-07T00:00:00",
+      "parcelado": false,
+      "recorrencia": "MENSAL",
+      "fim_recorrencia": null,
+      "fk_instituicao": 15,
+      "fk_categoria": 3
+    },
+    {
+      "id": 13,
+      "valor": 1500,
+      "tipo": "RECEITA",
+      "descricao": "Freelance - Design",
+      "data_transacao": "2026-02-09T00:00:00",
+      "parcelado": false,
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 5,
+      "fk_categoria": 4
+    },
+    {
+      "id": 14,
+      "valor": 299.9,
+      "tipo": "GASTO",
+      "descricao": "Tênis Nike",
+      "data_transacao": "2026-02-06T15:30:00",
+      "parcelado": true,
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 13,
+      "fk_categoria": 5
+    },
+    {
+      "id": 15,
+      "valor": 55,
+      "tipo": "GASTO",
+      "descricao": "Cinema + Pipoca",
+      "data_transacao": "2026-02-14T20:00:00",
+      "parcelado": false,
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 13,
+      "fk_categoria": 5
+    },
+    {
+      "id": 16,
+      "valor": 42.8,
+      "tipo": "GASTO",
+      "descricao": "Restaurante por Kilo",
+      "data_transacao": "2026-02-13T12:30:00",
+      "parcelado": false,
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 11,
+      "fk_categoria": 1
+    },
+    {
+      "id": 17,
+      "valor": 750,
+      "tipo": "GASTO",
+      "descricao": "Curso Online Udemy",
+      "data_transacao": "2026-02-04T10:00:00",
+      "parcelado": true,
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 6,
+      "fk_categoria": 5
+    },
+    {
+      "id": 18,
+      "valor": 95,
+      "tipo": "GASTO",
+      "descricao": "Padaria - Compras da semana",
+      "data_transacao": "2026-02-15T08:00:00",
+      "parcelado": false,
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 5,
+      "fk_categoria": 1
+    },
+    {
+      "id": 19,
+      "valor": 200,
+      "tipo": "RECEITA",
+      "descricao": "Cashback e bonificações",
+      "data_transacao": "2026-02-10T00:00:00",
+      "parcelado": false,
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 13,
+      "fk_categoria": 4
+    },
+    {
+      "id": 20,
+      "valor": 38.5,
+      "tipo": "GASTO",
+      "descricao": "Lanchonete",
+      "data_transacao": "2026-02-12T14:00:00",
+      "parcelado": false,
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 12,
+      "fk_categoria": 1
+    },
+    {
+      "id": 21,
+      "valor": 450,
+      "tipo": "GASTO",
+      "descricao": "Conserto do Carro",
+      "data_transacao": "2026-02-11T00:00:00",
+      "parcelado": false,
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 6,
+      "fk_categoria": 2
+    },
+    {
+      "id": 22,
+      "valor": 28.9,
+      "tipo": "GASTO",
+      "descricao": "Spotify Premium",
+      "data_transacao": "2026-02-01T00:00:00",
+      "parcelado": false,
+      "recorrencia": "MENSAL",
+      "fim_recorrencia": null,
+      "fk_instituicao": 7,
+      "fk_categoria": 5
+    },
+    {
+      "id": 23,
+      "valor": 135,
+      "tipo": "GASTO",
+      "descricao": "Supermercado Pão de Açúcar",
+      "data_transacao": "2026-02-16T10:00:00",
+      "parcelado": false,
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 16,
+      "fk_categoria": 1
+    },
+    {
+      "id": 24,
+      "valor": 890,
+      "tipo": "RECEITA",
+      "descricao": "Venda Mercado Livre",
+      "data_transacao": "2026-02-08T00:00:00",
+      "parcelado": false,
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 5,
+      "fk_categoria": 4
+    },
+    {
+      "id": 25,
+      "valor": 72,
+      "tipo": "GASTO",
+      "descricao": "Delivery iFood",
+      "data_transacao": "2026-02-15T21:30:00",
+      "parcelado": false,
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 13,
+      "fk_categoria": 1
+    },
+    {
+      "id": 26,
+      "valor": 165,
+      "tipo": "GASTO",
+      "descricao": "Convênio Médico",
+      "data_transacao": "2026-02-01T00:00:00",
+      "parcelado": false,
+      "recorrencia": "MENSAL",
+      "fim_recorrencia": null,
+      "fk_instituicao": 15,
+      "fk_categoria": 3
+    },
+    {
+      "id": 27,
+      "valor": 52,
+      "tipo": "GASTO",
+      "descricao": "Estacionamento Shopping",
+      "data_transacao": "2026-02-14T16:00:00",
+      "parcelado": false,
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 5,
+      "fk_categoria": 2
+    },
+    {
+      "id": 28,
+      "valor": 380,
+      "tipo": "GASTO",
+      "descricao": "Dentista - Consulta",
+      "data_transacao": "2026-02-09T14:00:00",
+      "parcelado": false,
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 6,
+      "fk_categoria": 3
+    },
+    {
+      "descricao": "Teste",
+      "valor": 150,
+      "tipo": "GASTO",
+      "data_transacao": "2026-02-17T00:00:00.000Z",
+      "parcelado": false,
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 5,
+      "fk_categoria": 1,
+      "id": 29
     }
   ],
   "meta_gasto": [

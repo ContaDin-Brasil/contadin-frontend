@@ -227,11 +227,16 @@ export const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
   },
   institutionIconText: {
     color: '#FFF',
     fontSize: 14,
     fontWeight: 'bold',
+  },
+  institutionLogoImage: {
+    width: 36,
+    height: 36,
   },
   saveButton: {
     flexDirection: 'row',

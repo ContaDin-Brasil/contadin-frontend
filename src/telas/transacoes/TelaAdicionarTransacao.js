@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity, Switch, Animated, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, Switch, Animated, ActivityIndicator, Alert, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { getLogoByName } from '../../componentes/modais/logosInstituicoes';
 import ModalSelecaoInstituicao from '../../componentes/modais/ModalSelecaoInstituicao';
 import ModalAdicionarInstituicao from '../../componentes/modais/ModalAdicionarInstituicao';
 import { useFormularioTransacao } from './hooks/useFormularioTransacao';
@@ -371,14 +372,25 @@ const TelaAdicionarTransacao = ({ navigation }) => {
           onPress={() => setSelectionModalVisible(true)}
         >
           <View style={styles.institutionIcons}>
-            {formState.selectedInstitutions.slice(0, 4).map(institution => (
-              <View
-                key={institution.id}
-                style={[styles.institutionIcon, { backgroundColor: institution.cor }]}
-              >
-                <Text style={styles.institutionIconText}>{institution.icone}</Text>
-              </View>
-            ))}
+            {formState.selectedInstitutions.slice(0, 4).map(institution => {
+              const institutionLogo = getLogoByName(institution.nome);
+              return (
+                <View
+                  key={institution.id}
+                  style={[styles.institutionIcon, { backgroundColor: institutionLogo ? '#FFF' : institution.cor }]}
+                >
+                  {institutionLogo ? (
+                    <Image 
+                      source={institutionLogo} 
+                      style={styles.institutionLogoImage}
+                      resizeMode="contain"
+                    />
+                  ) : (
+                    <Text style={styles.institutionIconText}>{institution.icone}</Text>
+                  )}
+                </View>
+              );
+            })}
           </View>
           <Ionicons name="chevron-down" size={24} color="#333" />
         </TouchableOpacity>

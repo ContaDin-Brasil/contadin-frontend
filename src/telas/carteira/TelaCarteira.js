@@ -50,8 +50,9 @@ const WalletScreen = ({ navigation }) => {
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      <Text style={styles.title}>Suas Instituições</Text>
+    <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.contentContainer}>
+        <Text style={styles.title}>Suas Instituições</Text>
 
       {/* Seção Contas Bancárias */}
       <View style={styles.section}>
@@ -78,7 +79,22 @@ const WalletScreen = ({ navigation }) => {
               balance={bank.balance}
               color={bank.cor}
               icon={renderIcon(bank.icone, bank.cor)}
-              onPress={() => {}}
+              onPress={() => {
+                navigation.navigate('Transactions', {
+                  screen: 'TransactionsMain',
+                  params: {
+                    instituicao: {
+                      id: bank.id,
+                      nome: bank.nome,
+                      cor: bank.cor,
+                      icone: bank.icone,
+                      tipo: 'banco',
+                      balance: bank.balance,
+                      expenses: bank.expenses,
+                    }
+                  }
+                });
+              }}
             />
           ))}
           <AddCard onPress={() => carteira.setBankSelectionModalVisible(true)} />
@@ -118,7 +134,21 @@ const WalletScreen = ({ navigation }) => {
               balance={voucher.balance}
               color={voucher.cor}
               icon={renderIcon(voucher.icone, voucher.cor)}
-              onPress={() => {}}
+              onPress={() => {
+                navigation.navigate('Transactions', {
+                  screen: 'TransactionsMain',
+                  params: {
+                    instituicao: {
+                      id: voucher.id,
+                      nome: voucher.nome,
+                      cor: voucher.cor,
+                      icone: voucher.icone,
+                      tipo: 'vale',
+                      balance: voucher.balance,
+                    }
+                  }
+                });
+              }}
             />
           ))}
           <AddCard onPress={() => carteira.setVoucherSelectionModalVisible(true)} />
@@ -132,6 +162,7 @@ const WalletScreen = ({ navigation }) => {
           <Text style={styles.addButtonText}>Adicionar</Text>
         </TouchableOpacity>
       </View>
+      </ScrollView>
 
       <InstitutionSelectionModal
         visible={carteira.bankSelectionModalVisible}
@@ -162,7 +193,7 @@ const WalletScreen = ({ navigation }) => {
         onClose={() => carteira.setVoucherCustomModalVisible(false)}
         onAdd={carteira.handleAddCustomVoucherComplete}
       />
-    </ScrollView>
+    </View>
   );
 };
 

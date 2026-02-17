@@ -1,16 +1,20 @@
 import { useState, useEffect } from 'react';
 import { Banco, Vale, Instituicao } from '../types/carteira.types';
 import { instituicaoService } from '../../../api';
+import { useCache } from '../../../contexts/CacheContext';
 
 /**
  * Hook customizado para gerenciar o estado da carteira
  * Gerencia bancos, vales e modais de seleção usando dados reais da API
+ * COM CACHE: Evita requisições desnecessárias
  */
 export const useGerenciarCarteira = () => {
   const [banks, setBanks] = useState<Banco[]>([]);
   const [vouchers, setVouchers] = useState<Vale[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  const { getCache, setCache, invalidateCacheByPattern } = useCache();
   
   // Estados dos modais de bancos
   const [bankSelectionModalVisible, setBankSelectionModalVisible] = useState(false);
@@ -31,56 +35,78 @@ export const useGerenciarCarteira = () => {
   }, []);
 
   /**
-   * Busca as instituições do usuário na API
+   * Busca as instituições do usuário na API (com cache)
    */
-  const carregarInstituicoes = async () => {
+  const carregarInstituicoes = async (forceRefresh = false) => {
     setLoading(true);
     setError(null);
     
     try {
-      const instituicoes = await instituicaoService.listarPorUsuario(usuarioId);
+      const cacheKey = `instituicoes:user:${usuarioId}`;
       
-      // Separa bancos e vales usando o campo tipoInstituicao
-      const bancosList: Banco[] = [];
-      const valesList: Vale[] = [];
-      
-      instituicoes.forEach((inst: any) => {
-        // Validação: ignorar instituições sem dados obrigatórios
-        if (!inst.nome || !inst.icone || !inst.cor || !inst.tipoInstituicao) {
-          console.warn('Instituição com dados incompletos ignorada:', inst);
+      // Tenta buscar do cache primeiro (a menos que force refresh)
+      if (!forceRefresh) {
+        const cached = await getCache<any[]>(cacheKey);
+        if (cached) {
+          processarInstituicoes(cached);
+          setLoading(false);
           return;
         }
-        
-        if (inst.tipoInstituicao === 'vale') {
-          valesList.push({
-            id: inst.id,
-            nome: inst.nome,
-            balance: 'R$ 0,00', // TODO: Calcular saldo real
-            cor: inst.cor,
-            icone: inst.icone,
-            tipoInstituicao: 'vale',
-          });
-        } else {
-          bancosList.push({
-            id: inst.id,
-            nome: inst.nome,
-            balance: 'R$ 0,00', // TODO: Calcular saldo real
-            expenses: 'R$ 0,00', // TODO: Calcular gastos reais
-            cor: inst.cor,
-            icone: inst.icone,
-            tipoInstituicao: 'banco',
-          });
-        }
-      });
+      }
       
-      setBanks(bancosList);
-      setVouchers(valesList);
-    } catch (err: any) {
+      // Se não tem cache ou forçou refresh, busca da API
+      const instituicoes = await instituicaoService.listarPorUsuario(usuarioId);
+      
+      // Salva no cache (válido por 5 minutos)
+      await setCache(cacheKey, instituicoes);
+      
+      processarInstituicoes(instituicoes);
+    } catch (err) {
       console.error('Erro ao carregar instituições:', err);
-      setError(err.message || 'Erro ao carregar dados');
+      setError('Erro ao carregar instituições');
     } finally {
       setLoading(false);
     }
+  };
+
+  /**
+   * Processa a lista de instituições e separa em bancos e vales
+   */
+  const processarInstituicoes = (instituicoes: any[]) => {
+    const bancosList: Banco[] = [];
+    const valesList: Vale[] = [];
+    
+    instituicoes.forEach((inst: any) => {
+      // Validação: ignorar instituições sem dados obrigatórios
+      if (!inst.nome || !inst.icone || !inst.cor || !inst.tipoInstituicao) {
+        console.warn('Instituição com dados incompletos ignorada:', inst);
+        return;
+      }
+      
+      if (inst.tipoInstituicao === 'vale') {
+        valesList.push({
+          id: inst.id,
+          nome: inst.nome,
+          balance: 'R$ 0,00', // TODO: Calcular saldo real
+          cor: inst.cor,
+          icone: inst.icone,
+          tipoInstituicao: 'vale',
+        });
+      } else {
+        bancosList.push({
+          id: inst.id,
+          nome: inst.nome,
+          balance: 'R$ 0,00', // TODO: Calcular saldo real
+          expenses: 'R$ 0,00', // TODO: Calcular gastos reais
+          cor: inst.cor,
+          icone: inst.icone,
+          tipoInstituicao: 'banco',
+        });
+      }
+    });
+    
+    setBanks(bancosList);
+    setVouchers(valesList);
   };
 
   /**
@@ -106,7 +132,9 @@ export const useGerenciarCarteira = () => {
         fk_usuario: usuarioId,
       });
       
-      await carregarInstituicoes(); // Recarrega a lista após adicionar
+      // Invalida o cache e recarrega
+      await invalidateCacheByPattern('instituicoes');
+      await carregarInstituicoes(true); // Force refresh
     } catch (err) {
       console.error('Erro ao adicionar banco:', err);
       setError('Erro ao adicionar banco');
@@ -126,7 +154,7 @@ export const useGerenciarCarteira = () => {
    */
   const handleAddCustomBankComplete = async (institution: Banco) => {
     try {
-      const novaInstituicao = await instituicaoService.criar({
+      await instituicaoService.criar({
         nome: institution.nome,
         icone: institution.icone,
         cor: institution.cor,
@@ -134,11 +162,9 @@ export const useGerenciarCarteira = () => {
         fk_usuario: usuarioId,
       });
       
-      const newBank: Banco = {
-        ...institution,
-        id: novaInstituicao.id,
-      };
-      setBanks([...banks, newBank]);
+      // Invalida o cache e recarrega
+      await invalidateCacheByPattern('instituicoes');
+      await carregarInstituicoes(true);
     } catch (err) {
       console.error('Erro ao adicionar banco customizado:', err);
       setError('Erro ao adicionar banco');
@@ -151,7 +177,10 @@ export const useGerenciarCarteira = () => {
   const handleDeleteBank = async (id: number) => {
     try {
       await instituicaoService.deletar(id);
-      setBanks(banks.filter(bank => bank.id !== id));
+      
+      // Invalida o cache e recarrega
+      await invalidateCacheByPattern('instituicoes');
+      await carregarInstituicoes(true);
     } catch (err) {
       console.error('Erro ao deletar banco:', err);
       setError('Erro ao deletar banco');
@@ -181,7 +210,9 @@ export const useGerenciarCarteira = () => {
         fk_usuario: usuarioId,
       });
       
-      await carregarInstituicoes(); // Recarrega a lista após adicionar
+      // Invalida o cache e recarrega
+      await invalidateCacheByPattern('instituicoes');
+      await carregarInstituicoes(true);
     } catch (err) {
       console.error('Erro ao adicionar vale:', err);
       setError('Erro ao adicionar vale');
@@ -201,7 +232,7 @@ export const useGerenciarCarteira = () => {
    */
   const handleAddCustomVoucherComplete = async (institution: Vale) => {
     try {
-      const novaInstituicao = await instituicaoService.criar({
+      await instituicaoService.criar({
         nome: institution.nome,
         icone: institution.icone,
         cor: institution.cor,
@@ -209,11 +240,9 @@ export const useGerenciarCarteira = () => {
         fk_usuario: usuarioId,
       });
       
-      const newVoucher: Vale = {
-        ...institution,
-        id: novaInstituicao.id,
-      };
-      setVouchers([...vouchers, newVoucher]);
+      // Invalida o cache e recarrega
+      await invalidateCacheByPattern('instituicoes');
+      await carregarInstituicoes(true);
     } catch (err) {
       console.error('Erro ao adicionar vale customizado:', err);
       setError('Erro ao adicionar vale');
@@ -226,7 +255,10 @@ export const useGerenciarCarteira = () => {
   const handleDeleteVoucher = async (voucher: Vale) => {
     try {
       await instituicaoService.deletar(voucher.id);
-      setVouchers(vouchers.filter(v => v.id !== voucher.id));
+      
+      // Invalida o cache e recarrega
+      await invalidateCacheByPattern('instituicoes');
+      await carregarInstituicoes(true);
     } catch (err) {
       console.error('Erro ao deletar vale:', err);
       setError('Erro ao deletar vale');

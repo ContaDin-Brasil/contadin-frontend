@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { getLogoByName } from '../../componentes/modais/logosInstituicoes';
 import { useGerenciarTransacoes } from './hooks/useGerenciarTransacoes';
 import { 
   formatCurrency, 
@@ -10,9 +11,22 @@ import {
 } from './utils/utilitariosTransacao';
 import { styles } from './styles/TelaTransacoes.styles';
 
-const TelaTransacoes = ({ navigation }) => {
+const TelaTransacoes = ({ navigation, route }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const gerenciador = useGerenciarTransacoes();
+
+  // Recebe os dados da instituição clicada (se houver)
+  const instituicaoSelecionada = route.params?.instituicao || null;
+
+  // Log para debug (pode remover depois)
+  React.useEffect(() => {
+    if (instituicaoSelecionada) {
+      console.log('📍 Instituição selecionada:', instituicaoSelecionada);
+      console.log('   - Nome:', instituicaoSelecionada.nome);
+      console.log('   - Tipo:', instituicaoSelecionada.tipo);
+      console.log('   - ID:', instituicaoSelecionada.id);
+    }
+  }, [instituicaoSelecionada]);
 
   // Mostra loading
   if (gerenciador.loading) {
@@ -41,37 +55,62 @@ const TelaTransacoes = ({ navigation }) => {
     );
   }
 
-  const groupedTransactions = groupTransactionsByDate(gerenciador.transacoes);
+  // Filtra transações pela instituição selecionada (se houver)
+  let transacoesExibidas = gerenciador.transacoes;
+  if (instituicaoSelecionada) {
+    transacoesExibidas = gerenciador.transacoes.filter(
+      transacao => transacao.fk_instituicao === instituicaoSelecionada.id
+    );
+  }
+
+  const groupedTransactions = groupTransactionsByDate(transacoesExibidas);
 
   const renderTransactionItem = (item) => {
     const category = gerenciador.buscarCategoria(item.fk_categoria);
     const institution = gerenciador.buscarInstituicao(item.fk_instituicao);
     const categoryName = category?.nome || 'Sem categoria';
     const institutionName = institution?.nome || 'Sem instituição';
+    const institutionColor = institution?.cor || '#666';
+    const institutionIcon = institution?.icone || '📱';
+    const institutionLogo = getLogoByName(institutionName);
+    const transactionDate = new Date(item.data_transacao).toLocaleDateString('pt-BR');
     
     return (
       <TouchableOpacity key={item.id} style={styles.transactionItem}>
-        <View style={styles.transactionIcon}>
-          <Ionicons name={getCategoryIcon(categoryName)} size={24} color="#333" />
-        </View>
-        <View style={styles.transactionInfo}>
-          <View style={styles.transactionHeader}>
-            <Text style={styles.transactionCategory}>{categoryName}</Text>
-            {item.tipo === 'GASTO' && (
-              <View style={styles.categoryBadge}>
-                <Ionicons name="repeat" size={10} color="#E31C23" />
-                <Text style={styles.categoryBadgeText}>{institutionName}</Text>
-              </View>
-            )}
+        <View style={styles.transactionHeader}>
+          <View style={styles.transactionIcon}>
+            <Ionicons name={getCategoryIcon(categoryName)} size={24} color="#333" />
           </View>
-          <Text style={styles.transactionDescription}>{item.descricao}</Text>
+          <Text style={styles.transactionCategory}>{categoryName}</Text>
+          <Text style={styles.transactionDate}>{transactionDate}</Text>
         </View>
-        <Text style={[
-          styles.transactionAmount,
-          item.tipo === 'RECEITA' ? styles.incomeAmount : styles.expenseAmount
-        ]}>
-          {formatCurrency(item.valor)}
-        </Text>
+        
+        <View style={styles.transactionBody}>
+          <View style={styles.transactionLeft}>
+            <View style={[styles.institutionBadge, { backgroundColor: institutionLogo ? '#FFF' : institutionColor + '20', borderColor: institutionColor }]}>
+              {institutionLogo ? (
+                <Image 
+                  source={institutionLogo} 
+                  style={styles.institutionBadgeLogo}
+                  resizeMode="contain"
+                />
+              ) : (
+                <Text style={styles.institutionBadgeIcon}>{institutionIcon}</Text>
+              )}
+              <Text style={[styles.institutionBadgeText]}>
+                {institutionName}
+              </Text>
+            </View>
+            <Text style={styles.transactionDescription}>{item.descricao}</Text>
+          </View>
+          
+          <Text style={[
+            styles.transactionAmount,
+            item.tipo === 'RECEITA' ? styles.incomeAmount : styles.expenseAmount
+          ]}>
+            {formatCurrency(item.valor)}
+          </Text>
+        </View>
       </TouchableOpacity>
     );
   };
@@ -79,6 +118,50 @@ const TelaTransacoes = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Transações</Text>
+
+      {/* Banner de Instituição Selecionada */}
+      {instituicaoSelecionada && (() => {
+        const bannerLogo = getLogoByName(instituicaoSelecionada.nome);
+        return (
+          <View style={[styles.selectedInstitutionBanner, { backgroundColor: instituicaoSelecionada.cor + '20', borderColor: instituicaoSelecionada.cor }]}>
+            <View style={styles.bannerContent}>
+              <View style={[styles.bannerIcon, { backgroundColor: bannerLogo ? '#FFF' : instituicaoSelecionada.cor }]}>
+                {bannerLogo ? (
+                  <Image 
+                    source={bannerLogo} 
+                    style={styles.bannerLogoImage}
+                    resizeMode="contain"
+                  />
+                ) : (
+                  <Text style={styles.bannerIconText}>{instituicaoSelecionada.icone}</Text>
+                )}
+              </View>
+              <View style={styles.bannerInfo}>
+                <Text style={styles.bannerTitle}>{instituicaoSelecionada.nome}</Text>
+                <Text style={styles.bannerSubtitle}>
+                  {instituicaoSelecionada.tipo === 'banco' ? '🏦 Banco' : '🎫 Vale'} • {instituicaoSelecionada.balance}
+                </Text>
+              </View>
+            </View>
+            <TouchableOpacity 
+              style={styles.bannerClose}
+              onPress={() => navigation.setParams({ instituicao: null })}
+            >
+              <Ionicons name="close-circle" size={24} color={instituicaoSelecionada.cor} />
+            </TouchableOpacity>
+          </View>
+        );
+      })()}
+
+      {/* Alerta de Modo Offline */}
+      {gerenciador.usandoDadosMockados && (
+        <View style={styles.offlineBanner}>
+          <Ionicons name="cloud-offline-outline" size={20} color="#FF9800" />
+          <Text style={styles.offlineBannerText}>
+            Modo offline - usando dados de exemplo
+          </Text>
+        </View>
+      )}
 
       {/* Filtro de Período */}
       <TouchableOpacity style={styles.periodFilter}>

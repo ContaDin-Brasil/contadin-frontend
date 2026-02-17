@@ -94,8 +94,6 @@ export const styles = StyleSheet.create({
     fontWeight: '500',
   },
   transactionItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
     backgroundColor: '#FFF',
     padding: 15,
     borderRadius: 12,
@@ -106,6 +104,11 @@ export const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 2,
   },
+  transactionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
   transactionIcon: {
     width: 48,
     height: 48,
@@ -115,41 +118,60 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     marginRight: 12,
   },
-  transactionInfo: {
+  transactionCategory: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#333',
     flex: 1,
   },
-  transactionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  transactionCategory: {
+  transactionDate: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '500',
     color: '#333',
-    marginRight: 8,
   },
-  categoryBadge: {
+  transactionBody: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+    paddingLeft: 0,
+  },
+  transactionLeft: {
+    flex: 1,
+    gap: 4,
+  },
+  institutionBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFE5E5',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 10,
-    gap: 3,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 4,
+    alignSelf: 'flex-start',
   },
-  categoryBadgeText: {
-    fontSize: 10,
-    color: '#E31C23',
-    fontWeight: '500',
+  institutionBadgeIcon: {
+    fontSize: 12,
+  },
+  institutionBadgeLogo: {
+    width: 16,
+    height: 16,
+    objectFit: 'cover',
+    borderRadius: 4,
+  },
+  institutionBadgeText: {
+    fontSize: 11,
+    fontWeight: '600',
   },
   transactionDescription: {
     fontSize: 14,
     color: '#999',
+    marginTop: 2,
   },
   transactionAmount: {
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: 'bold',
+    textAlign: 'right',
+    marginLeft: 12,
   },
   incomeAmount: {
     color: '#00C853',
@@ -172,5 +194,75 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
+  },
+  // Estilos do Banner de Instituição Selecionada
+  selectedInstitutionBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginHorizontal: 20,
+    marginBottom: 15,
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 2,
+  },
+  bannerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  bannerIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+    overflow: 'hidden',
+  },
+  bannerIconText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#FFF',
+  },
+  bannerLogoImage: {
+    width: 36,
+    height: 36,
+    objectFit: 'cover',
+    borderRadius: 8,
+  },
+  bannerInfo: {
+    flex: 1,
+  },
+  bannerTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 2,
+  },
+  bannerSubtitle: {
+    fontSize: 13,
+    color: '#666',
+  },
+  bannerClose: {
+    padding: 4,
+  },
+  // Estilos do Banner Offline
+  offlineBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF3E0',
+    marginHorizontal: 20,
+    marginBottom: 15,
+    padding: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#FF9800',
+    gap: 10,
+  },
+  offlineBannerText: {
+    fontSize: 14,
+    color: '#FF9800',
+    fontWeight: '500',
   },
 });
