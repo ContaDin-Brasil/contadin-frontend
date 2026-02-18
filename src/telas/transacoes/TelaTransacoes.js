@@ -108,7 +108,7 @@ const TelaTransacoes = ({ navigation, route }) => {
             styles.transactionAmount,
             item.tipo === 'RECEITA' ? styles.incomeAmount : styles.expenseAmount
           ]}>
-            {formatCurrency(item.valor)}
+            {formatCurrency(item.tipo === 'RECEITA' ? item.valor : -item.valor)}
           </Text>
         </View>
       </TouchableOpacity>

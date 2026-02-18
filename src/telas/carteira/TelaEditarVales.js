@@ -117,8 +117,7 @@ const EditVouchersScreen = ({ navigation }) => {
         onClose={() => editor.setSelectionModalVisible(false)}
         onSelectInstitution={editor.handleSelectInstitution}
         onAddCustom={editor.handleAddCustomInstitution}
-        tipo="vale"
-        existingInstitutions={editor.vouchers}
+        availableInstitutions={editor.availableVouchers}
       />
 
       <AddCustomInstitutionModal

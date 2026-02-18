@@ -117,8 +117,7 @@ const EditBanksScreen = ({ navigation }) => {
         onClose={() => editor.setSelectionModalVisible(false)}
         onSelectInstitution={editor.handleSelectInstitution}
         onAddCustom={editor.handleAddCustomInstitution}
-        tipo="banco"
-        existingInstitutions={editor.banks}
+        availableInstitutions={editor.availableBanks}
       />
 
       <AddCustomInstitutionModal

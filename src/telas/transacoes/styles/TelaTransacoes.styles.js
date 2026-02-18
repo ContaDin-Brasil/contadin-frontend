@@ -182,7 +182,7 @@ export const styles = StyleSheet.create({
   floatingButton: {
     position: 'absolute',
     right: 20,
-    bottom: 90,
+    bottom: 30,
     width: 60,
     height: 60,
     borderRadius: 30,

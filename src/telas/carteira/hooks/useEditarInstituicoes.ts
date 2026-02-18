@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Banco, Vale, Instituicao } from '../types/carteira.types';
 import { instituicaoService } from '../../../api';
 import { useCache } from '../../../contexts/CacheContext';
+import { getInstituicoesPadrao } from '../constants/instituicoesPadrao';
 
 /**
  * Hook para gerenciar edição de bancos (COM CACHE)
@@ -146,6 +147,15 @@ export const useEditarBancos = () => {
   };
 
   /**
+   * Retorna instituições padrões que o usuário ainda não adicionou
+   */
+  const getAvailableBanks = () => {
+    const bancosUsuario = banks.map(b => b.nome.toLowerCase());
+    const bancosPadrao = getInstituicoesPadrao('banco');
+    return bancosPadrao.filter(banco => !bancosUsuario.includes(banco.nome.toLowerCase()));
+  };
+
+  /**
    * Atualiza dados do banco
    */
   const handleUpdate = async (updatedBank: Banco) => {
@@ -176,6 +186,7 @@ export const useEditarBancos = () => {
     selectedBank,
     selectionModalVisible,
     customModalVisible,
+    availableBanks: getAvailableBanks(),
     setEditModalVisible,
     setSelectionModalVisible,
     setCustomModalVisible,
@@ -331,6 +342,15 @@ export const useEditarVales = () => {
   };
 
   /**
+   * Retorna instituições padrões que o usuário ainda não adicionou
+   */
+  const getAvailableVouchers = () => {
+    const valesUsuario = vouchers.map(v => v.nome.toLowerCase());
+    const valesPadrao = getInstituicoesPadrao('vale');
+    return valesPadrao.filter(vale => !valesUsuario.includes(vale.nome.toLowerCase()));
+  };
+
+  /**
    * Atualiza dados do vale
    */
   const handleUpdate = async (updatedVoucher: Vale) => {
@@ -361,6 +381,7 @@ export const useEditarVales = () => {
     selectedVoucher,
     selectionModalVisible,
     customModalVisible,
+    availableVouchers: getAvailableVouchers(),
     setEditModalVisible,
     setSelectionModalVisible,
     setCustomModalVisible,

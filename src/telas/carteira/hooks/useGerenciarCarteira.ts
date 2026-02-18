@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Banco, Vale, Instituicao } from '../types/carteira.types';
 import { instituicaoService } from '../../../api';
 import { useCache } from '../../../contexts/CacheContext';
+import { getInstituicoesPadrao } from '../constants/instituicoesPadrao';
 
 /**
  * Hook customizado para gerenciar o estado da carteira
@@ -250,6 +251,24 @@ export const useGerenciarCarteira = () => {
   };
 
   /**
+   * Retorna bancos padrões que o usuário ainda não adicionou
+   */
+  const getAvailableBanks = () => {
+    const bancosUsuario = banks.map(b => b.nome.toLowerCase());
+    const bancosPadrao = getInstituicoesPadrao('banco');
+    return bancosPadrao.filter(banco => !bancosUsuario.includes(banco.nome.toLowerCase()));
+  };
+
+  /**
+   * Retorna vales padrões que o usuário ainda não adicionou
+   */
+  const getAvailableVouchers = () => {
+    const valesUsuario = vouchers.map(v => v.nome.toLowerCase());
+    const valesPadrao = getInstituicoesPadrao('vale');
+    return valesPadrao.filter(vale => !valesUsuario.includes(vale.nome.toLowerCase()));
+  };
+
+  /**
    * Remove um vale da lista
    */
   const handleDeleteVoucher = async (voucher: Vale) => {
@@ -275,6 +294,8 @@ export const useGerenciarCarteira = () => {
     bankCustomModalVisible,
     voucherSelectionModalVisible,
     voucherCustomModalVisible,
+    availableBanks: getAvailableBanks(),
+    availableVouchers: getAvailableVouchers(),
     
     // Modificadores
     setBankSelectionModalVisible,

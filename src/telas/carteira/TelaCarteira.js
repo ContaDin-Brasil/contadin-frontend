@@ -169,8 +169,7 @@ const WalletScreen = ({ navigation }) => {
         onClose={() => carteira.setBankSelectionModalVisible(false)}
         onSelectInstitution={carteira.handleSelectBank}
         onAddCustom={carteira.handleAddCustomBank}
-        tipo="banco"
-        existingInstitutions={carteira.banks}
+        availableInstitutions={carteira.availableBanks}
       />
 
       <AddCustomInstitutionModal
@@ -184,8 +183,7 @@ const WalletScreen = ({ navigation }) => {
         onClose={() => carteira.setVoucherSelectionModalVisible(false)}
         onSelectInstitution={carteira.handleSelectVoucher}
         onAddCustom={carteira.handleAddCustomVoucher}
-        tipo="vale"
-        existingInstitutions={carteira.vouchers}
+        availableInstitutions={carteira.availableVouchers}
       />
 
       <AddCustomInstitutionModal
