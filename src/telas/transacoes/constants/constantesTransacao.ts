@@ -22,6 +22,18 @@ export const FREQUENCIES: Frequency[] = [
 ];
 
 /**
+ * Opções de parcelamento disponíveis
+ */
+export const INSTALLMENT_OPTIONS = [
+  { value: 2, label: '2x' },
+  { value: 3, label: '3x' },
+  { value: 4, label: '4x' },
+  { value: 5, label: '5x' },
+  { value: 6, label: '6x' },
+  { value: 12, label: '12x' },
+];
+
+/**
  * Instituições padrão (alinhado com DB)
  */
 export const DEFAULT_INSTITUTIONS: Institution[] = [

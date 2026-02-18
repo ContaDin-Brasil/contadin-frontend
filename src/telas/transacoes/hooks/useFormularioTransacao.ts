@@ -32,8 +32,13 @@ export const useFormularioTransacao = () => {
   const [selectedCategory, setSelectedCategory] = useState(1); // ID da primeira categoria
   const [isRecurring, setIsRecurring] = useState(false);
   const [frequency, setFrequency] = useState<FrequencyType>('MENSAL');
+  const [hasRecurrenceEndDate, setHasRecurrenceEndDate] = useState(false);
+  const [recurrenceEndDate, setRecurrenceEndDate] = useState(getTodayDate());
+  const [isInstallment, setIsInstallment] = useState(false);
+  const [installmentCount, setInstallmentCount] = useState(2);
+  const [customInstallmentCount, setCustomInstallmentCount] = useState('');
   const [institutionType, setInstitutionType] = useState<InstitutionType>('banks');
-  const [selectedInstitutions, setSelectedInstitutions] = useState<Institution[]>([]);
+  const [selectedInstitution, setSelectedInstitution] = useState<Institution | null>(null);
   
   // Estados para dados da API
   const [categorias, setCategorias] = useState<any[]>([]);
@@ -70,11 +75,17 @@ export const useFormularioTransacao = () => {
         id: inst.id,
         nome: inst.nome,
         cor: inst.cor,
-        icone: inst.icone
+        icone: inst.icone,
+        tipoInstituicao: inst.tipoInstituicao
       }));
       
       setInstituicoes(instituicoesFormatadas);
-      setSelectedInstitutions(instituicoesFormatadas);
+      
+      // Seleciona primeira instituição do tipo banco como padrão
+      const primeiroBanco = instituicoesFormatadas.find((inst: any) => inst.tipoInstituicao === 'banco');
+      if (primeiroBanco) {
+        setSelectedInstitution(primeiroBanco);
+      }
       
       // Define primeira categoria como padrão
       if (categoriasData.length > 0) {
@@ -108,20 +119,70 @@ export const useFormularioTransacao = () => {
   };
 
   /**
-   * Adiciona uma instituição à lista de selecionadas
+   * Retorna instituições filtradas pelo tipo selecionado
    */
-  const handleSelectInstitution = (institution: Institution) => {
-    const exists = selectedInstitutions.find(i => i.id === institution.id);
-    if (!exists) {
-      setSelectedInstitutions([...selectedInstitutions, institution]);
-    }
+  const getFilteredInstitutions = () => {
+    return instituicoes.filter((inst: any) => {
+      if (institutionType === 'banks') {
+        return inst.tipoInstituicao === 'banco';
+      } else {
+        return inst.tipoInstituicao === 'vale';
+      }
+    });
+  };
+
+  /**
+   * Seleciona uma instituição ou remove a seleção se null
+   */
+  const handleSelectInstitution = (institution: Institution | null) => {
+    setSelectedInstitution(institution);
   };
 
   /**
    * Adiciona uma instituição customizada
    */
   const handleAddCustomInstitution = (institution: Institution) => {
-    setSelectedInstitutions([...selectedInstitutions, institution]);
+    const novaInstituicao = {
+      ...institution,
+      tipoInstituicao: institutionType === 'banks' ? 'banco' : 'vale'
+    };
+    setInstituicoes([...instituicoes, novaInstituicao]);
+    setSelectedInstitution(novaInstituicao);
+  };
+
+  /**
+   * Formata a data fim de recorrência
+   */
+  const handleRecurrenceEndDateChange = (text: string) => {
+    const cleaned = text.replace(/\D/g, '');
+    let formatted = cleaned;
+    if (cleaned.length >= 2) {
+      formatted = cleaned.slice(0, 2) + '/' + cleaned.slice(2);
+    }
+    if (cleaned.length >= 4) {
+      formatted = cleaned.slice(0, 2) + '/' + cleaned.slice(2, 4) + '/' + cleaned.slice(4, 8);
+    }
+    setRecurrenceEndDate(formatted);
+  };
+
+  /**
+   * Ativa recorrência e desativa parcelamento
+   */
+  const handleToggleRecurring = (value: boolean) => {
+    setIsRecurring(value);
+    if (value) {
+      setIsInstallment(false);
+    }
+  };
+
+  /**
+   * Ativa parcelamento e desativa recorrência
+   */
+  const handleToggleInstallment = (value: boolean) => {
+    setIsInstallment(value);
+    if (value) {
+      setIsRecurring(false);
+    }
   };
 
   /**
@@ -149,7 +210,11 @@ export const useFormularioTransacao = () => {
     selectedCategory,
     isRecurring,
     frequency: isRecurring ? frequency : null,
-    institutions: selectedInstitutions,
+    hasRecurrenceEndDate,
+    recurrenceEndDate: hasRecurrenceEndDate && isRecurring ? recurrenceEndDate : null,
+    parcelado: isInstallment,
+    qtdParcelas: isInstallment ? (customInstallmentCount ? parseInt(customInstallmentCount) : installmentCount) : 1,
+    selectedInstitution,
     institutionType
   });
 
@@ -167,8 +232,16 @@ export const useFormularioTransacao = () => {
     }
     setIsRecurring(false);
     setFrequency('MENSAL');
+    setHasRecurrenceEndDate(false);
+    setRecurrenceEndDate(getTodayDate());
+    setIsInstallment(false);
+    setInstallmentCount(2);
+    setCustomInstallmentCount('');
     setInstitutionType('banks');
-    setSelectedInstitutions(instituicoes);
+    const primeiroBanco = instituicoes.find((inst: any) => inst.tipoInstituicao === 'banco');
+    if (primeiroBanco) {
+      setSelectedInstitution(primeiroBanco);
+    }
   };
 
   return {
@@ -181,8 +254,13 @@ export const useFormularioTransacao = () => {
     selectedCategory,
     isRecurring,
     frequency,
+    hasRecurrenceEndDate,
+    recurrenceEndDate,
+    isInstallment,
+    installmentCount,
+    customInstallmentCount,
     institutionType,
-    selectedInstitutions,
+    selectedInstitution,
     categorias,
     instituicoes,
     loading,
@@ -196,14 +274,22 @@ export const useFormularioTransacao = () => {
     setSelectedCategory,
     setIsRecurring,
     setFrequency,
+    setHasRecurrenceEndDate,
+    setIsInstallment,
+    setInstallmentCount,
+    setCustomInstallmentCount,
     setInstitutionType,
     
     // Ações
     handleDateChange,
+    handleRecurrenceEndDateChange,
+    handleToggleRecurring,
+    handleToggleInstallment,
     handleSelectInstitution,
     handleAddCustomInstitution,
     applyAISuggestion,
     getFormData,
+    getFilteredInstitutions,
     resetForm,
     carregarDados,
   };

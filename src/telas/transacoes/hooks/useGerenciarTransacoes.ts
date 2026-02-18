@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { transacaoService, categoriaService, instituicaoService } from '../../../api';
+import { MOCK_TRANSACTIONS } from '../constants/constantesTransacao';
+import { CATEGORIES } from '../constants/constantesTransacao';
 
 /**
  * Hook customizado para gerenciar transações
- * Busca e gerencia transações da API
+ * Busca e gerencia transações da API com fallback para dados mockados
  */
 export const useGerenciarTransacoes = () => {
   const [transacoes, setTransacoes] = useState<any[]>([]);
@@ -13,6 +15,7 @@ export const useGerenciarTransacoes = () => {
   const [error, setError] = useState<string | null>(null);
   const [periodo, setPeriodo] = useState('Período Completo');
   const [ordenacao, setOrdenacao] = useState('Mais recentes');
+  const [usandoDadosMockados, setUsandoDadosMockados] = useState(false);
 
   const usuarioId = 1;
 
@@ -24,7 +27,7 @@ export const useGerenciarTransacoes = () => {
   }, []);
 
   /**
-   * Carrega todos os dados da API
+   * Carrega todos os dados da API (com fallback para dados mockados)
    */
   const carregarDados = async () => {
     setLoading(true);
@@ -40,9 +43,16 @@ export const useGerenciarTransacoes = () => {
       setTransacoes(transacoesData);
       setCategorias(categoriasData);
       setInstituicoes(instituicoesData);
+      setUsandoDadosMockados(false);
     } catch (err: any) {
-      console.error('Erro ao carregar dados:', err);
-      setError(err.message || 'Erro ao carregar dados');
+      console.warn('⚠️  API indisponível, usando dados mockados:', err.message);
+      
+      // Fallback para dados mockados
+      setTransacoes(MOCK_TRANSACTIONS);
+      setCategorias(CATEGORIES);
+      setInstituicoes([]);
+      setUsandoDadosMockados(true);
+      setError('Modo offline - usando dados de exemplo');
     } finally {
       setLoading(false);
     }
@@ -151,6 +161,7 @@ export const useGerenciarTransacoes = () => {
     error,
     periodo,
     ordenacao,
+    usandoDadosMockados,
     
     // Modificadores
     setPeriodo,

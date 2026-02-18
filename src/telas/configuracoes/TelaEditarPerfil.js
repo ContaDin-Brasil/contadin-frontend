@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView, TextInput, Switch } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, TextInput, Switch, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import TituloPagina from '../../componentes/TituloPagina';
 import { useEditarPerfil } from './hooks/useEditarPerfil';
 import { styles } from './styles/TelaEditarPerfil.styles';
 
@@ -8,13 +9,14 @@ const EditProfileScreen = ({ navigation }) => {
   const perfil = useEditarPerfil();
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={28} color="#000" />
-        </TouchableOpacity>
-        <Text style={styles.title}>Editar Perfil</Text>
-      </View>
+    <SafeAreaView style={styles.container}>
+      <TituloPagina 
+        mostrarBotaoVoltar={true} 
+        onVoltar={() => navigation.goBack()}
+      >
+        Editar Perfil
+      </TituloPagina>
+      <ScrollView contentContainerStyle={styles.contentContainer}>
 
       <View style={styles.avatarContainer}>
         <View style={styles.avatar}>
@@ -89,7 +91,8 @@ const EditProfileScreen = ({ navigation }) => {
           <Text style={styles.saveButtonText}>Salvar Alterações</Text>
         </TouchableOpacity>
       </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 

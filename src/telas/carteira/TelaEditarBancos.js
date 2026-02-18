@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, TextInput, ActivityIndicator, Image } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, TextInput, ActivityIndicator, Image, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
+import TituloPagina from '../../componentes/TituloPagina';
 import CustomModal from '../../componentes/modais/ModalBase';
 import InstitutionSelectionModal from '../../componentes/modais/ModalSelecaoInstituicao';
 import AddCustomInstitutionModal from '../../componentes/modais/ModalAdicionarInstituicao';
@@ -40,29 +41,33 @@ const EditBanksScreen = ({ navigation }) => {
   // Mostra loading
   if (editor.loading) {
     return (
-      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+      <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={28} color="#000" />
-          </TouchableOpacity>
-          <Text style={styles.title}>Editar Bancos</Text>
+          <TituloPagina 
+            mostrarBotaoVoltar={true} 
+            onVoltar={() => navigation.goBack()}
+            style={{ marginTop: 0, marginBottom: 0 }}
+          >
+            Editar Bancos
+          </TituloPagina>
         </View>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <ActivityIndicator size="large" color="#8A05BE" />
           <Text style={{ marginTop: 16, color: '#666' }}>Carregando bancos...</Text>
         </View>
-      </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={28} color="#000" />
-        </TouchableOpacity>
-        <Text style={styles.title}>Editar Bancos</Text>
-      </View>
+    <SafeAreaView style={styles.container}>
+      <TituloPagina 
+        mostrarBotaoVoltar={true} 
+        onVoltar={() => navigation.goBack()}
+      >
+        Editar Bancos
+      </TituloPagina>
+      <ScrollView contentContainerStyle={styles.contentContainer}>
 
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
@@ -117,8 +122,7 @@ const EditBanksScreen = ({ navigation }) => {
         onClose={() => editor.setSelectionModalVisible(false)}
         onSelectInstitution={editor.handleSelectInstitution}
         onAddCustom={editor.handleAddCustomInstitution}
-        tipo="banco"
-        existingInstitutions={editor.banks}
+        availableInstitutions={editor.availableBanks}
       />
 
       <AddCustomInstitutionModal
@@ -184,7 +188,8 @@ const EditBanksScreen = ({ navigation }) => {
           </View>
         </View>
       </CustomModal>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 

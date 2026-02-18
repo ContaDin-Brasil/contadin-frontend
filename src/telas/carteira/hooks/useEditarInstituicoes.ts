@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Banco, Vale, Instituicao } from '../types/carteira.types';
 import { instituicaoService } from '../../../api';
+import { useCache } from '../../../contexts/CacheContext';
+import { getInstituicoesPadrao } from '../constants/instituicoesPadrao';
 
 /**
- * Hook para gerenciar edição de bancos
+ * Hook para gerenciar edição de bancos (COM CACHE)
  */
 export const useEditarBancos = () => {
   const [banks, setBanks] = useState<Banco[]>([]);
@@ -15,19 +17,32 @@ export const useEditarBancos = () => {
   const [customModalVisible, setCustomModalVisible] = useState(false);
 
   const usuarioId = 1;
+  const { getCache, setCache, invalidateCacheByPattern } = useCache();
 
   useEffect(() => {
     carregarBancos();
   }, []);
 
   /**
-   * Carrega bancos da API
+   * Carrega bancos da API (com cache)
    */
-  const carregarBancos = async () => {
+  const carregarBancos = async (forceRefresh = false) => {
     setLoading(true);
     setError(null);
     
     try {
+      const cacheKey = `instituicoes:bancos:user:${usuarioId}`;
+      
+      // Tenta buscar do cache primeiro (a menos que force refresh)
+      if (!forceRefresh) {
+        const cached = await getCache<Banco[]>(cacheKey);
+        if (cached) {
+          setBanks(cached);
+          setLoading(false);
+          return;
+        }
+      }
+      
       const instituicoes = await instituicaoService.listarPorUsuario(usuarioId);
       
       // Filtra apenas bancos usando tipoInstituicao
@@ -42,6 +57,9 @@ export const useEditarBancos = () => {
           icone: inst.icone,
           tipoInstituicao: 'banco',
         }));
+      
+      // Salva no cache
+      await setCache(cacheKey, bancosList);
       
       setBanks(bancosList);
     } catch (err: any) {
@@ -58,7 +76,10 @@ export const useEditarBancos = () => {
   const handleDelete = async (id: number) => {
     try {
       await instituicaoService.deletar(id);
-      await carregarBancos(); // Recarrega a lista após deletar
+      
+      // Invalida o cache e recarrega
+      await invalidateCacheByPattern('instituicoes');
+      await carregarBancos(true);
     } catch (err) {
       console.error('Erro ao deletar banco:', err);
       setError('Erro ao deletar banco');
@@ -86,7 +107,9 @@ export const useEditarBancos = () => {
         fk_usuario: usuarioId,
       });
       
-      await carregarBancos(); // Recarrega a lista após adicionar
+      // Invalida o cache e recarrega
+      await invalidateCacheByPattern('instituicoes');
+      await carregarBancos(true);
     } catch (err) {
       console.error('Erro ao adicionar banco:', err);
       setError('Erro ao adicionar banco');
@@ -106,7 +129,7 @@ export const useEditarBancos = () => {
    */
   const handleAddCustom = async (institution: Banco) => {
     try {
-      const novaInstituicao = await instituicaoService.criar({
+      await instituicaoService.criar({
         nome: institution.nome,
         icone: institution.icone,
         cor: institution.cor,
@@ -114,15 +137,22 @@ export const useEditarBancos = () => {
         fk_usuario: usuarioId,
       });
       
-      const newBank: Banco = {
-        ...institution,
-        id: novaInstituicao.id,
-      };
-      setBanks([...banks, newBank]);
+      // Invalida o cache e recarrega
+      await invalidateCacheByPattern('instituicoes');
+      await carregarBancos(true);
     } catch (err) {
       console.error('Erro ao adicionar banco customizado:', err);
       setError('Erro ao adicionar banco');
     }
+  };
+
+  /**
+   * Retorna instituições padrões que o usuário ainda não adicionou
+   */
+  const getAvailableBanks = () => {
+    const bancosUsuario = banks.map(b => b.nome.toLowerCase());
+    const bancosPadrao = getInstituicoesPadrao('banco');
+    return bancosPadrao.filter(banco => !bancosUsuario.includes(banco.nome.toLowerCase()));
   };
 
   /**
@@ -138,9 +168,9 @@ export const useEditarBancos = () => {
         fk_usuario: usuarioId,
       });
       
-      setBanks(banks.map(bank => 
-        bank.id === updatedBank.id ? { ...bank, ...updatedBank } : bank
-      ));
+      // Invalida o cache e recarrega
+      await invalidateCacheByPattern('instituicoes');
+      await carregarBancos(true);
       setEditModalVisible(false);
     } catch (err) {
       console.error('Erro ao atualizar banco:', err);
@@ -156,6 +186,7 @@ export const useEditarBancos = () => {
     selectedBank,
     selectionModalVisible,
     customModalVisible,
+    availableBanks: getAvailableBanks(),
     setEditModalVisible,
     setSelectionModalVisible,
     setCustomModalVisible,
@@ -170,7 +201,7 @@ export const useEditarBancos = () => {
 };
 
 /**
- * Hook para gerenciar edição de vales
+ * Hook para gerenciar edição de vales (COM CACHE)
  */
 export const useEditarVales = () => {
   const [vouchers, setVouchers] = useState<Vale[]>([]);
@@ -182,19 +213,32 @@ export const useEditarVales = () => {
   const [customModalVisible, setCustomModalVisible] = useState(false);
 
   const usuarioId = 1;
+  const { getCache, setCache, invalidateCacheByPattern } = useCache();
 
   useEffect(() => {
     carregarVales();
   }, []);
 
   /**
-   * Carrega vales da API
+   * Carrega vales da API (com cache)
    */
-  const carregarVales = async () => {
+  const carregarVales = async (forceRefresh = false) => {
     setLoading(true);
     setError(null);
     
     try {
+      const cacheKey = `instituicoes:vales:user:${usuarioId}`;
+      
+      // Tenta buscar do cache primeiro (a menos que force refresh)
+      if (!forceRefresh) {
+        const cached = await getCache<Vale[]>(cacheKey);
+        if (cached) {
+          setVouchers(cached);
+          setLoading(false);
+          return;
+        }
+      }
+      
       const instituicoes = await instituicaoService.listarPorUsuario(usuarioId);
       
       // Filtra apenas vales usando tipoInstituicao
@@ -208,6 +252,9 @@ export const useEditarVales = () => {
           icone: inst.icone,
           tipoInstituicao: 'vale',
         }));
+      
+      // Salva no cache
+      await setCache(cacheKey, valesList);
       
       setVouchers(valesList);
     } catch (err: any) {
@@ -232,7 +279,10 @@ export const useEditarVales = () => {
   const handleDelete = async (voucher: Vale) => {
     try {
       await instituicaoService.deletar(voucher.id);
-      await carregarVales(); // Recarrega a lista após deletar
+      
+      // Invalida o cache e recarrega
+      await invalidateCacheByPattern('instituicoes');
+      await carregarVales(true);
     } catch (err) {
       console.error('Erro ao deletar vale:', err);
       setError('Erro ao deletar vale');
@@ -252,7 +302,9 @@ export const useEditarVales = () => {
         fk_usuario: usuarioId,
       });
       
-      await carregarVales(); // Recarrega a lista após adicionar
+      // Invalida o cache e recarrega
+      await invalidateCacheByPattern('instituicoes');
+      await carregarVales(true);
     } catch (err) {
       console.error('Erro ao adicionar vale:', err);
       setError('Erro ao adicionar vale');
@@ -272,7 +324,7 @@ export const useEditarVales = () => {
    */
   const handleAddCustom = async (institution: Vale) => {
     try {
-      const novaInstituicao = await instituicaoService.criar({
+      await instituicaoService.criar({
         nome: institution.nome,
         icone: institution.icone,
         cor: institution.cor,
@@ -280,15 +332,22 @@ export const useEditarVales = () => {
         fk_usuario: usuarioId,
       });
       
-      const newVoucher: Vale = {
-        ...institution,
-        id: novaInstituicao.id,
-      };
-      setVouchers([...vouchers, newVoucher]);
+      // Invalida o cache e recarrega
+      await invalidateCacheByPattern('instituicoes');
+      await carregarVales(true);
     } catch (err) {
       console.error('Erro ao adicionar vale customizado:', err);
       setError('Erro ao adicionar vale');
     }
+  };
+
+  /**
+   * Retorna instituições padrões que o usuário ainda não adicionou
+   */
+  const getAvailableVouchers = () => {
+    const valesUsuario = vouchers.map(v => v.nome.toLowerCase());
+    const valesPadrao = getInstituicoesPadrao('vale');
+    return valesPadrao.filter(vale => !valesUsuario.includes(vale.nome.toLowerCase()));
   };
 
   /**
@@ -304,9 +363,9 @@ export const useEditarVales = () => {
         fk_usuario: usuarioId,
       });
       
-      setVouchers(vouchers.map(voucher => 
-        voucher.id === updatedVoucher.id ? { ...voucher, ...updatedVoucher } : voucher
-      ));
+      // Invalida o cache e recarrega
+      await invalidateCacheByPattern('instituicoes');
+      await carregarVales(true);
       setEditModalVisible(false);
     } catch (err) {
       console.error('Erro ao atualizar vale:', err);
@@ -322,6 +381,7 @@ export const useEditarVales = () => {
     selectedVoucher,
     selectionModalVisible,
     customModalVisible,
+    availableVouchers: getAvailableVouchers(),
     setEditModalVisible,
     setSelectionModalVisible,
     setCustomModalVisible,

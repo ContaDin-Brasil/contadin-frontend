@@ -1,0 +1,59 @@
+/**
+ * Ícones disponíveis para as categorias
+ */
+export const CATEGORY_ICONS = [
+  'restaurant',
+  'business',
+  'attach-money',
+  'trending-up',
+  'tag-faces',
+  'shopping-cart',
+  'school',
+  'shopping-bag',
+  'directions-car',
+  'flight',
+  'local-pharmacy',
+  'local-bar',
+  'local-cafe',
+  'fastfood',
+  'local-pizza',
+  'local-drink',
+  'home',
+  'fitness-center',
+  'payments',
+  'phone',
+  'computer',
+  'headset',
+  'toys',
+  'child-care',
+  'pets',
+  'local-gas-station',
+  'local-hospital',
+  'spa',
+  'beach-access',
+  'local-movies',
+];
+
+/**
+ * Cores disponíveis para destacar categorias
+ */
+export const CATEGORY_COLORS = [
+  '#FF6B6B',
+  '#4ECDC4',
+  '#45B7D1',
+  '#FFA07A',
+  '#98D8C8',
+  '#F7DC6F',
+  '#BB8FCE',
+  '#85C1E2',
+  '#F8B739',
+  '#52B788',
+  '#E63946',
+  '#457B9D',
+  '#A8DADC',
+  '#F1FAEE',
+  '#E76F51',
+  '#2A9D8F',
+  '#264653',
+  '#E9C46A',
+];

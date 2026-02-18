@@ -3,38 +3,39 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, Image } fr
 import { Ionicons } from '@expo/vector-icons';
 import { getLogoByName } from './logosInstituicoes';
 
-const InstitutionSelectionModal = ({ visible, onClose, onSelectInstitution, onAddCustom, tipo = 'banco', existingInstitutions = [] }) => {
-  const bancosPredefinidos = [
-    { id: 1, nome: 'Santander', cor: '#E31C23', icone: 'S', tipoInstituicao: 'banco' },
-    { id: 2, nome: 'Nubank', cor: '#820AD1', icone: 'Nu', tipoInstituicao: 'banco' },
-    { id: 3, nome: 'Itaú', cor: '#FF6600', icone: 'I', tipoInstituicao: 'banco' },
-    { id: 4, nome: 'Inter', cor: '#FF7A00', icone: 'I', tipoInstituicao: 'banco' },
-    { id: 5, nome: 'Bradesco', cor: '#CC092F', icone: 'B', tipoInstituicao: 'banco' },
-    { id: 6, nome: 'Banco do Brasil', cor: '#FFED00', icone: 'BB', tipoInstituicao: 'banco' },
-    { id: 7, nome: 'Caixa', cor: '#005CA9', icone: 'C', tipoInstituicao: 'banco' },
-    { id: 8, nome: 'C6 Bank', cor: '#000000', icone: 'C6', tipoInstituicao: 'banco' },
-    { id: 9, nome: 'Next', cor: '#00AB63', icone: 'N', tipoInstituicao: 'banco' },
-    { id: 10, nome: 'PicPay', cor: '#21C25E', icone: 'P', tipoInstituicao: 'banco' },
-    { id: 11, nome: 'Mercado Pago', cor: '#009EE3', icone: 'MP', tipoInstituicao: 'banco' },
-  ];
-
-  const valesPredefinidos = [
-    { id: 14, nome: 'Alelo', cor: '#0066CC', icone: 'Al', tipoInstituicao: 'vale' },
-    { id: 15, nome: 'Sodexo', cor: '#E2231A', icone: 'Sd', tipoInstituicao: 'vale' },
-    { id: 16, nome: 'Ticket', cor: '#FF6600', icone: 'Tk', tipoInstituicao: 'vale' },
-    { id: 17, nome: 'Flash', cor: '#00A859', icone: 'Fl', tipoInstituicao: 'vale' },
-    ];
-
-  // Filtra instituições predefinidas removendo as que já foram adicionadas
-  const allPredefined = tipo === 'vale' ? valesPredefinidos : bancosPredefinidos;
-  const existingNames = existingInstitutions.map(inst => inst.nome.toLowerCase().trim());
-  const predefinedInstitutions = allPredefined.filter(
-    inst => !existingNames.includes(inst.nome.toLowerCase().trim())
-  );
+const InstitutionSelectionModal = ({ visible, onClose, onSelectInstitution, onAddCustom, availableInstitutions = [] }) => {
+  // Separa instituições por tipo
+  const bancos = availableInstitutions.filter(inst => inst.tipoInstituicao === 'banco');
+  const vales = availableInstitutions.filter(inst => inst.tipoInstituicao === 'vale');
 
   const handleSelect = (institution) => {
     onSelectInstitution(institution);
     onClose();
+  };
+
+  const renderInstitutionCard = (institution) => {
+    const logo = getLogoByName(institution.nome);
+    return (
+      <TouchableOpacity
+        key={institution.id}
+        style={[styles.institutionCard, { borderColor: institution.cor }]}
+        onPress={() => handleSelect(institution)}
+        activeOpacity={0.7}
+      >
+        <View style={[styles.cardIconContainer, { backgroundColor: logo ? '#FFF' : institution.cor }]}>
+          {logo ? (
+            <Image 
+              source={logo} 
+              style={styles.institutionLogo}
+              resizeMode="contain"
+            />
+          ) : (
+            <Text style={styles.institutionIcon}>{institution.icone}</Text>
+          )}
+        </View>
+        <Text style={styles.institutionName} numberOfLines={1}>{institution.nome}</Text>
+      </TouchableOpacity>
+    );
   };
 
   return (
@@ -46,69 +47,48 @@ const InstitutionSelectionModal = ({ visible, onClose, onSelectInstitution, onAd
     >
       <View style={styles.overlay}>
         <View style={styles.modalContainer}>
-          <View style={styles.handle} />
+          <View style={styles.header}>
+            <Text style={styles.title}>Selecione uma Instituição</Text>
+            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+              <Ionicons name="close" size={28} color="#333" />
+            </TouchableOpacity>
+          </View>
           
           <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-            <Text style={styles.title}>
-              {tipo === 'vale' ? 'Selecione um Vale:' : 'Selecione uma Instituição:'}
-            </Text>
-            
-            {predefinedInstitutions.length > 0 ? (
-              <View style={styles.grid}>
-                {predefinedInstitutions.map((institution) => {
-                  const logo = getLogoByName(institution.nome);
-                  return (
-                    <TouchableOpacity
-                      key={institution.id}
-                      style={[styles.institutionCard, { backgroundColor: logo ? '#FFF' : institution.cor }]}
-                      onPress={() => handleSelect(institution)}
-                      activeOpacity={0.7}
-                    >
-                      {logo ? (
-                        <Image 
-                          source={logo} 
-                          style={styles.institutionLogo}
-                          resizeMode="contain"
-                        />
-                      ) : (
-                        <Text style={styles.institutionIcon}>{institution.icone}</Text>
-                      )}
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-            ) : (
-              <View style={styles.emptyState}>
-                <Ionicons name="checkmark-circle-outline" size={48} color="#999" />
-                <Text style={styles.emptyText}>
-                  {tipo === 'vale' 
-                    ? 'Você já adicionou todos os vales disponíveis!' 
-                    : 'Você já adicionou todos os bancos disponíveis!'}
-                </Text>
+            {/* Seção Bancos */}
+            {bancos.length > 0 && (
+              <View style={styles.section}>
+                <View style={styles.sectionHeader}>
+                  <Ionicons name="business" size={20} color="#666" />
+                  <Text style={styles.sectionTitle}>Bancos</Text>
+                </View>
+                <View style={styles.grid}>
+                  {bancos.map(renderInstitutionCard)}
+                </View>
               </View>
             )}
 
-            <View style={styles.customSection}>
-              <Text style={styles.customText}>
-                {tipo === 'vale' ? 'Seu vale não está na lista? ' : 'Seu banco não está na lista? '}
-                <Text style={styles.customLink} onPress={onAddCustom}>Adicionar</Text>
-              </Text>
-            </View>
+            {/* Seção Vales */}
+            {vales.length > 0 && (
+              <View style={styles.section}>
+                <View style={styles.sectionHeader}>
+                  <Ionicons name="card" size={20} color="#666" />
+                  <Text style={styles.sectionTitle}>Vales</Text>
+                </View>
+                <View style={styles.grid}>
+                  {vales.map(renderInstitutionCard)}
+                </View>
+              </View>
+            )}
 
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity 
-                style={styles.cancelButton}
-                onPress={onClose}
-              >
-                <Text style={styles.cancelButtonText}>Cancelar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={styles.addButton}
-                onPress={onAddCustom}
-              >
-                <Text style={styles.addButtonText}>Adicionar Instituição</Text>
-              </TouchableOpacity>
-            </View>
+            {/* Botão adicionar customizada */}
+            <TouchableOpacity 
+              style={styles.addCustomButton}
+              onPress={onAddCustom}
+            >
+              <Ionicons name="add-circle-outline" size={24} color="#5BA3FF" />
+              <Text style={styles.addCustomText}>Adicionar instituição personalizada</Text>
+            </TouchableOpacity>
           </ScrollView>
         </View>
       </View>
@@ -124,112 +104,106 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     backgroundColor: '#FFF',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
     maxHeight: '80%',
     paddingBottom: 20,
   },
-  handle: {
-    width: 40,
-    height: 5,
-    backgroundColor: '#CCC',
-    borderRadius: 3,
-    alignSelf: 'center',
-    marginTop: 10,
-    marginBottom: 20,
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#333',
+  },
+  closeButton: {
+    padding: 4,
   },
   content: {
     paddingHorizontal: 20,
+    paddingTop: 20,
   },
-  title: {
-    fontSize: 18,
+  section: {
+    marginBottom: 24,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+    gap: 8,
+  },
+  sectionTitle: {
+    fontSize: 16,
     fontWeight: '600',
-    marginBottom: 20,
-    color: '#000',
+    color: '#666',
   },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
     gap: 12,
   },
   institutionCard: {
     width: '22%',
-    aspectRatio: 1,
+    aspectRatio: 0.9,
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
-    overflow: 'hidden',
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: '#E0E0E0',
+    backgroundColor: '#FFF',
+    padding: 8,
+  },
+  cardIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 6,
+    overflow: 'hidden',
   },
   institutionLogo: {
-    width: '80%',
-    height: '80%',
-    padding: 4,
-    objectFit: 'cover',
-    borderRadius: 8,
+    width: 42,
+    height: 42,
   },
   institutionIcon: {
     color: '#FFF',
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
   },
-  emptyState: {
+  institutionName: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#333',
+    textAlign: 'center',
+  },
+  addCustomButton: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 40,
+    backgroundColor: '#F5F9FF',
+    paddingVertical: 16,
     paddingHorizontal: 20,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#5BA3FF',
+    borderStyle: 'dashed',
+    gap: 8,
+    marginTop: 8,
+    marginBottom: 20,
   },
-  emptyText: {
+  addCustomText: {
     fontSize: 15,
-    color: '#666',
-    textAlign: 'center',
-    marginTop: 12,
-    lineHeight: 22,
-  },
-  customSection: {
-    marginTop: 20,
-    marginBottom: 30,
-    alignItems: 'center',
-  },
-  customText: {
-    fontSize: 14,
-    color: '#666',
-  },
-  customLink: {
-    color: '#007AFF',
     fontWeight: '600',
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    gap: 12,
-    marginBottom: 10,
-  },
-  cancelButton: {
-    flex: 1,
-    backgroundColor: '#E5E5E5',
-    paddingVertical: 14,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  cancelButtonText: {
-    color: '#666',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  addButton: {
-    flex: 1,
-    backgroundColor: '#007AFF',
-    paddingVertical: 14,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  addButtonText: {
-    color: '#FFF',
-    fontSize: 16,
-    fontWeight: '600',
+    color: '#5BA3FF',
   },
 });
 

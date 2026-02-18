@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView, TextInput } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, TextInput, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import TituloPagina from '../../componentes/TituloPagina';
 import { useAlterarSenha } from './hooks/useAlterarSenha';
 import { REQUISITOS_SENHA } from './constants/constantesConfiguracao';
 import { styles } from './styles/TelaAlterarSenha.styles';
@@ -9,13 +10,14 @@ const ChangePasswordScreen = ({ navigation }) => {
   const senha = useAlterarSenha();
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={28} color="#000" />
-        </TouchableOpacity>
-        <Text style={styles.title}>Alterar Senha</Text>
-      </View>
+    <SafeAreaView style={styles.container}>
+      <TituloPagina 
+        mostrarBotaoVoltar={true} 
+        onVoltar={() => navigation.goBack()}
+      >
+        Alterar Senha
+      </TituloPagina>
+      <ScrollView contentContainerStyle={styles.contentContainer}>
 
       <View style={styles.formContainer}>
         <Text style={styles.label}>Adicione a sua senha atual</Text>
@@ -56,7 +58,8 @@ const ChangePasswordScreen = ({ navigation }) => {
           <Text style={styles.saveButtonText}>Salvar Alterações</Text>
         </TouchableOpacity>
       </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 

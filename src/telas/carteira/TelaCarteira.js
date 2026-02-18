@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
+import TituloPagina from '../../componentes/TituloPagina';
 import { InstitutionCard, AddCard } from '../../componentes/cartoes/CartaoInstituicao';
 import InstitutionSelectionModal from '../../componentes/modais/ModalSelecaoInstituicao';
 import AddCustomInstitutionModal from '../../componentes/modais/ModalAdicionarInstituicao';
@@ -50,8 +51,9 @@ const WalletScreen = ({ navigation }) => {
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      <Text style={styles.title}>Suas Instituições</Text>
+    <SafeAreaView style={styles.container}>
+      <TituloPagina>Suas Instituições</TituloPagina>
+      <ScrollView contentContainerStyle={styles.contentContainer}>
 
       {/* Seção Contas Bancárias */}
       <View style={styles.section}>
@@ -78,7 +80,22 @@ const WalletScreen = ({ navigation }) => {
               balance={bank.balance}
               color={bank.cor}
               icon={renderIcon(bank.icone, bank.cor)}
-              onPress={() => {}}
+              onPress={() => {
+                navigation.navigate('Transactions', {
+                  screen: 'TransactionsMain',
+                  params: {
+                    instituicao: {
+                      id: bank.id,
+                      nome: bank.nome,
+                      cor: bank.cor,
+                      icone: bank.icone,
+                      tipo: 'banco',
+                      balance: bank.balance,
+                      expenses: bank.expenses,
+                    }
+                  }
+                });
+              }}
             />
           ))}
           <AddCard onPress={() => carteira.setBankSelectionModalVisible(true)} />
@@ -118,7 +135,21 @@ const WalletScreen = ({ navigation }) => {
               balance={voucher.balance}
               color={voucher.cor}
               icon={renderIcon(voucher.icone, voucher.cor)}
-              onPress={() => {}}
+              onPress={() => {
+                navigation.navigate('Transactions', {
+                  screen: 'TransactionsMain',
+                  params: {
+                    instituicao: {
+                      id: voucher.id,
+                      nome: voucher.nome,
+                      cor: voucher.cor,
+                      icone: voucher.icone,
+                      tipo: 'vale',
+                      balance: voucher.balance,
+                    }
+                  }
+                });
+              }}
             />
           ))}
           <AddCard onPress={() => carteira.setVoucherSelectionModalVisible(true)} />
@@ -132,14 +163,14 @@ const WalletScreen = ({ navigation }) => {
           <Text style={styles.addButtonText}>Adicionar</Text>
         </TouchableOpacity>
       </View>
+      </ScrollView>
 
       <InstitutionSelectionModal
         visible={carteira.bankSelectionModalVisible}
         onClose={() => carteira.setBankSelectionModalVisible(false)}
         onSelectInstitution={carteira.handleSelectBank}
         onAddCustom={carteira.handleAddCustomBank}
-        tipo="banco"
-        existingInstitutions={carteira.banks}
+        availableInstitutions={carteira.availableBanks}
       />
 
       <AddCustomInstitutionModal
@@ -153,8 +184,7 @@ const WalletScreen = ({ navigation }) => {
         onClose={() => carteira.setVoucherSelectionModalVisible(false)}
         onSelectInstitution={carteira.handleSelectVoucher}
         onAddCustom={carteira.handleAddCustomVoucher}
-        tipo="vale"
-        existingInstitutions={carteira.vouchers}
+        availableInstitutions={carteira.availableVouchers}
       />
 
       <AddCustomInstitutionModal
@@ -162,7 +192,7 @@ const WalletScreen = ({ navigation }) => {
         onClose={() => carteira.setVoucherCustomModalVisible(false)}
         onAdd={carteira.handleAddCustomVoucherComplete}
       />
-    </ScrollView>
+    </SafeAreaView>
   );
 };
 

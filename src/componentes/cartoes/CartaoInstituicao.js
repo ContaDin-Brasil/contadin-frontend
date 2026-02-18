@@ -83,6 +83,8 @@ const styles = StyleSheet.create({
   logoImage: {
     width: 36,
     height: 36,
+    objectFit: 'cover',
+    borderRadius: 8,
   },
   gridName: {
     fontSize: 16,
@@ -112,4 +114,3 @@ const styles = StyleSheet.create({
 });
 
 export { InstitutionCard, AddCard };
-export default InstitutionCard;
