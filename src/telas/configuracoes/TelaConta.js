@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView, TextInput } from 'react-native';
+import { View, Text, ScrollView, TextInput, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import TituloPagina from '../../componentes/TituloPagina';
 import CustomButton from '../../componentes/BotaoCustomizado';
 import CustomModal from '../../componentes/modais/ModalBase';
 import { useGerenciarConta } from './hooks/useGerenciarConta';
@@ -10,13 +11,14 @@ const AccountScreen = ({ navigation }) => {
   const conta = useGerenciarConta();
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={28} color="#000" />
-        </TouchableOpacity>
-        <Text style={styles.title}>Editar Conta</Text>
-      </View>
+    <SafeAreaView style={styles.container}>
+      <TituloPagina 
+        mostrarBotaoVoltar={true} 
+        onVoltar={() => navigation.goBack()}
+      >
+        Editar Conta
+      </TituloPagina>
+      <ScrollView contentContainerStyle={styles.contentContainer}>
 
       <View style={styles.buttonsContainer}>
         <CustomButton 
@@ -84,7 +86,8 @@ const AccountScreen = ({ navigation }) => {
           <Text style={styles.modalText}>90 dias a partir de hoje ela será excluída.</Text>
         </View>
       </CustomModal>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 

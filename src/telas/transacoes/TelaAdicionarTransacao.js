@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity, Switch, Animated, ActivityIndicator, Alert, Image } from 'react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, Switch, Animated, ActivityIndicator, Alert, Image, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import TituloPagina from '../../componentes/TituloPagina';
 import { getLogoByName } from '../../componentes/modais/logosInstituicoes';
 import ModalSelecaoInstituicao from '../../componentes/modais/ModalSelecaoInstituicao';
 import ModalAdicionarInstituicao from '../../componentes/modais/ModalAdicionarInstituicao';
@@ -98,14 +99,14 @@ const TelaAdicionarTransacao = ({ navigation }) => {
   };
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color="#333" />
-        </TouchableOpacity>
-        <Text style={styles.title}>Adicione uma Transação</Text>
-        <View style={{ width: 24 }} />
-      </View>
+    <SafeAreaView style={styles.safeArea}>
+      <TituloPagina 
+        mostrarBotaoVoltar={true} 
+        onVoltar={() => navigation.goBack()}
+      >
+        Adicionar Transação
+      </TituloPagina>
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
 
       {/* Botões de OCR/Áudio */}
       <View style={styles.aiSection}>
@@ -542,7 +543,8 @@ const TelaAdicionarTransacao = ({ navigation }) => {
         onClose={() => setCustomModalVisible(false)}
         onAdd={handleAddCustomInstitution}
       />
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 

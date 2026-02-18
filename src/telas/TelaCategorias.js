@@ -7,8 +7,10 @@ import {
   TextInput,
   Alert,
   ActivityIndicator,
+  SafeAreaView,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import TituloPagina from '../componentes/TituloPagina';
 import { styles } from './styles/TelaCategorias.styles';
 import { useGerenciarCategorias } from './categorias/hooks/useGerenciarCategorias';
 import ModalCategoria from './categorias/modals/ModalCategoria';
@@ -107,11 +109,8 @@ const TelaCategorias = () => {
   );
 
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Categorias</Text>
-      </View>
+    <SafeAreaView style={styles.container}>
+      <TituloPagina>Categorias</TituloPagina>
 
       {/* Toggle de Tipo */}
       <View style={styles.typeToggle}>
@@ -205,7 +204,7 @@ const TelaCategorias = () => {
         onSave={handleSaveCategoria}
         categoria={categoriaParaEditar}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 

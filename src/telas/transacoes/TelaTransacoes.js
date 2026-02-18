@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Image, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import TituloPagina from '../../componentes/TituloPagina';
 import { getLogoByName } from '../../componentes/modais/logosInstituicoes';
 import { useGerenciarTransacoes } from './hooks/useGerenciarTransacoes';
 import { 
@@ -116,8 +117,8 @@ const TelaTransacoes = ({ navigation, route }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Transações</Text>
+    <SafeAreaView style={styles.container}>
+      <TituloPagina>Transações</TituloPagina>
 
       {/* Banner de Instituição Selecionada */}
       {instituicaoSelecionada && (() => {
@@ -211,7 +212,7 @@ const TelaTransacoes = ({ navigation, route }) => {
       >
         <Ionicons name="add" size={32} color="#FFF" />
       </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 };
 

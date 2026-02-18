@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
+import TituloPagina from '../../componentes/TituloPagina';
 import { InstitutionCard, AddCard } from '../../componentes/cartoes/CartaoInstituicao';
 import InstitutionSelectionModal from '../../componentes/modais/ModalSelecaoInstituicao';
 import AddCustomInstitutionModal from '../../componentes/modais/ModalAdicionarInstituicao';
@@ -50,9 +51,9 @@ const WalletScreen = ({ navigation }) => {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
+      <TituloPagina>Suas Instituições</TituloPagina>
       <ScrollView contentContainerStyle={styles.contentContainer}>
-        <Text style={styles.title}>Suas Instituições</Text>
 
       {/* Seção Contas Bancárias */}
       <View style={styles.section}>
@@ -191,7 +192,7 @@ const WalletScreen = ({ navigation }) => {
         onClose={() => carteira.setVoucherCustomModalVisible(false)}
         onAdd={carteira.handleAddCustomVoucherComplete}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 

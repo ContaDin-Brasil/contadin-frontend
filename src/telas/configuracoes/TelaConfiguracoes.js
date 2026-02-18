@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
 import { Ionicons, Feather } from '@expo/vector-icons';
+import TituloPagina from '../../componentes/TituloPagina';
 import CustomButton from '../../componentes/BotaoCustomizado';
 import CustomModal from '../../componentes/modais/ModalBase';
 import { styles } from './styles/TelaConfiguracoes.styles';
@@ -15,8 +16,9 @@ const SettingsScreen = ({ navigation }) => {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      <Text style={styles.title}>Configurações</Text>
+    <SafeAreaView style={styles.container}>
+      <TituloPagina>Configurações</TituloPagina>
+      <ScrollView contentContainerStyle={styles.contentContainer}>
       
       <View style={styles.avatarContainer}>
         <View style={styles.avatar}>
@@ -67,7 +69,8 @@ const SettingsScreen = ({ navigation }) => {
       >
         <Text style={styles.modalText}>Realmente deseja sair?</Text>
       </CustomModal>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 

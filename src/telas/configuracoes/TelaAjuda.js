@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import TituloPagina from '../../componentes/TituloPagina';
 import { useAjuda } from './hooks/useAjuda';
 import { CONTATOS } from './constants/constantesConfiguracao';
 import { styles } from './styles/TelaAjuda.styles';
@@ -9,13 +10,14 @@ const HelpScreen = ({ navigation }) => {
   const ajuda = useAjuda();
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={28} color="#000" />
-        </TouchableOpacity>
-        <Text style={styles.title}>Ajuda e Contato</Text>
-      </View>
+    <SafeAreaView style={styles.container}>
+      <TituloPagina 
+        mostrarBotaoVoltar={true} 
+        onVoltar={() => navigation.goBack()}
+      >
+        Ajuda e Contato
+      </TituloPagina>
+      <ScrollView contentContainerStyle={styles.contentContainer}>
 
       <View style={styles.tabsContainer}>
         <TouchableOpacity 
@@ -85,7 +87,8 @@ const HelpScreen = ({ navigation }) => {
           </View>
         )}
       </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
