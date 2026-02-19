@@ -173,11 +173,14 @@ const styles = StyleSheet.create({
   institutionLogo: {
     width: 42,
     height: 42,
+    objectFit: 'cover',
+    borderRadius: 8,
   },
   institutionIcon: {
     color: '#FFF',
     fontSize: 18,
     fontWeight: 'bold',
+    objectFit: 'cover',
   },
   institutionName: {
     fontSize: 11,

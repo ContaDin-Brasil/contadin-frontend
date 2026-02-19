@@ -63,6 +63,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
+    objectFit: 'cover',
   },
   iconText: {
     fontSize: 14,
