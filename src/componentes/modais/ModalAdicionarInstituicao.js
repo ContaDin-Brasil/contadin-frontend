@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Modal, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Modal, ScrollView, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 const AddCustomInstitutionModal = ({ visible, onClose, onAdd, tipoInicial = 'banco' }) => {
@@ -53,8 +53,8 @@ const AddCustomInstitutionModal = ({ visible, onClose, onAdd, tipoInicial = 'ban
       animationType="slide"
       onRequestClose={onClose}
     >
-      <View style={styles.overlay}>
-        <View style={styles.modalContainer}>
+      <Pressable style={styles.overlay} onPress={onClose}>
+        <Pressable style={styles.modalContainer} onPress={(e) => e.stopPropagation()}>
           <View style={styles.handle} />
           
           <ScrollView 
@@ -191,8 +191,8 @@ const AddCustomInstitutionModal = ({ visible, onClose, onAdd, tipoInicial = 'ban
               </TouchableOpacity>
             </View>
           </ScrollView>
-        </View>
-      </View>
+        </Pressable>
+      </Pressable>
     </Modal>
   );
 };

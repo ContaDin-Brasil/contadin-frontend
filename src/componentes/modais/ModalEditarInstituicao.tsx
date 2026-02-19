@@ -9,6 +9,7 @@ import {
   ScrollView,
   Image,
   Alert,
+  Pressable,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getLogoByName } from './logosInstituicoes';
@@ -134,8 +135,8 @@ const ModalEditarInstituicao: React.FC<ModalEditarInstituicaoProps> = ({
       animationType="slide"
       onRequestClose={onClose}
     >
-      <View style={styles.overlay}>
-        <View style={styles.modalContainer}>
+      <Pressable style={styles.overlay} onPress={onClose}>
+        <Pressable style={styles.modalContainer} onPress={(e) => e.stopPropagation()}>
           <View style={styles.handle} />
           
           <ScrollView 
@@ -294,8 +295,8 @@ const ModalEditarInstituicao: React.FC<ModalEditarInstituicaoProps> = ({
               </TouchableOpacity>
             </View>
           </ScrollView>
-        </View>
-      </View>
+        </Pressable>
+      </Pressable>
     </Modal>
   );
 };

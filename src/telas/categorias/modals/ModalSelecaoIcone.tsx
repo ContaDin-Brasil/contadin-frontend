@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Modal, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
+import { View, Text, Modal, TouchableOpacity, FlatList, StyleSheet, Pressable } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { CATEGORY_ICONS } from '../constants/constantesCategorias';
 
@@ -23,8 +23,8 @@ const ModalSelecaoIcone: React.FC<ModalSelecaoIconeProps> = ({
       transparent={true}
       onRequestClose={onClose}
     >
-      <View style={styles.overlay}>
-        <View style={styles.modalContainer}>
+      <Pressable style={styles.overlay} onPress={onClose}>
+        <Pressable style={styles.modalContainer} onPress={(e) => e.stopPropagation()}>
           <View style={styles.handle} />
           
           <Text style={styles.title}>Selecione um ícone</Text>
@@ -57,8 +57,8 @@ const ModalSelecaoIcone: React.FC<ModalSelecaoIconeProps> = ({
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
             <Text style={styles.closeButtonText}>Fechar</Text>
           </TouchableOpacity>
-        </View>
-      </View>
+        </Pressable>
+      </Pressable>
     </Modal>
   );
 };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, Image, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getLogoByName } from './logosInstituicoes';
 
@@ -45,8 +45,8 @@ const InstitutionSelectionModal = ({ visible, onClose, onSelectInstitution, onAd
       animationType="slide"
       onRequestClose={onClose}
     >
-      <View style={styles.overlay}>
-        <View style={styles.modalContainer}>
+      <Pressable style={styles.overlay} onPress={onClose}>
+        <Pressable style={styles.modalContainer} onPress={(e) => e.stopPropagation()}>
           <View style={styles.header}>
             <Text style={styles.title}>Selecione uma Instituição</Text>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
@@ -90,8 +90,8 @@ const InstitutionSelectionModal = ({ visible, onClose, onSelectInstitution, onAd
               <Text style={styles.addCustomText}>Adicionar instituição personalizada</Text>
             </TouchableOpacity>
           </ScrollView>
-        </View>
-      </View>
+        </Pressable>
+      </Pressable>
     </Modal>
   );
 };
