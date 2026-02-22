@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Image, SafeAreaView } from 'react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Image, SafeAreaView, RefreshControl } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import TituloPagina from '../../componentes/TituloPagina';
 import { getLogoByName } from '../../componentes/modais/logosInstituicoes';
 import { useGerenciarTransacoes } from './hooks/useGerenciarTransacoes';
@@ -14,6 +15,8 @@ import { styles } from './styles/TelaTransacoes.styles';
 
 const TelaTransacoes = ({ navigation, route }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastUpdate, setLastUpdate] = useState(new Date());
   const gerenciador = useGerenciarTransacoes();
 
   // Recebe os dados da instituição clicada (se houver)
@@ -28,6 +31,51 @@ const TelaTransacoes = ({ navigation, route }) => {
       console.log('   - ID:', instituicaoSelecionada.id);
     }
   }, [instituicaoSelecionada]);
+
+  /**
+   * Atualiza dados quando a tela recebe foco
+   * Detecta mudanças vindas de outras telas (adicionar, editar, deletar)
+   */
+  useFocusEffect(
+    React.useCallback(() => {
+      console.log('\n' + '='.repeat(60));
+      console.log('🔄 [AUTO-REFRESH] Tela de transações recebeu foco');
+      console.log('='.repeat(60));
+      console.log('📊 Recarregando dados do banco...');
+      
+      gerenciador.carregarDados().then(() => {
+        setLastUpdate(new Date());
+        console.log('✅ Dados atualizados com sucesso!');
+        console.log('⏰ Última atualização:', new Date().toLocaleTimeString('pt-BR'));
+        console.log('='.repeat(60) + '\n');
+      }).catch((err) => {
+        console.error('❌ Erro ao atualizar dados:', err);
+        console.log('='.repeat(60) + '\n');
+      });
+    }, [])
+  );
+
+  /**
+   * Handler para pull-to-refresh manual
+   */
+  const onRefresh = React.useCallback(async () => {
+    console.log('\n' + '='.repeat(60));
+    console.log('🔄 [MANUAL-REFRESH] Usuário solicitou atualização');
+    console.log('='.repeat(60));
+    
+    setRefreshing(true);
+    try {
+      await gerenciador.carregarDados();
+      setLastUpdate(new Date());
+      console.log('✅ Dados atualizados manualmente com sucesso!');
+      console.log('⏰ Última atualização:', new Date().toLocaleTimeString('pt-BR'));
+    } catch (err) {
+      console.error('❌ Erro ao atualizar:', err);
+    } finally {
+      setRefreshing(false);
+      console.log('='.repeat(60) + '\n');
+    }
+  }, []);
 
   // Mostra loading
   if (gerenciador.loading) {
@@ -195,8 +243,29 @@ const TelaTransacoes = ({ navigation, route }) => {
         </TouchableOpacity>
       </View>
 
+      {/* Indicador de Última Atualização */}
+      <View style={styles.lastUpdateContainer}>
+        <Ionicons name="time-outline" size={12} color="#999" />
+        <Text style={styles.lastUpdateText}>
+          Atualizado às {lastUpdate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+        </Text>
+      </View>
+
       {/* Lista de Transações */}
-      <ScrollView style={styles.transactionsList} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        style={styles.transactionsList} 
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={['#8A05BE']}
+            tintColor="#8A05BE"
+            title="Atualizando..."
+            titleColor="#666"
+          />
+        }
+      >
         {Object.entries(groupedTransactions).map(([date, transactions]) => (
           <View key={date} style={styles.dateGroup}>
             <Text style={styles.dateLabel}>{formatDateLabel(date)}</Text>

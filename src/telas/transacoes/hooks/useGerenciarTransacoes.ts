@@ -34,11 +34,18 @@ export const useGerenciarTransacoes = () => {
     setError(null);
     
     try {
+      console.log('🔄 [LOAD] Carregando dados da API...');
+      
       const [transacoesData, categoriasData, instituicoesData] = await Promise.all([
         transacaoService.listar(),
         categoriaService.listarPorUsuario(usuarioId),
         instituicaoService.listarPorUsuario(usuarioId)
       ]);
+      
+      console.log(`📊 [LOAD] Dados carregados da API:`);
+      console.log(`   • ${transacoesData.length} transações`);
+      console.log(`   • ${categoriasData.length} categorias`);
+      console.log(`   • ${instituicoesData.length} instituições`);
       
       setTransacoes(transacoesData);
       setCategorias(categoriasData);

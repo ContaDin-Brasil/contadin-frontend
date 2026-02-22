@@ -83,9 +83,21 @@ const TelaAdicionarTransacao = ({ navigation }) => {
         fk_categoria: data.selectedCategory,
       };
 
-      console.log('💾 Salvando transação:', transacao);
+      console.log('\n' + '='.repeat(60));
+      console.log('💾 [SAVE TRANSACTION] Salvando transação no banco');
+      console.log('='.repeat(60));
+      console.log('📦 Payload completo:', JSON.stringify(transacao, null, 2));
+      console.log('📍 Instituição selecionada:', JSON.stringify(data.selectedInstitution, null, 2));
+      console.log('📍 Categoria selecionada:', data.selectedCategory);
+      console.log('='.repeat(60) + '\n');
 
-      await transacaoService.criar(transacao);
+      const resultado = await transacaoService.criar(transacao);
+      
+      console.log('\n' + '='.repeat(60));
+      console.log('✅ [SUCCESS] Transação salva com sucesso!');
+      console.log('='.repeat(60));
+      console.log('📥 Resposta do servidor:', JSON.stringify(resultado, null, 2));
+      console.log('='.repeat(60) + '\n');
       
       Alert.alert('Sucesso', 'Transação criada com sucesso!', [
         { text: 'OK', onPress: () => navigation.goBack() }
@@ -162,7 +174,7 @@ const TelaAdicionarTransacao = ({ navigation }) => {
               </View>
               <View style={styles.suggestionRow}>
                 <Text style={styles.suggestionLabel}>Valor:</Text>
-                <Text style={styles.suggestionValue}>{aiState.aiSuggestion.valor}</Text>
+                <Text style={styles.suggestionValue}>R$ {aiState.aiSuggestion.valor}</Text>
               </View>
               {aiState.aiSuggestion.data && (
                 <View style={styles.suggestionRow}>
@@ -218,8 +230,8 @@ const TelaAdicionarTransacao = ({ navigation }) => {
             placeholder="0,00"
             placeholderTextColor="#999"
             value={formState.valor}
-            onChangeText={formState.setValor}
-            keyboardType="decimal-pad"
+            onChangeText={formState.handleValorChange}
+            keyboardType="numeric"
           />
         </View>
       </View>

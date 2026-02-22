@@ -7,6 +7,7 @@ import {
   AISuggestion 
 } from '../types/transacao.types';
 import { instituicaoService, categoriaService } from '../../../api';
+import { formatarValorMonetario, limparValorMonetario, converterParaNumero } from '../utils/formatacaoMoeda';
 
 /**
  * Obtém a data de hoje no formato DD/MM/YYYY
@@ -100,6 +101,31 @@ export const useFormularioTransacao = () => {
   };
 
   /**
+   * Formata o valor monetário enquanto o usuário digita
+   * Aplica máscara automática: 12345 -> "123,45"
+   */
+  const handleValorChange = (text: string) => {
+    console.log('💵 [VALOR CHANGE] Input recebeu:', text);
+    
+    // Se o texto já está formatado corretamente (tem vírgula), apenas valida
+    if (text.includes(',')) {
+      // Verifica se é um formato válido (números, pontos e uma vírgula)
+      const partes = text.split(',');
+      if (partes.length === 2 && partes[1].length <= 2) {
+        // Formato válido, usa diretamente
+        console.log('💵 [VALOR CHANGE] Valor já formatado, usando direto:', text);
+        setValor(text);
+        return;
+      }
+    }
+    
+    // Caso contrário, aplica formatação normal
+    const valorFormatado = formatarValorMonetario(text);
+    console.log('💵 [VALOR CHANGE] Valor formatado:', valorFormatado);
+    setValor(valorFormatado);
+  };
+
+  /**
    * Formata a data enquanto o usuário digita (DD/MM/YYYY)
    */
   const handleDateChange = (text: string) => {
@@ -190,33 +216,51 @@ export const useFormularioTransacao = () => {
    */
   const applyAISuggestion = (suggestion: AISuggestion) => {
     setDescricao(suggestion.descricao);
-    setValor(suggestion.valor);
+    
+    // A IA já retorna valores formatados (ex: "145,80" ou "5.000,00")
+    // Apenas removemos espaços extras e setamos diretamente
+    const valorFormatado = suggestion.valor.trim();
+    setValor(valorFormatado);
+    
     if (suggestion.data) {
       setDate(suggestion.data);
     }
     setTipo(suggestion.tipo);
-    // selectedCategory agora precisa ser o ID, não string
-    // Manter o valor atual ou buscar o ID correto da categoria
+    
+    console.log('📝 [AI SUGGESTION] Aplicando sugestão:');
+    console.log('   • Descrição:', suggestion.descricao);
+    console.log('   • Valor original:', suggestion.valor);
+    console.log('   • Valor aplicado:', valorFormatado);
   };
 
   /**
    * Retorna os dados do formulário para salvar
    */
-  const getFormData = () => ({
-    descricao,
-    valor: valor ? parseFloat(valor.replace(',', '.')) : 0,
-    date,
-    tipo,
-    selectedCategory,
-    isRecurring,
-    frequency: isRecurring ? frequency : null,
-    hasRecurrenceEndDate,
-    recurrenceEndDate: hasRecurrenceEndDate && isRecurring ? recurrenceEndDate : null,
-    parcelado: isInstallment,
-    qtdParcelas: isInstallment ? (customInstallmentCount ? parseInt(customInstallmentCount) : installmentCount) : 1,
-    selectedInstitution,
-    institutionType
-  });
+  const getFormData = () => {
+    const valorNumerico = converterParaNumero(valor);
+    
+    const formData = {
+      descricao,
+      valor: valorNumerico,
+      date,
+      tipo,
+      selectedCategory,
+      isRecurring,
+      frequency: isRecurring ? frequency : null,
+      hasRecurrenceEndDate,
+      recurrenceEndDate: hasRecurrenceEndDate && isRecurring ? recurrenceEndDate : null,
+      parcelado: isInstallment,
+      qtdParcelas: isInstallment ? (customInstallmentCount ? parseInt(customInstallmentCount) : installmentCount) : 1,
+      selectedInstitution,
+      institutionType
+    };
+    
+    console.log('📋 [FORM DATA] Dados do formulário:');
+    console.log('   • Valor formatado:', valor);
+    console.log('   • Valor numérico:', valorNumerico);
+    console.log('   • Dados completos:', JSON.stringify(formData, null, 2));
+    return formData;
+  };
 
   /**
    * Reseta o formulário
@@ -281,6 +325,7 @@ export const useFormularioTransacao = () => {
     setInstitutionType,
     
     // Ações
+    handleValorChange,
     handleDateChange,
     handleRecurrenceEndDateChange,
     handleToggleRecurring,

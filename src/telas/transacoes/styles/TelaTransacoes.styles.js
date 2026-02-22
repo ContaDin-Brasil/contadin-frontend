@@ -259,4 +259,18 @@ export const styles = StyleSheet.create({
     color: '#FF9800',
     fontWeight: '500',
   },
-});
+  // Indicador de última atualização
+  lastUpdateContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+    marginBottom: 10,
+    gap: 5,
+  },
+  lastUpdateText: {
+    fontSize: 12,
+    color: '#999',
+    fontStyle: 'italic',
+  },});

@@ -87,8 +87,24 @@ const transacaoService = {
    * @param {object} transacao - Dados da transação
    */
   criar: async (transacao) => {
-    const response = await api.post('/transacao', transacao);
-    return response.data;
+    console.log('🌐 [API SERVICE] Enviando requisição POST para /transacao');
+    console.log('🌐 [API SERVICE] Payload:', JSON.stringify(transacao, null, 2));
+    
+    try {
+      const response = await api.post('/transacao', transacao);
+      
+      console.log('🌐 [API SERVICE] Status da resposta:', response.status);
+      console.log('🌐 [API SERVICE] Dados retornados:', JSON.stringify(response.data, null, 2));
+      
+      return response.data;
+    } catch (error) {
+      console.error('❌ [API SERVICE] Erro na requisição:', error);
+      if (error.response) {
+        console.error('❌ [API SERVICE] Status do erro:', error.response.status);
+        console.error('❌ [API SERVICE] Dados do erro:', JSON.stringify(error.response.data, null, 2));
+      }
+      throw error;
+    }
   },
 
   /**

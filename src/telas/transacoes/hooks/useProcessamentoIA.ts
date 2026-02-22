@@ -56,7 +56,7 @@ export const useProcessamentoIA = () => {
     setTimeout(() => {
       setAiSuggestion({
         descricao: 'Compra no Supermercado Extra',
-        valor: 'R$ 145,80',
+        valor: '145,80',  // Valor já formatado sem R$ (será processado pelo input)
         categoria: 'Alimentação',
         tipo: 'GASTO',
         instituicao: 'Nubank',
@@ -77,7 +77,7 @@ export const useProcessamentoIA = () => {
     setTimeout(() => {
       setAiSuggestion({
         descricao: 'Salário mensal',
-        valor: 'R$ 5.000,00',
+        valor: '5.000,00',  // Valor já formatado sem R$ (será processado pelo input)
         categoria: 'Salário',
         tipo: 'RECEITA',
         instituicao: 'Santander',

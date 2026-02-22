@@ -231,19 +231,6 @@
       "fk_categoria": 1
     },
     {
-      "id": 25,
-      "valor": 72,
-      "tipo": "GASTO",
-      "descricao": "Delivery iFood",
-      "data_transacao": "2026-02-15T21:30:00",
-      "parcelado": false,
-      "qtdParcelas": 1,
-      "recorrencia": null,
-      "fim_recorrencia": null,
-      "fk_instituicao": 13,
-      "fk_categoria": 1
-    },
-    {
       "id": 11,
       "valor": 65.5,
       "tipo": "GASTO",
@@ -268,19 +255,6 @@
       "fim_recorrencia": null,
       "fk_instituicao": 5,
       "fk_categoria": 1
-    },
-    {
-      "id": 15,
-      "valor": 55,
-      "tipo": "GASTO",
-      "descricao": "Cinema + Pipoca",
-      "data_transacao": "2026-02-14T20:00:00",
-      "parcelado": false,
-      "qtdParcelas": 1,
-      "recorrencia": null,
-      "fim_recorrencia": null,
-      "fk_instituicao": 13,
-      "fk_categoria": 5
     },
     {
       "id": 27,
@@ -335,32 +309,6 @@
       "fk_categoria": 1
     },
     {
-      "id": 20,
-      "valor": 38.5,
-      "tipo": "GASTO",
-      "descricao": "Lanchonete",
-      "data_transacao": "2026-02-12T14:00:00",
-      "parcelado": false,
-      "qtdParcelas": 1,
-      "recorrencia": null,
-      "fim_recorrencia": null,
-      "fk_instituicao": 12,
-      "fk_categoria": 1
-    },
-    {
-      "id": 2,
-      "valor": 80,
-      "tipo": "GASTO",
-      "descricao": "Combustível Shell",
-      "data_transacao": "2026-02-12T08:15:00",
-      "parcelado": false,
-      "qtdParcelas": 1,
-      "recorrencia": null,
-      "fim_recorrencia": null,
-      "fk_instituicao": 6,
-      "fk_categoria": 2
-    },
-    {
       "id": 9,
       "valor": 250,
       "tipo": "GASTO",
@@ -372,19 +320,6 @@
       "fim_recorrencia": null,
       "fk_instituicao": 5,
       "fk_categoria": 1
-    },
-    {
-      "id": 21,
-      "valor": 450,
-      "tipo": "GASTO",
-      "descricao": "Conserto do Carro",
-      "data_transacao": "2026-02-11T00:00:00",
-      "parcelado": false,
-      "qtdParcelas": 1,
-      "recorrencia": null,
-      "fim_recorrencia": null,
-      "fk_instituicao": 6,
-      "fk_categoria": 2
     },
     {
       "id": 1,
@@ -400,32 +335,6 @@
       "fk_categoria": 1
     },
     {
-      "id": 19,
-      "valor": 200,
-      "tipo": "RECEITA",
-      "descricao": "Cashback e bonificações",
-      "data_transacao": "2026-02-10T00:00:00",
-      "parcelado": false,
-      "qtdParcelas": 1,
-      "recorrencia": null,
-      "fim_recorrencia": null,
-      "fk_instituicao": 13,
-      "fk_categoria": 4
-    },
-    {
-      "id": 28,
-      "valor": 380,
-      "tipo": "GASTO",
-      "descricao": "Dentista - Consulta",
-      "data_transacao": "2026-02-09T14:00:00",
-      "parcelado": false,
-      "qtdParcelas": 1,
-      "recorrencia": null,
-      "fim_recorrencia": null,
-      "fk_instituicao": 6,
-      "fk_categoria": 3
-    },
-    {
       "id": 13,
       "valor": 1500,
       "tipo": "RECEITA",
@@ -437,19 +346,6 @@
       "fim_recorrencia": null,
       "fk_instituicao": 5,
       "fk_categoria": 4
-    },
-    {
-      "id": 5,
-      "valor": 599.99,
-      "tipo": "GASTO",
-      "descricao": "Notebook Dell",
-      "data_transacao": "2026-02-08T14:20:00",
-      "parcelado": true,
-      "qtdParcelas": 12,
-      "recorrencia": null,
-      "fim_recorrencia": null,
-      "fk_instituicao": 13,
-      "fk_categoria": 5
     },
     {
       "id": 24,
@@ -478,19 +374,6 @@
       "fk_categoria": 3
     },
     {
-      "id": 14,
-      "valor": 299.9,
-      "tipo": "GASTO",
-      "descricao": "Tênis Nike",
-      "data_transacao": "2026-02-06T15:30:00",
-      "parcelado": true,
-      "qtdParcelas": 6,
-      "recorrencia": null,
-      "fim_recorrencia": null,
-      "fk_instituicao": 13,
-      "fk_categoria": 5
-    },
-    {
       "id": 3,
       "valor": 3500,
       "tipo": "RECEITA",
@@ -504,32 +387,6 @@
       "fk_categoria": 4
     },
     {
-      "id": 17,
-      "valor": 750,
-      "tipo": "GASTO",
-      "descricao": "Curso Online Udemy",
-      "data_transacao": "2026-02-04T10:00:00",
-      "parcelado": true,
-      "qtdParcelas": 10,
-      "recorrencia": null,
-      "fim_recorrencia": null,
-      "fk_instituicao": 6,
-      "fk_categoria": 5
-    },
-    {
-      "id": 7,
-      "valor": 120,
-      "tipo": "GASTO",
-      "descricao": "Academia - Mensalidade",
-      "data_transacao": "2026-02-03T00:00:00",
-      "parcelado": false,
-      "qtdParcelas": 1,
-      "recorrencia": "MENSAL",
-      "fim_recorrencia": null,
-      "fk_instituicao": 13,
-      "fk_categoria": 5
-    },
-    {
       "id": 4,
       "valor": 1200,
       "tipo": "GASTO",
@@ -541,32 +398,6 @@
       "fim_recorrencia": null,
       "fk_instituicao": 15,
       "fk_categoria": 3
-    },
-    {
-      "id": 8,
-      "valor": 89.9,
-      "tipo": "GASTO",
-      "descricao": "Netflix",
-      "data_transacao": "2026-02-01T00:00:00",
-      "parcelado": false,
-      "qtdParcelas": 1,
-      "recorrencia": "MENSAL",
-      "fim_recorrencia": null,
-      "fk_instituicao": 13,
-      "fk_categoria": 5
-    },
-    {
-      "id": 22,
-      "valor": 28.9,
-      "tipo": "GASTO",
-      "descricao": "Spotify Premium",
-      "data_transacao": "2026-02-01T00:00:00",
-      "parcelado": false,
-      "qtdParcelas": 1,
-      "recorrencia": "MENSAL",
-      "fim_recorrencia": null,
-      "fk_instituicao": 7,
-      "fk_categoria": 5
     },
     {
       "id": 26,
@@ -593,6 +424,32 @@
       "fk_instituicao": 15,
       "fk_categoria": 1,
       "id": 33
+    },
+    {
+      "descricao": "Teste transacao agora",
+      "valor": 50,
+      "tipo": "GASTO",
+      "data_transacao": "2026-02-22T00:00:00.000Z",
+      "parcelado": false,
+      "qtdParcelas": 1,
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 19,
+      "fk_categoria": 2,
+      "id": 34
+    },
+    {
+      "descricao": "Salário bomzao",
+      "valor": 5,
+      "tipo": "RECEITA",
+      "data_transacao": "2026-02-22T00:00:00.000Z",
+      "parcelado": false,
+      "qtdParcelas": 1,
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 15,
+      "fk_categoria": 4,
+      "id": 35
     }
   ],
   "meta_gasto": [
