@@ -138,7 +138,7 @@ export const useEditarBancos = () => {
         nome: institution.nome,
         icone: institution.icone,
         cor: institution.cor,
-        tipoInstituicao: 'banco',
+        tipoInstituicao: institution.tipoInstituicao,
         fk_usuario: usuarioId,
       });
       
@@ -169,7 +169,7 @@ export const useEditarBancos = () => {
         nome: updatedBank.nome,
         icone: updatedBank.icone,
         cor: updatedBank.cor,
-        tipoInstituicao: 'banco',
+        tipoInstituicao: updatedBank.tipoInstituicao,
         fk_usuario: usuarioId,
       });
       
@@ -338,7 +338,7 @@ export const useEditarVales = () => {
         nome: institution.nome,
         icone: institution.icone,
         cor: institution.cor,
-        tipoInstituicao: 'vale',
+        tipoInstituicao: institution.tipoInstituicao,
         fk_usuario: usuarioId,
       });
       
@@ -369,7 +369,7 @@ export const useEditarVales = () => {
         nome: updatedVoucher.nome,
         icone: updatedVoucher.icone,
         cor: updatedVoucher.cor,
-        tipoInstituicao: 'vale',
+        tipoInstituicao: updatedVoucher.tipoInstituicao,
         fk_usuario: usuarioId,
       });
       

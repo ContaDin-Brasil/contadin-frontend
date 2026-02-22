@@ -159,7 +159,7 @@ export const useGerenciarCarteira = () => {
         nome: institution.nome,
         icone: institution.icone,
         cor: institution.cor,
-        tipoInstituicao: 'banco',
+        tipoInstituicao: institution.tipoInstituicao,
         fk_usuario: usuarioId,
       });
       
@@ -237,7 +237,7 @@ export const useGerenciarCarteira = () => {
         nome: institution.nome,
         icone: institution.icone,
         cor: institution.cor,
-        tipoInstituicao: 'vale',
+        tipoInstituicao: institution.tipoInstituicao,
         fk_usuario: usuarioId,
       });
       

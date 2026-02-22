@@ -177,6 +177,7 @@ const WalletScreen = ({ navigation }) => {
         visible={carteira.bankCustomModalVisible}
         onClose={() => carteira.setBankCustomModalVisible(false)}
         onAdd={carteira.handleAddCustomBankComplete}
+        tipoInicial="banco"
       />
 
       <InstitutionSelectionModal
@@ -191,6 +192,7 @@ const WalletScreen = ({ navigation }) => {
         visible={carteira.voucherCustomModalVisible}
         onClose={() => carteira.setVoucherCustomModalVisible(false)}
         onAdd={carteira.handleAddCustomVoucherComplete}
+        tipoInicial="vale"
       />
     </SafeAreaView>
   );

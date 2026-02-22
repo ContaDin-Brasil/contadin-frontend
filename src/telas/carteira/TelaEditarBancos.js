@@ -1,11 +1,11 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, TextInput, ActivityIndicator, Image, SafeAreaView } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Image, SafeAreaView, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import TituloPagina from '../../componentes/TituloPagina';
-import CustomModal from '../../componentes/modais/ModalBase';
 import InstitutionSelectionModal from '../../componentes/modais/ModalSelecaoInstituicao';
 import AddCustomInstitutionModal from '../../componentes/modais/ModalAdicionarInstituicao';
+import ModalEditarInstituicao from '../../componentes/modais/ModalEditarInstituicao';
 import { useEditarBancos } from './hooks/useEditarInstituicoes';
 import { getLogoByName } from '../../componentes/modais/logosInstituicoes';
 import { styles } from './styles/TelaEditarBancos.styles';
@@ -20,6 +20,25 @@ const EditBanksScreen = ({ navigation }) => {
     }, [])
   );
 
+  const handleDeleteConfirm = (bank) => {
+    Alert.alert(
+      'Excluir Institui\u00e7\u00e3o',
+      `Tem certeza que deseja excluir "${bank.nome}"?\n\n\u26a0\ufe0f Aten\u00e7\u00e3o: Todas as transa\u00e7\u00f5es vinculadas a esta institui\u00e7\u00e3o ser\u00e3o permanentemente deletadas.`,
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Excluir',
+          style: 'destructive',
+          onPress: () => editor.handleDelete(bank.id),
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
   const renderIcon = (text, color, institutionName) => {
     const logo = getLogoByName(institutionName);
     
@@ -28,7 +47,7 @@ const EditBanksScreen = ({ navigation }) => {
         {logo ? (
           <Image 
             source={logo} 
-            style={{ width: 36, height: 36 }}
+            style={{ width: 36, height: 36, objectFit: 'cover', borderRadius: 8 }}
             resizeMode="contain"
           />
         ) : (
@@ -97,7 +116,7 @@ const EditBanksScreen = ({ navigation }) => {
                 style={styles.deleteButton}
                 onPress={(e) => {
                   e.stopPropagation();
-                  editor.handleDelete(bank.id);
+                  handleDeleteConfirm(bank);
                 }}
               >
                 <Ionicons name="trash-outline" size={22} color="#666" />
@@ -129,65 +148,26 @@ const EditBanksScreen = ({ navigation }) => {
         visible={editor.customModalVisible}
         onClose={() => editor.setCustomModalVisible(false)}
         onAdd={editor.handleAddCustom}
+        tipoInicial="banco"
       />
 
-      {/* Edit Modal */}
-      <CustomModal
+      {/* Modal de Edição */}
+      <ModalEditarInstituicao
         visible={editor.editModalVisible}
         onClose={() => editor.setEditModalVisible(false)}
-        title=""
-        showButtons={false}
-      >
-        <View style={styles.modalContent}>
-          <TouchableOpacity 
-            style={styles.deleteInstitutionButton}
-            onPress={() => {
-              editor.handleDelete(editor.selectedBank?.id);
-              editor.setEditModalVisible(false);
-            }}
-          >
-            <Ionicons name="trash-outline" size={20} color="#FFF" />
-            <Text style={styles.deleteInstitutionText}>Excluir instituição</Text>
-          </TouchableOpacity>
-
-          <View style={styles.institutionHeader}>
-            <View style={[styles.institutionIconLarge, { backgroundColor: editor.selectedBank?.cor }]}>
-              <Text style={styles.institutionIconText}>{editor.selectedBank?.icone}</Text>
-            </View>
-            <Text style={styles.institutionName}>{editor.selectedBank?.nome}</Text>
-            <Ionicons name="create-outline" size={20} color="#000" />
-          </View>
-
-          <Text style={styles.changeIconText}>Alterar ícone</Text>
-
-          <View style={styles.formGroup}>
-            <Text style={styles.label}>Tipo de Instituição:</Text>
-            <TextInput style={styles.input} placeholder="" />
-          </View>
-
-          <View style={styles.formGroup}>
-            <Text style={styles.label}>Cor Destaque para a Instituição:</Text>
-            <View style={[styles.colorPicker, { backgroundColor: editor.selectedBank?.cor }]}>
-              <Ionicons name="create-outline" size={24} color="#FFF" />
-            </View>
-          </View>
-
-          <View style={styles.modalButtons}>
-            <TouchableOpacity 
-              style={styles.cancelButton}
-              onPress={() => editor.setEditModalVisible(false)}
-            >
-              <Text style={styles.cancelButtonText}>Cancelar</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={styles.confirmButton}
-              onPress={() => editor.setEditModalVisible(false)}
-            >
-              <Text style={styles.confirmButtonText}>Confirmar Alterações</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </CustomModal>
+        onSave={editor.handleUpdate}
+        onDelete={() => {
+          editor.handleDelete(editor.selectedBank?.id);
+          editor.setEditModalVisible(false);
+        }}
+        instituicao={editor.selectedBank ? {
+          id: editor.selectedBank.id,
+          nome: editor.selectedBank.nome,
+          icone: editor.selectedBank.icone,
+          cor: editor.selectedBank.cor,
+          tipoInstituicao: 'banco',
+        } : null}
+      />
       </ScrollView>
     </SafeAreaView>
   );
