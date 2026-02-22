@@ -1,0 +1,586 @@
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+  Modal,
+  ScrollView,
+  Image,
+  Alert,
+  Pressable,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { getLogoByName } from './logosInstituicoes';
+
+interface ModalEditarInstituicaoProps {
+  visible: boolean;
+  onClose: () => void;
+  onSave: (instituicao: InstituicaoEdit) => void;
+  onDelete: () => void;
+  instituicao: InstituicaoEdit | null;
+}
+
+export interface InstituicaoEdit {
+  id: number;
+  nome: string;
+  icone: string;
+  cor: string;
+  tipoInstituicao: 'banco' | 'vale';
+}
+
+const ModalEditarInstituicao: React.FC<ModalEditarInstituicaoProps> = ({
+  visible,
+  onClose,
+  onSave,
+  onDelete,
+  instituicao,
+}) => {
+  const [nome, setNome] = useState('');
+  const [cor, setCor] = useState('#E31C23');
+  const [tipoInstituicao, setTipoInstituicao] = useState<'banco' | 'vale'>('banco');
+  const [showColorWheel, setShowColorWheel] = useState(false);
+
+  // Cores predefinidas organizadas em roda
+  const coresPredefinidas = [
+    '#E31C23', // Vermelho Santander
+    '#FF4444', // Vermelho claro
+    '#FF6B6B', // Vermelho salmão
+    '#FF6600', // Laranja
+    '#FF9500', // Laranja claro
+    '#FFED00', // Amarelo
+    '#FFD700', // Dourado
+    '#00AB63', // Verde escuro
+    '#21C25E', // Verde médio
+    '#00E676', // Verde claro
+    '#00D9E1', // Ciano
+    '#009EE3', // Azul claro
+    '#007AFF', // Azul iOS
+    '#005CA9', // Azul escuro
+    '#820AD1', // Roxo
+    '#9C27B0', // Roxo médio
+    '#E91E63', // Rosa
+    '#CC092F', // Vermelho escuro
+    '#8B4513', // Marrom
+    '#666666', // Cinza
+    '#000000', // Preto
+    '#4A9EFF', // Azul contadin
+  ];
+
+  useEffect(() => {
+    if (instituicao) {
+      setNome(instituicao.nome);
+      setCor(instituicao.cor);
+      setTipoInstituicao(instituicao.tipoInstituicao);
+    }
+  }, [instituicao]);
+
+  const handleSave = () => {
+    if (instituicao && nome.trim()) {
+      onSave({
+        ...instituicao,
+        nome: nome.trim(),
+        cor,
+        tipoInstituicao,
+      });
+    }
+  };
+
+  const handleDeleteConfirm = () => {
+    Alert.alert(
+      'Excluir Institui\u00e7\u00e3o',
+      `Tem certeza que deseja excluir "${instituicao?.nome}"?\n\n\u26a0\ufe0f Aten\u00e7\u00e3o: Todas as transa\u00e7\u00f5es vinculadas a esta institui\u00e7\u00e3o ser\u00e3o permanentemente deletadas.`,
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Excluir',
+          style: 'destructive',
+          onPress: onDelete,
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
+  const renderIcone = () => {
+    const logo = getLogoByName(instituicao?.nome || '');
+    
+    if (logo) {
+      return (
+        <View style={[styles.iconeGrande, { backgroundColor: '#FFF' }]}>
+          <Image 
+            source={logo} 
+            style={{ width: 64, height: 64, borderRadius: 16 }}
+            resizeMode="contain"
+          />
+        </View>
+      );
+    }
+    
+    return (
+      <View style={[styles.iconeGrande, { backgroundColor: cor }]}>
+        <Text style={styles.iconeTexto}>{instituicao?.icone}</Text>
+      </View>
+    );
+  };
+
+  return (
+    <Modal
+      visible={visible}
+      transparent={true}
+      animationType="slide"
+      onRequestClose={onClose}
+    >
+      <Pressable style={styles.overlay} onPress={onClose}>
+        <Pressable style={styles.modalContainer} onPress={(e) => e.stopPropagation()}>
+          <View style={styles.handle} />
+          
+          <ScrollView 
+            style={styles.content} 
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.scrollContent}
+          >
+            {/* Botão de Excluir no Topo */}
+            <TouchableOpacity 
+              style={styles.botaoExcluir}
+              onPress={handleDeleteConfirm}
+            >
+              <Ionicons name="trash-outline" size={20} color="#FFF" />
+              <Text style={styles.textoExcluir}>Excluir instituição</Text>
+            </TouchableOpacity>
+
+            {/* Cabeçalho com Ícone */}
+            <View style={styles.headerInstituicao}>
+              {renderIcone()}
+              <View style={styles.infoContainer}>
+                <TextInput
+                  style={styles.inputNome}
+                  value={nome}
+                  onChangeText={setNome}
+                  placeholder="Nome da instituição"
+                  placeholderTextColor="#999"
+                />
+              </View>
+            </View>
+
+            {/* Botão Alterar Ícone (preparado para futuro) */}
+            <TouchableOpacity 
+              style={styles.botaoAlterarIcone}
+              disabled={true}
+              activeOpacity={0.6}
+            >
+              <Ionicons name="images-outline" size={20} color="#666" />
+              <Text style={styles.textoAlterarIcone}>Alterar ícone</Text>
+              <Text style={styles.textoEmBreve}>(em breve)</Text>
+            </TouchableOpacity>
+
+            {/* Seção de Tipo */}
+            <View style={styles.secao}>
+              <Text style={styles.label}>Tipo de Instituição:</Text>
+              <View style={styles.tipoButtonContainer}>
+                <TouchableOpacity
+                  style={[
+                    styles.tipoButton,
+                    tipoInstituicao === 'banco' && styles.tipoButtonActive
+                  ]}
+                  onPress={() => setTipoInstituicao('banco')}
+                >
+                  <Ionicons 
+                    name="business" 
+                    size={18} 
+                    color={tipoInstituicao === 'banco' ? '#FFF' : '#666'}
+                  />
+                  <Text style={[
+                    styles.tipoButtonText,
+                    tipoInstituicao === 'banco' && styles.tipoButtonTextActive
+                  ]}>Banco</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.tipoButton,
+                    tipoInstituicao === 'vale' && styles.tipoButtonActive
+                  ]}
+                  onPress={() => setTipoInstituicao('vale')}
+                >
+                  <Ionicons 
+                    name="card" 
+                    size={18} 
+                    color={tipoInstituicao === 'vale' ? '#FFF' : '#666'}
+                  />
+                  <Text style={[
+                    styles.tipoButtonText,
+                    tipoInstituicao === 'vale' && styles.tipoButtonTextActive
+                  ]}>Vale</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* Seção de Cor com Roda de Cores */}
+            <View style={styles.secao}>
+              <Text style={styles.label}>Cor Destaque para a Instituição:</Text>
+              
+              {/* Botão executivo para escolher cor */}
+              <TouchableOpacity 
+                style={styles.seletorCorExecutivo}
+                onPress={() => setShowColorWheel(!showColorWheel)}
+                activeOpacity={0.7}
+              >
+                <View style={styles.corPreviewContainer}>
+                  <View style={[styles.corPreviewCirculo, { backgroundColor: cor }]} />
+                  <View style={styles.corInfoContainer}>
+                    <Text style={styles.corNomeLabel}>Cor Selecionada</Text>
+                    <Text style={styles.corHexCode}>{cor.toUpperCase()}</Text>
+                  </View>
+                </View>
+                <View style={styles.alterarCorContainer}>
+                  <Text style={styles.alterarCorTexto}>Alterar</Text>
+                  <Ionicons 
+                    name={showColorWheel ? 'chevron-up' : 'chevron-down'} 
+                    size={20} 
+                    color="#666" 
+                  />
+                </View>
+              </TouchableOpacity>
+
+              {/* Roda de Cores */}
+              {showColorWheel && (
+                <View style={styles.rodaDeCores}>
+                  <View style={styles.gridCores}>
+                    {coresPredefinidas.map((corOpcao, index) => (
+                      <TouchableOpacity
+                        key={index}
+                        style={[
+                          styles.opcaoCor,
+                          { backgroundColor: corOpcao },
+                          cor === corOpcao && styles.corSelecionadaBorda,
+                        ]}
+                        onPress={() => {
+                          setCor(corOpcao);
+                          setShowColorWheel(false);
+                        }}
+                      >
+                        {cor === corOpcao && (
+                          <View style={styles.checkContainer}>
+                            <Ionicons name="checkmark" size={20} color="#FFF" />
+                          </View>
+                        )}
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+              )}
+            </View>
+
+            {/* Botões de Ação */}
+            <View style={styles.botoesAcao}>
+              <TouchableOpacity 
+                style={styles.botaoCancelar}
+                onPress={onClose}
+              >
+                <Text style={styles.textoBotaoCancelar}>Cancelar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[
+                  styles.botaoConfirmar,
+                  !nome.trim() && styles.botaoConfirmarDesabilitado,
+                ]}
+                onPress={handleSave}
+                disabled={!nome.trim()}
+              >
+                <Text style={styles.textoBotaoConfirmar}>Salvar Alterações</Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+        </Pressable>
+      </Pressable>
+    </Modal>
+  );
+};
+
+const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContainer: {
+    backgroundColor: '#FFF',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    maxHeight: '90%',
+    paddingBottom: 20,
+  },
+  handle: {
+    width: 40,
+    height: 5,
+    backgroundColor: '#DDD',
+    borderRadius: 3,
+    alignSelf: 'center',
+    marginTop: 12,
+    marginBottom: 16,
+  },
+  content: {
+    paddingHorizontal: 20,
+  },
+  scrollContent: {
+    paddingBottom: 20,
+  },
+  botaoExcluir: {
+    backgroundColor: '#FF6B6B',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+    borderRadius: 12,
+    gap: 8,
+    marginBottom: 24,
+    shadowColor: '#FF6B6B',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  textoExcluir: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  headerInstituicao: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+    gap: 16,
+  },
+  iconeGrande: {
+    width: 80,
+    height: 80,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  iconeTexto: {
+    fontSize: 40,
+    fontWeight: 'bold',
+    color: '#FFF',
+  },
+  infoContainer: {
+    flex: 1,
+    gap: 8,
+  },
+  inputNome: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#000',
+    backgroundColor: '#F5F5F5',
+    borderRadius: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  botaoAlterarIcone: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F5F5F5',
+    paddingVertical: 12,
+    borderRadius: 10,
+    marginBottom: 24,
+    gap: 8,
+  },
+  textoAlterarIcone: {
+    fontSize: 15,
+    color: '#666',
+    fontWeight: '500',
+  },
+  textoEmBreve: {
+    fontSize: 12,
+    color: '#999',
+    fontStyle: 'italic',
+  },
+  secao: {
+    marginBottom: 24,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#000',
+    marginBottom: 12,
+  },
+  tipoButtonContainer: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  tipoButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F0F0F0',
+    paddingVertical: 14,
+    borderRadius: 10,
+    gap: 8,
+    borderWidth: 2,
+    borderColor: '#F0F0F0',
+  },
+  tipoButtonActive: {
+    backgroundColor: '#4A9EFF',
+    borderColor: '#4A9EFF',
+  },
+  tipoButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#666',
+  },
+  tipoButtonTextActive: {
+    color: '#FFF',
+  },
+  seletorCorExecutivo: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 1,
+  },
+  corPreviewContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    flex: 1,
+  },
+  corPreviewCirculo: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    borderWidth: 3,
+    borderColor: '#F5F5F5',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  corInfoContainer: {
+    flex: 1,
+  },
+  corNomeLabel: {
+    fontSize: 13,
+    color: '#888',
+    fontWeight: '500',
+    marginBottom: 2,
+  },
+  corHexCode: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: '#000',
+    letterSpacing: 0.5,
+  },
+  alterarCorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  alterarCorTexto: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#666',
+  },
+  rodaDeCores: {
+    backgroundColor: '#FAFAFA',
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#E8E8E8',
+  },
+  gridCores: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 12,
+  },
+  opcaoCor: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  corSelecionadaBorda: {
+    borderWidth: 3,
+    borderColor: '#FFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 4,
+    elevation: 5,
+    transform: [{ scale: 1.1 }],
+  },
+  checkContainer: {
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    borderRadius: 15,
+    width: 30,
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  botoesAcao: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 8,
+  },
+  botaoCancelar: {
+    flex: 1,
+    backgroundColor: '#E8E8E8',
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  textoBotaoCancelar: {
+    color: '#666',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  botaoConfirmar: {
+    flex: 1,
+    backgroundColor: '#4A9EFF',
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    shadowColor: '#4A9EFF',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  botaoConfirmarDesabilitado: {
+    backgroundColor: '#B0D4FF',
+    shadowOpacity: 0,
+    elevation: 0,
+  },
+  textoBotaoConfirmar: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+});
+
+export default ModalEditarInstituicao;

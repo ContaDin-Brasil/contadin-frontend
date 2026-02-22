@@ -92,28 +92,12 @@
       "fk_usuario": 2
     },
     {
-      "nome": "PicPay",
-      "icone": "P",
-      "cor": "#21C25E",
-      "tipoInstituicao": "banco",
-      "fk_usuario": 1,
-      "id": 5
-    },
-    {
       "nome": "Alelo",
       "icone": "VA",
       "cor": "#FF9800",
       "tipoInstituicao": "vale",
       "fk_usuario": 1,
       "id": 9
-    },
-    {
-      "nome": "Ticket",
-      "icone": "Tk",
-      "cor": "#FF6600",
-      "tipoInstituicao": "vale",
-      "fk_usuario": 1,
-      "id": 10
     },
     {
       "nome": "Flash",
@@ -130,14 +114,6 @@
       "tipoInstituicao": "banco",
       "fk_usuario": 1,
       "id": 14
-    },
-    {
-      "nome": "Banco do Brasil",
-      "icone": "BB",
-      "cor": "#FFED00",
-      "tipoInstituicao": "banco",
-      "fk_usuario": 1,
-      "id": 15
     },
     {
       "nome": "Caixa",
@@ -162,6 +138,30 @@
       "tipoInstituicao": "banco",
       "fk_usuario": 1,
       "id": 20
+    },
+    {
+      "nome": "PicPay",
+      "icone": "PP",
+      "cor": "#21C25E",
+      "tipoInstituicao": "banco",
+      "fk_usuario": 1,
+      "id": 23
+    },
+    {
+      "nome": "Ticket",
+      "icone": "Tk",
+      "cor": "#FF6600",
+      "tipoInstituicao": "vale",
+      "fk_usuario": 1,
+      "id": 24
+    },
+    {
+      "nome": "VR Benefícios",
+      "icone": "VR",
+      "cor": "#E31C23",
+      "tipoInstituicao": "vale",
+      "fk_usuario": 1,
+      "id": 25
     }
   ],
   "transacao": [

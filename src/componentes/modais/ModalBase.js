@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { Modal, View, Text, StyleSheet, TouchableOpacity, Pressable } from 'react-native';
 
 const CustomModal = ({ visible, onClose, title, children, showButtons = true, onConfirm, confirmText = 'Continuar', cancelText = 'Cancelar' }) => {
   return (
@@ -9,8 +9,8 @@ const CustomModal = ({ visible, onClose, title, children, showButtons = true, on
       animationType="fade"
       onRequestClose={onClose}
     >
-      <View style={styles.overlay}>
-        <View style={styles.modalContainer}>
+      <Pressable style={styles.overlay} onPress={onClose}>
+        <Pressable style={styles.modalContainer} onPress={(e) => e.stopPropagation()}>
           <View style={styles.handle} />
           <Text style={styles.title}>{title}</Text>
           <View style={styles.content}>
@@ -26,8 +26,8 @@ const CustomModal = ({ visible, onClose, title, children, showButtons = true, on
               </TouchableOpacity>
             </View>
           )}
-        </View>
-      </View>
+        </Pressable>
+      </Pressable>
     </Modal>
   );
 };
