@@ -10,6 +10,7 @@ import { useProcessamentoIA } from './hooks/useProcessamentoIA';
 import { transacaoService } from '../../api';
 import { FREQUENCIES, INSTALLMENT_OPTIONS } from './constants/constantesTransacao';
 import { getCategoryIcon } from './utils/utilitariosTransacao';
+import COLORS from '../../styles/colors';
 import { styles } from './styles/TelaAdicionarTransacao.styles';
 
 const TelaAdicionarTransacao = ({ navigation }) => {
@@ -129,7 +130,7 @@ const TelaAdicionarTransacao = ({ navigation }) => {
             onPress={aiState.handlePhotoOCR}
             disabled={aiState.isProcessing}
           >
-            <Ionicons name="camera" size={24} color="#5BA3FF" />
+            <Ionicons name="camera" size={24} color={COLORS.primaryLight} />
             <Text style={styles.aiButtonText}>Foto</Text>
           </TouchableOpacity>
           <TouchableOpacity 
@@ -137,7 +138,7 @@ const TelaAdicionarTransacao = ({ navigation }) => {
             onPress={aiState.handleAudioInput}
             disabled={aiState.isProcessing}
           >
-            <Ionicons name="mic" size={24} color="#5BA3FF" />
+            <Ionicons name="mic" size={24} color={COLORS.primaryLight} />
             <Text style={styles.aiButtonText}>Áudio</Text>
           </TouchableOpacity>
         </View>
@@ -164,7 +165,7 @@ const TelaAdicionarTransacao = ({ navigation }) => {
         {aiState.aiSuggestion && !aiState.isProcessing && (
           <View style={styles.suggestionCard}>
             <View style={styles.suggestionHeader}>
-              <Ionicons name="sparkles" size={20} color="#5BA3FF" />
+              <Ionicons name="sparkles" size={20} color={COLORS.primaryLight} />
               <Text style={styles.suggestionTitle}>Sugestão da IA</Text>
             </View>
             <View style={styles.suggestionContent}>
@@ -240,7 +241,7 @@ const TelaAdicionarTransacao = ({ navigation }) => {
       <View style={styles.section}>
         <Text style={styles.label}>Data:</Text>
         <View style={styles.dateInputContainer}>
-          <Ionicons name="calendar-outline" size={20} color="#5BA3FF" />
+          <Ionicons name="calendar-outline" size={20} color={COLORS.primaryLight} />
           <TextInput
             style={styles.dateInput}
             placeholder="DD/MM/AAAA"
@@ -336,8 +337,8 @@ const TelaAdicionarTransacao = ({ navigation }) => {
             <Switch
               value={formState.isRecurring}
               onValueChange={formState.handleToggleRecurring}
-              trackColor={{ false: '#D0D0D0', true: '#5BA3FF' }}
-              thumbColor="#FFF"
+              trackColor={{ false: COLORS.borderDark, true: COLORS.primaryLight }}
+              thumbColor={COLORS.white}
             />
             <Text style={styles.recurringText}>Recorrência</Text>
           </View>
@@ -367,8 +368,8 @@ const TelaAdicionarTransacao = ({ navigation }) => {
               <Switch
                 value={formState.hasRecurrenceEndDate}
                 onValueChange={formState.setHasRecurrenceEndDate}
-                trackColor={{ false: '#D0D0D0', true: '#5BA3FF' }}
-                thumbColor="#FFF"
+                trackColor={{ false: COLORS.borderDark, true: COLORS.primaryLight }}
+                thumbColor={COLORS.white}
               />
               <Text style={styles.recurringText}>Data limite da recorrência</Text>
             </View>
@@ -395,8 +396,8 @@ const TelaAdicionarTransacao = ({ navigation }) => {
             <Switch
               value={formState.isInstallment}
               onValueChange={formState.handleToggleInstallment}
-              trackColor={{ false: '#D0D0D0', true: '#5BA3FF' }}
-              thumbColor="#FFF"
+              trackColor={{ false: COLORS.borderDark, true: COLORS.primaryLight }}
+              thumbColor={COLORS.white}
             />
             <Text style={styles.recurringText}>Parcelado</Text>
           </View>
@@ -533,7 +534,7 @@ const TelaAdicionarTransacao = ({ navigation }) => {
       {/* Indicador de carregamento de dados */}
       {formState.loading && (
         <View style={{ padding: 20, alignItems: 'center' }}>
-          <ActivityIndicator size="small" color="#8A05BE" />
+          <ActivityIndicator size="small" color={COLORS.primary} />
           <Text style={{ marginTop: 8, color: '#666' }}>Carregando dados...</Text>
         </View>
       )}

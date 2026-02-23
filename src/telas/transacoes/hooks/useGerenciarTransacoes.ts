@@ -3,6 +3,18 @@ import { transacaoService, categoriaService, instituicaoService } from '../../..
 import { MOCK_TRANSACTIONS } from '../constants/constantesTransacao';
 import { CATEGORIES } from '../constants/constantesTransacao';
 
+export interface Filtros {
+  tipo: 'TODOS' | 'RECEITA' | 'GASTO';
+  instituicoes: number[];
+  categorias: number[];
+  valorMin: string;
+  valorMax: string;
+  apenasParcelado: boolean;
+  apenasRecorrente: boolean;
+  dataInicio: string;
+  dataFim: string;
+}
+
 /**
  * Hook customizado para gerenciar transações
  * Busca e gerencia transações da API com fallback para dados mockados
@@ -16,6 +28,17 @@ export const useGerenciarTransacoes = () => {
   const [periodo, setPeriodo] = useState('Período Completo');
   const [ordenacao, setOrdenacao] = useState('Mais recentes');
   const [usandoDadosMockados, setUsandoDadosMockados] = useState(false);
+  const [filtros, setFiltros] = useState<Filtros>({
+    tipo: 'TODOS',
+    instituicoes: [],
+    categorias: [],
+    valorMin: '',
+    valorMax: '',
+    apenasParcelado: false,
+    apenasRecorrente: false,
+    dataInicio: '',
+    dataFim: '',
+  });
 
   const usuarioId = 1;
 
@@ -168,11 +191,13 @@ export const useGerenciarTransacoes = () => {
     error,
     periodo,
     ordenacao,
+    filtros,
     usandoDadosMockados,
     
     // Modificadores
     setPeriodo,
     setOrdenacao,
+    setFiltros,
     
     // Ações
     carregarDados,

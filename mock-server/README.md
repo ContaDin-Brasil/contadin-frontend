@@ -14,6 +14,41 @@ npm run limpar-orfaos
 ```
 Remove todas as transações que referenciam instituições que não existem mais.
 
+### 🎲 Gerar transações mockadas
+```bash
+# Usando NPM (recomendado)
+npm run gerar              # Gera 50 transações
+npm run gerar:stats        # Mostra estatísticas
+npm run gerar:limpar       # Limpa todas as transações
+
+# Usando scripts do sistema
+# Windows
+gerar-transacoes.bat
+
+# Linux/Mac
+./gerar-transacoes.sh
+
+# Ou diretamente com Node
+node utils/gerar-transacoes.js
+```
+Gera transações de teste usando as instituições e categorias cadastradas no banco.
+
+**Exemplos de uso:**
+```bash
+# Com NPM
+npm run gerar              # Gera 50 transações (padrão)
+npm run gerar:stats        # Ver estatísticas do banco
+npm run gerar:limpar       # Limpar todas as transações
+
+# Com scripts
+gerar-transacoes.bat       # Gera 50 transações
+gerar-transacoes.bat 100   # Gera 100 transações
+gerar-transacoes.bat 30 limpar  # Limpar e gerar 30 novas
+gerar-transacoes.bat stats      # Ver estatísticas
+```
+
+📖 **Documentação completa**: Veja [utils/README.md](utils/README.md) para mais detalhes.
+
 ## 🔧 Funcionalidades de Manutenção
 
 ### Deleção em Cascata

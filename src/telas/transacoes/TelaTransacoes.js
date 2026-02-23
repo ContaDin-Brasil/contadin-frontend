@@ -5,11 +5,17 @@ import { useFocusEffect } from '@react-navigation/native';
 import TituloPagina from '../../componentes/TituloPagina';
 import { getLogoByName } from '../../componentes/modais/logosInstituicoes';
 import { useGerenciarTransacoes } from './hooks/useGerenciarTransacoes';
+import { ModalOrdenacao } from './modals/ModalOrdenacao';
+import { ModalFiltros } from './modals/ModalFiltros';
+import { ModalPeriodo } from './modals/ModalPeriodo';
+import COLORS from '../../styles/colors';
 import { 
   formatCurrency, 
   formatDateLabel, 
   groupTransactionsByDate,
-  getCategoryIcon
+  getCategoryIcon,
+  ordenarTransacoes,
+  aplicarFiltros
 } from './utils/utilitariosTransacao';
 import { styles } from './styles/TelaTransacoes.styles';
 
@@ -17,6 +23,9 @@ const TelaTransacoes = ({ navigation, route }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [lastUpdate, setLastUpdate] = useState(new Date());
+  const [modalOrdenacaoVisible, setModalOrdenacaoVisible] = useState(false);
+  const [modalFiltrosVisible, setModalFiltrosVisible] = useState(false);
+  const [modalPeriodoVisible, setModalPeriodoVisible] = useState(false);
   const gerenciador = useGerenciarTransacoes();
 
   // Recebe os dados da instituição clicada (se houver)
@@ -81,7 +90,7 @@ const TelaTransacoes = ({ navigation, route }) => {
   if (gerenciador.loading) {
     return (
       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color="#8A05BE" />
+        <ActivityIndicator size="large" color={COLORS.primary} />
         <Text style={{ marginTop: 16, color: '#666' }}>Carregando transações...</Text>
       </View>
     );
@@ -112,7 +121,26 @@ const TelaTransacoes = ({ navigation, route }) => {
     );
   }
 
-  const groupedTransactions = groupTransactionsByDate(transacoesExibidas);
+  // Aplica filtros personalizados
+  transacoesExibidas = aplicarFiltros(transacoesExibidas, gerenciador.filtros);
+
+  // Aplica ordenação antes de agrupar
+  const transacoesOrdenadas = ordenarTransacoes(transacoesExibidas, gerenciador.ordenacao);
+
+  const groupedTransactions = groupTransactionsByDate(transacoesOrdenadas);
+
+  // Conta filtros ativos
+  const countFiltrosAtivos = () => {
+    let count = 0;
+    if (gerenciador.filtros.tipo !== 'TODOS') count++;
+    if (gerenciador.filtros.instituicoes.length > 0) count++;
+    if (gerenciador.filtros.categorias.length > 0) count++;
+    if (gerenciador.filtros.valorMin || gerenciador.filtros.valorMax) count++;
+    if (gerenciador.filtros.apenasParcelado) count++;
+    if (gerenciador.filtros.apenasRecorrente) count++;
+    if (gerenciador.filtros.dataInicio || gerenciador.filtros.dataFim) count++;
+    return count;
+  };
 
   const renderTransactionItem = (item) => {
     const category = gerenciador.buscarCategoria(item.fk_categoria);
@@ -125,7 +153,12 @@ const TelaTransacoes = ({ navigation, route }) => {
     const transactionDate = new Date(item.data_transacao).toLocaleDateString('pt-BR');
     
     return (
-      <TouchableOpacity key={item.id} style={styles.transactionItem}>
+      <TouchableOpacity 
+        key={item.id} 
+        style={styles.transactionItem}
+        onPress={() => navigation.navigate('EditarTransacao', { transacaoId: item.id })}
+        activeOpacity={0.7}
+      >
         <View style={styles.transactionHeader}>
           <View style={styles.transactionIcon}>
             <Ionicons name={getCategoryIcon(categoryName)} size={24} color="#333" />
@@ -213,7 +246,10 @@ const TelaTransacoes = ({ navigation, route }) => {
       )}
 
       {/* Filtro de Período */}
-      <TouchableOpacity style={styles.periodFilter}>
+      <TouchableOpacity 
+        style={styles.periodFilter}
+        onPress={() => setModalPeriodoVisible(true)}
+      >
         <Ionicons name="calendar-outline" size={20} color="#666" />
         <Text style={styles.periodFilterText}>{gerenciador.periodo}</Text>
         <Ionicons name="chevron-down" size={20} color="#666" />
@@ -233,13 +269,24 @@ const TelaTransacoes = ({ navigation, route }) => {
 
       {/* Filtros */}
       <View style={styles.filtersRow}>
-        <TouchableOpacity style={styles.sortFilter}>
+        <TouchableOpacity 
+          style={styles.sortFilter}
+          onPress={() => setModalOrdenacaoVisible(true)}
+        >
           <Text style={styles.sortFilterText}>{gerenciador.ordenacao}</Text>
           <Ionicons name="chevron-down" size={16} color="#666" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.filterButton}>
+        <TouchableOpacity 
+          style={styles.filterButton}
+          onPress={() => setModalFiltrosVisible(true)}
+        >
           <Ionicons name="options-outline" size={18} color="#666" />
           <Text style={styles.filterButtonText}>Filtros</Text>
+          {countFiltrosAtivos() > 0 && (
+            <View style={styles.filterBadge}>
+              <Text style={styles.filterBadgeText}>{countFiltrosAtivos()}</Text>
+            </View>
+          )}
         </TouchableOpacity>
       </View>
 
@@ -259,8 +306,8 @@ const TelaTransacoes = ({ navigation, route }) => {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={['#8A05BE']}
-            tintColor="#8A05BE"
+            colors={[COLORS.primary]}
+            tintColor={COLORS.primary}
             title="Atualizando..."
             titleColor="#666"
           />
@@ -281,6 +328,41 @@ const TelaTransacoes = ({ navigation, route }) => {
       >
         <Ionicons name="add" size={32} color="#FFF" />
       </TouchableOpacity>
+
+      {/* Modal de Ordenação */}
+      <ModalOrdenacao
+        visible={modalOrdenacaoVisible}
+        onClose={() => setModalOrdenacaoVisible(false)}
+        ordenacaoAtual={gerenciador.ordenacao}
+        onSelectOrdenacao={gerenciador.setOrdenacao}
+      />
+
+      {/* Modal de Filtros */}
+      <ModalFiltros
+        visible={modalFiltrosVisible}
+        onClose={() => setModalFiltrosVisible(false)}
+        filtrosAtuais={gerenciador.filtros}
+        onAplicarFiltros={gerenciador.setFiltros}
+        instituicoes={gerenciador.instituicoes}
+        categorias={gerenciador.categorias}
+      />
+
+      {/* Modal de Período */}
+      <ModalPeriodo
+        visible={modalPeriodoVisible}
+        onClose={() => setModalPeriodoVisible(false)}
+        periodoAtual={gerenciador.periodo}
+        dataInicio={gerenciador.filtros.dataInicio}
+        dataFim={gerenciador.filtros.dataFim}
+        onAplicarPeriodo={(periodo, dataInicio, dataFim) => {
+          gerenciador.setPeriodo(periodo);
+          gerenciador.setFiltros({
+            ...gerenciador.filtros,
+            dataInicio,
+            dataFim
+          });
+        }}
+      />
     </SafeAreaView>
   );
 };

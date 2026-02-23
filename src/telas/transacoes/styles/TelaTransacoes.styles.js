@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import COLORS from '../../../styles/colors';
 
 export const styles = StyleSheet.create({
   container: {
@@ -68,11 +69,29 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 8,
     gap: 5,
+    position: 'relative',
   },
   filterButtonText: {
     fontSize: 14,
     color: '#333',
     fontWeight: '500',
+  },
+  filterBadge: {
+    position: 'absolute',
+    top: -6,
+    right: -6,
+    backgroundColor: COLORS.primary,
+    borderRadius: 10,
+    minWidth: 20,
+    height: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 6,
+  },
+  filterBadgeText: {
+    color: COLORS.white,
+    fontSize: 11,
+    fontWeight: 'bold',
   },
   transactionsList: {
     flex: 1,
@@ -168,10 +187,10 @@ export const styles = StyleSheet.create({
     marginLeft: 12,
   },
   incomeAmount: {
-    color: '#00C853',
+    color: COLORS.success,
   },
   expenseAmount: {
-    color: '#E31C23',
+    color: COLORS.error,
   },
   floatingButton: {
     position: 'absolute',
@@ -180,10 +199,10 @@ export const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#0066FF',
+    backgroundColor: COLORS.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
+    shadowColor: COLORS.black,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,

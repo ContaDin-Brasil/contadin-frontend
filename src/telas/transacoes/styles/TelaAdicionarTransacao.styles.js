@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import COLORS from '../../../styles/colors';
 
 export const styles = StyleSheet.create({
   safeArea: {
@@ -82,8 +83,8 @@ export const styles = StyleSheet.create({
     backgroundColor: '#FFF',
   },
   typeButtonActive: {
-    backgroundColor: '#5BA3FF',
-    borderColor: '#5BA3FF',
+    backgroundColor: COLORS.primaryLight,
+    borderColor: COLORS.primaryLight,
   },
   typeButtonText: {
     fontSize: 16,
@@ -126,8 +127,8 @@ export const styles = StyleSheet.create({
     gap: 8,
   },
   categoryButtonActive: {
-    backgroundColor: '#5BA3FF',
-    borderColor: '#5BA3FF',
+    backgroundColor: COLORS.primaryLight,
+    borderColor: COLORS.primaryLight,
   },
   categoryButtonText: {
     fontSize: 14,
@@ -165,8 +166,8 @@ export const styles = StyleSheet.create({
     backgroundColor: '#FFF',
   },
   frequencyButtonActive: {
-    backgroundColor: '#5BA3FF',
-    borderColor: '#5BA3FF',
+    backgroundColor: COLORS.primaryLight,
+    borderColor: COLORS.primaryLight,
   },
   frequencyButtonText: {
     fontSize: 14,
@@ -192,8 +193,8 @@ export const styles = StyleSheet.create({
     backgroundColor: '#FFF',
   },
   installmentButtonActive: {
-    backgroundColor: '#5BA3FF',
-    borderColor: '#5BA3FF',
+    backgroundColor: COLORS.primaryLight,
+    borderColor: COLORS.primaryLight,
   },
   installmentButtonText: {
     fontSize: 14,
