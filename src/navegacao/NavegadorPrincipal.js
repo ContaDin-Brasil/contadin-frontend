@@ -2,6 +2,7 @@ import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // Importar telas
 import TelaInicial from '../telas/TelaInicial';
@@ -10,7 +11,7 @@ import TelaEditarBancos from '../telas/carteira/TelaEditarBancos';
 import TelaEditarVales from '../telas/carteira/TelaEditarVales';
 import TelaTransacoes from '../telas/transacoes/TelaTransacoes';
 import TelaAdicionarTransacao from '../telas/transacoes/TelaAdicionarTransacao';
-import TelaCategorias from '../telas/TelaCategorias';
+import TelaCategorias from '../telas/categorias/TelaCategorias';
 import TelaConfiguracoes from '../telas/configuracoes/TelaConfiguracoes';
 import TelaEditarPerfil from '../telas/configuracoes/TelaEditarPerfil';
 import TelaConta from '../telas/configuracoes/TelaConta';
@@ -19,8 +20,6 @@ import TelaAjuda from '../telas/configuracoes/TelaAjuda';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
-
-
 
 // Navegador de Configurações
 function NavegadorConfiguracoes() {
@@ -70,14 +69,15 @@ function NavegadorTransacoes() {
 
 // Navegador Principal de Abas
 function NavegadorPrincipal() {
+  const insets = useSafeAreaInsets();
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: '#5BA3FF',
-          height: 70,
-          paddingBottom: 10,
+          backgroundColor: "#5BA3FF",
+          height: 55 + insets.bottom, 
+          paddingBottom: 0 + insets.bottom,
           paddingTop: 10,
           borderTopWidth: 0,
         },
