@@ -34,8 +34,7 @@
       "tipo": "GASTO",
       "cor": "#FF6B6B",
       "icone": "restaurant",
-      "fk_usuario": 1,
-      "isSystem": true
+      "fk_usuario": null
     },
     {
       "id": 2,
@@ -43,8 +42,7 @@
       "tipo": "GASTO",
       "cor": "#4ECDC4",
       "icone": "directions-car",
-      "fk_usuario": 1,
-      "isSystem": true
+      "fk_usuario": null
     },
     {
       "id": 3,
@@ -52,34 +50,79 @@
       "tipo": "GASTO",
       "cor": "#95E1D3",
       "icone": "home",
-      "fk_usuario": 1,
-      "isSystem": true
+      "fk_usuario": null
     },
     {
       "id": 4,
-      "nome": "Salário",
-      "tipo": "RECEITA",
-      "cor": "#51CF66",
-      "icone": "attach-money",
-      "fk_usuario": 1,
-      "isSystem": true
+      "nome": "Saúde",
+      "tipo": "GASTO",
+      "cor": "#E91E63",
+      "icone": "local-hospital",
+      "fk_usuario": null
     },
     {
       "id": 5,
+      "nome": "Educação",
+      "tipo": "GASTO",
+      "cor": "#2196F3",
+      "icone": "school",
+      "fk_usuario": null
+    },
+    {
+      "id": 6,
       "nome": "Lazer",
       "tipo": "GASTO",
       "cor": "#FFD93D",
       "icone": "sports-esports",
-      "fk_usuario": 2,
-      "isSystem": true
+      "fk_usuario": null
     },
     {
-      "nome": "Teste",
+      "id": 7,
+      "nome": "Compras",
+      "tipo": "GASTO",
+      "cor": "#9C27B0",
+      "icone": "shopping-cart",
+      "fk_usuario": null
+    },
+    {
+      "id": 8,
+      "nome": "Vestuário",
+      "tipo": "GASTO",
+      "cor": "#FF9800",
+      "icone": "shopping-bag",
+      "fk_usuario": null
+    },
+    {
+      "id": 9,
+      "nome": "Salário",
       "tipo": "RECEITA",
-      "cor": "#BB8FCE",
-      "icone": "local-drink",
+      "cor": "#51CF66",
+      "icone": "attach-money",
+      "fk_usuario": null
+    },
+    {
+      "id": 10,
+      "nome": "Investimentos",
+      "tipo": "RECEITA",
+      "cor": "#4CAF50",
+      "icone": "trending-up",
+      "fk_usuario": null
+    },
+    {
+      "id": 11,
+      "nome": "Freelance",
+      "tipo": "RECEITA",
+      "cor": "#00BCD4",
+      "icone": "business",
+      "fk_usuario": null
+    },
+    {
+      "nome": "Personal trainer ",
+      "tipo": "GLOBAL",
+      "cor": "#52B788",
+      "icone": "fitness-center",
       "fk_usuario": 1,
-      "id": 6
+      "id": 12
     }
   ],
   "instituicao": [
@@ -593,6 +636,19 @@
       "fk_instituicao": 15,
       "fk_categoria": 1,
       "id": 33
+    },
+    {
+      "descricao": "Salário ",
+      "valor": 5888,
+      "tipo": "RECEITA",
+      "data_transacao": "2026-02-23T00:00:00.000Z",
+      "parcelado": false,
+      "qtdParcelas": 1,
+      "recorrencia": "MENSAL",
+      "fim_recorrencia": null,
+      "fk_instituicao": 19,
+      "fk_categoria": 4,
+      "id": 34
     }
   ],
   "meta_gasto": [
