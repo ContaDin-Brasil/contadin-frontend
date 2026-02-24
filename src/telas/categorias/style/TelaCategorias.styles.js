@@ -4,7 +4,33 @@ export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F5F5F5',
+  },
+  headerHandleSearchExpanded: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingTop: 40,
+    paddingBottom:10,
+    backgroundColor: '#F5F5F5',
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingTop: 20,
+  },
+  searchButton: {
+    padding: 4,
+    paddingRight: 20,
+  },
+  searchIconExpanded: {
+    marginRight: 10,
+  },
+  searchInputExpanded: {
+    flex: 1,
+    fontSize: 18,
+    color: '#333',
   },
   typeToggle: {
     flexDirection: 'row',
@@ -37,25 +63,9 @@ export const styles = StyleSheet.create({
     color: '#333',
     fontWeight: '600',
   },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: 20,
-    marginBottom: 15,
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    backgroundColor: '#E8E8E8',
-    borderRadius: 10,
-    gap: 10,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 16,
-    color: '#333',
-  },
   listContainer: {
     paddingHorizontal: 20,
-    paddingBottom: 100,
+    paddingBottom: 90,
   },
   categoriaItem: {
     flexDirection: 'row',
@@ -86,7 +96,12 @@ export const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
     color: '#333',
-    flex: 1,
+  },
+  categoriaBadge: {
+    fontSize: 11,
+    color: '#999',
+    marginTop: 2,
+    fontWeight: '400',
   },
   categoriaActions: {
     flexDirection: 'row',
