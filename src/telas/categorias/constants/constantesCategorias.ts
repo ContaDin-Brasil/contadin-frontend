@@ -32,6 +32,13 @@ export const CATEGORY_ICONS = [
   'spa',
   'beach-access',
   'local-movies',
+  'sports-esports',
+  'work',
+  'savings',
+  'account-balance',
+  'credit-card',
+  'cake',
+  'card-giftcard',
 ];
 
 /**

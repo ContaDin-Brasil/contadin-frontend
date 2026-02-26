@@ -15,13 +15,25 @@ const categoriaService = {
 
   /**
    * Busca categorias por usuário
+   * Retorna categorias padrão (fk_usuario: null) + categorias do usuário
    * @param {number} usuarioId - ID do usuário
    */
   listarPorUsuario: async (usuarioId) => {
-    const response = await api.get('/categoria', { 
-      params: { fk_usuario: usuarioId } 
-    });
-    return response.data;
+    try {
+      // Busca todas as categorias
+      const response = await api.get('/categoria');
+      const todasCategorias = response.data;
+
+      // Filtra: padrão (null) + do usuário
+      const categorias = todasCategorias.filter(cat => 
+        cat.fk_usuario === null || cat.fk_usuario === usuarioId
+      );
+
+      return categorias;
+    } catch (error) {
+      console.error('Erro ao buscar categorias:', error);
+      throw error;
+    }
   },
 
   /**
