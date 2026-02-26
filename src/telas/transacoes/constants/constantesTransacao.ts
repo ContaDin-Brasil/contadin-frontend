@@ -22,16 +22,39 @@ export const FREQUENCIES: Frequency[] = [
 ];
 
 /**
- * Opções de parcelamento disponíveis
+ * Opções de parcelamento disponíveis para o picker
+ * Opções comuns no mercado brasileiro
  */
 export const INSTALLMENT_OPTIONS = [
-  { value: 2, label: '2x' },
-  { value: 3, label: '3x' },
-  { value: 4, label: '4x' },
-  { value: 5, label: '5x' },
-  { value: 6, label: '6x' },
-  { value: 12, label: '12x' },
+  { value: 2, label: '2 parcelas' },
+  { value: 3, label: '3 parcelas' },
+  { value: 4, label: '4 parcelas' },
+  { value: 5, label: '5 parcelas' },
+  { value: 6, label: '6 parcelas' },
+  { value: 7, label: '7 parcelas' },
+  { value: 8, label: '8 parcelas' },
+  { value: 9, label: '9 parcelas' },
+  { value: 10, label: '10 parcelas' },
+  { value: 11, label: '11 parcelas' },
+  { value: 12, label: '12 parcelas' },
+  { value: 15, label: '15 parcelas' },
+  { value: 18, label: '18 parcelas' },
+  { value: 24, label: '24 parcelas' },
+  { value: 30, label: '30 parcelas' },
+  { value: 36, label: '36 parcelas' },
+  { value: 48, label: '48 parcelas' },
+  { value: 60, label: '60 parcelas' },
 ];
+
+/**
+ * Configurações de parcelamento
+ */
+export const INSTALLMENT_CONFIG = {
+  MIN_INSTALLMENTS: 2,
+  MAX_INSTALLMENTS: 60,
+  MIN_INSTALLMENT_VALUE: 0.01,
+  WARNING_MIN_VALUE: 1.00, // Alerta se parcela for menor que R$ 1,00
+};
 
 /**
  * Instituições padrão (alinhado com DB)

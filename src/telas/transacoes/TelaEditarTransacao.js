@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, TextInput, TouchableOpacity, Switch, ActivityIndicator, Alert, Image, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { Picker } from '@react-native-picker/picker';
 import TituloPagina from '../../componentes/TituloPagina';
 import { DatePickerInput } from '../../componentes/DatePickerInput';
 import { getLogoByName } from '../../componentes/modais/logosInstituicoes';
@@ -41,6 +42,14 @@ const TelaEditarTransacao = ({ navigation, route }) => {
       const dataLimiteError = editState.validateRecurrenceEndDate();
       if (dataLimiteError) {
         Alert.alert('Erro', dataLimiteError);
+        setSalvando(false);
+        return;
+      }
+
+      // Valida configurações de parcelamento
+      const parcelamentoError = editState.validateInstallment();
+      if (parcelamentoError) {
+        Alert.alert('Erro', parcelamentoError);
         setSalvando(false);
         return;
       }
@@ -332,58 +341,65 @@ const TelaEditarTransacao = ({ navigation, route }) => {
           </View>
         )}
         {editState.isInstallment && (
-          <View style={styles.installmentButtons}>
-            {INSTALLMENT_OPTIONS.map(option => (
-              <TouchableOpacity
-                key={option.value}
-                style={[
-                  styles.installmentButton,
-                  editState.installmentCount === option.value && !editState.customInstallmentCount && styles.installmentButtonActive
-                ]}
-                onPress={() => {
-                  editState.setInstallmentCount(option.value);
-                  editState.setCustomInstallmentCount('');
-                }}
+          <>
+            {/* Valor por parcela */}
+            {editState.valor && editState.getInstallmentValue() > 0 && (
+              <View style={styles.installmentValueContainer}>
+                <View style={styles.installmentValueRow}>
+                  <Ionicons name="calculator-outline" size={20} color={COLORS.primary} />
+                  <Text style={styles.installmentValueText}>
+                    {editState.installmentCount}x de{' '}
+                    <Text style={styles.installmentValueHighlight}>
+                      R$ {editState.getInstallmentValue().toFixed(2).replace('.', ',')}
+                    </Text>
+                  </Text>
+                </View>
+                {editState.getInstallmentWarning() && (
+                  <View style={styles.warningContainer}>
+                    <Ionicons name="alert-circle-outline" size={14} color={COLORS.warning} />
+                    <Text style={styles.warningText}>{editState.getInstallmentWarning()}</Text>
+                  </View>
+                )}
+              </View>
+            )}
+
+            {/* Seletor de parcelas */}
+            <Text style={styles.pickerLabel}>Quantidade de parcelas:</Text>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={editState.installmentCount}
+                onValueChange={(itemValue) => editState.setInstallmentCount(itemValue)}
+                style={styles.picker}
+                dropdownIconColor={COLORS.primary}
               >
-                <Text style={[
-                  styles.installmentButtonText,
-                  editState.installmentCount === option.value && !editState.customInstallmentCount && styles.installmentButtonTextActive
-                ]}>
-                  {option.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
-            <View style={[
-              styles.installmentButton,
-              styles.customInstallmentButton,
-              editState.customInstallmentCount && styles.installmentButtonActive
-            ]}>
-              <Text style={[
-                styles.installmentButtonText,
-                editState.customInstallmentCount && styles.installmentButtonTextActive
-              ]}>
-                Outro:
-              </Text>
-              <TextInput
-                style={[
-                  styles.customInstallmentInput,
-                  editState.customInstallmentCount && styles.customInstallmentInputActive
-                ]}
-                placeholder="0"
-                placeholderTextColor="#999"
-                value={editState.customInstallmentCount}
-                onChangeText={(text) => {
-                  const cleaned = text.replace(/\D/g, '');
-                  const value = parseInt(cleaned) || 0;
-                  if (value <= 720) {
-                    editState.setCustomInstallmentCount(cleaned);
-                  }
-                }}
-                keyboardType="numeric"
-                maxLength={3}
-              />
+                {INSTALLMENT_OPTIONS.map(option => (
+                  <Picker.Item 
+                    key={option.value} 
+                    label={option.label} 
+                    value={option.value}
+                  />
+                ))}
+              </Picker>
             </View>
-          </View>
+
+            {/* Validação de parcelamento */}
+            {editState.validateInstallment() && (
+              <View style={styles.errorContainer}>
+                <Ionicons name="alert-circle" size={14} color={COLORS.error} />
+                <Text style={styles.errorText}>{editState.validateInstallment()}</Text>
+              </View>
+            )}
+
+            {/* Data da última parcela (info) */}
+            {editState.getLastInstallmentDate() && !editState.validateInstallment() && (
+              <View style={styles.installmentInfoContainer}>
+                <Ionicons name="information-circle-outline" size={16} color={COLORS.textSecondary} />
+                <Text style={styles.installmentInfoText}>
+                  Última parcela: {editState.getLastInstallmentDate()}
+                </Text>
+              </View>
+            )}
+          </>
         )}
       </View>
 

@@ -37,7 +37,6 @@ export const useFormularioTransacao = () => {
   const [recurrenceEndDate, setRecurrenceEndDate] = useState(getTodayDate());
   const [isInstallment, setIsInstallment] = useState(false);
   const [installmentCount, setInstallmentCount] = useState(2);
-  const [customInstallmentCount, setCustomInstallmentCount] = useState('');
   const [institutionType, setInstitutionType] = useState<InstitutionType>('banks');
   const [selectedInstitution, setSelectedInstitution] = useState<Institution | null>(null);
   
@@ -230,6 +229,97 @@ export const useFormularioTransacao = () => {
   };
 
   /**
+   * Calcula o valor de cada parcela
+   */
+  const getInstallmentValue = (): number => {
+    if (!isInstallment || !valor) {
+      return 0;
+    }
+
+    const valorNumerico = converterParaNumero(valor);
+    
+    if (installmentCount < 2) {
+      return valorNumerico;
+    }
+
+    return valorNumerico / installmentCount;
+  };
+
+  /**
+   * Valida configurações de parcelamento
+   */
+  const validateInstallment = (): string | null => {
+    if (!isInstallment) {
+      return null;
+    }
+
+    // Valida número mínimo de parcelas
+    if (installmentCount < 2) {
+      return 'Parcelamento deve ter no mínimo 2 parcelas';
+    }
+
+    // Valida valor total
+    if (!valor || converterParaNumero(valor) <= 0) {
+      return 'Defina o valor da transação primeiro';
+    }
+
+    // Valida valor por parcela
+    const valorParcela = getInstallmentValue();
+    if (valorParcela < 0.01) {
+      return 'Valor da parcela muito baixo';
+    }
+
+    // Verifica se a data da transação está completa
+    if (date.length !== 10) {
+      return 'Defina a data da transação primeiro';
+    }
+
+    return null;
+  };
+
+  /**
+   * Retorna mensagem de alerta se valor da parcela for muito baixo
+   */
+  const getInstallmentWarning = (): string | null => {
+    if (!isInstallment || !valor) {
+      return null;
+    }
+
+    const valorParcela = getInstallmentValue();
+    if (valorParcela > 0 && valorParcela < 1.00) {
+      return `Parcelas de R$ ${valorParcela.toFixed(2)} - valor muito baixo`;
+    }
+
+    return null;
+  };
+
+  /**
+   * Calcula a data da última parcela baseado na data da transação
+   */
+  const getLastInstallmentDate = (): string | null => {
+    if (!isInstallment || date.length !== 10) {
+      return null;
+    }
+
+    if (installmentCount < 2) {
+      return null;
+    }
+
+    const [day, month, year] = date.split('/').map(Number);
+    const firstDate = new Date(year, month - 1, day);
+
+    // Adiciona (installmentCount - 1) meses à data da transação (primeira parcela)
+    const lastDate = new Date(firstDate);
+    lastDate.setMonth(lastDate.getMonth() + (installmentCount - 1));
+
+    const lastDay = String(lastDate.getDate()).padStart(2, '0');
+    const lastMonth = String(lastDate.getMonth() + 1).padStart(2, '0');
+    const lastYear = lastDate.getFullYear();
+
+    return `${lastDay}/${lastMonth}/${lastYear}`;
+  };
+
+  /**
    * Ativa recorrência e desativa parcelamento
    */
   const handleToggleRecurring = (value: boolean) => {
@@ -288,7 +378,7 @@ export const useFormularioTransacao = () => {
       hasRecurrenceEndDate,
       recurrenceEndDate: hasRecurrenceEndDate && isRecurring ? recurrenceEndDate : null,
       parcelado: isInstallment,
-      qtdParcelas: isInstallment ? (customInstallmentCount ? parseInt(customInstallmentCount) : installmentCount) : 1,
+      qtdParcelas: isInstallment ? installmentCount : 1,
       selectedInstitution,
       institutionType
     };
@@ -318,7 +408,6 @@ export const useFormularioTransacao = () => {
     setRecurrenceEndDate(getTodayDate());
     setIsInstallment(false);
     setInstallmentCount(2);
-    setCustomInstallmentCount('');
     setInstitutionType('banks');
     const primeiroBanco = instituicoes.find((inst: any) => inst.tipoInstituicao === 'banco');
     if (primeiroBanco) {
@@ -340,7 +429,6 @@ export const useFormularioTransacao = () => {
     recurrenceEndDate,
     isInstallment,
     installmentCount,
-    customInstallmentCount,
     institutionType,
     selectedInstitution,
     categorias,
@@ -359,7 +447,6 @@ export const useFormularioTransacao = () => {
     setHasRecurrenceEndDate,
     setIsInstallment,
     setInstallmentCount,
-    setCustomInstallmentCount,
     setInstitutionType,
     
     // Ações
@@ -376,5 +463,9 @@ export const useFormularioTransacao = () => {
     resetForm,
     carregarDados,
     validateRecurrenceEndDate,
+    validateInstallment,
+    getInstallmentValue,
+    getInstallmentWarning,
+    getLastInstallmentDate,
   };
 };

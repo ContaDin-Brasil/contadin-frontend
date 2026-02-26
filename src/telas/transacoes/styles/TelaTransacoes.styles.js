@@ -108,14 +108,11 @@ export const styles = StyleSheet.create({
   },
   transactionItem: {
     backgroundColor: '#FFF',
+    borderColor: '#E0E0E0',
     padding: 15,
     borderRadius: 12,
     marginBottom: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 2,
+    borderWidth: 1,
   },
   transactionHeader: {
     flexDirection: 'row',

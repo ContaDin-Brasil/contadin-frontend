@@ -205,6 +205,14 @@
       "tipoInstituicao": "vale",
       "fk_usuario": 1,
       "id": 26
+    },
+    {
+      "nome": "Sodexo",
+      "icone": "Sd",
+      "cor": "#E31C23",
+      "tipoInstituicao": "vale",
+      "fk_usuario": 1,
+      "id": 27
     }
   ],
   "transacao": [
@@ -496,15 +504,15 @@
     },
     {
       "id": 55,
-      "descricao": "Presente",
+      "descricao": "Presente teste",
       "valor": 333.46,
       "tipo": "GASTO",
-      "data_transacao": "2025-12-16T00:44:55.190Z",
+      "data_transacao": "2025-12-15T00:00:00.000Z",
       "parcelado": true,
       "qtdParcelas": 6,
       "recorrencia": null,
       "fim_recorrencia": null,
-      "fk_instituicao": 26,
+      "fk_instituicao": 19,
       "fk_categoria": 2
     },
     {
@@ -688,6 +696,19 @@
       "fim_recorrencia": null,
       "fk_instituicao": 11,
       "fk_categoria": 4
+    },
+    {
+      "descricao": "Compra no Supermercado Extra",
+      "valor": 145.8,
+      "tipo": "GASTO",
+      "data_transacao": "2026-02-26T00:00:00.000Z",
+      "parcelado": false,
+      "qtdParcelas": 1,
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 14,
+      "fk_categoria": 1,
+      "id": 70
     }
   ],
   "meta_gasto": [
