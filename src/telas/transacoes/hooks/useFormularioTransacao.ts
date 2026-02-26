@@ -192,6 +192,44 @@ export const useFormularioTransacao = () => {
   };
 
   /**
+   * Valida se a data fim de recorrência é posterior à data da transação
+   */
+  const validateRecurrenceEndDate = (): string | null => {
+    if (!hasRecurrenceEndDate || !isRecurring) {
+      return null;
+    }
+
+    // Verifica se a data está completa
+    if (recurrenceEndDate.length !== 10) {
+      return 'Data incompleta';
+    }
+
+    // Verifica se a data da transação está completa
+    if (date.length !== 10) {
+      return 'Defina a data da transação primeiro';
+    }
+
+    // Converte as datas para comparação
+    const [endDay, endMonth, endYear] = recurrenceEndDate.split('/').map(Number);
+    const [startDay, startMonth, startYear] = date.split('/').map(Number);
+
+    const endDate = new Date(endYear, endMonth - 1, endDay);
+    const startDate = new Date(startYear, startMonth - 1, startDay);
+
+    // Valida se a data é válida
+    if (isNaN(endDate.getTime())) {
+      return 'Data inválida';
+    }
+
+    // Verifica se a data fim é posterior à data inicial
+    if (endDate <= startDate) {
+      return 'Data limite deve ser posterior à data da transação';
+    }
+
+    return null;
+  };
+
+  /**
    * Ativa recorrência e desativa parcelamento
    */
   const handleToggleRecurring = (value: boolean) => {
@@ -337,5 +375,6 @@ export const useFormularioTransacao = () => {
     getFilteredInstitutions,
     resetForm,
     carregarDados,
+    validateRecurrenceEndDate,
   };
 };

@@ -114,7 +114,7 @@ const ModalEditarInstituicao: React.FC<ModalEditarInstituicaoProps> = ({
         <View style={[styles.iconeGrande, { backgroundColor: '#FFF' }]}>
           <Image 
             source={logo} 
-            style={{ width: 64, height: 64, borderRadius: 16 }}
+            style={{ width: 64, height: 64, borderRadius: 16, objectFit: 'cover' }}
             resizeMode="contain"
           />
         </View>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, TextInput, TouchableOpacity, Switch, ActivityIndicator, Alert, Image, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import TituloPagina from '../../componentes/TituloPagina';
+import { DatePickerInput } from '../../componentes/DatePickerInput';
 import { getLogoByName } from '../../componentes/modais/logosInstituicoes';
 import ModalSelecaoInstituicao from '../../componentes/modais/ModalSelecaoInstituicao';
 import ModalAdicionarInstituicao from '../../componentes/modais/ModalAdicionarInstituicao';
@@ -36,6 +37,14 @@ const TelaEditarTransacao = ({ navigation, route }) => {
     setSalvando(true);
     
     try {
+      // Valida data limite de recorrência antes de atualizar
+      const dataLimiteError = editState.validateRecurrenceEndDate();
+      if (dataLimiteError) {
+        Alert.alert('Erro', dataLimiteError);
+        setSalvando(false);
+        return;
+      }
+
       await editState.atualizarTransacao();
       
       Alert.alert('Sucesso', 'Transação atualizada com sucesso!', [
@@ -298,18 +307,14 @@ const TelaEditarTransacao = ({ navigation, route }) => {
               <Text style={styles.recurringText}>Data limite da recorrência</Text>
             </View>
             {editState.hasRecurrenceEndDate && (
-              <View style={styles.dateInput}>
-                <Ionicons name="calendar-outline" size={20} color="#666" />
-                <TextInput
-                  style={styles.dateInputText}
-                  placeholder="DD/MM/AAAA"
-                  placeholderTextColor="#999"
-                  value={editState.recurrenceEndDate}
-                  onChangeText={editState.handleRecurrenceEndDateChange}
-                  keyboardType="numeric"
-                  maxLength={10}
-                />
-              </View>
+              <DatePickerInput
+                value={editState.recurrenceEndDate}
+                onChangeDate={editState.handleRecurrenceEndDateChange}
+                placeholder="DD/MM/AAAA"
+                minDate={new Date()} // Não permite datas passadas
+                errorMessage={editState.validateRecurrenceEndDate()}
+                style={{ marginTop: 8 }}
+              />
             )}
           </>
         )}
