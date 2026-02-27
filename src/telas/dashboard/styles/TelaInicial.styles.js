@@ -401,13 +401,6 @@ periodoTextoStyle: {
   color: '#666666',
 },
 
-yAxisContainerStyle: {
-  width: Y_AXIS_WIDTH,
-  height: CHART_HEIGHT,
-  justifyContent: 'space-between',
-  paddingBottom: 20,
-  paddingRight: 4,
-},
 
 yAxisLabelStyle: {
   fontSize: 9,

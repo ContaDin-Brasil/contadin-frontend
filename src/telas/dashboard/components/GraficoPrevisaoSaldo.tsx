@@ -142,7 +142,7 @@ export const GraficoPrevisaoSaldo: React.FC<GraficoPrevisaoSaldoProps> = ({
       {dadosLinha.length > 1 ? (
         <View style={{ flexDirection: 'row' }}>
           {/* Eixo Y fixo à esquerda */}
-          <View style={styles.yAxisContainerStyle}>
+          <View style={yAxisContainerStyle}>
             {yLabels.map((label, i) => (
               <Text key={i} style={styles.yAxisLabelStyle}>{label}</Text>
             ))}
@@ -196,4 +196,12 @@ export const GraficoPrevisaoSaldo: React.FC<GraficoPrevisaoSaldoProps> = ({
       </Text>
     </View>
   );
+};
+
+const yAxisContainerStyle: any = {
+  width: Y_AXIS_WIDTH,
+  height: CHART_HEIGHT,
+  justifyContent: 'space-between',
+  paddingBottom: 20,
+  paddingRight: 4,
 };
