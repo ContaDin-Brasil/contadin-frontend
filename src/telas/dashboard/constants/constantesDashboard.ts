@@ -2,6 +2,16 @@
  * Constantes do Dashboard
  */
 
+// Faixas de horário para saudação — usa o fuso do dispositivo automaticamente
+export const SAUDACOES = {
+  MANHA: 'Bom dia',
+  TARDE: 'Boa tarde',
+  NOITE: 'Boa noite',
+  HORA_INICIO_MANHA: 5,
+  HORA_FIM_MANHA: 12,
+  HORA_FIM_TARDE: 18,
+};
+
 export const CONFIGURACAO_GRAFICO = {
   ALTURA: 220,
   LARGURA_BARRA: 30,
