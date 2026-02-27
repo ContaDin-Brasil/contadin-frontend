@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Banco, Vale, Instituicao } from '../types/carteira.types';
 import { instituicaoService } from '../../../api';
+import transacaoService from '../../../api/services/transacaoService';
 import { useCache } from '../../../contexts/CacheContext';
 import { getInstituicoesPadrao } from '../constants/instituicoesPadrao';
 
@@ -49,19 +50,24 @@ export const useGerenciarCarteira = () => {
       if (!forceRefresh) {
         const cached = await getCache<any[]>(cacheKey);
         if (cached) {
-          processarInstituicoes(cached);
+          // Cache só guarda instituições; busca transações sempre (sem cache)
+          const transacoes = await transacaoService.listar();
+          processarInstituicoes(cached, transacoes);
           setLoading(false);
           return;
         }
       }
       
       // Se não tem cache ou forçou refresh, busca da API
-      const instituicoes = await instituicaoService.listarPorUsuario(usuarioId);
-      
+      const [instituicoes, transacoes] = await Promise.all([
+        instituicaoService.listarPorUsuario(usuarioId),
+        transacaoService.listar(),
+      ]);
+
       // Salva no cache (válido por 5 minutos)
       await setCache(cacheKey, instituicoes);
-      
-      processarInstituicoes(instituicoes);
+
+      processarInstituicoes(instituicoes, transacoes);
     } catch (err) {
       console.error('Erro ao carregar instituições:', err);
       setError('Erro ao carregar instituições');
@@ -71,9 +77,26 @@ export const useGerenciarCarteira = () => {
   };
 
   /**
+   * Formata valor numérico para moeda brasileira
+   */
+  const formatarSaldo = (valor: number): string => {
+    return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  };
+
+  /**
+   * Calcula saldo de uma instituição a partir das transações
+   * Saldo = soma de RECEITAs - soma de GASTOs
+   */
+  const calcularSaldo = (instituicaoId: number, transacoes: any[]): number => {
+    return transacoes
+      .filter(t => t.fk_instituicao === instituicaoId)
+      .reduce((acc, t) => t.tipo === 'RECEITA' ? acc + t.valor : acc - t.valor, 0);
+  };
+
+  /**
    * Processa a lista de instituições e separa em bancos e vales
    */
-  const processarInstituicoes = (instituicoes: any[]) => {
+  const processarInstituicoes = (instituicoes: any[], transacoes: any[] = []) => {
     const bancosList: Banco[] = [];
     const valesList: Vale[] = [];
     
@@ -83,12 +106,17 @@ export const useGerenciarCarteira = () => {
         console.warn('Instituição com dados incompletos ignorada:', inst);
         return;
       }
-      
+
+      const saldo = calcularSaldo(inst.id, transacoes);
+      const gastos = transacoes
+        .filter(t => t.fk_instituicao === inst.id && t.tipo === 'GASTO')
+        .reduce((acc, t) => acc + t.valor, 0);
+
       if (inst.tipoInstituicao === 'vale') {
         valesList.push({
           id: inst.id,
           nome: inst.nome,
-          balance: 'R$ 0,00', // TODO: Calcular saldo real
+          balance: formatarSaldo(saldo),
           cor: inst.cor,
           icone: inst.icone,
           tipoInstituicao: 'vale',
@@ -97,8 +125,8 @@ export const useGerenciarCarteira = () => {
         bancosList.push({
           id: inst.id,
           nome: inst.nome,
-          balance: 'R$ 0,00', // TODO: Calcular saldo real
-          expenses: 'R$ 0,00', // TODO: Calcular gastos reais
+          balance: formatarSaldo(saldo),
+          expenses: formatarSaldo(gastos),
           cor: inst.cor,
           icone: inst.icone,
           tipoInstituicao: 'banco',
