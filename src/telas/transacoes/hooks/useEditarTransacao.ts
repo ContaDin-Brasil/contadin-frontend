@@ -82,7 +82,17 @@ export const useEditarTransacao = (transacaoId: number | null) => {
     // Parcelamento
     if (transacao.parcelado) {
       formState.setIsInstallment(true);
-      formState.setInstallmentCount(transacao.qtdParcelas || 2);
+      const qtdParcelas = transacao.qtdParcelas || 2;
+      
+      // Verifica se a quantidade de parcelas está nas opções padrão (2-12)
+      const opcoesParcelamento = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+      if (opcoesParcelamento.includes(qtdParcelas)) {
+        formState.setInstallmentCount(qtdParcelas);
+      } else {
+        // Se não está nas opções padrão, usa "Outro valor" (0)
+        formState.setInstallmentCount(0);
+        formState.setCustomInstallmentValue(qtdParcelas.toString());
+      }
     }
     
     // Recorrência

@@ -348,7 +348,9 @@ const TelaEditarTransacao = ({ navigation, route }) => {
                 <View style={styles.installmentValueRow}>
                   <Ionicons name="calculator-outline" size={20} color={COLORS.primary} />
                   <Text style={styles.installmentValueText}>
-                    {editState.installmentCount}x de{' '}
+                    {editState.installmentCount === 0 
+                      ? (editState.customInstallmentValue || '?')
+                      : editState.installmentCount}x de{' '}
                     <Text style={styles.installmentValueHighlight}>
                       R$ {editState.getInstallmentValue().toFixed(2).replace('.', ',')}
                     </Text>
@@ -368,7 +370,13 @@ const TelaEditarTransacao = ({ navigation, route }) => {
             <View style={styles.pickerContainer}>
               <Picker
                 selectedValue={editState.installmentCount}
-                onValueChange={(itemValue) => editState.setInstallmentCount(itemValue)}
+                onValueChange={(itemValue) => {
+                  editState.setInstallmentCount(itemValue);
+                  // Limpa o valor customizado quando seleciona uma opção pré-definida
+                  if (itemValue !== 0) {
+                    editState.setCustomInstallmentValue('');
+                  }
+                }}
                 style={styles.picker}
                 dropdownIconColor={COLORS.primary}
               >
@@ -381,6 +389,22 @@ const TelaEditarTransacao = ({ navigation, route }) => {
                 ))}
               </Picker>
             </View>
+
+            {/* Campo customizado quando seleciona "Outro valor" */}
+            {editState.installmentCount === 0 && (
+              <View style={styles.customInstallmentContainer}>
+                <Text style={styles.label}>Digite a quantidade de parcelas (máx. 720):</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Ex: 24"
+                  placeholderTextColor="#999"
+                  value={editState.customInstallmentValue}
+                  onChangeText={editState.handleCustomInstallmentChange}
+                  keyboardType="numeric"
+                  maxLength={3}
+                />
+              </View>
+            )}
 
             {/* Validação de parcelamento */}
             {editState.validateInstallment() && (

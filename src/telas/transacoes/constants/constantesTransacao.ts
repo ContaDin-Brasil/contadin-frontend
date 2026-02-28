@@ -37,13 +37,7 @@ export const INSTALLMENT_OPTIONS = [
   { value: 10, label: '10 parcelas' },
   { value: 11, label: '11 parcelas' },
   { value: 12, label: '12 parcelas' },
-  { value: 15, label: '15 parcelas' },
-  { value: 18, label: '18 parcelas' },
-  { value: 24, label: '24 parcelas' },
-  { value: 30, label: '30 parcelas' },
-  { value: 36, label: '36 parcelas' },
-  { value: 48, label: '48 parcelas' },
-  { value: 60, label: '60 parcelas' },
+  { value: 0, label: 'Outro valor' }, // Valor especial para indicar input customizado
 ];
 
 /**
@@ -51,7 +45,7 @@ export const INSTALLMENT_OPTIONS = [
  */
 export const INSTALLMENT_CONFIG = {
   MIN_INSTALLMENTS: 2,
-  MAX_INSTALLMENTS: 60,
+  MAX_INSTALLMENTS: 720,
   MIN_INSTALLMENT_VALUE: 0.01,
   WARNING_MIN_VALUE: 1.00, // Alerta se parcela for menor que R$ 1,00
 };

@@ -424,7 +424,9 @@ const TelaAdicionarTransacao = ({ navigation }) => {
                 <View style={styles.installmentValueRow}>
                   <Ionicons name="calculator-outline" size={20} color={COLORS.primary} />
                   <Text style={styles.installmentValueText}>
-                    {formState.installmentCount}x de{' '}
+                    {formState.installmentCount === 0 
+                      ? (formState.customInstallmentValue || '?')
+                      : formState.installmentCount}x de{' '}
                     <Text style={styles.installmentValueHighlight}>
                       R$ {formState.getInstallmentValue().toFixed(2).replace('.', ',')}
                     </Text>
@@ -444,7 +446,13 @@ const TelaAdicionarTransacao = ({ navigation }) => {
             <View style={styles.pickerContainer}>
               <Picker
                 selectedValue={formState.installmentCount}
-                onValueChange={(itemValue) => formState.setInstallmentCount(itemValue)}
+                onValueChange={(itemValue) => {
+                  formState.setInstallmentCount(itemValue);
+                  // Limpa o valor customizado quando seleciona uma opção pré-definida
+                  if (itemValue !== 0) {
+                    formState.setCustomInstallmentValue('');
+                  }
+                }}
                 style={styles.picker}
                 dropdownIconColor={COLORS.primary}
               >
@@ -457,6 +465,22 @@ const TelaAdicionarTransacao = ({ navigation }) => {
                 ))}
               </Picker>
             </View>
+
+            {/* Campo customizado quando seleciona "Outro valor" */}
+            {formState.installmentCount === 0 && (
+              <View style={styles.customInstallmentContainer}>
+                <Text style={styles.label}>Digite a quantidade de parcelas (máx. 720):</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Ex: 24"
+                  placeholderTextColor="#999"
+                  value={formState.customInstallmentValue}
+                  onChangeText={formState.handleCustomInstallmentChange}
+                  keyboardType="numeric"
+                  maxLength={3}
+                />
+              </View>
+            )}
 
             {/* Validação de parcelamento */}
             {formState.validateInstallment() && (

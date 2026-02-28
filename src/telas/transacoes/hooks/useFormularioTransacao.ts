@@ -37,6 +37,7 @@ export const useFormularioTransacao = () => {
   const [recurrenceEndDate, setRecurrenceEndDate] = useState(getTodayDate());
   const [isInstallment, setIsInstallment] = useState(false);
   const [installmentCount, setInstallmentCount] = useState(2);
+  const [customInstallmentValue, setCustomInstallmentValue] = useState('');
   const [institutionType, setInstitutionType] = useState<InstitutionType>('banks');
   const [selectedInstitution, setSelectedInstitution] = useState<Institution | null>(null);
   
@@ -144,6 +145,20 @@ export const useFormularioTransacao = () => {
   };
 
   /**
+   * Manipula mudanças no campo customizado de parcelas
+   * Permite apenas números
+   */
+  const handleCustomInstallmentChange = (text: string) => {
+    // Remove tudo que não é número
+    const cleaned = text.replace(/\D/g, '');
+    
+    // Limita a 3 dígitos (máximo 720)
+    const limited = cleaned.slice(0, 3);
+    
+    setCustomInstallmentValue(limited);
+  };
+
+  /**
    * Retorna instituições filtradas pelo tipo selecionado
    */
   const getFilteredInstitutions = () => {
@@ -238,11 +253,16 @@ export const useFormularioTransacao = () => {
 
     const valorNumerico = converterParaNumero(valor);
     
-    if (installmentCount < 2) {
+    // Se for "Outro valor" (0), usa o customInstallmentValue
+    const qtdParcelas = installmentCount === 0 
+      ? parseInt(customInstallmentValue) || 0 
+      : installmentCount;
+    
+    if (qtdParcelas < 2) {
       return valorNumerico;
     }
 
-    return valorNumerico / installmentCount;
+    return valorNumerico / qtdParcelas;
   };
 
   /**
@@ -253,9 +273,29 @@ export const useFormularioTransacao = () => {
       return null;
     }
 
-    // Valida número mínimo de parcelas
-    if (installmentCount < 2) {
-      return 'Parcelamento deve ter no mínimo 2 parcelas';
+    // Se for "Outro valor" (0), valida o campo customizado
+    if (installmentCount === 0) {
+      if (!customInstallmentValue || customInstallmentValue.trim() === '') {
+        return 'Digite a quantidade de parcelas';
+      }
+      
+      const customValue = parseInt(customInstallmentValue);
+      if (isNaN(customValue)) {
+        return 'Quantidade de parcelas inválida';
+      }
+      
+      if (customValue < 2) {
+        return 'Parcelamento deve ter no mínimo 2 parcelas';
+      }
+      
+      if (customValue > 720) {
+        return 'Parcelamento não pode exceder 720 parcelas';
+      }
+    } else {
+      // Valida número mínimo de parcelas
+      if (installmentCount < 2) {
+        return 'Parcelamento deve ter no mínimo 2 parcelas';
+      }
     }
 
     // Valida valor total
@@ -301,16 +341,21 @@ export const useFormularioTransacao = () => {
       return null;
     }
 
-    if (installmentCount < 2) {
+    // Se for "Outro valor" (0), usa o customInstallmentValue
+    const qtdParcelas = installmentCount === 0 
+      ? parseInt(customInstallmentValue) || 0 
+      : installmentCount;
+
+    if (qtdParcelas < 2) {
       return null;
     }
 
     const [day, month, year] = date.split('/').map(Number);
     const firstDate = new Date(year, month - 1, day);
 
-    // Adiciona (installmentCount - 1) meses à data da transação (primeira parcela)
+    // Adiciona (qtdParcelas - 1) meses à data da transação (primeira parcela)
     const lastDate = new Date(firstDate);
-    lastDate.setMonth(lastDate.getMonth() + (installmentCount - 1));
+    lastDate.setMonth(lastDate.getMonth() + (qtdParcelas - 1));
 
     const lastDay = String(lastDate.getDate()).padStart(2, '0');
     const lastMonth = String(lastDate.getMonth() + 1).padStart(2, '0');
@@ -378,7 +423,9 @@ export const useFormularioTransacao = () => {
       hasRecurrenceEndDate,
       recurrenceEndDate: hasRecurrenceEndDate && isRecurring ? recurrenceEndDate : null,
       parcelado: isInstallment,
-      qtdParcelas: isInstallment ? installmentCount : 1,
+      qtdParcelas: isInstallment 
+        ? (installmentCount === 0 ? parseInt(customInstallmentValue) || 2 : installmentCount) 
+        : 1,
       selectedInstitution,
       institutionType
     };
@@ -408,6 +455,7 @@ export const useFormularioTransacao = () => {
     setRecurrenceEndDate(getTodayDate());
     setIsInstallment(false);
     setInstallmentCount(2);
+    setCustomInstallmentValue('');
     setInstitutionType('banks');
     const primeiroBanco = instituicoes.find((inst: any) => inst.tipoInstituicao === 'banco');
     if (primeiroBanco) {
@@ -429,6 +477,7 @@ export const useFormularioTransacao = () => {
     recurrenceEndDate,
     isInstallment,
     installmentCount,
+    customInstallmentValue,
     institutionType,
     selectedInstitution,
     categorias,
@@ -447,11 +496,13 @@ export const useFormularioTransacao = () => {
     setHasRecurrenceEndDate,
     setIsInstallment,
     setInstallmentCount,
+    setCustomInstallmentValue,
     setInstitutionType,
     
     // Ações
     handleValorChange,
     handleDateChange,
+    handleCustomInstallmentChange,
     handleRecurrenceEndDateChange,
     handleToggleRecurring,
     handleToggleInstallment,
