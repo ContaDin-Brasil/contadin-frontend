@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, TextInput, TouchableOpacity, Switch, ActivityIndicator, Alert, Image, SafeAreaView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import TituloPagina from '../../componentes/TituloPagina';
 import { DatePickerInput } from '../../componentes/DatePickerInput';
 import { getLogoByName } from '../../componentes/modais/logosInstituicoes';
 import ModalSelecaoInstituicao from '../../componentes/modais/ModalSelecaoInstituicao';
 import ModalAdicionarInstituicao from '../../componentes/modais/ModalAdicionarInstituicao';
+import ModalCategoria from '../categorias/modals/ModalCategoria';
 import { useEditarTransacao } from './hooks/useEditarTransacao';
 import { FREQUENCIES, INSTALLMENT_OPTIONS } from './constants/constantesTransacao';
 import { getCategoryIcon } from './utils/utilitariosTransacao';
+import { categoriaService } from '../../api';
 import COLORS from '../../styles/colors';
 import { styles } from './styles/TelaAdicionarTransacao.styles';
 
@@ -32,6 +34,25 @@ const TelaEditarTransacao = ({ navigation, route }) => {
   const handleAddCustomInstitution = (institution) => {
     editState.handleAddCustomInstitution(institution);
     setCustomModalVisible(false);
+  };
+
+  const handleCreateCategoria = async (data) => {
+    try {
+      await categoriaService.criar({
+        ...data,
+        fk_usuario: 1 // ID do usuário
+      });
+      
+      // Recarrega categorias
+      await editState.carregarDados();
+      
+      Alert.alert('Sucesso', 'Categoria criada com sucesso!');
+      return true;
+    } catch (error) {
+      console.error('Erro ao criar categoria:', error);
+      Alert.alert('Erro', 'Não foi possível criar a categoria');
+      return false;
+    }
   };
 
   const handleUpdateTransaction = async () => {
@@ -239,14 +260,14 @@ const TelaEditarTransacao = ({ navigation, route }) => {
           <Ionicons name="search" size={20} color="#999" />
           <TextInput
             style={styles.searchInput}
-            placeholder="Pesquisar"
+            placeholder="Pesquisar categorias..."
             placeholderTextColor="#999"
             value={editState.categorySearch}
             onChangeText={editState.setCategorySearch}
           />
         </View>
         <View style={styles.categoryButtons}>
-          {editState.categorias.map(category => (
+          {editState.getCategoriasExibidas().map(category => (
             <TouchableOpacity
               key={category.id}
               style={[
@@ -255,8 +276,8 @@ const TelaEditarTransacao = ({ navigation, route }) => {
               ]}
               onPress={() => editState.setSelectedCategory(category.id)}
             >
-              <Ionicons
-                name={getCategoryIcon(category.nome)}
+              <MaterialIcons
+                name={category.icone || getCategoryIcon(category.nome)}
                 size={20}
                 color={editState.selectedCategory === category.id ? '#FFF' : '#333'}
               />
@@ -268,6 +289,17 @@ const TelaEditarTransacao = ({ navigation, route }) => {
               </Text>
             </TouchableOpacity>
           ))}
+          
+          {/* Botão Adicionar Categoria */}
+          <TouchableOpacity
+            style={[styles.categoryButton, styles.addCategoryButton]}
+            onPress={() => editState.setModalCategoriaVisible(true)}
+          >
+            <Ionicons name="add-circle-outline" size={20} color={COLORS.primary} />
+            <Text style={[styles.categoryButtonText, styles.addCategoryButtonText]}>
+              Adicionar Categoria
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -542,6 +574,13 @@ const TelaEditarTransacao = ({ navigation, route }) => {
         visible={customModalVisible}
         onClose={() => setCustomModalVisible(false)}
         onAdd={handleAddCustomInstitution}
+      />
+
+      <ModalCategoria
+        visible={editState.modalCategoriaVisible}
+        onClose={() => editState.setModalCategoriaVisible(false)}
+        onSave={handleCreateCategoria}
+        tipoInicial={editState.tipo}
       />
       </ScrollView>
     </SafeAreaView>

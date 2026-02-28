@@ -66,19 +66,39 @@ export const getInstitutionById = (institutions: Institution[], id: number): Ins
 
 /**
  * Mapeia o ícone da categoria baseado no nome (temporário até ter ícones no DB)
+ * Retorna nomes de ícones do MaterialIcons para compatibilidade com a tela de categorias
+ * @deprecated Use category.icone diretamente ao invés desta função
  */
 export const getCategoryIcon = (categoryName: string): string => {
   const iconMap: Record<string, string> = {
-    'Alimentação': 'restaurant',
-    'Lazer': 'happy',
-    'Salário': 'cash',
-    'Transporte': 'car',
-    'Saúde': 'medkit',
+    'Alimentação': 'fastfood',
+    'Lazer': 'sports-esports',
+    'Salário': 'attach-money',
+    'Transporte': 'directions-car',
+    'Saúde': 'local-hospital',
     'Educação': 'school',
     'Moradia': 'home',
-    'Outros': 'ellipsis-horizontal'
+    'Investimentos': 'trending-up',
+    'Outros': 'more-horiz'
   };
-  return iconMap[categoryName] || 'pricetag';
+  return iconMap[categoryName] || 'local-offer';
+};
+
+/**
+ * Retorna o ícone correto da categoria
+ * Se a categoria tem um ícone definido, usa ele. Caso contrário, usa o mapeamento por nome.
+ * Retorna nomes de ícones do MaterialIcons para compatibilidade
+ */
+export const getCategoryIconSafe = (category: Category | null | undefined): string => {
+  if (!category) return 'local-offer';
+  
+  // Se a categoria tem um ícone definido, usa ele
+  if (category.icone) {
+    return category.icone;
+  }
+  
+  // Fallback para mapeamento por nome
+  return getCategoryIcon(category.nome);
 };
 
 /**

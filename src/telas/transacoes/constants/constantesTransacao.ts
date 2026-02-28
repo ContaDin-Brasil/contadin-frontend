@@ -1,14 +1,18 @@
 import { Category, Frequency, Institution } from '../types/transacao.types';
 
 /**
- * Categorias disponíveis
- * Nota: O campo 'icone' foi removido para alinhar com o schema do DB
- * Ícones podem ser mapeados no frontend baseado no nome da categoria
+ * Categorias disponíveis (mockadas)
+ * Ícones usando MaterialIcons para compatibilidade com a tela de categorias
  */
 export const CATEGORIES: Category[] = [
-  { id: 1, nome: 'Alimentação' },
-  { id: 2, nome: 'Lazer' },
-  { id: 3, nome: 'Salário' },
+  { id: 1, nome: 'Alimentação', tipo: 'GASTO', cor: '#FF6B6B', icone: 'fastfood', fk_usuario: null },
+  { id: 2, nome: 'Lazer', tipo: 'GASTO', cor: '#4ECDC4', icone: 'sports-esports', fk_usuario: null },
+  { id: 3, nome: 'Salário', tipo: 'RECEITA', cor: '#45B7D1', icone: 'attach-money', fk_usuario: null },
+  { id: 4, nome: 'Transporte', tipo: 'GASTO', cor: '#96CEB4', icone: 'directions-car', fk_usuario: null },
+  { id: 5, nome: 'Educação', tipo: 'GASTO', cor: '#FFEAA7', icone: 'school', fk_usuario: null },
+  { id: 6, nome: 'Saúde', tipo: 'GASTO', cor: '#DFE6E9', icone: 'local-hospital', fk_usuario: null },
+  { id: 7, nome: 'Moradia', tipo: 'GASTO', cor: '#74B9FF', icone: 'home', fk_usuario: null },
+  { id: 8, nome: 'Investimentos', tipo: 'RECEITA', cor: '#A29BFE', icone: 'trending-up', fk_usuario: null },
 ];
 
 /**

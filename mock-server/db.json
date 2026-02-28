@@ -123,6 +123,14 @@
       "icone": "fitness-center",
       "fk_usuario": 1,
       "id": 12
+    },
+    {
+      "nome": "Teste",
+      "tipo": "GLOBAL",
+      "cor": "#98D8C8",
+      "icone": "computer",
+      "fk_usuario": 1,
+      "id": 13
     }
   ],
   "instituicao": [

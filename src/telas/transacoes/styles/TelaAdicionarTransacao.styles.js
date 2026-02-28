@@ -138,6 +138,15 @@ export const styles = StyleSheet.create({
   categoryButtonTextActive: {
     color: '#FFF',
   },
+  addCategoryButton: {
+    borderColor: COLORS.primary,
+    borderStyle: 'dashed',
+    backgroundColor: COLORS.primaryLight + '10',
+  },
+  addCategoryButtonText: {
+    color: COLORS.primary,
+    fontWeight: '600',
+  },
   recurringRow: {
     flexDirection: 'row',
     alignItems: 'center',

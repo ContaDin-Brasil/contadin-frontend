@@ -14,6 +14,19 @@ const transacaoService = {
   },
 
   /**
+   * Busca transações por usuário
+   * Nota: Como transações não têm fk_usuario diretamente, 
+   * retorna todas as transações (que serão filtradas por instituições do usuário)
+   * @param {number} usuarioId - ID do usuário
+   */
+  listarPorUsuario: async (usuarioId) => {
+    // Por enquanto, retorna todas as transações
+    // Em produção, isso seria filtrado pelo backend
+    const response = await api.get('/transacao');
+    return response.data;
+  },
+
+  /**
    * Busca uma transação por ID
    * @param {number} id - ID da transação
    */

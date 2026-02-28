@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, TextInput, TouchableOpacity, Switch, Animated, ActivityIndicator, Alert, Image, SafeAreaView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import TituloPagina from '../../componentes/TituloPagina';
 import { DatePickerInput } from '../../componentes/DatePickerInput';
 import { getLogoByName } from '../../componentes/modais/logosInstituicoes';
 import ModalSelecaoInstituicao from '../../componentes/modais/ModalSelecaoInstituicao';
 import ModalAdicionarInstituicao from '../../componentes/modais/ModalAdicionarInstituicao';
+import ModalCategoria from '../categorias/modals/ModalCategoria';
 import { useFormularioTransacao } from './hooks/useFormularioTransacao';
 import { useProcessamentoIA } from './hooks/useProcessamentoIA';
-import { transacaoService } from '../../api';
+import { transacaoService, categoriaService } from '../../api';
 import { FREQUENCIES, INSTALLMENT_OPTIONS } from './constants/constantesTransacao';
 import { getCategoryIcon } from './utils/utilitariosTransacao';
 import COLORS from '../../styles/colors';
@@ -32,6 +33,25 @@ const TelaAdicionarTransacao = ({ navigation }) => {
   const handleAddCustomInstitution = (institution) => {
     formState.handleAddCustomInstitution(institution);
     setCustomModalVisible(false);
+  };
+
+  const handleCreateCategoria = async (data) => {
+    try {
+      await categoriaService.criar({
+        ...data,
+        fk_usuario: 1 // ID do usuário
+      });
+      
+      // Recarrega categorias
+      await formState.carregarDados();
+      
+      Alert.alert('Sucesso', 'Categoria criada com sucesso!');
+      return true;
+    } catch (error) {
+      console.error('Erro ao criar categoria:', error);
+      Alert.alert('Erro', 'Não foi possível criar a categoria');
+      return false;
+    }
   };
 
   const applyAISuggestion = () => {
@@ -315,14 +335,14 @@ const TelaAdicionarTransacao = ({ navigation }) => {
           <Ionicons name="search" size={20} color="#999" />
           <TextInput
             style={styles.searchInput}
-            placeholder="Pesquisar"
+            placeholder="Pesquisar categorias..."
             placeholderTextColor="#999"
             value={formState.categorySearch}
             onChangeText={formState.setCategorySearch}
           />
         </View>
         <View style={styles.categoryButtons}>
-          {formState.categorias.map(category => (
+          {formState.getCategoriasExibidas().map(category => (
             <TouchableOpacity
               key={category.id}
               style={[
@@ -331,8 +351,8 @@ const TelaAdicionarTransacao = ({ navigation }) => {
               ]}
               onPress={() => formState.setSelectedCategory(category.id)}
             >
-              <Ionicons
-                name={getCategoryIcon(category.nome)}
+              <MaterialIcons
+                name={category.icone || getCategoryIcon(category.nome)}
                 size={20}
                 color={formState.selectedCategory === category.id ? '#FFF' : '#333'}
               />
@@ -344,6 +364,17 @@ const TelaAdicionarTransacao = ({ navigation }) => {
               </Text>
             </TouchableOpacity>
           ))}
+          
+          {/* Botão Adicionar Categoria */}
+          <TouchableOpacity
+            style={[styles.categoryButton, styles.addCategoryButton]}
+            onPress={() => formState.setModalCategoriaVisible(true)}
+          >
+            <Ionicons name="add-circle-outline" size={20} color={COLORS.primary} />
+            <Text style={[styles.categoryButtonText, styles.addCategoryButtonText]}>
+              Adicionar Categoria
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -600,6 +631,13 @@ const TelaAdicionarTransacao = ({ navigation }) => {
         visible={customModalVisible}
         onClose={() => setCustomModalVisible(false)}
         onAdd={handleAddCustomInstitution}
+      />
+
+      <ModalCategoria
+        visible={formState.modalCategoriaVisible}
+        onClose={() => formState.setModalCategoriaVisible(false)}
+        onSave={handleCreateCategoria}
+        tipoInicial={formState.tipo}
       />
       </ScrollView>
     </SafeAreaView>

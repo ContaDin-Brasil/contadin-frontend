@@ -6,7 +6,7 @@ import {
   Institution,
   AISuggestion 
 } from '../types/transacao.types';
-import { instituicaoService, categoriaService } from '../../../api';
+import { instituicaoService, categoriaService, transacaoService } from '../../../api';
 import { formatarValorMonetario, limparValorMonetario, converterParaNumero } from '../utils/formatacaoMoeda';
 
 /**
@@ -30,6 +30,7 @@ export const useFormularioTransacao = () => {
   const [date, setDate] = useState(getTodayDate());
   const [tipo, setTipo] = useState<TransactionType>('RECEITA');
   const [categorySearch, setCategorySearch] = useState('');
+  const [debouncedCategorySearch, setDebouncedCategorySearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(1); // ID da primeira categoria
   const [isRecurring, setIsRecurring] = useState(false);
   const [frequency, setFrequency] = useState<FrequencyType>('MENSAL');
@@ -40,14 +41,27 @@ export const useFormularioTransacao = () => {
   const [customInstallmentValue, setCustomInstallmentValue] = useState('');
   const [institutionType, setInstitutionType] = useState<InstitutionType>('banks');
   const [selectedInstitution, setSelectedInstitution] = useState<Institution | null>(null);
+  const [modalCategoriaVisible, setModalCategoriaVisible] = useState(false);
   
   // Estados para dados da API
   const [categorias, setCategorias] = useState<any[]>([]);
+  const [transacoes, setTransacoes] = useState<any[]>([]);
   const [instituicoes, setInstituicoes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const usuarioId = 1;
+
+  /**
+   * Debounce para busca de categorias (500ms)
+   */
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedCategorySearch(categorySearch);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [categorySearch]);
 
   /**
    * Carrega categorias e instituições ao montar
@@ -64,12 +78,14 @@ export const useFormularioTransacao = () => {
     setError(null);
     
     try {
-      const [categoriasData, instituicoesData] = await Promise.all([
+      const [categoriasData, instituicoesData, transacoesData] = await Promise.all([
         categoriaService.listarPorUsuario(usuarioId),
-        instituicaoService.listarPorUsuario(usuarioId)
+        instituicaoService.listarPorUsuario(usuarioId),
+        transacaoService.listarPorUsuario(usuarioId)
       ]);
       
       setCategorias(categoriasData);
+      setTransacoes(transacoesData || []);
       
       // Mapeia instituições para o formato esperado
       const instituicoesFormatadas = instituicoesData.map((inst: any) => ({
@@ -463,6 +479,71 @@ export const useFormularioTransacao = () => {
     }
   };
 
+  /**
+   * Calcula as 3 categorias mais usadas baseado nas transações
+   */
+  const getTop3Categorias = (): any[] => {
+    if (transacoes.length === 0) {
+      // Se não houver transações, retorna as 3 primeiras categorias filtradas por tipo
+      return getCategoriasFiltradasPorTipo().slice(0, 3);
+    }
+
+    // Conta frequência de uso de cada categoria
+    const frequencia: { [key: number]: number } = {};
+    
+    transacoes.forEach((transacao: any) => {
+      if (transacao.fk_categoria) {
+        frequencia[transacao.fk_categoria] = (frequencia[transacao.fk_categoria] || 0) + 1;
+      }
+    });
+
+    // Ordena categorias por frequência e pega as top 3
+    const categoriasOrdenadas = categorias
+      .filter(cat => podeUsarPara(cat, tipo))
+      .sort((a, b) => {
+        const freqA = frequencia[a.id] || 0;
+        const freqB = frequencia[b.id] || 0;
+        return freqB - freqA;
+      })
+      .slice(0, 3);
+
+    return categoriasOrdenadas;
+  };
+
+  /**
+   * Filtra categorias pelo tipo de transação atual
+   */
+  const getCategoriasFiltradasPorTipo = (): any[] => {
+    return categorias.filter(cat => podeUsarPara(cat, tipo));
+  };
+
+  /**
+   * Retorna categorias filtradas para exibição
+   * - Se não houver busca: retorna apenas top 3
+   * - Se houver busca (após debounce): retorna todas filtradas pela busca
+   */
+  const getCategoriasExibidas = (): any[] => {
+    const categoriasFiltradas = getCategoriasFiltradasPorTipo();
+
+    // Se não houver busca, mostra apenas top 3
+    if (!debouncedCategorySearch.trim()) {
+      return getTop3Categorias();
+    }
+
+    // Com busca, filtra pelo nome
+    const searchLower = debouncedCategorySearch.toLowerCase().trim();
+    return categoriasFiltradas.filter(cat => 
+      cat.nome.toLowerCase().includes(searchLower)
+    );
+  };
+
+  /**
+   * Função auxiliar que verifica se categoria pode ser usada para o tipo
+   */
+  const podeUsarPara = (categoria: any, tipoTransacao: TransactionType): boolean => {
+    return categoria.tipo === 'GLOBAL' || categoria.tipo === tipoTransacao;
+  };
+
   return {
     // Estados
     descricao,
@@ -484,6 +565,7 @@ export const useFormularioTransacao = () => {
     instituicoes,
     loading,
     error,
+    modalCategoriaVisible,
     
     // Modificadores
     setDescricao,
@@ -498,6 +580,7 @@ export const useFormularioTransacao = () => {
     setInstallmentCount,
     setCustomInstallmentValue,
     setInstitutionType,
+    setModalCategoriaVisible,
     
     // Ações
     handleValorChange,
@@ -518,5 +601,7 @@ export const useFormularioTransacao = () => {
     getInstallmentValue,
     getInstallmentWarning,
     getLastInstallmentDate,
+    getCategoriasExibidas,
+    getTop3Categorias,
   };
 };

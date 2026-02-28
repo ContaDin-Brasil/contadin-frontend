@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Image, SafeAreaView, RefreshControl } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import TituloPagina from '../../componentes/TituloPagina';
 import { getLogoByName } from '../../componentes/modais/logosInstituicoes';
@@ -172,7 +172,7 @@ const TelaTransacoes = ({ navigation, route }) => {
       >
         <View style={styles.transactionHeader}>
           <View style={styles.transactionIcon}>
-            <Ionicons name={getCategoryIcon(categoryName)} size={24} color="#333" />
+            <MaterialIcons name={category?.icone || getCategoryIcon(categoryName)} size={24} color="#333" />
           </View>
           <Text style={styles.transactionCategory}>{categoryName}</Text>
           
