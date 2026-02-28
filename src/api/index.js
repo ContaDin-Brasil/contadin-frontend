@@ -7,6 +7,7 @@
 
 export { default as api } from './config';
 export { default as usuarioService } from './services/usuarioService';
+export { default as authService } from './services/authService';
 export { default as categoriaService } from './services/categoriaService';
 export { default as instituicaoService } from './services/instituicaoService';
 export { default as transacaoService } from './services/transacaoService';

@@ -43,16 +43,20 @@ const api = axios.create({
   },
 });
 
-// Interceptor para adicionar token de autenticação (quando implementado)
+// Token em memória (atualizado no login/logout e na inicialização do AuthContext)
+// O interceptor do axios é síncrono, então não podemos ler AsyncStorage aqui.
+let authTokenInMemory = null;
+
+export const setAuthToken = (token) => {
+  authTokenInMemory = token;
+};
+
 api.interceptors.request.use(
   (config) => {
     console.log(`➡️  ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`);
-    
-    // Aqui você pode adicionar o token de autenticação
-    // const token = await AsyncStorage.getItem('token');
-    // if (token) {
-    //   config.headers.Authorization = `Bearer ${token}`;
-    // }
+    if (authTokenInMemory) {
+      config.headers.Authorization = `Bearer ${authTokenInMemory}`;
+    }
     return config;
   },
   (error) => {
