@@ -1,7 +1,7 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, SafeAreaView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { styles } from './styles/TelaEntradaAuth.styles';
+import React from "react";
+import { View, Text, TouchableOpacity, SafeAreaView } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { styles } from "./styles/TelaEntradaAuth.styles";
 
 function TelaEntradaAuth({ navigation }) {
   return (
@@ -13,14 +13,14 @@ function TelaEntradaAuth({ navigation }) {
       <View style={styles.botoesContainer}>
         <TouchableOpacity
           style={styles.botaoSecundario}
-          onPress={() => navigation.navigate('Cadastro')}
+          onPress={() => navigation.navigate("Cadastro")}
           activeOpacity={0.8}
         >
           <Text style={styles.botaoSecundarioText}>Cadastrar-se</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.botaoPrimario}
-          onPress={() => navigation.navigate('Login')}
+          onPress={() => navigation.navigate("Login")}
           activeOpacity={0.8}
         >
           <Text style={styles.botaoPrimarioText}>Login</Text>
@@ -28,7 +28,7 @@ function TelaEntradaAuth({ navigation }) {
       </View>
 
       <TouchableOpacity
-        onPress={() => navigation.navigate('SolicitarEmail')}
+        onPress={() => navigation.navigate("SolicitarEmail")}
         activeOpacity={0.8}
       >
         <Text style={styles.linkTexto}>Esqueceu a senha?</Text>

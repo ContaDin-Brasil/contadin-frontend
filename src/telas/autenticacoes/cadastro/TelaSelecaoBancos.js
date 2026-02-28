@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   View,
   Text,
@@ -6,16 +6,17 @@ import {
   ScrollView,
   Image,
   SafeAreaView,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import TituloPagina from '../../../componentes/TituloPagina';
-import { useSelecaoBancos } from './hooks/useSelecaoBancos';
-import { getLogoByName } from '../../../componentes/modais/logosInstituicoes';
-import { styles } from './styles/TelaSelecaoBancos.styles';
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import TituloPagina from "../../../componentes/TituloPagina";
+import { useSelecaoBancos } from "./hooks/useSelecaoBancos";
+import { getLogoByName } from "../../../componentes/modais/logosInstituicoes";
+import { styles } from "./styles/TelaSelecaoBancos.styles";
 
 function TelaSelecaoBancos({ navigation, route }) {
   const { token, user } = route.params || {};
-  const userId = user && typeof user === 'object' && 'id' in user ? user.id : null;
+  const userId =
+    user && typeof user === "object" && "id" in user ? user.id : null;
   const sel = useSelecaoBancos(userId);
 
   const onContinuar = async () => {
@@ -35,7 +36,7 @@ function TelaSelecaoBancos({ navigation, route }) {
         <View
           style={[
             styles.bankIconWrapper,
-            { backgroundColor: logo ? '#FFF' : banco.cor },
+            { backgroundColor: logo ? "#FFF" : banco.cor },
             selected && styles.bankIconWrapperSelected,
           ]}
         >
@@ -66,13 +67,16 @@ function TelaSelecaoBancos({ navigation, route }) {
       </TituloPagina>
       <ScrollView contentContainerStyle={styles.contentContainer}>
         <Text style={styles.instrucao}>Selecione uma instituição</Text>
-        <View style={styles.grid}>
-          {sel.bancos.map(renderBanco)}
-        </View>
+        <View style={styles.grid}>{sel.bancos.map(renderBanco)}</View>
 
         <TouchableOpacity
           style={styles.linkAdicionar}
-          onPress={() => navigation.navigate('CadastroInstituicao', { token: route.params?.token, user: route.params?.user })}
+          onPress={() =>
+            navigation.navigate("CadastroInstituicao", {
+              token: route.params?.token,
+              user: route.params?.user,
+            })
+          }
           activeOpacity={0.8}
         >
           <Text style={styles.linkAdicionarText}>
@@ -86,7 +90,7 @@ function TelaSelecaoBancos({ navigation, route }) {
           disabled={sel.loading}
         >
           <Text style={styles.saveButtonText}>
-            {sel.loading ? 'Salvando...' : 'Continuar'}
+            {sel.loading ? "Salvando..." : "Continuar"}
           </Text>
         </TouchableOpacity>
 

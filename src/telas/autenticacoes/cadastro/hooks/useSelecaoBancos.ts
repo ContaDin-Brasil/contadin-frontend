@@ -3,9 +3,9 @@
  * Lista instituições padrão (BANCOS_PADRAO), estado selecionados (ids).
  * Ao Continuar: instituicaoService.criar para cada selecionado com fk_usuario; navega para TelaCadastroSucesso com token e user.
  */
-import { useState } from 'react';
-import { instituicaoService } from '../../../../api';
-import { BANCOS_PADRAO } from '../../../carteira/constants/instituicoesPadrao';
+import { useState } from "react";
+import { instituicaoService } from "../../../../api";
+import { BANCOS_PADRAO } from "../../../carteira/constants/instituicoesPadrao";
 
 export interface InstituicaoPadrao {
   id: string;
@@ -21,10 +21,16 @@ export interface UseSelecaoBancosResult {
   toggleSelecao: (id: string) => void;
   loading: boolean;
   error: string | null;
-  handleContinuar: (navigation: { navigate: (route: string, params?: object) => void }, token: string | undefined, user: object | undefined) => Promise<boolean>;
+  handleContinuar: (
+    navigation: { navigate: (route: string, params?: object) => void },
+    token: string | undefined,
+    user: object | undefined,
+  ) => Promise<boolean>;
 }
 
-export function useSelecaoBancos(userId: number | null): UseSelecaoBancosResult {
+export function useSelecaoBancos(
+  userId: number | null,
+): UseSelecaoBancosResult {
   const [selecionados, setSelecionados] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -38,16 +44,20 @@ export function useSelecaoBancos(userId: number | null): UseSelecaoBancosResult 
     });
   };
 
-  const handleContinuar = async (navigation: { navigate: (route: string, params?: object) => void }, token: string | undefined, user: object | undefined): Promise<boolean> => {
+  const handleContinuar = async (
+    navigation: { navigate: (route: string, params?: object) => void },
+    token: string | undefined,
+    user: object | undefined,
+  ): Promise<boolean> => {
     setError(null);
     if (!userId) {
-      setError('Sessão inválida. Faça login novamente.');
+      setError("Sessão inválida. Faça login novamente.");
       return false;
     }
 
     const lista = Array.from(selecionados);
     if (lista.length === 0) {
-      navigation.navigate('CadastroSucesso', { token, user });
+      navigation.navigate("CadastroSucesso", { token, user });
       return true;
     }
 
@@ -60,19 +70,20 @@ export function useSelecaoBancos(userId: number | null): UseSelecaoBancosResult 
             nome: banco.nome,
             icone: banco.icone,
             cor: banco.cor,
-            tipoInstituicao: 'banco',
+            tipoInstituicao: "banco",
             fk_usuario: userId,
           });
         }
       }
       setLoading(false);
-      navigation.navigate('CadastroSucesso', { token, user });
+      navigation.navigate("CadastroSucesso", { token, user });
       return true;
     } catch (err: unknown) {
       const msg =
-        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+        (err as { response?: { data?: { message?: string } } })?.response?.data
+          ?.message ||
         (err as { message?: string })?.message ||
-        'Falha ao salvar bancos. Tente novamente.';
+        "Falha ao salvar bancos. Tente novamente.";
       setError(String(msg));
       setLoading(false);
       return false;

@@ -4,15 +4,16 @@
  * handleCadastrar: usuarioService.criar -> authService.login -> navega para TelaBemVindo com { token, user }.
  * loginWithToken só é chamado ao final do fluxo (TelaCadastroSucesso).
  */
-import { useState } from 'react';
-import { usuarioService, authService } from '../../../../api';
-import { setAuthToken } from '../../../../api/config';
-import { REQUISITOS_SENHA } from '../../../configuracoes/constants/constantesConfiguracao';
+import { useState } from "react";
+import { usuarioService, authService } from "../../../../api";
+import { setAuthToken } from "../../../../api/config";
+import { REQUISITOS_SENHA } from "../../../configuracoes/constants/constantesConfiguracao";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const SENHA_NUMERO = /\d/;
 const SENHA_ESPECIAL = /[!@$%&]/;
-const SEQUENCIA_NUM = /(123|234|345|456|567|678|789|321|432|543|654|765|876|987)/;
+const SEQUENCIA_NUM =
+  /(123|234|345|456|567|678|789|321|432|543|654|765|876|987)/;
 const TRES_IGUAIS = /(\d)\1{2}/;
 
 export interface UseCriarContaResult {
@@ -26,7 +27,9 @@ export interface UseCriarContaResult {
   setAceiteTermos: (v: boolean) => void;
   loading: boolean;
   error: string | null;
-  handleCadastrar: (navigation: { replace: (route: string, params?: object) => void }) => Promise<boolean>;
+  handleCadastrar: (navigation: {
+    replace: (route: string, params?: object) => void;
+  }) => Promise<boolean>;
 }
 
 function validarSenha(senha: string): string | null {
@@ -39,14 +42,16 @@ function validarSenha(senha: string): string | null {
 }
 
 export function useCriarConta(): UseCriarContaResult {
-  const [email, setEmail] = useState('');
-  const [senha, setSenha] = useState('');
-  const [confirmarSenha, setConfirmarSenha] = useState('');
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+  const [confirmarSenha, setConfirmarSenha] = useState("");
   const [aceiteTermos, setAceiteTermos] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleCadastrar = async (navigation: { replace: (route: string, params?: object) => void }): Promise<boolean> => {
+  const handleCadastrar = async (navigation: {
+    replace: (route: string, params?: object) => void;
+  }): Promise<boolean> => {
     const emailTrim = email.trim();
     const senhaTrim = senha.trim();
     const confirmarTrim = confirmarSenha.trim();
@@ -54,15 +59,15 @@ export function useCriarConta(): UseCriarContaResult {
     setError(null);
 
     if (!emailTrim) {
-      setError('Informe o email.');
+      setError("Informe o email.");
       return false;
     }
     if (!EMAIL_REGEX.test(emailTrim)) {
-      setError('Informe um email válido.');
+      setError("Informe um email válido.");
       return false;
     }
     if (!senhaTrim) {
-      setError('Informe a senha.');
+      setError("Informe a senha.");
       return false;
     }
     const erroSenha = validarSenha(senhaTrim);
@@ -71,11 +76,11 @@ export function useCriarConta(): UseCriarContaResult {
       return false;
     }
     if (senhaTrim !== confirmarTrim) {
-      setError('As senhas não coincidem.');
+      setError("As senhas não coincidem.");
       return false;
     }
     if (!aceiteTermos) {
-      setError('Aceite os termos de serviço para continuar.');
+      setError("Aceite os termos de serviço para continuar.");
       return false;
     }
 
@@ -85,38 +90,69 @@ export function useCriarConta(): UseCriarContaResult {
       const usuarioCriado = await usuarioService.criar({
         email: emailTrim,
         senha: senhaTrim,
-        nome: '',
-        sobrenome: '',
-        tel: '',
+        nome: "",
+        sobrenome: "",
+        tel: "",
       });
-      const createdUser = usuarioCriado && typeof usuarioCriado === 'object' && 'id' in usuarioCriado
-        ? (usuarioCriado as { id: number; email?: string; nome?: string; sobrenome?: string; tel?: string })
-        : null;
+      const createdUser =
+        usuarioCriado &&
+        typeof usuarioCriado === "object" &&
+        "id" in usuarioCriado
+          ? (usuarioCriado as {
+              id: number;
+              email?: string;
+              nome?: string;
+              sobrenome?: string;
+              tel?: string;
+            })
+          : null;
 
-      const loginResponse = await authService.login({ email: emailTrim, senha: senhaTrim });
+      const loginResponse = await authService.login({
+        email: emailTrim,
+        senha: senhaTrim,
+      });
       const token =
-        (loginResponse as { data?: { data?: { token?: string }; token?: string } })?.data?.data?.token ??
+        (
+          loginResponse as {
+            data?: { data?: { token?: string }; token?: string };
+          }
+        )?.data?.data?.token ??
         (loginResponse as { data?: { token?: string } })?.data?.token ??
         (loginResponse as { token?: string })?.token;
 
       if (!token) {
-        setError('Conta criada, mas não foi possível entrar. Faça login na tela de login.');
+        setError(
+          "Conta criada, mas não foi possível entrar. Faça login na tela de login.",
+        );
         setLoading(false);
         return false;
       }
 
       setAuthToken(token);
       const userToStore = createdUser
-        ? { id: createdUser.id, email: createdUser.email ?? emailTrim, nome: createdUser.nome ?? '', sobrenome: createdUser.sobrenome ?? '', tel: createdUser.tel ?? '' }
-        : { id: (usuarioCriado as any)?.id, email: emailTrim, nome: '', sobrenome: '', tel: '' };
+        ? {
+            id: createdUser.id,
+            email: createdUser.email ?? emailTrim,
+            nome: createdUser.nome ?? "",
+            sobrenome: createdUser.sobrenome ?? "",
+            tel: createdUser.tel ?? "",
+          }
+        : {
+            id: (usuarioCriado as any)?.id,
+            email: emailTrim,
+            nome: "",
+            sobrenome: "",
+            tel: "",
+          };
       setLoading(false);
-      navigation.replace('BemVindo', { token, user: userToStore });
+      navigation.replace("BemVindo", { token, user: userToStore });
       return true;
     } catch (err: unknown) {
       const msg =
-        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+        (err as { response?: { data?: { message?: string } } })?.response?.data
+          ?.message ||
         (err as { message?: string })?.message ||
-        'Falha ao criar conta. Tente novamente.';
+        "Falha ao criar conta. Tente novamente.";
       setError(String(msg));
       setLoading(false);
       return false;

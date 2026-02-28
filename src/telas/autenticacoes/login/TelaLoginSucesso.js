@@ -1,8 +1,8 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, SafeAreaView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useAuth } from '../../../contexts/AuthContext';
-import { styles } from './styles/TelaLoginSucesso.styles';
+import React from "react";
+import { View, Text, TouchableOpacity, SafeAreaView } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useAuth } from "../../../contexts/AuthContext";
+import { styles } from "./styles/TelaLoginSucesso.styles";
 
 function TelaLoginSucesso({ route, navigation }) {
   const { loginWithToken } = useAuth();

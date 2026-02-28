@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   View,
   Text,
@@ -6,15 +6,15 @@ import {
   ScrollView,
   TextInput,
   SafeAreaView,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import TituloPagina from '../../componentes/TituloPagina';
-import { useNovaSenha } from './hooks/useNovaSenha';
-import { REQUISITOS_SENHA } from '../../configuracoes/constants/constantesConfiguracao';
-import { styles } from './styles/TelaNovaSenha.styles';
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import TituloPagina from "../../componentes/TituloPagina";
+import { useNovaSenha } from "./hooks/useNovaSenha";
+import { REQUISITOS_SENHA } from "../../configuracoes/constants/constantesConfiguracao";
+import { styles } from "./styles/TelaNovaSenha.styles";
 
 function TelaNovaSenha({ navigation, route }) {
-  const token = route.params?.token ?? '';
+  const token = route.params?.token ?? "";
   const novaSenha = useNovaSenha(token);
 
   const onAtualizar = async () => {
@@ -66,7 +66,7 @@ function TelaNovaSenha({ navigation, route }) {
           >
             <Ionicons name="key-outline" size={24} color="#000" />
             <Text style={styles.saveButtonText}>
-              {novaSenha.loading ? 'Atualizando...' : 'Atualizar Senha'}
+              {novaSenha.loading ? "Atualizando..." : "Atualizar Senha"}
             </Text>
           </TouchableOpacity>
           {novaSenha.error ? (

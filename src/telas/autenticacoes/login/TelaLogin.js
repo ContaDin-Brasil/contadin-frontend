@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   View,
   Text,
@@ -6,11 +6,11 @@ import {
   ScrollView,
   TextInput,
   SafeAreaView,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import TituloPagina from '../../../componentes/TituloPagina';
-import { useLogin } from './hooks/useLogin';
-import { styles } from './styles/TelaLogin.styles';
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import TituloPagina from "../../../componentes/TituloPagina";
+import { useLogin } from "./hooks/useLogin";
+import { styles } from "./styles/TelaLogin.styles";
 
 function TelaLogin({ navigation }) {
   const login = useLogin();
@@ -18,7 +18,10 @@ function TelaLogin({ navigation }) {
   const onLogin = async () => {
     const result = await login.handleLogin();
     if (result.success) {
-      navigation.replace('LoginSucesso', { token: result.token, user: result.user });
+      navigation.replace("LoginSucesso", {
+        token: result.token,
+        user: result.user,
+      });
     }
   };
 
@@ -61,7 +64,7 @@ function TelaLogin({ navigation }) {
           >
             <Ionicons name="log-in-outline" size={24} color="#000" />
             <Text style={styles.saveButtonText}>
-              {login.loading ? 'Entrando...' : 'Login'}
+              {login.loading ? "Entrando..." : "Login"}
             </Text>
           </TouchableOpacity>
 
@@ -70,7 +73,7 @@ function TelaLogin({ navigation }) {
           ) : null}
 
           <TouchableOpacity
-            onPress={() => navigation.navigate('SolicitarEmail')}
+            onPress={() => navigation.navigate("SolicitarEmail")}
             activeOpacity={0.8}
           >
             <Text style={styles.linkTexto}>Esqueceu a senha?</Text>
@@ -85,10 +88,10 @@ function TelaLogin({ navigation }) {
         </View>
 
         <Text style={styles.linkCadastro}>
-          Ainda não possui conta?{' '}
+          Ainda não possui conta?{" "}
           <Text
             style={styles.linkCadastroDestaque}
-            onPress={() => navigation.navigate('Cadastro')}
+            onPress={() => navigation.navigate("Cadastro")}
           >
             Crie uma agora!
           </Text>

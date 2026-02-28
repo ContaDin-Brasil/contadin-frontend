@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   View,
   Text,
@@ -7,11 +7,11 @@ import {
   TextInput,
   SafeAreaView,
   Switch,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import TituloPagina from '../../../componentes/TituloPagina';
-import { useCriarConta } from './hooks/useCriarConta';
-import { styles } from './styles/TelaCriarConta.styles';
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import TituloPagina from "../../../componentes/TituloPagina";
+import { useCriarConta } from "./hooks/useCriarConta";
+import { styles } from "./styles/TelaCriarConta.styles";
 
 function TelaCriarConta({ navigation }) {
   const criar = useCriarConta();
@@ -66,12 +66,12 @@ function TelaCriarConta({ navigation }) {
             <Switch
               value={criar.aceiteTermos}
               onValueChange={criar.setAceiteTermos}
-              trackColor={{ false: '#D3D3D3', true: '#6BA7FF' }}
-              thumbColor={criar.aceiteTermos ? '#FFF' : '#f4f3f4'}
+              trackColor={{ false: "#D3D3D3", true: "#6BA7FF" }}
+              thumbColor={criar.aceiteTermos ? "#FFF" : "#f4f3f4"}
             />
             <Text style={styles.termosTexto}>
-              Li e aceito os{' '}
-              <Text style={styles.termosLink}>termos de serviço</Text> e a{' '}
+              Li e aceito os{" "}
+              <Text style={styles.termosLink}>termos de serviço</Text> e a{" "}
               <Text style={styles.termosLink}>política de privacidade</Text>.
             </Text>
           </View>
@@ -82,7 +82,7 @@ function TelaCriarConta({ navigation }) {
             disabled={criar.loading}
           >
             <Text style={styles.saveButtonText}>
-              {criar.loading ? 'Cadastrando...' : 'Cadastrar-se'}
+              {criar.loading ? "Cadastrando..." : "Cadastrar-se"}
             </Text>
           </TouchableOpacity>
 
@@ -100,10 +100,10 @@ function TelaCriarConta({ navigation }) {
         </View>
 
         <Text style={styles.linkLogin}>
-          Já possui conta?{' '}
+          Já possui conta?{" "}
           <Text
             style={styles.linkLoginDestaque}
-            onPress={() => navigation.navigate('Login')}
+            onPress={() => navigation.navigate("Login")}
           >
             Efetue seu login
           </Text>

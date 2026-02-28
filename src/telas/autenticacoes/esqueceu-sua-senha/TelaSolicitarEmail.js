@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   View,
   Text,
@@ -6,11 +6,11 @@ import {
   ScrollView,
   TextInput,
   SafeAreaView,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import TituloPagina from '../../componentes/TituloPagina';
-import { useEsqueceuSenha } from './hooks/useEsqueceuSenha';
-import { styles } from './styles/TelaSolicitarEmail.styles';
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import TituloPagina from "../../componentes/TituloPagina";
+import { useEsqueceuSenha } from "./hooks/useEsqueceuSenha";
+import { styles } from "./styles/TelaSolicitarEmail.styles";
 
 function TelaSolicitarEmail({ navigation }) {
   const esqueceu = useEsqueceuSenha();
@@ -18,7 +18,7 @@ function TelaSolicitarEmail({ navigation }) {
   const onEnviarCodigo = async () => {
     const success = await esqueceu.handleEnviarCodigo();
     if (success) {
-      navigation.navigate('ValidarToken', { email: esqueceu.email.trim() });
+      navigation.navigate("ValidarToken", { email: esqueceu.email.trim() });
     }
   };
 
@@ -28,7 +28,8 @@ function TelaSolicitarEmail({ navigation }) {
         mostrarBotaoVoltar={true}
         onVoltar={() => navigation.goBack()}
       >
-        Sem problemas! Vamos <Text style={{ fontWeight: 'bold' }}>resetar</Text> a sua Senha!
+        Sem problemas! Vamos <Text style={{ fontWeight: "bold" }}>resetar</Text>{" "}
+        a sua Senha!
       </TituloPagina>
       <ScrollView contentContainerStyle={styles.contentContainer}>
         <View style={styles.formContainer}>
@@ -53,7 +54,7 @@ function TelaSolicitarEmail({ navigation }) {
           >
             <Ionicons name="mail-outline" size={24} color="#000" />
             <Text style={styles.saveButtonText}>
-              {esqueceu.loading ? 'Enviando...' : 'Enviar Código'}
+              {esqueceu.loading ? "Enviando..." : "Enviar Código"}
             </Text>
           </TouchableOpacity>
           {esqueceu.error ? (

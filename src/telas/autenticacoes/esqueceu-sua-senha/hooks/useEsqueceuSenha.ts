@@ -3,8 +3,8 @@
  * Estado: email, loading, error.
  * handleEnviarCodigo: authService.recuperarSenha({ email }); em 204 retorna success; em erro setError.
  */
-import { useState } from 'react';
-import { authService } from '../../../../api';
+import { useState } from "react";
+import { authService } from "../../../../api";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -17,7 +17,7 @@ export interface UseEsqueceuSenhaResult {
 }
 
 export function useEsqueceuSenha(): UseEsqueceuSenhaResult {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,11 +26,11 @@ export function useEsqueceuSenha(): UseEsqueceuSenhaResult {
     setError(null);
 
     if (!emailTrim) {
-      setError('Informe o email.');
+      setError("Informe o email.");
       return false;
     }
     if (!EMAIL_REGEX.test(emailTrim)) {
-      setError('Informe um email válido.');
+      setError("Informe um email válido.");
       return false;
     }
 
@@ -41,9 +41,10 @@ export function useEsqueceuSenha(): UseEsqueceuSenhaResult {
       return true;
     } catch (err: unknown) {
       const msg =
-        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+        (err as { response?: { data?: { message?: string } } })?.response?.data
+          ?.message ||
         (err as { message?: string })?.message ||
-        'Falha ao enviar código. Tente novamente.';
+        "Falha ao enviar código. Tente novamente.";
       setError(String(msg));
       setLoading(false);
       return false;

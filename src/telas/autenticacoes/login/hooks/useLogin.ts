@@ -13,7 +13,9 @@ export interface UseLoginResult {
   setSenha: (v: string) => void;
   loading: boolean;
   error: string | null;
-  handleLogin: () => Promise<{ success: true; token: string; user?: object } | { success: false }>;
+  handleLogin: () => Promise<
+    { success: true; token: string; user?: object } | { success: false }
+  >;
 }
 
 export function useLogin(): UseLoginResult {
@@ -22,7 +24,9 @@ export function useLogin(): UseLoginResult {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleLogin = async (): Promise<{ success: true; token: string; user?: object } | { success: false }> => {
+  const handleLogin = async (): Promise<
+    { success: true; token: string; user?: object } | { success: false }
+  > => {
     const emailTrim = email.trim();
     const senhaTrim = senha.trim();
     if (!emailTrim) {
@@ -38,10 +42,21 @@ export function useLogin(): UseLoginResult {
     setError(null);
 
     try {
-      const response = await authService.login({ email: emailTrim, senha: senhaTrim });
+      const response = await authService.login({
+        email: emailTrim,
+        senha: senhaTrim,
+      });
       // Backend pode enviar response.data.data.token ou response.data.token
-      const token = (response as { data?: { data?: { token?: string }; token?: string } })?.data?.data?.token ?? (response as { data?: { token?: string } })?.data?.token ?? (response as { token?: string })?.token;
-      const user = (response as { data?: { data?: { user?: object }; user?: object } })?.data?.data?.user ?? (response as { data?: { user?: object } })?.data?.user ?? (response as { user?: object })?.user;
+      const token =
+        (response as { data?: { data?: { token?: string }; token?: string } })
+          ?.data?.data?.token ??
+        (response as { data?: { token?: string } })?.data?.token ??
+        (response as { token?: string })?.token;
+      const user =
+        (response as { data?: { data?: { user?: object }; user?: object } })
+          ?.data?.data?.user ??
+        (response as { data?: { user?: object } })?.data?.user ??
+        (response as { user?: object })?.user;
 
       if (!token) {
         setError("Resposta inválida do servidor.");
@@ -50,7 +65,11 @@ export function useLogin(): UseLoginResult {
       setLoading(false);
       return { success: true, token, user };
     } catch (err: unknown) {
-      const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || (err as { message?: string })?.message || "Falha ao fazer login. Tente novamente.";
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response?.data
+          ?.message ||
+        (err as { message?: string })?.message ||
+        "Falha ao fazer login. Tente novamente.";
       setError(String(message));
       setLoading(false);
       return { success: false };

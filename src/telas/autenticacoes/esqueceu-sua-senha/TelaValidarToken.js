@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef } from "react";
 import {
   View,
   Text,
@@ -6,23 +6,23 @@ import {
   ScrollView,
   TextInput,
   SafeAreaView,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import TituloPagina from '../../componentes/TituloPagina';
-import { useValidarToken } from './hooks/useValidarToken';
-import { styles } from './styles/TelaValidarToken.styles';
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import TituloPagina from "../../componentes/TituloPagina";
+import { useValidarToken } from "./hooks/useValidarToken";
+import { styles } from "./styles/TelaValidarToken.styles";
 
 const PIN_LENGTH = 6;
 
 function TelaValidarToken({ navigation, route }) {
-  const email = route.params?.email ?? '';
+  const email = route.params?.email ?? "";
   const validar = useValidarToken(email);
   const inputRefs = useRef([]);
 
   const onValidar = () => {
     const ok = validar.handleValidar();
     if (ok) {
-      navigation.navigate('NovaSenha', { email, token: validar.token });
+      navigation.navigate("NovaSenha", { email, token: validar.token });
     }
   };
 
@@ -52,15 +52,17 @@ function TelaValidarToken({ navigation, route }) {
             {validar.pinDigits.map((digit, index) => (
               <TextInput
                 key={index}
-                ref={el => { inputRefs.current[index] = el; }}
+                ref={(el) => {
+                  inputRefs.current[index] = el;
+                }}
                 style={styles.pinInput}
                 value={digit}
-                onChangeText={v => {
+                onChangeText={(v) => {
                   validar.setPinDigit(index, v);
                   if (v) focusNext(index);
                 }}
-                onKeyPress={e => {
-                  if (e.nativeEvent.key === 'Backspace' && !digit) {
+                onKeyPress={(e) => {
+                  if (e.nativeEvent.key === "Backspace" && !digit) {
                     focusPrev(index);
                   }
                 }}
@@ -84,7 +86,7 @@ function TelaValidarToken({ navigation, route }) {
               ]}
             >
               Enviar código novamente
-              {validar.countdown > 0 ? ` ${validar.countdown}s` : ''}
+              {validar.countdown > 0 ? ` ${validar.countdown}s` : ""}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity

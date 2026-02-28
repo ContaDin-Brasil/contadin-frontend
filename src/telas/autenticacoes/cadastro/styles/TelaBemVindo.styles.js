@@ -1,46 +1,46 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: "#F5F5F5",
     paddingTop: 20,
     paddingHorizontal: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   titulo: {
     fontSize: 28,
-    fontWeight: 'bold',
-    color: '#000',
-    textAlign: 'center',
+    fontWeight: "bold",
+    color: "#000",
+    textAlign: "center",
     marginBottom: 12,
   },
   subtitulo: {
     fontSize: 18,
-    color: '#666',
-    textAlign: 'center',
+    color: "#666",
+    textAlign: "center",
     marginBottom: 48,
   },
   pergunta: {
     fontSize: 20,
-    fontWeight: '600',
-    color: '#333',
-    textAlign: 'center',
+    fontWeight: "600",
+    color: "#333",
+    textAlign: "center",
     marginBottom: 32,
   },
   botao: {
-    backgroundColor: '#6BA7FF',
+    backgroundColor: "#6BA7FF",
     paddingVertical: 16,
     paddingHorizontal: 32,
     borderRadius: 12,
     minWidth: 260,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   botaoText: {
-    color: '#000',
+    color: "#000",
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });

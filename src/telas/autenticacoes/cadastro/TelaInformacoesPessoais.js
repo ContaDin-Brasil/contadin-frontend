@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   View,
   Text,
@@ -6,14 +6,15 @@ import {
   ScrollView,
   TextInput,
   SafeAreaView,
-} from 'react-native';
-import TituloPagina from '../../../componentes/TituloPagina';
-import { useInformacoesPessoais } from './hooks/useInformacoesPessoais';
-import { styles } from './styles/TelaInformacoesPessoais.styles';
+} from "react-native";
+import TituloPagina from "../../../componentes/TituloPagina";
+import { useInformacoesPessoais } from "./hooks/useInformacoesPessoais";
+import { styles } from "./styles/TelaInformacoesPessoais.styles";
 
 function TelaInformacoesPessoais({ navigation, route }) {
   const { token, user } = route.params || {};
-  const userId = user && typeof user === 'object' && 'id' in user ? user.id : null;
+  const userId =
+    user && typeof user === "object" && "id" in user ? user.id : null;
   const info = useInformacoesPessoais(userId);
 
   const onContinuar = async () => {
@@ -64,7 +65,7 @@ function TelaInformacoesPessoais({ navigation, route }) {
             disabled={info.loading}
           >
             <Text style={styles.saveButtonText}>
-              {info.loading ? 'Salvando...' : 'Continuar'}
+              {info.loading ? "Salvando..." : "Continuar"}
             </Text>
           </TouchableOpacity>
 

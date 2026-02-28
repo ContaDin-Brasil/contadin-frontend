@@ -1,8 +1,8 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, SafeAreaView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useAuth } from '../../../contexts/AuthContext';
-import { styles } from './styles/TelaCadastroSucesso.styles';
+import React from "react";
+import { View, Text, TouchableOpacity, SafeAreaView } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useAuth } from "../../../contexts/AuthContext";
+import { styles } from "./styles/TelaCadastroSucesso.styles";
 
 function TelaCadastroSucesso({ route }) {
   const { loginWithToken } = useAuth();
@@ -21,7 +21,9 @@ function TelaCadastroSucesso({ route }) {
       <View style={styles.iconeSucesso}>
         <Ionicons name="checkmark-circle" size={80} color="#4CAF50" />
       </View>
-      <Text style={styles.textoSucesso}>Informações cadastradas com sucesso!</Text>
+      <Text style={styles.textoSucesso}>
+        Informações cadastradas com sucesso!
+      </Text>
       <TouchableOpacity
         style={styles.botaoContinuar}
         onPress={onComecarAContar}

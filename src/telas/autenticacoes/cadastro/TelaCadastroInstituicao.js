@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -6,28 +6,45 @@ import {
   TextInput,
   ScrollView,
   SafeAreaView,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import TituloPagina from '../../../componentes/TituloPagina';
-import { instituicaoService } from '../../../api';
-import { styles } from './styles/TelaCadastroInstituicao.styles';
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import TituloPagina from "../../../componentes/TituloPagina";
+import { instituicaoService } from "../../../api";
+import { styles } from "./styles/TelaCadastroInstituicao.styles";
 
 const CORES_PREDEFINIDAS = [
-  '#E31C23', '#FF4444', '#FF6B6B', '#FF6600',
-  '#FF9500', '#FFED00', '#FFD700', '#00AB63',
-  '#21C25E', '#00E676', '#00D9E1', '#009EE3',
-  '#007AFF', '#005CA9', '#820AD1', '#9C27B0',
-  '#E91E63', '#CC092F', '#8B4513', '#666666',
-  '#000000', '#4A9EFF',
+  "#E31C23",
+  "#FF4444",
+  "#FF6B6B",
+  "#FF6600",
+  "#FF9500",
+  "#FFED00",
+  "#FFD700",
+  "#00AB63",
+  "#21C25E",
+  "#00E676",
+  "#00D9E1",
+  "#009EE3",
+  "#007AFF",
+  "#005CA9",
+  "#820AD1",
+  "#9C27B0",
+  "#E91E63",
+  "#CC092F",
+  "#8B4513",
+  "#666666",
+  "#000000",
+  "#4A9EFF",
 ];
 
 function TelaCadastroInstituicao({ navigation, route }) {
   const { user } = route.params || {};
-  const userId = user && typeof user === 'object' && 'id' in user ? user.id : null;
-  const [nome, setNome] = useState('');
-  const [tipo, setTipo] = useState('banco');
-  const [cor, setCor] = useState('#E31C23');
-  const [iconePersonalizado, setIconePersonalizado] = useState('');
+  const userId =
+    user && typeof user === "object" && "id" in user ? user.id : null;
+  const [nome, setNome] = useState("");
+  const [tipo, setTipo] = useState("banco");
+  const [cor, setCor] = useState("#E31C23");
+  const [iconePersonalizado, setIconePersonalizado] = useState("");
   const [showCores, setShowCores] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -36,11 +53,11 @@ function TelaCadastroInstituicao({ navigation, route }) {
     setError(null);
     const nomeTrim = nome.trim();
     if (!nomeTrim) {
-      setError('Informe o nome da instituição.');
+      setError("Informe o nome da instituição.");
       return;
     }
     if (!userId) {
-      setError('Sessão inválida. Faça login novamente.');
+      setError("Sessão inválida. Faça login novamente.");
       return;
     }
 
@@ -56,7 +73,10 @@ function TelaCadastroInstituicao({ navigation, route }) {
       setLoading(false);
       navigation.goBack();
     } catch (err) {
-      const msg = err?.response?.data?.message || err?.message || 'Falha ao cadastrar instituição.';
+      const msg =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Falha ao cadastrar instituição.";
       setError(String(msg));
       setLoading(false);
     }
@@ -93,7 +113,7 @@ function TelaCadastroInstituicao({ navigation, route }) {
             <View style={[styles.corPreview, { backgroundColor: cor }]} />
             <Text style={styles.corHex}>{cor.toUpperCase()}</Text>
             <Ionicons
-              name={showCores ? 'chevron-up' : 'chevron-down'}
+              name={showCores ? "chevron-up" : "chevron-down"}
               size={20}
               color="#666"
             />
@@ -122,20 +142,44 @@ function TelaCadastroInstituicao({ navigation, route }) {
           <Text style={styles.label}>Selecione o tipo de instituição</Text>
           <View style={styles.typeRow}>
             <TouchableOpacity
-              style={[styles.typeButton, tipo === 'banco' && styles.typeButtonActive]}
-              onPress={() => setTipo('banco')}
+              style={[
+                styles.typeButton,
+                tipo === "banco" && styles.typeButtonActive,
+              ]}
+              onPress={() => setTipo("banco")}
             >
-              <Ionicons name="business" size={18} color={tipo === 'banco' ? '#FFF' : '#666'} />
-              <Text style={[styles.typeButtonText, tipo === 'banco' && styles.typeButtonTextActive]}>
+              <Ionicons
+                name="business"
+                size={18}
+                color={tipo === "banco" ? "#FFF" : "#666"}
+              />
+              <Text
+                style={[
+                  styles.typeButtonText,
+                  tipo === "banco" && styles.typeButtonTextActive,
+                ]}
+              >
                 Banco
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.typeButton, tipo === 'vale' && styles.typeButtonActive]}
-              onPress={() => setTipo('vale')}
+              style={[
+                styles.typeButton,
+                tipo === "vale" && styles.typeButtonActive,
+              ]}
+              onPress={() => setTipo("vale")}
             >
-              <Ionicons name="card" size={18} color={tipo === 'vale' ? '#FFF' : '#666'} />
-              <Text style={[styles.typeButtonText, tipo === 'vale' && styles.typeButtonTextActive]}>
+              <Ionicons
+                name="card"
+                size={18}
+                color={tipo === "vale" ? "#FFF" : "#666"}
+              />
+              <Text
+                style={[
+                  styles.typeButtonText,
+                  tipo === "vale" && styles.typeButtonTextActive,
+                ]}
+              >
                 Vale
               </Text>
             </TouchableOpacity>
@@ -143,7 +187,9 @@ function TelaCadastroInstituicao({ navigation, route }) {
         </View>
 
         <View style={styles.formGroup}>
-          <Text style={styles.label}>Adicionar ícone personalizado (opcional)</Text>
+          <Text style={styles.label}>
+            Adicionar ícone personalizado (opcional)
+          </Text>
           <TextInput
             style={styles.input}
             value={iconePersonalizado}
@@ -162,7 +208,9 @@ function TelaCadastroInstituicao({ navigation, route }) {
           onPress={handleContinuar}
           disabled={loading}
         >
-          <Text style={styles.botaoText}>{loading ? 'Salvando...' : 'Continuar'}</Text>
+          <Text style={styles.botaoText}>
+            {loading ? "Salvando..." : "Continuar"}
+          </Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

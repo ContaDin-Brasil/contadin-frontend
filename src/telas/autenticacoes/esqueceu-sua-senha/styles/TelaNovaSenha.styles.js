@@ -1,9 +1,9 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: "#F5F5F5",
     paddingTop: 20,
   },
   contentContainer: {
@@ -15,19 +15,19 @@ export const styles = StyleSheet.create({
   },
   instrucao: {
     fontSize: 16,
-    color: '#333',
+    color: "#333",
     marginBottom: 16,
     lineHeight: 22,
   },
   label: {
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: "500",
     marginBottom: 8,
     marginTop: 16,
-    color: '#333',
+    color: "#333",
   },
   input: {
-    backgroundColor: '#E0E0E0',
+    backgroundColor: "#E0E0E0",
     padding: 16,
     borderRadius: 8,
     fontSize: 16,
@@ -38,28 +38,28 @@ export const styles = StyleSheet.create({
   },
   requirementText: {
     fontSize: 14,
-    color: '#333',
+    color: "#333",
     marginBottom: 8,
     lineHeight: 20,
   },
   saveButton: {
-    backgroundColor: '#6BA7FF',
+    backgroundColor: "#6BA7FF",
     paddingVertical: 16,
     borderRadius: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     gap: 10,
     marginTop: 24,
   },
   saveButtonText: {
-    color: '#000',
+    color: "#000",
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   mensagemErro: {
     marginTop: 12,
     fontSize: 14,
-    color: '#C62828',
+    color: "#C62828",
   },
 });

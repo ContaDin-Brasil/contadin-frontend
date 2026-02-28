@@ -1,11 +1,11 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, SafeAreaView } from 'react-native';
-import { styles } from './styles/TelaBemVindo.styles';
+import React from "react";
+import { View, Text, TouchableOpacity, SafeAreaView } from "react-native";
+import { styles } from "./styles/TelaBemVindo.styles";
 
 function TelaBemVindo({ navigation, route }) {
   const { token, user } = route.params || {};
   const onAdicionarInformacoes = () => {
-    navigation.navigate('InformacoesPessoais', { token, user });
+    navigation.navigate("InformacoesPessoais", { token, user });
   };
 
   return (

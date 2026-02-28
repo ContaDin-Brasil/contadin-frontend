@@ -1,7 +1,7 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, SafeAreaView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { styles } from './styles/TelaSenhaAtualizadaSucesso.styles';
+import React from "react";
+import { View, Text, TouchableOpacity, SafeAreaView } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { styles } from "./styles/TelaSenhaAtualizadaSucesso.styles";
 
 function TelaSenhaAtualizadaSucesso({ navigation }) {
   return (
@@ -15,7 +15,7 @@ function TelaSenhaAtualizadaSucesso({ navigation }) {
         </Text>
         <TouchableOpacity
           style={styles.saveButton}
-          onPress={() => navigation.replace('Login')}
+          onPress={() => navigation.replace("Login")}
           activeOpacity={0.8}
         >
           <Ionicons name="log-in-outline" size={24} color="#000" />

@@ -4,8 +4,8 @@
  * Countdown para "Enviar código novamente". handleReenviar: recuperarSenha + reinicia countdown.
  * handleValidar: navega para TelaNovaSenha com email e token (validação real do token ao submeter nova senha).
  */
-import { useState, useEffect, useCallback } from 'react';
-import { authService } from '../../../../api';
+import { useState, useEffect, useCallback } from "react";
+import { authService } from "../../../../api";
 
 const COUNTDOWN_SEGUNDOS = 10;
 
@@ -23,17 +23,24 @@ export interface UseValidarTokenResult {
 }
 
 export function useValidarToken(email: string): UseValidarTokenResult {
-  const [pinDigits, setPinDigits] = useState<string[]>(['', '', '', '', '', '']);
+  const [pinDigits, setPinDigits] = useState<string[]>([
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+  ]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [countdown, setCountdown] = useState(COUNTDOWN_SEGUNDOS);
 
-  const token = pinDigits.join('');
+  const token = pinDigits.join("");
 
   const setPinDigit = useCallback((index: number, value: string) => {
     if (value.length > 1) {
-      const chars = value.replace(/\D/g, '').slice(0, 6).split('');
-      setPinDigits(prev => {
+      const chars = value.replace(/\D/g, "").slice(0, 6).split("");
+      setPinDigits((prev) => {
         const next = [...prev];
         chars.forEach((c, i) => {
           if (index + i < 6) next[index + i] = c;
@@ -42,8 +49,8 @@ export function useValidarToken(email: string): UseValidarTokenResult {
       });
       return;
     }
-    const digit = value.replace(/\D/g, '').slice(-1);
-    setPinDigits(prev => {
+    const digit = value.replace(/\D/g, "").slice(-1);
+    setPinDigits((prev) => {
       const next = [...prev];
       next[index] = digit;
       return next;
@@ -51,18 +58,20 @@ export function useValidarToken(email: string): UseValidarTokenResult {
   }, []);
 
   const setToken = useCallback((v: string) => {
-    const digits = v.replace(/\D/g, '').slice(0, 6).split('');
-    setPinDigits(prev => {
+    const digits = v.replace(/\D/g, "").slice(0, 6).split("");
+    setPinDigits((prev) => {
       const next = [...prev];
-      digits.forEach((d, i) => { next[i] = d; });
-      for (let i = digits.length; i < 6; i++) next[i] = '';
+      digits.forEach((d, i) => {
+        next[i] = d;
+      });
+      for (let i = digits.length; i < 6; i++) next[i] = "";
       return next;
     });
   }, []);
 
   useEffect(() => {
     if (countdown <= 0) return;
-    const t = setInterval(() => setCountdown(c => c - 1), 1000);
+    const t = setInterval(() => setCountdown((c) => c - 1), 1000);
     return () => clearInterval(t);
   }, [countdown]);
 
@@ -74,7 +83,7 @@ export function useValidarToken(email: string): UseValidarTokenResult {
       await authService.recuperarSenha({ email });
       setCountdown(COUNTDOWN_SEGUNDOS);
     } catch {
-      setError('Falha ao reenviar código. Tente novamente.');
+      setError("Falha ao reenviar código. Tente novamente.");
     } finally {
       setLoading(false);
     }
@@ -83,7 +92,7 @@ export function useValidarToken(email: string): UseValidarTokenResult {
   const handleValidar = (): boolean => {
     setError(null);
     if (token.length !== 6) {
-      setError('PIN incorreto, tente novamente.');
+      setError("PIN incorreto, tente novamente.");
       return false;
     }
     return true;
