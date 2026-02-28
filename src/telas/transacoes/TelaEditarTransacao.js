@@ -195,6 +195,7 @@ const TelaEditarTransacao = ({ navigation, route }) => {
             placeholderTextColor="#999"
             value={editState.valor}
             onChangeText={editState.handleValorChange}
+            onBlur={editState.handleValorBlur}
             keyboardType="numeric"
           />
         </View>

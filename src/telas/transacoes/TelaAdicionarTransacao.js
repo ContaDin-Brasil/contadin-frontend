@@ -270,6 +270,7 @@ const TelaAdicionarTransacao = ({ navigation }) => {
             placeholderTextColor="#999"
             value={formState.valor}
             onChangeText={formState.handleValorChange}
+            onBlur={formState.handleValorBlur}
             keyboardType="numeric"
           />
         </View>

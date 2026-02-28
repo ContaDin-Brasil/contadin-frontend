@@ -142,6 +142,22 @@ export const useFormularioTransacao = () => {
   };
 
   /**
+   * Garante que o valor sempre tenha 2 casas decimais quando o campo perde o foco
+   */
+  const handleValorBlur = () => {
+    if (!valor) return;
+    
+    const valorNumerico = converterParaNumero(valor);
+    const valorFormatado = valorNumerico.toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+    
+    console.log('💵 [VALOR BLUR] Formatando para 2 casas decimais:', valorFormatado);
+    setValor(valorFormatado);
+  };
+
+  /**
    * Formata a data enquanto o usuário digita (DD/MM/YYYY)
    */
   const handleDateChange = (text: string) => {
@@ -584,6 +600,7 @@ export const useFormularioTransacao = () => {
     
     // Ações
     handleValorChange,
+    handleValorBlur,
     handleDateChange,
     handleCustomInstallmentChange,
     handleRecurrenceEndDateChange,

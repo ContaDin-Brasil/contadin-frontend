@@ -62,8 +62,9 @@ export const useEditarTransacao = (transacaoId: number | null) => {
     formState.setDescricao(transacao.descricao);
     formState.setTipo(transacao.tipo);
     
-    // Valor - formata para exibição
-    const valorFormatado = transacao.valor.toString().replace('.', ',');
+    // Valor - formata para exibição com duas casas decimais
+    const valorNumerico = parseFloat(transacao.valor);
+    const valorFormatado = valorNumerico.toFixed(2).replace('.', ',');
     formState.setValor(valorFormatado);
     
     // Data - converte de ISO para DD/MM/YYYY
