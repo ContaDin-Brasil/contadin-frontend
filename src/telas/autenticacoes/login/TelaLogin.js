@@ -70,7 +70,7 @@ function TelaLogin({ navigation }) {
           ) : null}
 
           <TouchableOpacity
-            onPress={() => navigation.navigate('EsqueceuSenha')}
+            onPress={() => navigation.navigate('SolicitarEmail')}
             activeOpacity={0.8}
           >
             <Text style={styles.linkTexto}>Esqueceu a senha?</Text>

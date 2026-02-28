@@ -1,5 +1,4 @@
 import React from 'react';
-import { View, Text } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import TelaEntradaAuth from '../telas/autenticacoes/login/TelaEntradaAuth';
 import TelaLogin from '../telas/autenticacoes/login/TelaLogin';
@@ -10,16 +9,12 @@ import TelaInformacoesPessoais from '../telas/autenticacoes/cadastro/TelaInforma
 import TelaSelecaoBancos from '../telas/autenticacoes/cadastro/TelaSelecaoBancos';
 import TelaCadastroInstituicao from '../telas/autenticacoes/cadastro/TelaCadastroInstituicao';
 import TelaCadastroSucesso from '../telas/autenticacoes/cadastro/TelaCadastroSucesso';
+import TelaSolicitarEmail from '../telas/autenticacoes/esqueceu-sua-senha/TelaSolicitarEmail';
+import TelaValidarToken from '../telas/autenticacoes/esqueceu-sua-senha/TelaValidarToken';
+import TelaNovaSenha from '../telas/autenticacoes/esqueceu-sua-senha/TelaNovaSenha';
+import TelaSenhaAtualizadaSucesso from '../telas/autenticacoes/esqueceu-sua-senha/TelaSenhaAtualizadaSucesso';
 
 const Stack = createStackNavigator();
-
-function PlaceholderScreen({ route }) {
-  return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>{route.name} (placeholder)</Text>
-    </View>
-  );
-}
 
 function NavegadorAutenticacao() {
   return (
@@ -38,7 +33,10 @@ function NavegadorAutenticacao() {
       <Stack.Screen name="SelecaoBancos" component={TelaSelecaoBancos} />
       <Stack.Screen name="CadastroInstituicao" component={TelaCadastroInstituicao} />
       <Stack.Screen name="CadastroSucesso" component={TelaCadastroSucesso} />
-      <Stack.Screen name="EsqueceuSenha" component={PlaceholderScreen} />
+      <Stack.Screen name="SolicitarEmail" component={TelaSolicitarEmail} />
+      <Stack.Screen name="ValidarToken" component={TelaValidarToken} />
+      <Stack.Screen name="NovaSenha" component={TelaNovaSenha} />
+      <Stack.Screen name="SenhaAtualizadaSucesso" component={TelaSenhaAtualizadaSucesso} />
     </Stack.Navigator>
   );
 }
