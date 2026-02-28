@@ -134,10 +134,39 @@ export const styles = StyleSheet.create({
     color: '#333',
     flex: 1,
   },
+  transactionHeaderRight: {
+    alignItems: 'flex-end',
+  },
   transactionDate: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '500',
-    color: '#333',
+    color: '#999',
+    marginBottom: 4,
+  },
+  transactionBadgesRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  transactionBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.primaryLight + '20',
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    borderRadius: 8,
+    gap: 3,
+  },
+  transactionBadgeText: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: COLORS.primary,
+  },
+  recurrenceBadge: {
+    backgroundColor: COLORS.success + '20',
+  },
+  recurrenceBadgeText: {
+    color: COLORS.success,
   },
   transactionBody: {
     flexDirection: 'row',

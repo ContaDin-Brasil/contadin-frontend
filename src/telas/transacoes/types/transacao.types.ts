@@ -40,6 +40,7 @@ export interface Transaction {
   tipo: TransactionType;
   data_transacao: Date;
   parcelado: boolean;
+  qtdParcelas?: number;
   recorrencia?: FrequencyType;
   fim_recorrencia?: Date;
   fk_instituicao: number;

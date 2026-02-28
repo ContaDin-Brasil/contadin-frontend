@@ -152,6 +152,17 @@ const TelaTransacoes = ({ navigation, route }) => {
     const institutionLogo = getLogoByName(institutionName);
     const transactionDate = new Date(item.data_transacao).toLocaleDateString('pt-BR');
     
+    // Mapeia frequência para texto amigável
+    const getFrequencyLabel = (freq) => {
+      const map = {
+        'DIARIO': 'Diária',
+        'SEMANAL': 'Semanal',
+        'MENSAL': 'Mensal',
+        'ANUAL': 'Anual'
+      };
+      return map[freq] || freq;
+    };
+    
     return (
       <TouchableOpacity 
         key={item.id} 
@@ -164,7 +175,30 @@ const TelaTransacoes = ({ navigation, route }) => {
             <Ionicons name={getCategoryIcon(categoryName)} size={24} color="#333" />
           </View>
           <Text style={styles.transactionCategory}>{categoryName}</Text>
-          <Text style={styles.transactionDate}>{transactionDate}</Text>
+          
+          <View style={styles.transactionHeaderRight}>
+            <Text style={styles.transactionDate}>{transactionDate}</Text>
+            
+            {/* Badges de Parcelamento e Recorrência abaixo da data */}
+            {(item.parcelado || item.recorrencia) && (
+              <View style={styles.transactionBadgesRow}>
+                {item.parcelado && item.qtdParcelas && (
+                  <View style={styles.transactionBadge}>
+                    <Ionicons name="card-outline" size={12} color={COLORS.primary} />
+                    <Text style={styles.transactionBadgeText}>{item.qtdParcelas}x</Text>
+                  </View>
+                )}
+                {item.recorrencia && (
+                  <View style={[styles.transactionBadge, styles.recurrenceBadge]}>
+                    <Ionicons name="repeat-outline" size={12} color={COLORS.success} />
+                    <Text style={[styles.transactionBadgeText, styles.recurrenceBadgeText]}>
+                      {getFrequencyLabel(item.recorrencia)}
+                    </Text>
+                  </View>
+                )}
+              </View>
+            )}
+          </View>
         </View>
         
         <View style={styles.transactionBody}>
