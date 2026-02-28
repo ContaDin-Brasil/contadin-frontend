@@ -11,6 +11,8 @@ interface AuthContextType {
   token: string | null;
   loading: boolean;
   login: (credenciais: { email: string; senha: string }) => Promise<void>;
+  /** Define token e opcionalmente user (ex.: após login, ao clicar em "Começar a contar"). */
+  loginWithToken: (token: string, user?: object | null) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -36,6 +38,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(response.user);
         await AsyncStorage.setItem(USER_KEY, JSON.stringify(response.user));
       }
+    }
+  }, []);
+
+  const loginWithToken = useCallback(async (newToken: string, userData?: object | null) => {
+    setTokenState(newToken);
+    setAuthToken(newToken);
+    await AsyncStorage.setItem(TOKEN_KEY, newToken);
+    if (userData != null) {
+      setUser(userData);
+      await AsyncStorage.setItem(USER_KEY, JSON.stringify(userData));
     }
   }, []);
 
@@ -93,6 +105,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         token,
         loading,
         login,
+        loginWithToken,
         logout,
       }}
     >
