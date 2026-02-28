@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // Importar telas
-import TelaInicial from '../telas/TelaInicial';
+import TelaInicial from '../telas/dashboard/TelaInicial';
 import TelaCarteira from '../telas/carteira/TelaCarteira';
 import TelaEditarBancos from '../telas/carteira/TelaEditarBancos';
 import TelaEditarVales from '../telas/carteira/TelaEditarVales';
