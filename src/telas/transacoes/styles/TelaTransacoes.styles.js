@@ -357,4 +357,28 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
+  // Loading footer para paginação
+  loadingMoreContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 30,
+    paddingBottom: 40,
+    gap: 10,
+  },
+  loadingMoreText: {
+    fontSize: 14,
+    color: '#999',
+  },
+  endOfListContainer: {
+    alignItems: 'center',
+    paddingVertical: 40,
+    paddingBottom: 60,
+    paddingHorizontal: 40,
+  },
+  endOfListText: {
+    fontSize: 13,
+    color: '#999',
+    textAlign: 'center',
+  },
 });

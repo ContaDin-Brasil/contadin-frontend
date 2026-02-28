@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Image, SafeAreaView, RefreshControl } from 'react-native';
+import { View, Text, FlatList, TextInput, TouchableOpacity, ActivityIndicator, Image, SafeAreaView } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import TituloPagina from '../../componentes/TituloPagina';
@@ -203,6 +203,38 @@ const TelaTransacoes = ({ navigation, route }) => {
 
   const groupedTransactions = groupTransactionsByDate(transacoesOrdenadas);
 
+  /**
+   * Converte dados agrupados em lista plana para FlatList
+   * Formato: [{ type: 'header', date: '...' }, { type: 'transaction', data: {...} }, ...]
+   */
+  const prepararListaPlana = () => {
+    const listaPlana = [];
+    
+    Object.entries(groupedTransactions).forEach(([date, transactions]) => {
+      // Adiciona header da data
+      listaPlana.push({ type: 'header', date, id: `header-${date}` });
+      
+      // Adiciona transações
+      transactions.forEach(transaction => {
+        listaPlana.push({ type: 'transaction', data: transaction, id: `transaction-${transaction.id}` });
+      });
+    });
+    
+    return listaPlana;
+  };
+
+  const flatListData = prepararListaPlana();
+
+  /**
+   * Handler para carregar mais transações (infinite scroll)
+   */
+  const handleLoadMore = () => {
+    if (!gerenciador.loadingMore && gerenciador.hasMore) {
+      console.log('📜 [INFINITE SCROLL] Carregando mais transações...');
+      gerenciador.carregarMaisTransacoes();
+    }
+  };
+
   // Conta filtros ativos
   const countFiltrosAtivos = () => {
     let count = 0;
@@ -214,6 +246,25 @@ const TelaTransacoes = ({ navigation, route }) => {
     if (gerenciador.filtros.apenasRecorrente) count++;
     if (gerenciador.filtros.dataInicio || gerenciador.filtros.dataFim) count++;
     return count;
+  };
+
+  /**
+   * Renderiza item da FlatList (header de data ou transação)
+   */
+  const renderListItem = ({ item }) => {
+    if (item.type === 'header') {
+      return (
+        <View style={styles.dateGroup}>
+          <Text style={styles.dateLabel}>{formatDateLabel(item.date)}</Text>
+        </View>
+      );
+    }
+    
+    if (item.type === 'transaction') {
+      return renderTransactionItem(item.data);
+    }
+    
+    return null;
   };
 
   const renderTransactionItem = (item) => {
@@ -406,30 +457,64 @@ const TelaTransacoes = ({ navigation, route }) => {
         </TouchableOpacity>
       </View>
 
-      {/* Indicador de Última Atualização */}
+      {/* Indicador de Última Atualização e Paginação */}
       <View style={styles.lastUpdateContainer}>
         <Ionicons name="time-outline" size={12} color="#999" />
         <Text style={styles.lastUpdateText}>
           Atualizado às {lastUpdate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
         </Text>
+        {gerenciador.totalTransacoes > 0 && (
+          <>
+            <Text style={[styles.lastUpdateText, { marginHorizontal: 8 }]}>•</Text>
+            <Text style={styles.lastUpdateText}>
+              {transacoesOrdenadas.length} de {gerenciador.totalTransacoes} transações
+            </Text>
+          </>
+        )}
       </View>
 
-      {/* Lista de Transações */}
-      <ScrollView 
-        style={styles.transactionsList} 
+      {/* Lista de Transações com Paginação */}
+      <FlatList 
+        data={flatListData}
+        keyExtractor={(item) => item.id}
+        renderItem={renderListItem}
+        style={styles.transactionsList}
         showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            colors={[COLORS.primary]}
-            tintColor={COLORS.primary}
-            title="Atualizando..."
-            titleColor="#666"
-          />
-        }
-      >
-        {Object.keys(groupedTransactions).length === 0 ? (
+        
+        // Pull to refresh
+        refreshing={refreshing}
+        onRefresh={onRefresh}
+        
+        // Infinite scroll
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.1}
+        
+        // Loading footer
+        ListFooterComponent={() => {
+          if (gerenciador.loadingMore) {
+            return (
+              <View style={styles.loadingMoreContainer}>
+                <ActivityIndicator size="small" color={COLORS.primary} />
+                <Text style={styles.loadingMoreText}>Carregando mais...</Text>
+              </View>
+            );
+          }
+          
+          if (!gerenciador.hasMore && flatListData.length > 0) {
+            return (
+              <View style={styles.endOfListContainer}>
+                <Text style={styles.endOfListText}>
+                  Você visualizou todas as transações
+                </Text>
+              </View>
+            );
+          }
+          
+          return null;
+        }}
+        
+        // Empty state
+        ListEmptyComponent={() => (
           <View style={styles.emptyState}>
             <Ionicons 
               name={debouncedSearchQuery ? "search-outline" : "receipt-outline"} 
@@ -455,15 +540,8 @@ const TelaTransacoes = ({ navigation, route }) => {
               </TouchableOpacity>
             )}
           </View>
-        ) : (
-          Object.entries(groupedTransactions).map(([date, transactions]) => (
-            <View key={date} style={styles.dateGroup}>
-              <Text style={styles.dateLabel}>{formatDateLabel(date)}</Text>
-              {transactions.map(transaction => renderTransactionItem(transaction))}
-            </View>
-          ))
         )}
-      </ScrollView>
+      />
 
       {/* Botão Flutuante */}
       <TouchableOpacity 
