@@ -21,6 +21,7 @@ import { styles } from './styles/TelaTransacoes.styles';
 
 const TelaTransacoes = ({ navigation, route }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [lastUpdate, setLastUpdate] = useState(new Date());
   const [modalOrdenacaoVisible, setModalOrdenacaoVisible] = useState(false);
@@ -30,6 +31,29 @@ const TelaTransacoes = ({ navigation, route }) => {
 
   // Recebe os dados da instituição clicada (se houver)
   const instituicaoSelecionada = route.params?.instituicao || null;
+
+  /**
+   * Debounce para a busca (300ms)
+   * Evita múltiplas re-renderizações enquanto o usuário digita
+   */
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+      if (searchQuery) {
+        console.log('🔍 [SEARCH] Buscando por:', searchQuery);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  /**
+   * Limpa o campo de busca
+   */
+  const handleClearSearch = () => {
+    setSearchQuery('');
+    setDebouncedSearchQuery('');
+  };
 
   // Log para debug (pode remover depois)
   React.useEffect(() => {
@@ -119,6 +143,56 @@ const TelaTransacoes = ({ navigation, route }) => {
     transacoesExibidas = gerenciador.transacoes.filter(
       transacao => transacao.fk_instituicao === instituicaoSelecionada.id
     );
+  }
+
+  /**
+   * Aplica filtro de busca dinâmica
+   * Busca em: descrição, categoria, instituição e valor
+   * Case-insensitive e remove acentos para melhor experiência
+   */
+  if (debouncedSearchQuery) {
+    const queryNormalizada = debouncedSearchQuery
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, ''); // Remove acentos
+    
+    transacoesExibidas = transacoesExibidas.filter(transacao => {
+      // Busca na descrição
+      const descricaoNormalizada = transacao.descricao
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+      
+      if (descricaoNormalizada.includes(queryNormalizada)) return true;
+      
+      // Busca na categoria
+      const categoria = gerenciador.buscarCategoria(transacao.fk_categoria);
+      if (categoria) {
+        const categoriaNormalizada = categoria.nome
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '');
+        if (categoriaNormalizada.includes(queryNormalizada)) return true;
+      }
+      
+      // Busca na instituição
+      const instituicao = gerenciador.buscarInstituicao(transacao.fk_instituicao);
+      if (instituicao) {
+        const instituicaoNormalizada = instituicao.nome
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '');
+        if (instituicaoNormalizada.includes(queryNormalizada)) return true;
+      }
+      
+      // Busca no valor (formato: "150", "150,50", "1.500")
+      const valorString = transacao.valor.toString().replace('.', ',');
+      if (valorString.includes(queryNormalizada)) return true;
+      
+      return false;
+    });
+
+    console.log(`🔍 [SEARCH RESULT] ${transacoesExibidas.length} transações encontradas para "${debouncedSearchQuery}"`);
   }
 
   // Aplica filtros personalizados
@@ -299,6 +373,14 @@ const TelaTransacoes = ({ navigation, route }) => {
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
+        {searchQuery.length > 0 && (
+          <TouchableOpacity 
+            style={styles.clearSearchButton}
+            onPress={handleClearSearch}
+          >
+            <Ionicons name="close-circle" size={20} color="#999" />
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* Filtros */}
@@ -347,12 +429,40 @@ const TelaTransacoes = ({ navigation, route }) => {
           />
         }
       >
-        {Object.entries(groupedTransactions).map(([date, transactions]) => (
-          <View key={date} style={styles.dateGroup}>
-            <Text style={styles.dateLabel}>{formatDateLabel(date)}</Text>
-            {transactions.map(transaction => renderTransactionItem(transaction))}
+        {Object.keys(groupedTransactions).length === 0 ? (
+          <View style={styles.emptyState}>
+            <Ionicons 
+              name={debouncedSearchQuery ? "search-outline" : "receipt-outline"} 
+              size={64} 
+              color="#CCC" 
+            />
+            <Text style={styles.emptyStateTitle}>
+              {debouncedSearchQuery 
+                ? "Nenhum resultado encontrado" 
+                : "Nenhuma transação"}
+            </Text>
+            <Text style={styles.emptyStateSubtitle}>
+              {debouncedSearchQuery 
+                ? `Não encontramos transações para "${debouncedSearchQuery}"`
+                : "Adicione sua primeira transação tocando no botão +"}
+            </Text>
+            {debouncedSearchQuery && (
+              <TouchableOpacity 
+                style={styles.emptyStateButton}
+                onPress={handleClearSearch}
+              >
+                <Text style={styles.emptyStateButtonText}>Limpar busca</Text>
+              </TouchableOpacity>
+            )}
           </View>
-        ))}
+        ) : (
+          Object.entries(groupedTransactions).map(([date, transactions]) => (
+            <View key={date} style={styles.dateGroup}>
+              <Text style={styles.dateLabel}>{formatDateLabel(date)}</Text>
+              {transactions.map(transaction => renderTransactionItem(transaction))}
+            </View>
+          ))
+        )}
       </ScrollView>
 
       {/* Botão Flutuante */}
