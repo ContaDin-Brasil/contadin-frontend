@@ -123,6 +123,14 @@
       "icone": "fitness-center",
       "fk_usuario": 1,
       "id": 12
+    },
+    {
+      "nome": "Teste",
+      "tipo": "GLOBAL",
+      "cor": "#98D8C8",
+      "icone": "computer",
+      "fk_usuario": 1,
+      "id": 13
     }
   ],
   "instituicao": [
@@ -133,14 +141,6 @@
       "cor": "#795548",
       "tipoInstituicao": "banco",
       "fk_usuario": 2
-    },
-    {
-      "nome": "Alelo",
-      "icone": "VA",
-      "cor": "#FF9800",
-      "tipoInstituicao": "vale",
-      "fk_usuario": 1,
-      "id": 9
     },
     {
       "nome": "Flash",
@@ -193,7 +193,7 @@
     {
       "nome": "Ticket",
       "icone": "Tk",
-      "cor": "#FF6600",
+      "cor": "#009EE3",
       "tipoInstituicao": "vale",
       "fk_usuario": 1,
       "id": 24
@@ -591,7 +591,7 @@
       "data_transacao": "2026-02-18T14:00:00.000Z",
       "parcelado": false,
       "qtdParcelas": 1,
-      "recorrencia": null,
+      "recorrencia": "ANUAL",
       "fim_recorrencia": null,
       "fk_instituicao": 28,
       "fk_categoria": 4
@@ -630,7 +630,7 @@
       "data_transacao": "2026-02-05T00:00:00.000Z",
       "parcelado": false,
       "qtdParcelas": 1,
-      "recorrencia": "MENSAL",
+      "recorrencia": null,
       "fim_recorrencia": null,
       "fk_instituicao": 19,
       "fk_categoria": 5
@@ -822,9 +822,9 @@
       "descricao": "Restaurante Japonês",
       "valor": 180,
       "tipo": "GASTO",
-      "data_transacao": "2026-02-28T00:00:00.000Z",
-      "parcelado": false,
-      "qtdParcelas": 1,
+      "data_transacao": "2026-02-27T00:00:00.000Z",
+      "parcelado": true,
+      "qtdParcelas": 30,
       "recorrencia": null,
       "fim_recorrencia": null,
       "fk_instituicao": 24,
@@ -851,7 +851,7 @@
       "data_transacao": "2026-02-05T00:00:00.000Z",
       "parcelado": false,
       "qtdParcelas": 1,
-      "recorrencia": "MENSAL",
+      "recorrencia": null,
       "fim_recorrencia": null,
       "fk_instituicao": 19,
       "fk_categoria": 9
@@ -890,7 +890,7 @@
       "data_transacao": "2026-02-05T00:00:00.000Z",
       "parcelado": false,
       "qtdParcelas": 1,
-      "recorrencia": "MENSAL",
+      "recorrencia": null,
       "fim_recorrencia": null,
       "fk_instituicao": 24,
       "fk_categoria": 9
@@ -916,7 +916,7 @@
       "data_transacao": "2026-02-01T00:00:00.000Z",
       "parcelado": false,
       "qtdParcelas": 1,
-      "recorrencia": "MENSAL",
+      "recorrencia": null,
       "fim_recorrencia": null,
       "fk_instituicao": 26,
       "fk_categoria": 4

@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import COLORS from '../../../styles/colors';
 
 export const styles = StyleSheet.create({
   safeArea: {
@@ -82,8 +83,8 @@ export const styles = StyleSheet.create({
     backgroundColor: '#FFF',
   },
   typeButtonActive: {
-    backgroundColor: '#5BA3FF',
-    borderColor: '#5BA3FF',
+    backgroundColor: COLORS.primaryLight,
+    borderColor: COLORS.primaryLight,
   },
   typeButtonText: {
     fontSize: 16,
@@ -126,8 +127,8 @@ export const styles = StyleSheet.create({
     gap: 8,
   },
   categoryButtonActive: {
-    backgroundColor: '#5BA3FF',
-    borderColor: '#5BA3FF',
+    backgroundColor: COLORS.primaryLight,
+    borderColor: COLORS.primaryLight,
   },
   categoryButtonText: {
     fontSize: 14,
@@ -136,6 +137,15 @@ export const styles = StyleSheet.create({
   },
   categoryButtonTextActive: {
     color: '#FFF',
+  },
+  addCategoryButton: {
+    borderColor: COLORS.primary,
+    borderStyle: 'dashed',
+    backgroundColor: COLORS.primaryLight + '10',
+  },
+  addCategoryButtonText: {
+    color: COLORS.primary,
+    fontWeight: '600',
   },
   recurringRow: {
     flexDirection: 'row',
@@ -165,8 +175,8 @@ export const styles = StyleSheet.create({
     backgroundColor: '#FFF',
   },
   frequencyButtonActive: {
-    backgroundColor: '#5BA3FF',
-    borderColor: '#5BA3FF',
+    backgroundColor: COLORS.primaryLight,
+    borderColor: COLORS.primaryLight,
   },
   frequencyButtonText: {
     fontSize: 14,
@@ -192,8 +202,8 @@ export const styles = StyleSheet.create({
     backgroundColor: '#FFF',
   },
   installmentButtonActive: {
-    backgroundColor: '#5BA3FF',
-    borderColor: '#5BA3FF',
+    backgroundColor: COLORS.primaryLight,
+    borderColor: COLORS.primaryLight,
   },
   installmentButtonText: {
     fontSize: 14,
@@ -218,6 +228,79 @@ export const styles = StyleSheet.create({
   },
   customInstallmentInputActive: {
     color: '#FFF',
+  },
+  installmentValueContainer: {
+    backgroundColor: COLORS.primaryLighter,
+    borderRadius: 12,
+    padding: 14,
+    marginTop: 10,
+    marginBottom: 8,
+  },
+  installmentValueRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  installmentValueText: {
+    fontSize: 15,
+    color: COLORS.textPrimary,
+    fontWeight: '500',
+  },
+  installmentValueHighlight: {
+    fontSize: 16,
+    color: COLORS.primary,
+    fontWeight: '700',
+  },
+  warningContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 8,
+  },
+  warningText: {
+    fontSize: 12,
+    color: COLORS.warning,
+    fontWeight: '500',
+  },
+  installmentInfoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 8,
+    paddingHorizontal: 4,
+  },
+  installmentInfoText: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    fontStyle: 'italic',
+  },
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+    marginLeft: 4,
+  },
+  errorText: {
+    fontSize: 12,
+    color: COLORS.error,
+    marginLeft: 4,
+  },
+  pickerLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.textPrimary,
+    marginTop: 8,
+    marginBottom: 8,
+  },
+  pickerContainer: {
+    backgroundColor: '#f5f5f5',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    overflow: 'hidden',
+  },
+  picker: {
+    height: 50,
   },
   institutionTypeButtons: {
     flexDirection: 'row',
@@ -249,7 +332,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderWidth: 2,
+    borderWidth: 1,
     borderColor: '#E0E0E0',
     borderRadius: 12,
     paddingHorizontal: 16,
@@ -263,7 +346,6 @@ export const styles = StyleSheet.create({
   institutionChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8F8F8',
     borderWidth: 2,
     borderRadius: 20,
     paddingVertical: 6,
@@ -275,7 +357,6 @@ export const styles = StyleSheet.create({
   chipIconContainer: {
     width: 32,
     height: 32,
-    borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
@@ -283,6 +364,8 @@ export const styles = StyleSheet.create({
   chipLogoImage: {
     width: 28,
     height: 28,
+    borderRadius: 8,
+    objectFit: 'cover',
   },
   chipIconText: {
     color: '#FFF',

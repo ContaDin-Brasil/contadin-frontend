@@ -11,6 +11,7 @@ import TelaEditarBancos from '../telas/carteira/TelaEditarBancos';
 import TelaEditarVales from '../telas/carteira/TelaEditarVales';
 import TelaTransacoes from '../telas/transacoes/TelaTransacoes';
 import TelaAdicionarTransacao from '../telas/transacoes/TelaAdicionarTransacao';
+import TelaEditarTransacao from '../telas/transacoes/TelaEditarTransacao';
 import TelaCategorias from '../telas/categorias/TelaCategorias';
 import TelaConfiguracoes from '../telas/configuracoes/TelaConfiguracoes';
 import TelaEditarPerfil from '../telas/configuracoes/TelaEditarPerfil';
@@ -63,6 +64,7 @@ function NavegadorTransacoes() {
     >
       <Stack.Screen name="TransactionsMain" component={TelaTransacoes} />
       <Stack.Screen name="AdicionarTransacao" component={TelaAdicionarTransacao} />
+      <Stack.Screen name="EditarTransacao" component={TelaEditarTransacao} />
     </Stack.Navigator>
   );
 }

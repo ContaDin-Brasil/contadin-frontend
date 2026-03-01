@@ -5,7 +5,11 @@
   "scripts": {
     "start": "json-server --watch db.json --port 3001",
     "start:delay": "json-server --watch db.json --port 3001 --delay 500",
-    "start:host": "json-server --watch db.json --port 3001 --host 0.0.0.0"
+    "start:host": "json-server --watch db.json --port 3001 --host 0.0.0.0",
+    "limpar-orfaos": "node limpar-orfaos.js",
+    "gerar": "node utils/gerar-transacoes.js",
+    "gerar:stats": "node utils/gerar-transacoes.js stats",
+    "gerar:limpar": "node utils/gerar-transacoes.js limpar"
   },
   "keywords": [
     "json-server",
