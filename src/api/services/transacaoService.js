@@ -14,6 +14,19 @@ const transacaoService = {
   },
 
   /**
+   * Busca transações por usuário
+   * Nota: Como transações não têm fk_usuario diretamente, 
+   * retorna todas as transações (que serão filtradas por instituições do usuário)
+   * @param {number} usuarioId - ID do usuário
+   */
+  listarPorUsuario: async (usuarioId) => {
+    // Por enquanto, retorna todas as transações
+    // Em produção, isso seria filtrado pelo backend
+    const response = await api.get('/transacao');
+    return response.data;
+  },
+
+  /**
    * Busca uma transação por ID
    * @param {number} id - ID da transação
    */
@@ -87,8 +100,24 @@ const transacaoService = {
    * @param {object} transacao - Dados da transação
    */
   criar: async (transacao) => {
-    const response = await api.post('/transacao', transacao);
-    return response.data;
+    console.log('🌐 [API SERVICE] Enviando requisição POST para /transacao');
+    console.log('🌐 [API SERVICE] Payload:', JSON.stringify(transacao, null, 2));
+    
+    try {
+      const response = await api.post('/transacao', transacao);
+      
+      console.log('🌐 [API SERVICE] Status da resposta:', response.status);
+      console.log('🌐 [API SERVICE] Dados retornados:', JSON.stringify(response.data, null, 2));
+      
+      return response.data;
+    } catch (error) {
+      console.error('❌ [API SERVICE] Erro na requisição:', error);
+      if (error.response) {
+        console.error('❌ [API SERVICE] Status do erro:', error.response.status);
+        console.error('❌ [API SERVICE] Dados do erro:', JSON.stringify(error.response.data, null, 2));
+      }
+      throw error;
+    }
   },
 
   /**

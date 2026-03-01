@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, TextInput, TouchableOpacity, Switch, Animated, ActivityIndicator, Alert, Image, SafeAreaView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { Picker } from '@react-native-picker/picker';
 import TituloPagina from '../../componentes/TituloPagina';
+import { DatePickerInput } from '../../componentes/DatePickerInput';
 import { getLogoByName } from '../../componentes/modais/logosInstituicoes';
 import ModalSelecaoInstituicao from '../../componentes/modais/ModalSelecaoInstituicao';
 import ModalAdicionarInstituicao from '../../componentes/modais/ModalAdicionarInstituicao';
+import ModalCategoria from '../categorias/modals/ModalCategoria';
 import { useFormularioTransacao } from './hooks/useFormularioTransacao';
 import { useProcessamentoIA } from './hooks/useProcessamentoIA';
-import { transacaoService } from '../../api';
+import { transacaoService, categoriaService } from '../../api';
 import { FREQUENCIES, INSTALLMENT_OPTIONS } from './constants/constantesTransacao';
 import { getCategoryIcon } from './utils/utilitariosTransacao';
+import COLORS from '../../styles/colors';
 import { styles } from './styles/TelaAdicionarTransacao.styles';
 
 const TelaAdicionarTransacao = ({ navigation }) => {
@@ -29,6 +33,25 @@ const TelaAdicionarTransacao = ({ navigation }) => {
   const handleAddCustomInstitution = (institution) => {
     formState.handleAddCustomInstitution(institution);
     setCustomModalVisible(false);
+  };
+
+  const handleCreateCategoria = async (data) => {
+    try {
+      await categoriaService.criar({
+        ...data,
+        fk_usuario: 1 // ID do usuário
+      });
+      
+      // Recarrega categorias
+      await formState.carregarDados();
+      
+      Alert.alert('Sucesso', 'Categoria criada com sucesso!');
+      return true;
+    } catch (error) {
+      console.error('Erro ao criar categoria:', error);
+      Alert.alert('Erro', 'Não foi possível criar a categoria');
+      return false;
+    }
   };
 
   const applyAISuggestion = () => {
@@ -58,6 +81,22 @@ const TelaAdicionarTransacao = ({ navigation }) => {
         return;
       }
 
+      // Valida data limite de recorrência
+      const dataLimiteError = formState.validateRecurrenceEndDate();
+      if (dataLimiteError) {
+        Alert.alert('Erro', dataLimiteError);
+        setSalvando(false);
+        return;
+      }
+
+      // Valida configurações de parcelamento
+      const parcelamentoError = formState.validateInstallment();
+      if (parcelamentoError) {
+        Alert.alert('Erro', parcelamentoError);
+        setSalvando(false);
+        return;
+      }
+
       // Converte data DD/MM/YYYY para ISO
       const [day, month, year] = data.date.split('/');
       const dataISO = new Date(`${year}-${month}-${day}`).toISOString();
@@ -83,9 +122,21 @@ const TelaAdicionarTransacao = ({ navigation }) => {
         fk_categoria: data.selectedCategory,
       };
 
-      console.log('💾 Salvando transação:', transacao);
+      console.log('\n' + '='.repeat(60));
+      console.log('💾 [SAVE TRANSACTION] Salvando transação no banco');
+      console.log('='.repeat(60));
+      console.log('📦 Payload completo:', JSON.stringify(transacao, null, 2));
+      console.log('📍 Instituição selecionada:', JSON.stringify(data.selectedInstitution, null, 2));
+      console.log('📍 Categoria selecionada:', data.selectedCategory);
+      console.log('='.repeat(60) + '\n');
 
-      await transacaoService.criar(transacao);
+      const resultado = await transacaoService.criar(transacao);
+      
+      console.log('\n' + '='.repeat(60));
+      console.log('✅ [SUCCESS] Transação salva com sucesso!');
+      console.log('='.repeat(60));
+      console.log('📥 Resposta do servidor:', JSON.stringify(resultado, null, 2));
+      console.log('='.repeat(60) + '\n');
       
       Alert.alert('Sucesso', 'Transação criada com sucesso!', [
         { text: 'OK', onPress: () => navigation.goBack() }
@@ -117,7 +168,7 @@ const TelaAdicionarTransacao = ({ navigation }) => {
             onPress={aiState.handlePhotoOCR}
             disabled={aiState.isProcessing}
           >
-            <Ionicons name="camera" size={24} color="#5BA3FF" />
+            <Ionicons name="camera" size={24} color={COLORS.primaryLight} />
             <Text style={styles.aiButtonText}>Foto</Text>
           </TouchableOpacity>
           <TouchableOpacity 
@@ -125,7 +176,7 @@ const TelaAdicionarTransacao = ({ navigation }) => {
             onPress={aiState.handleAudioInput}
             disabled={aiState.isProcessing}
           >
-            <Ionicons name="mic" size={24} color="#5BA3FF" />
+            <Ionicons name="mic" size={24} color={COLORS.primaryLight} />
             <Text style={styles.aiButtonText}>Áudio</Text>
           </TouchableOpacity>
         </View>
@@ -152,7 +203,7 @@ const TelaAdicionarTransacao = ({ navigation }) => {
         {aiState.aiSuggestion && !aiState.isProcessing && (
           <View style={styles.suggestionCard}>
             <View style={styles.suggestionHeader}>
-              <Ionicons name="sparkles" size={20} color="#5BA3FF" />
+              <Ionicons name="sparkles" size={20} color={COLORS.primaryLight} />
               <Text style={styles.suggestionTitle}>Sugestão da IA</Text>
             </View>
             <View style={styles.suggestionContent}>
@@ -162,7 +213,7 @@ const TelaAdicionarTransacao = ({ navigation }) => {
               </View>
               <View style={styles.suggestionRow}>
                 <Text style={styles.suggestionLabel}>Valor:</Text>
-                <Text style={styles.suggestionValue}>{aiState.aiSuggestion.valor}</Text>
+                <Text style={styles.suggestionValue}>R$ {aiState.aiSuggestion.valor}</Text>
               </View>
               {aiState.aiSuggestion.data && (
                 <View style={styles.suggestionRow}>
@@ -218,8 +269,9 @@ const TelaAdicionarTransacao = ({ navigation }) => {
             placeholder="0,00"
             placeholderTextColor="#999"
             value={formState.valor}
-            onChangeText={formState.setValor}
-            keyboardType="decimal-pad"
+            onChangeText={formState.handleValorChange}
+            onBlur={formState.handleValorBlur}
+            keyboardType="numeric"
           />
         </View>
       </View>
@@ -228,7 +280,7 @@ const TelaAdicionarTransacao = ({ navigation }) => {
       <View style={styles.section}>
         <Text style={styles.label}>Data:</Text>
         <View style={styles.dateInputContainer}>
-          <Ionicons name="calendar-outline" size={20} color="#5BA3FF" />
+          <Ionicons name="calendar-outline" size={20} color={COLORS.primaryLight} />
           <TextInput
             style={styles.dateInput}
             placeholder="DD/MM/AAAA"
@@ -284,14 +336,14 @@ const TelaAdicionarTransacao = ({ navigation }) => {
           <Ionicons name="search" size={20} color="#999" />
           <TextInput
             style={styles.searchInput}
-            placeholder="Pesquisar"
+            placeholder="Pesquisar categorias..."
             placeholderTextColor="#999"
             value={formState.categorySearch}
             onChangeText={formState.setCategorySearch}
           />
         </View>
         <View style={styles.categoryButtons}>
-          {formState.categorias.map(category => (
+          {formState.getCategoriasExibidas().map(category => (
             <TouchableOpacity
               key={category.id}
               style={[
@@ -300,8 +352,8 @@ const TelaAdicionarTransacao = ({ navigation }) => {
               ]}
               onPress={() => formState.setSelectedCategory(category.id)}
             >
-              <Ionicons
-                name={getCategoryIcon(category.nome)}
+              <MaterialIcons
+                name={category.icone || getCategoryIcon(category.nome)}
                 size={20}
                 color={formState.selectedCategory === category.id ? '#FFF' : '#333'}
               />
@@ -313,6 +365,17 @@ const TelaAdicionarTransacao = ({ navigation }) => {
               </Text>
             </TouchableOpacity>
           ))}
+          
+          {/* Botão Adicionar Categoria */}
+          <TouchableOpacity
+            style={[styles.categoryButton, styles.addCategoryButton]}
+            onPress={() => formState.setModalCategoriaVisible(true)}
+          >
+            <Ionicons name="add-circle-outline" size={20} color={COLORS.primary} />
+            <Text style={[styles.categoryButtonText, styles.addCategoryButtonText]}>
+              Adicionar Categoria
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -324,8 +387,8 @@ const TelaAdicionarTransacao = ({ navigation }) => {
             <Switch
               value={formState.isRecurring}
               onValueChange={formState.handleToggleRecurring}
-              trackColor={{ false: '#D0D0D0', true: '#5BA3FF' }}
-              thumbColor="#FFF"
+              trackColor={{ false: COLORS.borderDark, true: COLORS.primaryLight }}
+              thumbColor={COLORS.white}
             />
             <Text style={styles.recurringText}>Recorrência</Text>
           </View>
@@ -355,24 +418,20 @@ const TelaAdicionarTransacao = ({ navigation }) => {
               <Switch
                 value={formState.hasRecurrenceEndDate}
                 onValueChange={formState.setHasRecurrenceEndDate}
-                trackColor={{ false: '#D0D0D0', true: '#5BA3FF' }}
-                thumbColor="#FFF"
+                trackColor={{ false: COLORS.borderDark, true: COLORS.primaryLight }}
+                thumbColor={COLORS.white}
               />
               <Text style={styles.recurringText}>Data limite da recorrência</Text>
             </View>
             {formState.hasRecurrenceEndDate && (
-              <View style={styles.dateInput}>
-                <Ionicons name="calendar-outline" size={20} color="#666" />
-                <TextInput
-                  style={styles.dateInputText}
-                  placeholder="DD/MM/AAAA"
-                  placeholderTextColor="#999"
-                  value={formState.recurrenceEndDate}
-                  onChangeText={formState.handleRecurrenceEndDateChange}
-                  keyboardType="numeric"
-                  maxLength={10}
-                />
-              </View>
+              <DatePickerInput
+                value={formState.recurrenceEndDate}
+                onChangeDate={formState.handleRecurrenceEndDateChange}
+                placeholder="DD/MM/AAAA"
+                minDate={new Date()} // Não permite datas passadas
+                errorMessage={formState.validateRecurrenceEndDate()}
+                style={{ marginTop: 8 }}
+              />
             )}
           </>
         )}
@@ -383,65 +442,96 @@ const TelaAdicionarTransacao = ({ navigation }) => {
             <Switch
               value={formState.isInstallment}
               onValueChange={formState.handleToggleInstallment}
-              trackColor={{ false: '#D0D0D0', true: '#5BA3FF' }}
-              thumbColor="#FFF"
+              trackColor={{ false: COLORS.borderDark, true: COLORS.primaryLight }}
+              thumbColor={COLORS.white}
             />
             <Text style={styles.recurringText}>Parcelado</Text>
           </View>
         )}
         {formState.isInstallment && (
-          <View style={styles.installmentButtons}>
-            {INSTALLMENT_OPTIONS.map(option => (
-              <TouchableOpacity
-                key={option.value}
-                style={[
-                  styles.installmentButton,
-                  formState.installmentCount === option.value && !formState.customInstallmentCount && styles.installmentButtonActive
-                ]}
-                onPress={() => {
-                  formState.setInstallmentCount(option.value);
-                  formState.setCustomInstallmentCount('');
-                }}
-              >
-                <Text style={[
-                  styles.installmentButtonText,
-                  formState.installmentCount === option.value && !formState.customInstallmentCount && styles.installmentButtonTextActive
-                ]}>
-                  {option.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
-            <View style={[
-              styles.installmentButton,
-              styles.customInstallmentButton,
-              formState.customInstallmentCount && styles.installmentButtonActive
-            ]}>
-              <Text style={[
-                styles.installmentButtonText,
-                formState.customInstallmentCount && styles.installmentButtonTextActive
-              ]}>
-                Outro:
-              </Text>
-              <TextInput
-                style={[
-                  styles.customInstallmentInput,
-                  formState.customInstallmentCount && styles.customInstallmentInputActive
-                ]}
-                placeholder="0"
-                placeholderTextColor="#999"
-                value={formState.customInstallmentCount}
-                onChangeText={(text) => {
-                  const cleaned = text.replace(/\D/g, '');
-                  const value = parseInt(cleaned) || 0;
-                  if (value <= 720) {
-                    formState.setCustomInstallmentCount(cleaned);
+          <>
+            {/* Valor por parcela */}
+            {formState.valor && formState.getInstallmentValue() > 0 && (
+              <View style={styles.installmentValueContainer}>
+                <View style={styles.installmentValueRow}>
+                  <Ionicons name="calculator-outline" size={20} color={COLORS.primary} />
+                  <Text style={styles.installmentValueText}>
+                    {formState.installmentCount === 0 
+                      ? (formState.customInstallmentValue || '?')
+                      : formState.installmentCount}x de{' '}
+                    <Text style={styles.installmentValueHighlight}>
+                      R$ {formState.getInstallmentValue().toFixed(2).replace('.', ',')}
+                    </Text>
+                  </Text>
+                </View>
+                {formState.getInstallmentWarning() && (
+                  <View style={styles.warningContainer}>
+                    <Ionicons name="alert-circle-outline" size={14} color={COLORS.warning} />
+                    <Text style={styles.warningText}>{formState.getInstallmentWarning()}</Text>
+                  </View>
+                )}
+              </View>
+            )}
+
+            {/* Seletor de parcelas */}
+            <Text style={styles.pickerLabel}>Quantidade de parcelas:</Text>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={formState.installmentCount}
+                onValueChange={(itemValue) => {
+                  formState.setInstallmentCount(itemValue);
+                  // Limpa o valor customizado quando seleciona uma opção pré-definida
+                  if (itemValue !== 0) {
+                    formState.setCustomInstallmentValue('');
                   }
                 }}
-                keyboardType="numeric"
-                maxLength={3}
-              />
+                style={styles.picker}
+                dropdownIconColor={COLORS.primary}
+              >
+                {INSTALLMENT_OPTIONS.map(option => (
+                  <Picker.Item 
+                    key={option.value} 
+                    label={option.label} 
+                    value={option.value}
+                  />
+                ))}
+              </Picker>
             </View>
-          </View>
+
+            {/* Campo customizado quando seleciona "Outro valor" */}
+            {formState.installmentCount === 0 && (
+              <View style={styles.customInstallmentContainer}>
+                <Text style={styles.label}>Digite a quantidade de parcelas (máx. 720):</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Ex: 24"
+                  placeholderTextColor="#999"
+                  value={formState.customInstallmentValue}
+                  onChangeText={formState.handleCustomInstallmentChange}
+                  keyboardType="numeric"
+                  maxLength={3}
+                />
+              </View>
+            )}
+
+            {/* Validação de parcelamento */}
+            {formState.validateInstallment() && (
+              <View style={styles.errorContainer}>
+                <Ionicons name="alert-circle" size={14} color={COLORS.error} />
+                <Text style={styles.errorText}>{formState.validateInstallment()}</Text>
+              </View>
+            )}
+
+            {/* Data da última parcela (info) */}
+            {formState.getLastInstallmentDate() && !formState.validateInstallment() && (
+              <View style={styles.installmentInfoContainer}>
+                <Ionicons name="information-circle-outline" size={16} color={COLORS.textSecondary} />
+                <Text style={styles.installmentInfoText}>
+                  Última parcela: {formState.getLastInstallmentDate()}
+                </Text>
+              </View>
+            )}
+          </>
         )}
       </View>
 
@@ -521,7 +611,7 @@ const TelaAdicionarTransacao = ({ navigation }) => {
       {/* Indicador de carregamento de dados */}
       {formState.loading && (
         <View style={{ padding: 20, alignItems: 'center' }}>
-          <ActivityIndicator size="small" color="#8A05BE" />
+          <ActivityIndicator size="small" color={COLORS.primary} />
           <Text style={{ marginTop: 8, color: '#666' }}>Carregando dados...</Text>
         </View>
       )}
@@ -542,6 +632,13 @@ const TelaAdicionarTransacao = ({ navigation }) => {
         visible={customModalVisible}
         onClose={() => setCustomModalVisible(false)}
         onAdd={handleAddCustomInstitution}
+      />
+
+      <ModalCategoria
+        visible={formState.modalCategoriaVisible}
+        onClose={() => formState.setModalCategoriaVisible(false)}
+        onSave={handleCreateCategoria}
+        tipoInicial={formState.tipo}
       />
       </ScrollView>
     </SafeAreaView>

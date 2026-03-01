@@ -71,17 +71,22 @@ export const useEditarBancos = () => {
   };
 
   /**
-   * Remove um banco da lista
+   * Remove um banco da lista (e suas transações)
    */
   const handleDelete = async (id: number) => {
     try {
+      console.log(`🗑️  Iniciando deleção do banco ID: ${id}`);
+      
+      // Deleta banco e suas transações
       await instituicaoService.deletar(id);
       
       // Invalida o cache e recarrega
       await invalidateCacheByPattern('instituicoes');
       await carregarBancos(true);
+      
+      console.log('✅ Banco e transações deletados com sucesso!');
     } catch (err) {
-      console.error('Erro ao deletar banco:', err);
+      console.error('❌ Erro ao deletar banco:', err);
       setError('Erro ao deletar banco');
     }
   };
@@ -274,17 +279,22 @@ export const useEditarVales = () => {
   };
 
   /**
-   * Remove um vale da lista
+   * Remove um vale da lista (e suas transações)
    */
   const handleDelete = async (voucher: Vale) => {
     try {
+      console.log(`🗑️  Iniciando deleção do vale ID: ${voucher.id}`);
+      
+      // Deleta vale e suas transações
       await instituicaoService.deletar(voucher.id);
       
       // Invalida o cache e recarrega
       await invalidateCacheByPattern('instituicoes');
       await carregarVales(true);
+      
+      console.log('✅ Vale e transações deletados com sucesso!');
     } catch (err) {
-      console.error('Erro ao deletar vale:', err);
+      console.error('❌ Erro ao deletar vale:', err);
       setError('Erro ao deletar vale');
     }
   };

@@ -3,19 +3,64 @@ import { transacaoService, categoriaService, instituicaoService } from '../../..
 import { MOCK_TRANSACTIONS } from '../constants/constantesTransacao';
 import { CATEGORIES } from '../constants/constantesTransacao';
 
+export interface Filtros {
+  tipo: 'TODOS' | 'RECEITA' | 'GASTO';
+  instituicoes: number[];
+  categorias: number[];
+  valorMin: string;
+  valorMax: string;
+  apenasParcelado: boolean;
+  apenasRecorrente: boolean;
+  dataInicio: string;
+  dataFim: string;
+}
+
+/**
+ * Interface para resposta paginada da API
+ * Estrutura compatível com padrões REST de paginação
+ */
+export interface PaginatedResponse<T> {
+  data: T[];
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasMore: boolean;
+}
+
 /**
  * Hook customizado para gerenciar transações
  * Busca e gerencia transações da API com fallback para dados mockados
+ * Suporta paginação infinita (infinite scroll)
  */
 export const useGerenciarTransacoes = () => {
   const [transacoes, setTransacoes] = useState<any[]>([]);
   const [categorias, setCategorias] = useState<any[]>([]);
   const [instituicoes, setInstituicoes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [periodo, setPeriodo] = useState('Período Completo');
   const [ordenacao, setOrdenacao] = useState('Mais recentes');
   const [usandoDadosMockados, setUsandoDadosMockados] = useState(false);
+  
+  // Estados de paginação
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10); // Itens por página
+  const [totalTransacoes, setTotalTransacoes] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  
+  const [filtros, setFiltros] = useState<Filtros>({
+    tipo: 'TODOS',
+    instituicoes: [],
+    categorias: [],
+    valorMin: '',
+    valorMax: '',
+    apenasParcelado: false,
+    apenasRecorrente: false,
+    dataInicio: '',
+    dataFim: '',
+  });
 
   const usuarioId = 1;
 
@@ -27,20 +72,63 @@ export const useGerenciarTransacoes = () => {
   }, []);
 
   /**
+   * Simula resposta paginada da API
+   * No futuro, substituir por chamada real: await transacaoService.listarPaginado(page, limit)
+   */
+  const simularPaginacaoAPI = (allTransactions: any[], page: number, limit: number): PaginatedResponse<any> => {
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    const paginatedData = allTransactions.slice(startIndex, endIndex);
+    const total = allTransactions.length;
+    const totalPages = Math.ceil(total / limit);
+    
+    return {
+      data: paginatedData,
+      page,
+      limit,
+      total,
+      totalPages,
+      hasMore: page < totalPages,
+    };
+  };
+
+  /**
    * Carrega todos os dados da API (com fallback para dados mockados)
+   * Carrega primeira página e reseta paginação
    */
   const carregarDados = async () => {
     setLoading(true);
     setError(null);
+    setPage(1);
     
     try {
-      const [transacoesData, categoriasData, instituicoesData] = await Promise.all([
-        transacaoService.listar(),
+      console.log('🔄 [LOAD] Carregando dados da API...');
+      
+      // Carrega categorias e instituições (não paginados)
+      const [categoriasData, instituicoesData] = await Promise.all([
         categoriaService.listarPorUsuario(usuarioId),
         instituicaoService.listarPorUsuario(usuarioId)
       ]);
       
-      setTransacoes(transacoesData);
+      // TODO: Quando backend estiver pronto, substituir por:
+      // const response = await transacaoService.listarPaginado(1, limit);
+      // setTransacoes(response.data);
+      // setTotalTransacoes(response.total);
+      // setHasMore(response.hasMore);
+      
+      // Simulação: carrega todas e pagina no frontend
+      const todasTransacoes = await transacaoService.listar();
+      const paginatedResponse = simularPaginacaoAPI(todasTransacoes, 1, limit);
+      
+      console.log(`📊 [LOAD] Dados carregados da API:`);
+      console.log(`   • ${paginatedResponse.data.length} transações (página 1/${paginatedResponse.totalPages})`);
+      console.log(`   • ${categoriasData.length} categorias`);
+      console.log(`   • ${instituicoesData.length} instituições`);
+      console.log(`   • Total de transações: ${paginatedResponse.total}`);
+      
+      setTransacoes(paginatedResponse.data);
+      setTotalTransacoes(paginatedResponse.total);
+      setHasMore(paginatedResponse.hasMore);
       setCategorias(categoriasData);
       setInstituicoes(instituicoesData);
       setUsandoDadosMockados(false);
@@ -48,7 +136,10 @@ export const useGerenciarTransacoes = () => {
       console.warn('⚠️  API indisponível, usando dados mockados:', err.message);
       
       // Fallback para dados mockados
-      setTransacoes(MOCK_TRANSACTIONS);
+      const paginatedResponse = simularPaginacaoAPI(MOCK_TRANSACTIONS, 1, limit);
+      setTransacoes(paginatedResponse.data);
+      setTotalTransacoes(paginatedResponse.total);
+      setHasMore(paginatedResponse.hasMore);
       setCategorias(CATEGORIES);
       setInstituicoes([]);
       setUsandoDadosMockados(true);
@@ -56,6 +147,57 @@ export const useGerenciarTransacoes = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  /**
+   * Carrega mais transações (infinite scroll)
+   * Adiciona próxima página aos dados existentes
+   */
+  const carregarMaisTransacoes = async () => {
+    if (loadingMore || !hasMore) {
+      console.log('⏸️  [LOAD MORE] Ignorado:', { loadingMore, hasMore });
+      return;
+    }
+
+    const nextPage = page + 1;
+    setLoadingMore(true);
+    
+    try {
+      console.log(`📄 [LOAD MORE] Carregando página ${nextPage}...`);
+      
+      // TODO: Quando backend estiver pronto, substituir por:
+      // const response = await transacaoService.listarPaginado(nextPage, limit);
+      // setTransacoes(prev => [...prev, ...response.data]);
+      // setHasMore(response.hasMore);
+      // setPage(nextPage);
+      
+      // Simulação: busca todas e pagina
+      const todasTransacoes = usandoDadosMockados 
+        ? MOCK_TRANSACTIONS 
+        : await transacaoService.listar();
+      
+      const paginatedResponse = simularPaginacaoAPI(todasTransacoes, nextPage, limit);
+      
+      console.log(`✅ [LOAD MORE] ${paginatedResponse.data.length} transações carregadas (página ${nextPage}/${paginatedResponse.totalPages})`);
+      
+      setTransacoes(prev => [...prev, ...paginatedResponse.data]);
+      setHasMore(paginatedResponse.hasMore);
+      setPage(nextPage);
+    } catch (err: any) {
+      console.error('❌ [LOAD MORE] Erro:', err);
+      setError('Erro ao carregar mais transações');
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  /**
+   * Reseta a paginação e recarrega dados
+   * Útil após adicionar/editar/deletar transação
+   */
+  const resetarPaginacao = async () => {
+    console.log('🔄 [RESET] Resetando paginação...');
+    await carregarDados();
   };
 
   /**
@@ -158,17 +300,28 @@ export const useGerenciarTransacoes = () => {
     categorias,
     instituicoes,
     loading,
+    loadingMore,
     error,
     periodo,
     ordenacao,
+    filtros,
     usandoDadosMockados,
+    
+    // Estados de paginação
+    page,
+    limit,
+    totalTransacoes,
+    hasMore,
     
     // Modificadores
     setPeriodo,
     setOrdenacao,
+    setFiltros,
     
     // Ações
     carregarDados,
+    carregarMaisTransacoes,
+    resetarPaginacao,
     buscarPorPeriodo,
     buscarPorTipo,
     buscarCategoria,

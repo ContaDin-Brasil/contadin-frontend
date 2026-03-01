@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import COLORS from '../../../styles/colors';
 
 export const styles = StyleSheet.create({
   container: {
@@ -40,6 +41,10 @@ export const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
   },
+  clearSearchButton: {
+    padding: 4,
+    marginLeft: 8,
+  },
   filtersRow: {
     flexDirection: 'row',
     paddingHorizontal: 20,
@@ -68,11 +73,29 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 8,
     gap: 5,
+    position: 'relative',
   },
   filterButtonText: {
     fontSize: 14,
     color: '#333',
     fontWeight: '500',
+  },
+  filterBadge: {
+    position: 'absolute',
+    top: -6,
+    right: -6,
+    backgroundColor: COLORS.primary,
+    borderRadius: 10,
+    minWidth: 20,
+    height: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 6,
+  },
+  filterBadgeText: {
+    color: COLORS.white,
+    fontSize: 11,
+    fontWeight: 'bold',
   },
   transactionsList: {
     flex: 1,
@@ -89,14 +112,11 @@ export const styles = StyleSheet.create({
   },
   transactionItem: {
     backgroundColor: '#FFF',
+    borderColor: '#E0E0E0',
     padding: 15,
     borderRadius: 12,
     marginBottom: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 2,
+    borderWidth: 1,
   },
   transactionHeader: {
     flexDirection: 'row',
@@ -118,10 +138,39 @@ export const styles = StyleSheet.create({
     color: '#333',
     flex: 1,
   },
+  transactionHeaderRight: {
+    alignItems: 'flex-end',
+  },
   transactionDate: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '500',
-    color: '#333',
+    color: '#999',
+    marginBottom: 4,
+  },
+  transactionBadgesRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  transactionBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.primaryLight + '20',
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    borderRadius: 8,
+    gap: 3,
+  },
+  transactionBadgeText: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: COLORS.primary,
+  },
+  recurrenceBadge: {
+    backgroundColor: COLORS.success + '20',
+  },
+  recurrenceBadgeText: {
+    color: COLORS.success,
   },
   transactionBody: {
     flexDirection: 'row',
@@ -168,10 +217,10 @@ export const styles = StyleSheet.create({
     marginLeft: 12,
   },
   incomeAmount: {
-    color: '#00C853',
+    color: COLORS.success,
   },
   expenseAmount: {
-    color: '#E31C23',
+    color: COLORS.error,
   },
   floatingButton: {
     position: 'absolute',
@@ -180,10 +229,10 @@ export const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#0066FF',
+    backgroundColor: COLORS.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
+    shadowColor: COLORS.black,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -258,5 +307,78 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     color: '#FF9800',
     fontWeight: '500',
+  },
+  // Indicador de última atualização
+  lastUpdateContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+    marginBottom: 10,
+    gap: 5,
+  },
+  lastUpdateText: {
+    fontSize: 12,
+    color: '#999',
+    fontStyle: 'italic',
+  },
+  // Estado vazio (sem transações ou sem resultados de busca)
+  emptyState: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 60,
+    paddingHorizontal: 40,
+  },
+  emptyStateTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#666',
+    marginTop: 20,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  emptyStateSubtitle: {
+    fontSize: 14,
+    color: '#999',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  emptyStateButton: {
+    marginTop: 20,
+    backgroundColor: COLORS.primary,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+  },
+  emptyStateButtonText: {
+    color: '#FFF',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  // Loading footer para paginação
+  loadingMoreContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 30,
+    paddingBottom: 40,
+    gap: 10,
+  },
+  loadingMoreText: {
+    fontSize: 14,
+    color: '#999',
+  },
+  endOfListContainer: {
+    alignItems: 'center',
+    paddingVertical: 40,
+    paddingBottom: 60,
+    paddingHorizontal: 40,
+  },
+  endOfListText: {
+    fontSize: 13,
+    color: '#999',
+    textAlign: 'center',
   },
 });
