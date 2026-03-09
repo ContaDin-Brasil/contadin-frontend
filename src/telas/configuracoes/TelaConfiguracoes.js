@@ -1,18 +1,19 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
-import { Ionicons, Feather } from '@expo/vector-icons';
+import { View, Text, ScrollView, SafeAreaView } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import TituloPagina from '../../componentes/TituloPagina';
 import CustomButton from '../../componentes/BotaoCustomizado';
 import CustomModal from '../../componentes/modais/ModalBase';
+import { useAuth } from '../../contexts/AuthContext';
 import { styles } from './styles/TelaConfiguracoes.styles';
 
 const SettingsScreen = ({ navigation }) => {
   const [logoutModalVisible, setLogoutModalVisible] = useState(false);
+  const { logout } = useAuth();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setLogoutModalVisible(false);
-    // Implementar lógica de logout aqui
-    console.log('Usuário deslogado');
+    await logout();
   };
 
   return (
