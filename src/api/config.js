@@ -1,36 +1,38 @@
-import axios from 'axios';
-import { Platform } from 'react-native';
+import axios from "axios";
+import { Platform } from "react-native";
 
 /**
  * Configuração da URL base da API
- * 
- * Para desenvolvimento local com mock server:
- * - iOS Simulator: http://localhost:3001
- * - Android Emulator: http://10.0.2.2:3001
- * - Dispositivo físico: http://SEU_IP_LOCAL:3001
- * 
- * Para produção: substitua pela URL real da API
+ *
+ * Lê EXPO_PUBLIC_API_BASE_URL do .env (Ex.: http://192.168.15.13:3001).
+ * Se não estiver definida, usa fallback por plataforma em __DEV__.
+ *
+ * Para produção: defina EXPO_PUBLIC_API_BASE_URL ou a URL será https://api.seudominio.com
  */
 const getBaseURL = () => {
+  const fromEnv = process.env.EXPO_PUBLIC_API_BASE_URL?.trim();
+
+  if (fromEnv) {
+    console.log("🌐 API Base URL (env):", fromEnv);
+    console.log("📱 Plataforma:", Platform.OS);
+    return fromEnv;
+  }
+
   let baseURL;
-  
+
   if (__DEV__) {
-    // Ambiente de desenvolvimento (mock server)
-    // IMPORTANTE: Use o IP real da sua máquina ao invés de 10.0.2.2
-    // pois o Windows Firewall pode bloquear 10.0.2.2
-    if (Platform.OS === 'android') {
-      baseURL = 'http://192.168.15.35:3001'; // IP real da máquina Windows
+    if (Platform.OS === "android") {
+      baseURL = "http://10.0.2.2:3001";
     } else {
-      baseURL = 'http://localhost:3001';
+      baseURL = "http://localhost:3001";
     }
   } else {
-    // Ambiente de produção
-    baseURL = 'https://api.seudominio.com';
+    baseURL = "https://api.seudominio.com";
   }
-  
-  console.log('🌐 API Base URL:', baseURL);
-  console.log('📱 Plataforma:', Platform.OS);
-  
+
+  console.log("🌐 API Base URL:", baseURL);
+  console.log("📱 Plataforma:", Platform.OS);
+
   return baseURL;
 };
 
@@ -39,7 +41,7 @@ const api = axios.create({
   baseURL: getBaseURL(),
   timeout: 10000,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
@@ -61,7 +63,7 @@ api.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 // Interceptor para tratamento de erros
@@ -73,20 +75,20 @@ api.interceptors.response.use(
     // Tratamento de erros globais
     if (error.response) {
       // Erro da API (status code fora de 2xx)
-      console.error('❌ Erro da API:', error.response.data);
-      console.error('❌ Status:', error.response.status);
+      console.error("❌ Erro da API:", error.response.data);
+      console.error("❌ Status:", error.response.status);
     } else if (error.request) {
       // Erro de rede (sem resposta)
-      console.error('❌ Erro de rede - Sem resposta do servidor');
-      console.error('❌ URL tentada:', error.config?.baseURL + error.config?.url);
-      console.error('❌ Método:', error.config?.method);
-      console.error('❌ Mensagem:', error.message);
+      console.error("❌ Erro de rede - Sem resposta do servidor");
+      console.error("❌ URL tentada:", error.config?.baseURL + error.config?.url);
+      console.error("❌ Método:", error.config?.method);
+      console.error("❌ Mensagem:", error.message);
     } else {
       // Erro ao configurar a requisição
-      console.error('Erro:', error.message);
+      console.error("Erro:", error.message);
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 export default api;

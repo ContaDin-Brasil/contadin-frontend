@@ -4,11 +4,11 @@
     "slug": "ContaDIN",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/logos/contadin/Logo Contadin Default.svg",
+    "icon": "./assets/adaptive-icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/logos/contadin/Logo Contadin Default.svg",
+      "image": "./assets/adaptive-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#03408E"
     },
