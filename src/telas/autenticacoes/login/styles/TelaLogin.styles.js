@@ -26,8 +26,22 @@ export const styles = StyleSheet.create({
     borderRadius: 8,
     fontSize: 16,
   },
+  inputRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    position: "relative",
+  },
+  inputComIcone: {
+    flex: 1,
+    paddingRight: 48,
+  },
+  eyeButton: {
+    position: "absolute",
+    right: 12,
+    padding: 8,
+  },
   saveButton: {
-    backgroundColor: "#6BA7FF",
+    backgroundColor: "#2D85F8",
     paddingVertical: 16,
     borderRadius: 12,
     flexDirection: "row",
@@ -37,7 +51,7 @@ export const styles = StyleSheet.create({
     marginTop: 24,
   },
   saveButtonText: {
-    color: "#000",
+    color: "#FFF",
     fontSize: 18,
     fontWeight: "600",
   },
@@ -61,11 +75,22 @@ export const styles = StyleSheet.create({
     color: "#666",
     marginBottom: 12,
   },
-  iconeGoogle: {
-    width: 48,
-    height: 48,
-    justifyContent: "center",
+  botaoGoogle: {
+    flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#FFF",
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
+    gap: 10,
+  },
+  botaoGoogleText: {
+    fontSize: 16,
+    color: "#333",
+    fontWeight: "600",
   },
   linkCadastro: {
     marginTop: 32,

@@ -12,17 +12,9 @@ export const styles = StyleSheet.create({
   logoArea: {
     width: 160,
     height: 160,
-    backgroundColor: "#E0E0E0",
-    borderRadius: 16,
     marginBottom: 12,
     justifyContent: "center",
     alignItems: "center",
-  },
-  logoPlaceholder: {
-    fontSize: 14,
-    color: "#666",
-    textAlign: "center",
-    paddingHorizontal: 12,
   },
   botoesContainer: {
     width: "100%",
@@ -31,7 +23,7 @@ export const styles = StyleSheet.create({
     gap: 12,
   },
   botaoPrimario: {
-    backgroundColor: "#6BA7FF",
+    backgroundColor: "#2D85F8",
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: "center",
@@ -45,7 +37,7 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
   },
   botaoPrimarioText: {
-    color: "#000",
+    color: "#FFF",
     fontSize: 18,
     fontWeight: "600",
   },
@@ -64,10 +56,26 @@ export const styles = StyleSheet.create({
     marginTop: 48,
     alignItems: "center",
   },
-  iconeGoogle: {
-    width: 48,
-    height: 48,
-    justifyContent: "center",
+  ouConecte: {
+    fontSize: 14,
+    color: "#666",
+    marginBottom: 12,
+  },
+  botaoGoogle: {
+    flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#FFF",
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
+    gap: 10,
+  },
+  botaoGoogleText: {
+    fontSize: 16,
+    color: "#333",
+    fontWeight: "600",
   },
 });

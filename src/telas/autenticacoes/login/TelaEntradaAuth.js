@@ -1,13 +1,14 @@
 import React from "react";
 import { View, Text, TouchableOpacity, SafeAreaView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import Logo from "@assets/logos/contadin/LogoContadinDefault.svg";
 import { styles } from "./styles/TelaEntradaAuth.styles";
 
 function TelaEntradaAuth({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.logoArea}>
-        <Text style={styles.logoPlaceholder}>Lorem ipsum</Text>
+        <Logo width={160} height={160} />
       </View>
 
       <View style={styles.botoesContainer}>
@@ -35,8 +36,10 @@ function TelaEntradaAuth({ navigation }) {
       </TouchableOpacity>
 
       <View style={styles.areaGoogle}>
-        <TouchableOpacity style={styles.iconeGoogle} activeOpacity={0.8}>
-          <Ionicons name="logo-google" size={40} color="#333" />
+        <Text style={styles.ouConecte}>Ou conecte-se com</Text>
+        <TouchableOpacity style={styles.botaoGoogle} activeOpacity={0.8}>
+          <Ionicons name="logo-google" size={24} color="#333" />
+          <Text style={styles.botaoGoogleText}>Google</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

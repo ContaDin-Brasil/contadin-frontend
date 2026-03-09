@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -14,6 +14,7 @@ import { styles } from "./styles/TelaLogin.styles";
 
 function TelaLogin({ navigation }) {
   const login = useLogin();
+  const [mostrarSenha, setMostrarSenha] = useState(false);
 
   const onLogin = async () => {
     const result = await login.handleLogin();
@@ -48,21 +49,33 @@ function TelaLogin({ navigation }) {
           />
 
           <Text style={styles.label}>Senha</Text>
-          <TextInput
-            style={styles.input}
-            value={login.senha}
-            onChangeText={login.setSenha}
-            secureTextEntry
-            placeholder=""
-            editable={!login.loading}
-          />
+          <View style={styles.inputRow}>
+            <TextInput
+              style={[styles.input, styles.inputComIcone]}
+              value={login.senha}
+              onChangeText={login.setSenha}
+              secureTextEntry={!mostrarSenha}
+              placeholder=""
+              editable={!login.loading}
+            />
+            <TouchableOpacity
+              style={styles.eyeButton}
+              onPress={() => setMostrarSenha((prev) => !prev)}
+              activeOpacity={0.7}
+            >
+              <Ionicons
+                name={mostrarSenha ? "eye-off-outline" : "eye-outline"}
+                size={22}
+                color="#666"
+              />
+            </TouchableOpacity>
+          </View>
 
           <TouchableOpacity
             style={styles.saveButton}
             onPress={onLogin}
             disabled={login.loading}
           >
-            <Ionicons name="log-in-outline" size={24} color="#000" />
             <Text style={styles.saveButtonText}>
               {login.loading ? "Entrando..." : "Login"}
             </Text>
@@ -81,9 +94,10 @@ function TelaLogin({ navigation }) {
         </View>
 
         <View style={styles.areaGoogle}>
-          <Text style={styles.ouConecte}>Ou conecte-se:</Text>
-          <TouchableOpacity style={styles.iconeGoogle} activeOpacity={0.8}>
-            <Ionicons name="logo-google" size={40} color="#333" />
+          <Text style={styles.ouConecte}>Ou conecte-se com</Text>
+          <TouchableOpacity style={styles.botaoGoogle} activeOpacity={0.8}>
+            <Ionicons name="logo-google" size={24} color="#333" />
+            <Text style={styles.botaoGoogleText}>Google</Text>
           </TouchableOpacity>
         </View>
 
