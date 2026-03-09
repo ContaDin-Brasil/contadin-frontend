@@ -43,7 +43,7 @@ export const styles = StyleSheet.create({
     lineHeight: 20,
   },
   saveButton: {
-    backgroundColor: "#6BA7FF",
+    backgroundColor: "#2D85F8",
     paddingVertical: 16,
     borderRadius: 12,
     flexDirection: "row",
@@ -53,7 +53,7 @@ export const styles = StyleSheet.create({
     marginTop: 24,
   },
   saveButtonText: {
-    color: "#000",
+    color: "#FFF",
     fontSize: 18,
     fontWeight: "600",
   },

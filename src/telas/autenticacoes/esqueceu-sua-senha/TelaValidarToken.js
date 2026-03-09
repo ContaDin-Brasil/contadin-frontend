@@ -8,7 +8,7 @@ import {
   SafeAreaView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import TituloPagina from "../../componentes/TituloPagina";
+import TituloPagina from "../../../componentes/TituloPagina";
 import { useValidarToken } from "./hooks/useValidarToken";
 import { styles } from "./styles/TelaValidarToken.styles";
 
@@ -94,7 +94,7 @@ function TelaValidarToken({ navigation, route }) {
             onPress={onValidar}
             disabled={validar.loading}
           >
-            <Ionicons name="checkmark-circle-outline" size={24} color="#000" />
+            <Ionicons name="checkmark-circle-outline" size={24} color="#FFF" />
             <Text style={styles.saveButtonText}>Validar Código</Text>
           </TouchableOpacity>
           {validar.error ? (

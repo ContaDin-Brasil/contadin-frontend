@@ -8,7 +8,7 @@ import {
   SafeAreaView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import TituloPagina from "../../componentes/TituloPagina";
+import TituloPagina from "../../../componentes/TituloPagina";
 import { useEsqueceuSenha } from "./hooks/useEsqueceuSenha";
 import { styles } from "./styles/TelaSolicitarEmail.styles";
 
@@ -52,7 +52,7 @@ function TelaSolicitarEmail({ navigation }) {
             onPress={onEnviarCodigo}
             disabled={esqueceu.loading}
           >
-            <Ionicons name="mail-outline" size={24} color="#000" />
+            <Ionicons name="mail-outline" size={24} color="#FFF" />
             <Text style={styles.saveButtonText}>
               {esqueceu.loading ? "Enviando..." : "Enviar Código"}
             </Text>

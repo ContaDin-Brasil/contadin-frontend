@@ -8,7 +8,7 @@ import {
   SafeAreaView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import TituloPagina from "../../componentes/TituloPagina";
+import TituloPagina from "../../../componentes/TituloPagina";
 import { useNovaSenha } from "./hooks/useNovaSenha";
 import { REQUISITOS_SENHA } from "../../configuracoes/constants/constantesConfiguracao";
 import { styles } from "./styles/TelaNovaSenha.styles";
@@ -64,7 +64,7 @@ function TelaNovaSenha({ navigation, route }) {
             onPress={onAtualizar}
             disabled={novaSenha.loading}
           >
-            <Ionicons name="key-outline" size={24} color="#000" />
+            <Ionicons name="key-outline" size={24} color="#FFF" />
             <Text style={styles.saveButtonText}>
               {novaSenha.loading ? "Atualizando..." : "Atualizar Senha"}
             </Text>

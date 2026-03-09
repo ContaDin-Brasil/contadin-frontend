@@ -18,7 +18,7 @@ function TelaSenhaAtualizadaSucesso({ navigation }) {
           onPress={() => navigation.replace("Login")}
           activeOpacity={0.8}
         >
-          <Ionicons name="log-in-outline" size={24} color="#000" />
+          <Ionicons name="log-in-outline" size={24} color="#FFF" />
           <Text style={styles.saveButtonText}>Efetuar Login</Text>
         </TouchableOpacity>
       </View>

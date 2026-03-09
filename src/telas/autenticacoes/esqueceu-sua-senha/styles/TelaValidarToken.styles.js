@@ -48,7 +48,7 @@ export const styles = StyleSheet.create({
     color: "#999",
   },
   saveButton: {
-    backgroundColor: "#6BA7FF",
+    backgroundColor: "#2D85F8",
     paddingVertical: 16,
     borderRadius: 12,
     flexDirection: "row",
@@ -57,7 +57,7 @@ export const styles = StyleSheet.create({
     gap: 10,
   },
   saveButtonText: {
-    color: "#000",
+    color: "#FFF",
     fontSize: 18,
     fontWeight: "600",
   },

@@ -30,7 +30,7 @@ export const styles = StyleSheet.create({
     marginBottom: 32,
   },
   saveButton: {
-    backgroundColor: "#6BA7FF",
+    backgroundColor: "#2D85F8",
     paddingVertical: 16,
     paddingHorizontal: 32,
     borderRadius: 12,
@@ -42,7 +42,7 @@ export const styles = StyleSheet.create({
     maxWidth: 280,
   },
   saveButtonText: {
-    color: "#000",
+    color: "#FFF",
     fontSize: 18,
     fontWeight: "600",
   },
