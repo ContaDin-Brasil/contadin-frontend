@@ -6,22 +6,7 @@
  */
 import { useState } from "react";
 import { authService } from "../../../../api";
-import { REQUISITOS_SENHA } from "../../../configuracoes/constants/constantesConfiguracao";
-
-const SENHA_NUMERO = /\d/;
-const SENHA_ESPECIAL = /[!@$%&]/;
-const SEQUENCIA_NUM =
-  /(123|234|345|456|567|678|789|321|432|543|654|765|876|987)/;
-const TRES_IGUAIS = /(\d)\1{2}/;
-
-function validarSenha(senha: string): string | null {
-  if (senha.length < 8) return REQUISITOS_SENHA[0];
-  if (!SENHA_NUMERO.test(senha)) return REQUISITOS_SENHA[1];
-  if (!SENHA_ESPECIAL.test(senha)) return REQUISITOS_SENHA[2];
-  if (SEQUENCIA_NUM.test(senha)) return REQUISITOS_SENHA[3];
-  if (TRES_IGUAIS.test(senha)) return REQUISITOS_SENHA[4];
-  return null;
-}
+import { validarSenha } from "../../../configuracoes/constants/constantesConfiguracao";
 
 export interface UseNovaSenhaResult {
   senha: string;

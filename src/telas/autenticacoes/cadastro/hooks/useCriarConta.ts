@@ -1,20 +1,15 @@
 /**
  * Hook para a tela "Crie sua conta" (Frame 55).
- * Estado: email, senha, confirmarSenha; validação (email, REQUISITOS_SENHA, senhas iguais).
+ * Estado: email, senha, confirmarSenha; validação (email, senha mínimo 8 caracteres, senhas iguais).
  * handleCadastrar: usuarioService.criar -> authService.login -> navega para TelaBemVindo com { token, user }.
  * loginWithToken só é chamado ao final do fluxo (TelaCadastroSucesso).
  */
 import { useState } from "react";
 import { usuarioService, authService } from "../../../../api";
 import { setAuthToken } from "../../../../api/config";
-import { REQUISITOS_SENHA } from "../../../configuracoes/constants/constantesConfiguracao";
+import { validarSenha } from "../../../configuracoes/constants/constantesConfiguracao";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const SENHA_NUMERO = /\d/;
-const SENHA_ESPECIAL = /[!@$%&]/;
-const SEQUENCIA_NUM =
-  /(123|234|345|456|567|678|789|321|432|543|654|765|876|987)/;
-const TRES_IGUAIS = /(\d)\1{2}/;
 
 export interface UseCriarContaResult {
   email: string;
@@ -30,15 +25,6 @@ export interface UseCriarContaResult {
   handleCadastrar: (navigation: {
     replace: (route: string, params?: object) => void;
   }) => Promise<boolean>;
-}
-
-function validarSenha(senha: string): string | null {
-  if (senha.length < 8) return REQUISITOS_SENHA[0];
-  if (!SENHA_NUMERO.test(senha)) return REQUISITOS_SENHA[1];
-  if (!SENHA_ESPECIAL.test(senha)) return REQUISITOS_SENHA[2];
-  if (SEQUENCIA_NUM.test(senha)) return REQUISITOS_SENHA[3];
-  if (TRES_IGUAIS.test(senha)) return REQUISITOS_SENHA[4];
-  return null;
 }
 
 export function useCriarConta(): UseCriarContaResult {

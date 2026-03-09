@@ -6,8 +6,9 @@ import {
   ScrollView,
   Image,
   SafeAreaView,
+  Modal,
+  Pressable,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import TituloPagina from "../../../componentes/TituloPagina";
 import { useSelecaoBancos } from "./hooks/useSelecaoBancos";
 import { getLogoByName } from "../../../componentes/modais/logosInstituicoes";
@@ -19,7 +20,7 @@ function TelaSelecaoBancos({ navigation, route }) {
     user && typeof user === "object" && "id" in user ? user.id : null;
   const sel = useSelecaoBancos(userId);
 
-  const onContinuar = async () => {
+  const onSelecionar = async () => {
     await sel.handleContinuar(navigation, token, user);
   };
 
@@ -29,28 +30,31 @@ function TelaSelecaoBancos({ navigation, route }) {
     return (
       <TouchableOpacity
         key={banco.id}
-        style={styles.bankItem}
+        style={[
+          styles.bankCard,
+          { borderColor: banco.cor },
+          selected && styles.bankCardSelected,
+        ]}
         onPress={() => sel.toggleSelecao(banco.id)}
         activeOpacity={0.7}
       >
         <View
           style={[
-            styles.bankIconWrapper,
+            styles.bankCardIcon,
             { backgroundColor: logo ? "#FFF" : banco.cor },
-            selected && styles.bankIconWrapperSelected,
           ]}
         >
           {logo ? (
             <Image
               source={logo}
-              style={{ width: 36, height: 36 }}
+              style={styles.bankLogo}
               resizeMode="contain"
             />
           ) : (
             <Text style={styles.bankIconText}>{banco.icone}</Text>
           )}
         </View>
-        <Text style={styles.bankName} numberOfLines={2}>
+        <Text style={styles.bankName} numberOfLines={1}>
           {banco.nome}
         </Text>
       </TouchableOpacity>
@@ -65,39 +69,59 @@ function TelaSelecaoBancos({ navigation, route }) {
       >
         Quais Bancos você utiliza no seu dia a dia?
       </TituloPagina>
-      <ScrollView contentContainerStyle={styles.contentContainer}>
-        <Text style={styles.instrucao}>Selecione uma instituição</Text>
-        <View style={styles.grid}>{sel.bancos.map(renderBanco)}</View>
 
-        <TouchableOpacity
-          style={styles.linkAdicionar}
-          onPress={() =>
-            navigation.navigate("CadastroInstituicao", {
-              token: route.params?.token,
-              user: route.params?.user,
-            })
-          }
-          activeOpacity={0.8}
-        >
-          <Text style={styles.linkAdicionarText}>
-            Seu banco não está na lista? Adicionar
-          </Text>
-        </TouchableOpacity>
+      <Modal
+        visible={true}
+        transparent={true}
+        animationType="slide"
+      >
+        <Pressable style={styles.overlay}>
+          <Pressable
+            style={styles.modalContainer}
+            onPress={(e) => e.stopPropagation()}
+          >
+            <ScrollView
+              style={styles.modalContent}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.modalScrollContent}
+            >
+              <Text style={styles.modalTitle}>Selecione uma Instituição:</Text>
 
-        <TouchableOpacity
-          style={styles.saveButton}
-          onPress={onContinuar}
-          disabled={sel.loading}
-        >
-          <Text style={styles.saveButtonText}>
-            {sel.loading ? "Salvando..." : "Continuar"}
-          </Text>
-        </TouchableOpacity>
+              <View style={styles.grid}>{sel.bancos.map(renderBanco)}</View>
 
-        {sel.error ? (
-          <Text style={styles.mensagemErro}>{sel.error}</Text>
-        ) : null}
-      </ScrollView>
+              <TouchableOpacity
+                style={styles.linkAdicionar}
+                onPress={() =>
+                  navigation.navigate("CadastroInstituicao", {
+                    token: route.params?.token,
+                    user: route.params?.user,
+                  })
+                }
+                activeOpacity={0.8}
+              >
+                <Text style={styles.linkAdicionarText}>
+                  Seu banco não está na lista?{" "}
+                  <Text style={styles.linkAdicionarBold}>Adicionar</Text>
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.selecionarButton}
+                onPress={onSelecionar}
+                disabled={sel.loading}
+              >
+                <Text style={styles.selecionarButtonText}>
+                  {sel.loading ? "Salvando..." : "Selecionar"}
+                </Text>
+              </TouchableOpacity>
+
+              {sel.error ? (
+                <Text style={styles.mensagemErro}>{sel.error}</Text>
+              ) : null}
+            </ScrollView>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 }

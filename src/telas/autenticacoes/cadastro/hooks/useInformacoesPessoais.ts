@@ -6,6 +6,7 @@
  */
 import { useState } from "react";
 import { usuarioService } from "../../../../api";
+import { apenasDigitosTelefone } from "../../../../utils/mascaraTelefone";
 
 export interface UseInformacoesPessoaisResult {
   nome: string;
@@ -48,7 +49,7 @@ export function useInformacoesPessoais(
       await usuarioService.atualizarParcial(userId, {
         nome: nome.trim(),
         sobrenome: sobrenome.trim(),
-        tel: telefone.trim(),
+        tel: apenasDigitosTelefone(telefone),
       });
       setLoading(false);
       navigation.navigate("SelecaoBancos", { token, user });

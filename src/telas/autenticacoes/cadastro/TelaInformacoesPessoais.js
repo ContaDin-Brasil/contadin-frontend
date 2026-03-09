@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import TituloPagina from "../../../componentes/TituloPagina";
 import { useInformacoesPessoais } from "./hooks/useInformacoesPessoais";
+import { formatarTelefone } from "../../../utils/mascaraTelefone";
 import { styles } from "./styles/TelaInformacoesPessoais.styles";
 
 function TelaInformacoesPessoais({ navigation, route }) {
@@ -53,8 +54,8 @@ function TelaInformacoesPessoais({ navigation, route }) {
           <TextInput
             style={styles.input}
             value={info.telefone}
-            onChangeText={info.setTelefone}
-            placeholder=""
+            onChangeText={(t) => info.setTelefone(formatarTelefone(t))}
+            placeholder="(11) 93843-3432"
             keyboardType="phone-pad"
             editable={!info.loading}
           />

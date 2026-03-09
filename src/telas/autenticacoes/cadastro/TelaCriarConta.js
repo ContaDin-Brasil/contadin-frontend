@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useMemo } from "react";
 import {
   View,
   Text,
@@ -11,10 +11,40 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import TituloPagina from "../../../componentes/TituloPagina";
 import { useCriarConta } from "./hooks/useCriarConta";
+import { REQUISITOS_SENHA } from "../../configuracoes/constants/constantesConfiguracao";
 import { styles } from "./styles/TelaCriarConta.styles";
+
+const VALIDACOES_SENHA = [
+  { msg: REQUISITOS_SENHA[0], testar: (s) => s.length >= 8 },
+  { msg: REQUISITOS_SENHA[1], testar: (s) => /\d/.test(s) },
+  { msg: REQUISITOS_SENHA[2], testar: (s) => /[!@$%&_]/.test(s) },
+  {
+    msg: REQUISITOS_SENHA[3],
+    testar: (s) =>
+      !/(123|234|345|456|567|678|789|321|432|543|654|765|876|987)/.test(s),
+  },
+  { msg: REQUISITOS_SENHA[4], testar: (s) => !/(\d)\1{2}/.test(s) },
+];
 
 function TelaCriarConta({ navigation }) {
   const criar = useCriarConta();
+  const [showSenha, setShowSenha] = useState(false);
+  const [showConfirmarSenha, setShowConfirmarSenha] = useState(false);
+  const [tooltipVisivel, setTooltipVisivel] = useState(false);
+  const [senhaTocada, setSenhaTocada] = useState(false);
+
+  const resultadosValidacao = useMemo(
+    () =>
+      VALIDACOES_SENHA.map((v) => ({
+        msg: v.msg,
+        valido: v.testar(criar.senha),
+      })),
+    [criar.senha],
+  );
+
+  const todasValidas = resultadosValidacao.every((r) => r.valido);
+  const senhasConferem =
+    criar.senha.length > 0 && criar.senha === criar.confirmarSenha;
 
   const onCadastrar = async () => {
     await criar.handleCadastrar(navigation);
@@ -42,31 +72,119 @@ function TelaCriarConta({ navigation }) {
             editable={!criar.loading}
           />
 
-          <Text style={styles.label}>Senha</Text>
-          <TextInput
-            style={styles.input}
-            value={criar.senha}
-            onChangeText={criar.setSenha}
-            secureTextEntry
-            placeholder=""
-            editable={!criar.loading}
-          />
+          <View style={styles.labelRow}>
+            <Text style={styles.labelInline}>Senha</Text>
+            <TouchableOpacity
+              onPress={() => setTooltipVisivel((v) => !v)}
+              activeOpacity={0.7}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <Ionicons
+                name="information-circle-outline"
+                size={20}
+                color={tooltipVisivel ? "#2D85F8" : "#999"}
+              />
+            </TouchableOpacity>
+          </View>
+
+          {tooltipVisivel && (
+            <View style={styles.tooltip}>
+              <View style={styles.tooltipSeta} />
+              <Text style={styles.tooltipTitulo}>Requisitos da senha:</Text>
+              {REQUISITOS_SENHA.map((req, i) => (
+                <Text key={i} style={styles.tooltipTexto}>
+                  • {req}
+                </Text>
+              ))}
+            </View>
+          )}
+
+          <View style={styles.inputRow}>
+            <TextInput
+              style={[styles.input, styles.inputComIcone]}
+              value={criar.senha}
+              onChangeText={criar.setSenha}
+              secureTextEntry={!showSenha}
+              placeholder=""
+              editable={!criar.loading}
+              onBlur={() => setSenhaTocada(true)}
+            />
+            <TouchableOpacity
+              style={styles.eyeButton}
+              onPress={() => setShowSenha((s) => !s)}
+              activeOpacity={0.7}
+            >
+              <Ionicons
+                name={showSenha ? "eye-off-outline" : "eye-outline"}
+                size={22}
+                color="#666"
+              />
+            </TouchableOpacity>
+          </View>
+
+          {senhaTocada && criar.senha.length > 0 && !todasValidas && (
+            <View style={styles.validacaoContainer}>
+              {resultadosValidacao.map((r, i) => (
+                <View key={i} style={styles.validacaoItem}>
+                  <Ionicons
+                    name={r.valido ? "checkmark-circle" : "close-circle"}
+                    size={16}
+                    color={r.valido ? "#21C25E" : "#E53935"}
+                  />
+                  <Text
+                    style={[
+                      styles.validacaoTexto,
+                      r.valido
+                        ? styles.validacaoTextoOk
+                        : styles.validacaoTextoErro,
+                    ]}
+                  >
+                    {r.msg}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          )}
 
           <Text style={styles.label}>Confirmar Senha</Text>
-          <TextInput
-            style={styles.input}
-            value={criar.confirmarSenha}
-            onChangeText={criar.setConfirmarSenha}
-            secureTextEntry
-            placeholder=""
-            editable={!criar.loading}
-          />
+          <View style={styles.inputRow}>
+            <TextInput
+              style={[styles.input, styles.inputComIcone]}
+              value={criar.confirmarSenha}
+              onChangeText={criar.setConfirmarSenha}
+              secureTextEntry={!showConfirmarSenha}
+              placeholder=""
+              editable={!criar.loading}
+            />
+            <TouchableOpacity
+              style={styles.eyeButton}
+              onPress={() => setShowConfirmarSenha((s) => !s)}
+              activeOpacity={0.7}
+            >
+              <Ionicons
+                name={showConfirmarSenha ? "eye-off-outline" : "eye-outline"}
+                size={22}
+                color="#666"
+              />
+            </TouchableOpacity>
+          </View>
+
+          {senhaTocada &&
+            criar.confirmarSenha.length > 0 &&
+            !senhasConferem && (
+              <View style={styles.validacaoItem}>
+                <Ionicons name="close-circle" size={16} color="#E53935" />
+                <Text style={styles.validacaoTextoErro}>
+                  As senhas não coincidem.
+                </Text>
+              </View>
+            )}
 
           <View style={styles.termosContainer}>
             <Switch
               value={criar.aceiteTermos}
               onValueChange={criar.setAceiteTermos}
-              trackColor={{ false: "#D3D3D3", true: "#6BA7FF" }}
+              trackColor={{ false: "#D3D3D3", true: "#2D85F8" }}
               thumbColor={criar.aceiteTermos ? "#FFF" : "#f4f3f4"}
             />
             <Text style={styles.termosTexto}>

@@ -26,6 +26,82 @@ export const styles = StyleSheet.create({
     borderRadius: 8,
     fontSize: 16,
   },
+  inputRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    position: "relative",
+  },
+  inputComIcone: {
+    flex: 1,
+    paddingRight: 48,
+  },
+  eyeButton: {
+    position: "absolute",
+    right: 12,
+    padding: 8,
+  },
+  labelInline: {
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#333",
+  },
+  labelRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  tooltip: {
+    backgroundColor: "#333",
+    borderRadius: 10,
+    padding: 14,
+    marginBottom: 10,
+  },
+  tooltipSeta: {
+    position: "absolute",
+    top: -6,
+    left: 60,
+    width: 12,
+    height: 12,
+    backgroundColor: "#333",
+    transform: [{ rotate: "45deg" }],
+    borderRadius: 2,
+  },
+  tooltipTitulo: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#FFF",
+    marginBottom: 8,
+  },
+  tooltipTexto: {
+    fontSize: 12,
+    color: "#DDD",
+    lineHeight: 18,
+    marginBottom: 2,
+  },
+  validacaoContainer: {
+    marginTop: 10,
+    marginBottom: 4,
+    gap: 4,
+  },
+  validacaoItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginTop: 2,
+  },
+  validacaoTexto: {
+    fontSize: 13,
+    lineHeight: 18,
+  },
+  validacaoTextoOk: {
+    color: "#21C25E",
+  },
+  validacaoTextoErro: {
+    color: "#E53935",
+    fontSize: 13,
+  },
   termosContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -42,7 +118,7 @@ export const styles = StyleSheet.create({
     textDecorationLine: "underline",
   },
   saveButton: {
-    backgroundColor: "#6BA7FF",
+    backgroundColor: "#2D85F8",
     paddingVertical: 16,
     borderRadius: 12,
     flexDirection: "row",
@@ -52,7 +128,7 @@ export const styles = StyleSheet.create({
     marginTop: 24,
   },
   saveButtonText: {
-    color: "#000",
+    color: "#FFF",
     fontSize: 18,
     fontWeight: "600",
   },

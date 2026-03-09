@@ -30,7 +30,7 @@ export const styles = StyleSheet.create({
     marginBottom: 32,
   },
   botao: {
-    backgroundColor: "#6BA7FF",
+    backgroundColor: "#2D85F8",
     paddingVertical: 16,
     paddingHorizontal: 32,
     borderRadius: 12,
@@ -39,7 +39,7 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
   },
   botaoText: {
-    color: "#000",
+    color: "#FFF",
     fontSize: 18,
     fontWeight: "600",
   },
