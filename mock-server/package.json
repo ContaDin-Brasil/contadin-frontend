@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Servidor de simulação de banco de dados para testes locais",
   "scripts": {
-    "start": "json-server --watch db.json --port 3001",
+    "start": "node server.js",
     "start:delay": "json-server --watch db.json --port 3001 --delay 500",
     "start:host": "json-server --watch db.json --port 3001 --host 0.0.0.0",
     "limpar-orfaos": "node limpar-orfaos.js",
@@ -11,14 +11,11 @@
     "gerar:stats": "node utils/gerar-transacoes.js stats",
     "gerar:limpar": "node utils/gerar-transacoes.js limpar"
   },
-  "keywords": [
-    "json-server",
-    "mock",
-    "api"
-  ],
+  "keywords": ["json-server", "mock", "api"],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.20.2",
     "json-server": "^0.17.4"
   }
 }
