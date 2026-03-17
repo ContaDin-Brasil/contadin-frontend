@@ -1,4 +1,8 @@
-import axios from "axios";
+import axios, {
+  AxiosError,
+  AxiosInstance,
+  InternalAxiosRequestConfig,
+} from "axios";
 import { Platform } from "react-native";
 
 /**
@@ -9,7 +13,7 @@ import { Platform } from "react-native";
  *
  * Para produção: defina EXPO_PUBLIC_API_BASE_URL ou a URL será https://api.seudominio.com
  */
-const getBaseURL = () => {
+const getBaseURL = (): string => {
   const fromEnv = process.env.EXPO_PUBLIC_API_BASE_URL?.trim();
 
   if (fromEnv) {
@@ -18,7 +22,7 @@ const getBaseURL = () => {
     return fromEnv;
   }
 
-  let baseURL;
+  let baseURL: string;
 
   if (__DEV__) {
     if (Platform.OS === "android") {
@@ -37,7 +41,7 @@ const getBaseURL = () => {
 };
 
 // Instância do axios configurada
-const api = axios.create({
+const api: AxiosInstance = axios.create({
   baseURL: getBaseURL(),
   timeout: 10000,
   headers: {
@@ -47,21 +51,21 @@ const api = axios.create({
 
 // Token em memória (atualizado no login/logout e na inicialização do AuthContext)
 // O interceptor do axios é síncrono, então não podemos ler AsyncStorage aqui.
-let authTokenInMemory = null;
+let authTokenInMemory: string | null = null;
 
-export const setAuthToken = (token) => {
+export const setAuthToken = (token: string | null): void => {
   authTokenInMemory = token;
 };
 
 api.interceptors.request.use(
-  (config) => {
+  (config: InternalAxiosRequestConfig) => {
     console.log(`➡️  ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`);
     if (authTokenInMemory) {
       config.headers.Authorization = `Bearer ${authTokenInMemory}`;
     }
     return config;
   },
-  (error) => {
+  (error: AxiosError) => {
     return Promise.reject(error);
   },
 );
@@ -71,7 +75,7 @@ api.interceptors.response.use(
   (response) => {
     return response;
   },
-  (error) => {
+  (error: AxiosError<any>) => {
     // Tratamento de erros globais
     if (error.response) {
       // Erro da API (status code fora de 2xx)

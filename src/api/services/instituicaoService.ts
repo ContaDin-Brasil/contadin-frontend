@@ -1,4 +1,11 @@
 import api from '../config';
+import type {
+  InstituicaoApi,
+  InstituicaoComTransacoes,
+  InstituicaoPayload,
+  ResultadoLimpezaOrfaos,
+  TransacaoApi,
+} from '../types';
 
 /**
  * Serviço de Instituições
@@ -8,8 +15,8 @@ const instituicaoService = {
   /**
    * Busca todas as instituições
    */
-  listar: async () => {
-    const response = await api.get('/instituicao');
+  listar: async (): Promise<InstituicaoApi[]> => {
+    const response = await api.get<InstituicaoApi[]>('/instituicao');
     return response.data;
   },
 
@@ -17,8 +24,8 @@ const instituicaoService = {
    * Busca instituições por usuário
    * @param {number} usuarioId - ID do usuário
    */
-  listarPorUsuario: async (usuarioId) => {
-    const response = await api.get('/instituicao', { 
+  listarPorUsuario: async (usuarioId: number): Promise<InstituicaoApi[]> => {
+    const response = await api.get<InstituicaoApi[]>('/instituicao', {
       params: { fk_usuario: usuarioId } 
     });
     return response.data;
@@ -28,8 +35,8 @@ const instituicaoService = {
    * Busca uma instituição por ID
    * @param {number} id - ID da instituição
    */
-  buscarPorId: async (id) => {
-    const response = await api.get(`/instituicao/${id}`);
+  buscarPorId: async (id: number): Promise<InstituicaoApi> => {
+    const response = await api.get<InstituicaoApi>(`/instituicao/${id}`);
     return response.data;
   },
 
@@ -37,8 +44,8 @@ const instituicaoService = {
    * Cria uma nova instituição
    * @param {object} instituicao - Dados da instituição
    */
-  criar: async (instituicao) => {
-    const response = await api.post('/instituicao', instituicao);
+  criar: async (instituicao: InstituicaoPayload): Promise<InstituicaoApi> => {
+    const response = await api.post<InstituicaoApi>('/instituicao', instituicao);
     return response.data;
   },
 
@@ -47,8 +54,8 @@ const instituicaoService = {
    * @param {number} id - ID da instituição
    * @param {object} instituicao - Dados atualizados
    */
-  atualizar: async (id, instituicao) => {
-    const response = await api.put(`/instituicao/${id}`, instituicao);
+  atualizar: async (id: number, instituicao: InstituicaoPayload): Promise<InstituicaoApi> => {
+    const response = await api.put<InstituicaoApi>(`/instituicao/${id}`, instituicao);
     return response.data;
   },
 
@@ -56,14 +63,14 @@ const instituicaoService = {
    * Deleta uma instituição e TODAS as transações relacionadas
    * @param {number} id - ID da instituição
    */
-  deletar: async (id) => {
+  deletar: async (id: number): Promise<InstituicaoApi> => {
     console.log(`\n${'='.repeat(60)}`);
     console.log(`🗑️  [DELETE CASCADE] Deletando instituição ID: ${id}`);
     console.log('='.repeat(60));
     
     try {
       // 1. Buscar todas as transações dessa instituição
-      const transacoesResponse = await api.get('/transacao', { 
+      const transacoesResponse = await api.get<TransacaoApi[]>('/transacao', {
         params: { fk_instituicao: id } 
       });
       const transacoes = transacoesResponse.data;
@@ -94,28 +101,28 @@ const instituicaoService = {
    * Remove transações órfãs (referenciando instituições que não existem mais)
    * @param {number} usuarioId - ID do usuário
    */
-  limparTransacoesOrfas: async (usuarioId) => {
+  limparTransacoesOrfas: async (usuarioId: number): Promise<ResultadoLimpezaOrfaos> => {
     console.log(`\n${'='.repeat(60)}`);
     console.log('🧹 [CLEANUP] Limpando transações órfãs');
     console.log('='.repeat(60));
     
     try {
       // 1. Buscar todas as instituições do usuário
-      const instituicoesResponse = await api.get('/instituicao', { 
+      const instituicoesResponse = await api.get<InstituicaoApi[]>('/instituicao', {
         params: { fk_usuario: usuarioId } 
       });
       const instituicoes = instituicoesResponse.data;
-      const idsValidos = instituicoes.map(inst => inst.id);
+      const idsValidos = instituicoes.map((inst) => inst.id);
       
       console.log(`🏦 IDs de instituições válidas: [${idsValidos.join(', ')}]`);
       
       // 2. Buscar todas as transações
-      const transacoesResponse = await api.get('/transacao');
+      const transacoesResponse = await api.get<TransacaoApi[]>('/transacao');
       const transacoes = transacoesResponse.data;
       
       // 3. Filtrar transações órfãs
       const transacoesOrfas = transacoes.filter(
-        t => !idsValidos.includes(t.fk_instituicao)
+        (t) => !idsValidos.includes(t.fk_instituicao)
       );
       
       console.log(`📊 Encontradas ${transacoesOrfas.length} transações órfãs para deletar:`);
@@ -133,7 +140,7 @@ const instituicaoService = {
       
       return {
         deletadas,
-        transacoesOrfas: transacoesOrfas.map(t => ({
+        transacoesOrfas: transacoesOrfas.map((t) => ({
           id: t.id,
           descricao: t.descricao,
           fk_instituicao: t.fk_instituicao
@@ -149,8 +156,8 @@ const instituicaoService = {
    * Busca instituições com suas transações
    * @param {number} usuarioId - ID do usuário
    */
-  listarComTransacoes: async (usuarioId) => {
-    const response = await api.get('/instituicao', { 
+  listarComTransacoes: async (usuarioId: number): Promise<InstituicaoComTransacoes[]> => {
+    const response = await api.get<InstituicaoComTransacoes[]>('/instituicao', {
       params: { 
         fk_usuario: usuarioId,
         _embed: 'transacao'

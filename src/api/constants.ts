@@ -9,7 +9,7 @@
 export const TIPO_TRANSACAO = {
   GASTO: 'GASTO',
   RECEITA: 'RECEITA',
-};
+} as const;
 
 /**
  * Tipos de recorrência
@@ -19,7 +19,7 @@ export const TIPO_RECORRENCIA = {
   SEMANAL: 'SEMANAL',
   MENSAL: 'MENSAL',
   ANUAL: 'ANUAL',
-};
+} as const;
 
 /**
  * Status HTTP comuns
@@ -33,7 +33,7 @@ export const HTTP_STATUS = {
   FORBIDDEN: 403,
   NOT_FOUND: 404,
   INTERNAL_SERVER_ERROR: 500,
-};
+} as const;
 
 /**
  * Mensagens de erro padrão
@@ -44,7 +44,7 @@ export const MENSAGENS_ERRO = {
   NAO_ENCONTRADO: 'Recurso não encontrado.',
   NAO_AUTORIZADO: 'Você não tem permissão para esta ação.',
   ERRO_GENERICO: 'Ocorreu um erro. Tente novamente.',
-};
+} as const;
 
 /**
  * Limites de paginação
@@ -52,4 +52,4 @@ export const MENSAGENS_ERRO = {
 export const PAGINACAO = {
   LIMITE_PADRAO: 10,
   LIMITE_MAXIMO: 100,
-};
+} as const;

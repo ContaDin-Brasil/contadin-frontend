@@ -229,6 +229,22 @@
       "tipoInstituicao": "banco",
       "fk_usuario": 1,
       "id": 28
+    },
+    {
+      "nome": "Teste",
+      "icone": "T",
+      "cor": "#4A9EFF",
+      "tipoInstituicao": "banco",
+      "fk_usuario": 1,
+      "id": 29
+    },
+    {
+      "nome": "Kohatsu",
+      "icone": "K",
+      "cor": "#FFD700",
+      "tipoInstituicao": "vale",
+      "fk_usuario": 1,
+      "id": 30
     }
   ],
   "transacao": [
@@ -959,6 +975,71 @@
       "fim_recorrencia": null,
       "fk_instituicao": 26,
       "fk_categoria": 2
+    },
+    {
+      "descricao": "Compra no Supermercado Extra",
+      "valor": 145.8,
+      "tipo": "GASTO",
+      "data_transacao": "2026-03-16T00:00:00.000Z",
+      "parcelado": false,
+      "qtdParcelas": 1,
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 14,
+      "fk_categoria": 1,
+      "id": 57
+    },
+    {
+      "descricao": "Compra no Supermercado Extra",
+      "valor": 145.8,
+      "tipo": "GASTO",
+      "data_transacao": "2026-03-16T00:00:00.000Z",
+      "parcelado": false,
+      "qtdParcelas": 1,
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 14,
+      "fk_categoria": 1,
+      "id": 58
+    },
+    {
+      "descricao": "Compra no Supermercado Extra",
+      "valor": 145.8,
+      "tipo": "GASTO",
+      "data_transacao": "2026-03-16T00:00:00.000Z",
+      "parcelado": false,
+      "qtdParcelas": 1,
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 14,
+      "fk_categoria": 2,
+      "id": 59
+    },
+    {
+      "descricao": "Compra no Supermercado Extra",
+      "valor": 145.8,
+      "tipo": "RECEITA",
+      "data_transacao": "2026-03-15T00:00:00.000Z",
+      "parcelado": false,
+      "qtdParcelas": 1,
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 14,
+      "fk_categoria": 1,
+      "id": 60
+    },
+    {
+      "descricao": "Compra no Supermercado Extra",
+      "valor": 145.8,
+      "tipo": "GASTO",
+      "data_transacao": "2026-03-16T00:00:00.000Z",
+      "parcelado": true,
+      "qtdParcelas": "10",
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 14,
+      "fk_categoria": 1,
+      "id": 61
     }
   ],
   "meta_gasto": [

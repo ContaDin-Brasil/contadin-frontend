@@ -15,3 +15,4 @@ export { default as metaGastoService } from './services/metaGastoService';
 
 // Exportar constantes
 export * from './constants';
+export * from './types';

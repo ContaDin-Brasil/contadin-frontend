@@ -1,11 +1,25 @@
 import api from '../config';
-import { formatarMesAno, normalizarLabelHoje } from '../../utils/dateUtils';
+import type {
+  CategoriaApi,
+  DadosDashboardApi,
+  DadosPrevisaoSaldoApi,
+  GastoCategoriaApi,
+  InstituicaoApi,
+  ResumoFinanceiroApi,
+  SaldoInstituicaoApi,
+  TransacaoApi,
+} from '../types';
+
+type ProjecaoFutura = {
+  data: Date;
+  delta: number;
+};
 
 /**
  * Busca o resumo financeiro do usuário
  * Calcula saldo total, receitas e gastos do mês atual
  */
-export const buscarResumoFinanceiro = async (usuarioId) => {
+export const buscarResumoFinanceiro = async (usuarioId: number): Promise<ResumoFinanceiroApi> => {
   try {
     // ─────────────────────────────────────────────────────────────────
     // TODO: substituir pelo endpoint dedicado quando o backend estiver pronto
@@ -40,16 +54,16 @@ export const buscarResumoFinanceiro = async (usuarioId) => {
 
     // Buscar todas as transações e instituições
     const [responseTransacoes, responseInstituicoes] = await Promise.all([
-      api.get('/transacao'),
-      api.get(`/instituicao?fk_usuario=${usuarioId}`)
+      api.get<TransacaoApi[]>('/transacao'),
+      api.get<InstituicaoApi[]>(`/instituicao?fk_usuario=${usuarioId}`),
     ]);
     
     const todasTransacoes = responseTransacoes.data;
     const instituicoesUsuario = responseInstituicoes.data;
-    const idsInstituicoes = instituicoesUsuario.map(i => i.id);
+    const idsInstituicoes = instituicoesUsuario.map((i) => i.id);
     
     // Filtrar apenas transações das instituições do usuário
-    const transacoesUsuario = todasTransacoes.filter(t => 
+    const transacoesUsuario = todasTransacoes.filter((t) =>
       idsInstituicoes.includes(t.fk_instituicao)
     );
 
@@ -59,23 +73,23 @@ export const buscarResumoFinanceiro = async (usuarioId) => {
 
     // Filtrar transações do mês atual
     //(fuso UTC-3 Brasil)
-    const transacoesMesAtual = transacoesUsuario.filter(t => {
+    const transacoesMesAtual = transacoesUsuario.filter((t) => {
       const [ano, mes] = t.data_transacao.split('T')[0].split('-').map(Number);
       return (mes - 1) === mesAtual && ano === anoAtual;
     });
 
     // Calcular totais
     const receitaTotal = transacoesMesAtual
-      .filter(t => t.tipo === 'RECEITA')
+      .filter((t) => t.tipo === 'RECEITA')
       .reduce((acc, t) => acc + t.valor, 0);
 
     const gastoTotal = transacoesMesAtual
-      .filter(t => t.tipo === 'GASTO')
+      .filter((t) => t.tipo === 'GASTO')
       .reduce((acc, t) => acc + t.valor, 0);
 
     const saldoTotal = receitaTotal - gastoTotal;
 
-    const NOMES_MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    const NOMES_MESES = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'] as const;
     const nomeMes = NOMES_MESES[mesAtual];
 
     return {
@@ -94,7 +108,10 @@ export const buscarResumoFinanceiro = async (usuarioId) => {
  * Busca gastos agrupados por categoria
  * Retorna as top categorias com maior gasto
  */
-export const buscarGastosPorCategoria = async (usuarioId, limite = 5) => {
+export const buscarGastosPorCategoria = async (
+  usuarioId: number,
+  limite = 5,
+): Promise<GastoCategoriaApi[]> => {
   try {
     // ─────────────────────────────────────────────────────────────────
     // TODO: substituir pelo endpoint dedicado quando o backend estiver pronto
@@ -125,17 +142,19 @@ export const buscarGastosPorCategoria = async (usuarioId, limite = 5) => {
 
     // Buscar transações, categorias e instituições
     const [responseTransacoes, responseCategorias, responseInstituicoes] = await Promise.all([
-      api.get('/transacao'),
-      api.get('/categoria'),
-      api.get(`/instituicao?fk_usuario=${usuarioId}`)
+      api.get<TransacaoApi[]>('/transacao'),
+      api.get<CategoriaApi[]>('/categoria'),
+      api.get<InstituicaoApi[]>(`/instituicao?fk_usuario=${usuarioId}`),
     ]);
     
     const todasTransacoes = responseTransacoes.data;
-    const categorias = responseCategorias.data.filter(c => c.fk_usuario === null || c.fk_usuario === usuarioId);
+    const categorias = responseCategorias.data.filter(
+      (c) => c.fk_usuario === null || c.fk_usuario === usuarioId,
+    );
     const instituicoesUsuario = responseInstituicoes.data;
-    const idsInstituicoes = instituicoesUsuario.map(i => i.id);
+    const idsInstituicoes = instituicoesUsuario.map((i) => i.id);
     
-    const transacoesUsuario = todasTransacoes.filter(t => 
+    const transacoesUsuario = todasTransacoes.filter((t) =>
       idsInstituicoes.includes(t.fk_instituicao) && t.tipo === 'GASTO'
     );
 
@@ -144,33 +163,30 @@ export const buscarGastosPorCategoria = async (usuarioId, limite = 5) => {
     const anoAtual = dataAtual.getFullYear();
 
     // Filtrar transações do mês atual
-    const transacoesMesAtual = transacoesUsuario.filter(t => {
+    const transacoesMesAtual = transacoesUsuario.filter((t) => {
       const dataTransacao = new Date(t.data_transacao);
       return dataTransacao.getMonth() === mesAtual && 
              dataTransacao.getFullYear() === anoAtual;
     });
 
     // Agrupar por categoria
-    const gastosPorCategoria = {};
-    transacoesMesAtual.forEach(t => {
+    const gastosPorCategoria: Record<number, number> = {};
+    transacoesMesAtual.forEach((t) => {
       const categoriaId = t.fk_categoria;
-      if (!gastosPorCategoria[categoriaId]) {
-        gastosPorCategoria[categoriaId] = 0;
-      }
-      gastosPorCategoria[categoriaId] += t.valor;
+      gastosPorCategoria[categoriaId] = (gastosPorCategoria[categoriaId] || 0) + t.valor;
     });
 
     // Calcular total de gastos
     const totalGastos = Object.values(gastosPorCategoria).reduce((acc, val) => acc + val, 0);
 
     // Montar array com informações das categorias
-    const gastosComInfo = Object.entries(gastosPorCategoria).map(([categoriaId, valor]) => {
-      const categoria = categorias.find(c => c.id === parseInt(categoriaId)) || {};
+    const gastosComInfo: GastoCategoriaApi[] = Object.entries(gastosPorCategoria).map(([categoriaId, valor]) => {
+      const categoria = categorias.find((c) => c.id === parseInt(categoriaId, 10));
       return {
-        id: parseInt(categoriaId),
-        nome: categoria.nome || 'Sem categoria',
-        icone: categoria.icone || 'category',
-        cor: categoria.cor || '#999999',
+        id: parseInt(categoriaId, 10),
+        nome: categoria?.nome || 'Sem categoria',
+        icone: categoria?.icone || 'category',
+        cor: categoria?.cor || '#999999',
         valor,
         porcentagem: totalGastos > 0 ? Math.round((valor / totalGastos) * 100) : 0,
       };
@@ -189,7 +205,10 @@ export const buscarGastosPorCategoria = async (usuarioId, limite = 5) => {
  * Busca saldo agrupado por instituição
  * Retorna as top instituições com maior saldo
  */
-export const buscarSaldosPorInstituicao = async (usuarioId, limite = 5) => {
+export const buscarSaldosPorInstituicao = async (
+  usuarioId: number,
+  limite = 5,
+): Promise<SaldoInstituicaoApi[]> => {
   try {
     // ─────────────────────────────────────────────────────────────────
     // TODO: substituir pelo endpoint dedicado quando o backend estiver pronto
@@ -220,23 +239,23 @@ export const buscarSaldosPorInstituicao = async (usuarioId, limite = 5) => {
 
     // Buscar instituições e transações
     const [responseInstituicoes, responseTransacoes] = await Promise.all([
-      api.get(`/instituicao?fk_usuario=${usuarioId}`),
-      api.get('/transacao')
+      api.get<InstituicaoApi[]>(`/instituicao?fk_usuario=${usuarioId}`),
+      api.get<TransacaoApi[]>('/transacao'),
     ]);
     
     const instituicoes = responseInstituicoes.data;
     const todasTransacoes = responseTransacoes.data;
 
     // Calcular saldo por instituição
-    const saldosPorInstituicao = instituicoes.map(inst => {
-      const transacoesInst = todasTransacoes.filter(t => t.fk_instituicao === inst.id);
+    const saldosPorInstituicao: SaldoInstituicaoApi[] = instituicoes.map((inst) => {
+      const transacoesInst = todasTransacoes.filter((t) => t.fk_instituicao === inst.id);
       
       const receitas = transacoesInst
-        .filter(t => t.tipo === 'RECEITA')
+        .filter((t) => t.tipo === 'RECEITA')
         .reduce((acc, t) => acc + t.valor, 0);
       
       const gastos = transacoesInst
-        .filter(t => t.tipo === 'GASTO')
+        .filter((t) => t.tipo === 'GASTO')
         .reduce((acc, t) => acc + t.valor, 0);
       
       const saldo = receitas - gastos;
@@ -248,17 +267,18 @@ export const buscarSaldosPorInstituicao = async (usuarioId, limite = 5) => {
         cor: inst.cor,
         tipo: inst.tipoInstituicao,
         valor: saldo,
+        porcentagem: 0,
       };
     });
 
-    const saldosNaoNegativos = saldosPorInstituicao.filter(s => s.valor >= 0);
+    const saldosNaoNegativos = saldosPorInstituicao.filter((s) => s.valor >= 0);
     saldosNaoNegativos.sort((a, b) => b.valor - a.valor);
 
     const totalSaldos = saldosNaoNegativos
-      .filter(s => s.valor > 0)
+      .filter((s) => s.valor > 0)
       .reduce((acc, s) => acc + s.valor, 0);
     
-    const saldosComPorcentagem = saldosNaoNegativos.map(s => ({
+    const saldosComPorcentagem = saldosNaoNegativos.map((s) => ({
       ...s,
       porcentagem: totalSaldos > 0 ? Math.round((s.valor / totalSaldos) * 100) : 0,
     }));
@@ -276,7 +296,10 @@ export const buscarSaldosPorInstituicao = async (usuarioId, limite = 5) => {
  * Projeta a partir de amanhã até `diasFuturos` dias no futuro.
  * O valor nos pontos é sempre o total acumulado (saldo previsto naquele dia).
  */
-export const buscarPrevisaoSaldo = async (usuarioId, diasFuturos = 90) => {
+export const buscarPrevisaoSaldo = async (
+  usuarioId: number,
+  diasFuturos = 90,
+): Promise<DadosPrevisaoSaldoApi> => {
   try {
     // ─────────────────────────────────────────────────────────────────
     // TODO: substituir pelo endpoint dedicado quando o backend estiver pronto
@@ -326,14 +349,14 @@ export const buscarPrevisaoSaldo = async (usuarioId, diasFuturos = 90) => {
     // ─────────────────────────────────────────────────────────────────
 
     const [responseTransacoes, responseInstituicoes] = await Promise.all([
-      api.get('/transacao'),
-      api.get(`/instituicao?fk_usuario=${usuarioId}`),
+      api.get<TransacaoApi[]>('/transacao'),
+      api.get<InstituicaoApi[]>(`/instituicao?fk_usuario=${usuarioId}`),
     ]);
 
     const todasTransacoes = responseTransacoes.data;
     const instituicoesUsuario = responseInstituicoes.data;
-    const idsInstituicoes = instituicoesUsuario.map(i => i.id);
-    const transacoesUsuario = todasTransacoes.filter(t =>
+    const idsInstituicoes = instituicoesUsuario.map((i) => i.id);
+    const transacoesUsuario = todasTransacoes.filter((t) =>
       idsInstituicoes.includes(t.fk_instituicao)
     );
 
@@ -352,13 +375,13 @@ export const buscarPrevisaoSaldo = async (usuarioId, diasFuturos = 90) => {
 
     // 1. Saldo atual = tudo que aconteceu até hoje
     const saldoAtual = transacoesUsuario
-      .filter(t => new Date(t.data_transacao) <= hoje)
+      .filter((t) => new Date(t.data_transacao) <= hoje)
       .reduce((acc, t) => acc + (t.tipo === 'RECEITA' ? t.valor : -t.valor), 0);
 
     // 2. Projetar transações futuras
-    const transacoesFuturas = []; // { data: Date, delta: number }
+    const transacoesFuturas: ProjecaoFutura[] = [];
 
-    transacoesUsuario.forEach(t => {
+    transacoesUsuario.forEach((t) => {
       // Extrair ano/mês/dia diretamente da string ISO para evitar conversão UTC→local
       // que causaria shift de -1 dia em fusos negativos (ex: UTC-3 Brasil)
       const [anoOrig, mesOrig, diaOrig] = t.data_transacao.split('T')[0].split('-').map(Number);
@@ -376,9 +399,9 @@ export const buscarPrevisaoSaldo = async (usuarioId, diasFuturos = 90) => {
           transacoesFuturas.push({ data: new Date(d), delta: sinal * t.valor });
           d = new Date(d.getFullYear(), d.getMonth() + 1, d.getDate());
         }
-      } else if (t.parcelado && t.qtdParcelas > 1) {
+      } else if (t.parcelado && (t.qtdParcelas || 0) > 1) {
         // A 1ª parcela já foi na data de origem; projeta as demais mensalmente
-        for (let i = 1; i < t.qtdParcelas; i++) {
+        for (let i = 1; i < (t.qtdParcelas || 0); i++) {
           const dParcela = new Date(
             dataOrigem.getFullYear(),
             dataOrigem.getMonth() + i,
@@ -393,8 +416,8 @@ export const buscarPrevisaoSaldo = async (usuarioId, diasFuturos = 90) => {
     });
 
     // 3. Agrupar deltas por data (ISO)
-    const mapaData = {};
-    transacoesFuturas.forEach(tf => {
+    const mapaData: Record<string, number> = {};
+    transacoesFuturas.forEach((tf) => {
       const key = tf.data.toISOString().split('T')[0];
       mapaData[key] = (mapaData[key] || 0) + tf.delta;
     });
@@ -403,14 +426,14 @@ export const buscarPrevisaoSaldo = async (usuarioId, diasFuturos = 90) => {
     const datasOrdenadas = Object.keys(mapaData).sort();
     const hojeISO = new Date().toISOString().split('T')[0];
 
-    const pontos = [{
+    const pontos: DadosPrevisaoSaldoApi['pontos'] = [{
       label: 'Hoje',
       saldo: Math.round(saldoAtual * 100) / 100,
       dataISO: hojeISO,
     }];
 
     let saldoAcum = saldoAtual;
-    datasOrdenadas.forEach(iso => {
+    datasOrdenadas.forEach((iso) => {
       saldoAcum += mapaData[iso];
       const d = new Date(iso + 'T12:00:00');
       const dia = d.getDate().toString().padStart(2, '0');
@@ -437,7 +460,7 @@ export const buscarPrevisaoSaldo = async (usuarioId, diasFuturos = 90) => {
 /**
  * Busca todos os dados do dashboard
  */
-export const buscarDadosDashboard = async (usuarioId) => {
+export const buscarDadosDashboard = async (usuarioId: number): Promise<DadosDashboardApi> => {
   try {
     const [resumo, gastosPorCategoria, saldosPorInstituicao, previsaoSaldo] = await Promise.all([
       buscarResumoFinanceiro(usuarioId),

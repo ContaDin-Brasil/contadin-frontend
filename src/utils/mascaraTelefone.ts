@@ -4,7 +4,7 @@
  * @param {string} texto - Texto digitado (pode conter não-dígitos)
  * @returns {string} String formatada para exibição
  */
-export function formatarTelefone(texto) {
+export function formatarTelefone(texto: string): string {
   const digitos = texto.replace(/\D/g, "").slice(0, 11);
   if (digitos.length <= 2) {
     return digitos.length ? `(${digitos}` : "";
@@ -20,6 +20,6 @@ export function formatarTelefone(texto) {
  * @param {string} texto - Texto formatado ou não
  * @returns {string} Apenas dígitos
  */
-export function apenasDigitosTelefone(texto) {
+export function apenasDigitosTelefone(texto: string): string {
   return texto.replace(/\D/g, "");
 }

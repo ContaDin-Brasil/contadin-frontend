@@ -1,4 +1,5 @@
 import api from '../config';
+import type { TransacaoApi, TransacaoPayload } from '../types';
 
 /**
  * Serviço de Transações
@@ -8,8 +9,8 @@ const transacaoService = {
   /**
    * Busca todas as transações
    */
-  listar: async () => {
-    const response = await api.get('/transacao');
+  listar: async (): Promise<TransacaoApi[]> => {
+    const response = await api.get<TransacaoApi[]>('/transacao');
     return response.data;
   },
 
@@ -19,10 +20,10 @@ const transacaoService = {
    * retorna todas as transações (que serão filtradas por instituições do usuário)
    * @param {number} usuarioId - ID do usuário
    */
-  listarPorUsuario: async (usuarioId) => {
+  listarPorUsuario: async (_usuarioId: number): Promise<TransacaoApi[]> => {
     // Por enquanto, retorna todas as transações
     // Em produção, isso seria filtrado pelo backend
-    const response = await api.get('/transacao');
+    const response = await api.get<TransacaoApi[]>('/transacao');
     return response.data;
   },
 
@@ -30,8 +31,8 @@ const transacaoService = {
    * Busca uma transação por ID
    * @param {number} id - ID da transação
    */
-  buscarPorId: async (id) => {
-    const response = await api.get(`/transacao/${id}`);
+  buscarPorId: async (id: number): Promise<TransacaoApi> => {
+    const response = await api.get<TransacaoApi>(`/transacao/${id}`);
     return response.data;
   },
 
@@ -39,8 +40,8 @@ const transacaoService = {
    * Busca transações por instituição
    * @param {number} instituicaoId - ID da instituição
    */
-  listarPorInstituicao: async (instituicaoId) => {
-    const response = await api.get('/transacao', { 
+  listarPorInstituicao: async (instituicaoId: number): Promise<TransacaoApi[]> => {
+    const response = await api.get<TransacaoApi[]>('/transacao', {
       params: { fk_instituicao: instituicaoId } 
     });
     return response.data;
@@ -50,8 +51,8 @@ const transacaoService = {
    * Busca transações por categoria
    * @param {number} categoriaId - ID da categoria
    */
-  listarPorCategoria: async (categoriaId) => {
-    const response = await api.get('/transacao', { 
+  listarPorCategoria: async (categoriaId: number): Promise<TransacaoApi[]> => {
+    const response = await api.get<TransacaoApi[]>('/transacao', {
       params: { fk_categoria: categoriaId } 
     });
     return response.data;
@@ -61,8 +62,8 @@ const transacaoService = {
    * Busca transações por tipo (GASTO ou RECEITA)
    * @param {string} tipo - Tipo da transação ('GASTO' ou 'RECEITA')
    */
-  listarPorTipo: async (tipo) => {
-    const response = await api.get('/transacao', { 
+  listarPorTipo: async (tipo: TransacaoApi['tipo']): Promise<TransacaoApi[]> => {
+    const response = await api.get<TransacaoApi[]>('/transacao', {
       params: { tipo } 
     });
     return response.data;
@@ -73,8 +74,8 @@ const transacaoService = {
    * @param {string} dataInicio - Data inicial (formato ISO)
    * @param {string} dataFim - Data final (formato ISO)
    */
-  listarPorPeriodo: async (dataInicio, dataFim) => {
-    const response = await api.get('/transacao', { 
+  listarPorPeriodo: async (dataInicio: string, dataFim: string): Promise<TransacaoApi[]> => {
+    const response = await api.get<TransacaoApi[]>('/transacao', {
       params: { 
         data_transacao_gte: dataInicio,
         data_transacao_lte: dataFim,
@@ -88,8 +89,8 @@ const transacaoService = {
   /**
    * Busca transações recorrentes
    */
-  listarRecorrentes: async () => {
-    const response = await api.get('/transacao', { 
+  listarRecorrentes: async (): Promise<TransacaoApi[]> => {
+    const response = await api.get<TransacaoApi[]>('/transacao', {
       params: { recorrencia_ne: null } 
     });
     return response.data;
@@ -99,12 +100,12 @@ const transacaoService = {
    * Cria uma nova transação
    * @param {object} transacao - Dados da transação
    */
-  criar: async (transacao) => {
+  criar: async (transacao: TransacaoPayload): Promise<TransacaoApi> => {
     console.log('🌐 [API SERVICE] Enviando requisição POST para /transacao');
     console.log('🌐 [API SERVICE] Payload:', JSON.stringify(transacao, null, 2));
     
     try {
-      const response = await api.post('/transacao', transacao);
+      const response = await api.post<TransacaoApi>('/transacao', transacao);
       
       console.log('🌐 [API SERVICE] Status da resposta:', response.status);
       console.log('🌐 [API SERVICE] Dados retornados:', JSON.stringify(response.data, null, 2));
@@ -125,8 +126,8 @@ const transacaoService = {
    * @param {number} id - ID da transação
    * @param {object} transacao - Dados atualizados
    */
-  atualizar: async (id, transacao) => {
-    const response = await api.put(`/transacao/${id}`, transacao);
+  atualizar: async (id: number, transacao: TransacaoPayload): Promise<TransacaoApi> => {
+    const response = await api.put<TransacaoApi>(`/transacao/${id}`, transacao);
     return response.data;
   },
 
@@ -134,8 +135,8 @@ const transacaoService = {
    * Deleta uma transação
    * @param {number} id - ID da transação
    */
-  deletar: async (id) => {
-    const response = await api.delete(`/transacao/${id}`);
+  deletar: async (id: number): Promise<TransacaoApi> => {
+    const response = await api.delete<TransacaoApi>(`/transacao/${id}`);
     return response.data;
   },
 
@@ -144,8 +145,8 @@ const transacaoService = {
    * @param {number} pagina - Número da página
    * @param {number} limite - Quantidade por página
    */
-  listarComPaginacao: async (pagina = 1, limite = 10) => {
-    const response = await api.get('/transacao', { 
+  listarComPaginacao: async (pagina = 1, limite = 10): Promise<TransacaoApi[]> => {
+    const response = await api.get<TransacaoApi[]>('/transacao', {
       params: { 
         _page: pagina,
         _limit: limite,

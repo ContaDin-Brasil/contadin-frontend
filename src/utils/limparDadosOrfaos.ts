@@ -4,12 +4,13 @@
  */
 
 import { instituicaoService } from '../api';
+import type { ResultadoLimpezaOrfaos } from '../api';
 
 /**
  * Limpa todas as transações órfãs do usuário
  * @param {number} usuarioId - ID do usuário
  */
-export const limparDadosOrfaos = async (usuarioId = 1) => {
+export const limparDadosOrfaos = async (usuarioId = 1): Promise<ResultadoLimpezaOrfaos> => {
   console.log('🧹 Iniciando limpeza de dados órfãos...\n');
   
   try {
@@ -18,7 +19,7 @@ export const limparDadosOrfaos = async (usuarioId = 1) => {
     if (resultado.deletadas > 0) {
       console.log(`✅ Limpeza concluída: ${resultado.deletadas} transações órfãs removidas`);
       console.log('\n📋 Transações removidas:');
-      resultado.transacoesOrfas.forEach(t => {
+      resultado.transacoesOrfas.forEach((t) => {
         console.log(`  • ID ${t.id}: ${t.descricao} (instituição ${t.fk_instituicao})`);
       });
     } else {
@@ -36,7 +37,7 @@ export const limparDadosOrfaos = async (usuarioId = 1) => {
  * Hook para usar a limpeza em componentes React
  */
 export const useLimparDadosOrfaos = () => {
-  const executarLimpeza = async (usuarioId = 1) => {
+  const executarLimpeza = async (usuarioId = 1): Promise<ResultadoLimpezaOrfaos> => {
     return await limparDadosOrfaos(usuarioId);
   };
   
