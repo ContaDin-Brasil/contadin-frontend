@@ -131,6 +131,14 @@
       "icone": "computer",
       "fk_usuario": 1,
       "id": 13
+    },
+    {
+      "nome": "Gavassa",
+      "tipo": "GASTO",
+      "cor": "#4ECDC4",
+      "icone": "local-bar",
+      "fk_usuario": 1,
+      "id": 14
     }
   ],
   "instituicao": [
@@ -1040,6 +1048,45 @@
       "fk_instituicao": 14,
       "fk_categoria": 1,
       "id": 61
+    },
+    {
+      "descricao": "Compra no Supermercado Extra",
+      "valor": 145.8,
+      "tipo": "GASTO",
+      "data_transacao": "2026-03-18T00:00:00.000Z",
+      "parcelado": true,
+      "qtdParcelas": "8",
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 14,
+      "fk_categoria": 14,
+      "id": 62
+    },
+    {
+      "descricao": "TESTEEE",
+      "valor": 145.8,
+      "tipo": "GASTO",
+      "data_transacao": "2026-03-19T00:00:00.000Z",
+      "parcelado": false,
+      "qtdParcelas": 1,
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 14,
+      "fk_categoria": 1,
+      "id": 63
+    },
+    {
+      "descricao": "TESTE TESTE TESTE",
+      "valor": 5000,
+      "tipo": "RECEITA",
+      "data_transacao": "2026-03-19T00:00:00.000Z",
+      "parcelado": false,
+      "qtdParcelas": 1,
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 14,
+      "fk_categoria": 1,
+      "id": 64
     }
   ],
   "meta_gasto": [

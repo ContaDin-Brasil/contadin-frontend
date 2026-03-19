@@ -25,10 +25,10 @@ const getBaseURL = (): string => {
   let baseURL: string;
 
   if (__DEV__) {
-    if (Platform.OS === "android") {
-      baseURL = "http://10.0.2.2:3001";
-    } else {
+    if (Platform.OS === "web") {
       baseURL = "http://localhost:3001";
+    } else {
+      baseURL = "http://192.168.15.35:3001";
     }
   } else {
     baseURL = "https://api.seudominio.com";

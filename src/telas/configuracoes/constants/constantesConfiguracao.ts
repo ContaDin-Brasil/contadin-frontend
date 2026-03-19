@@ -48,9 +48,63 @@ export const PERFIL_INICIAL = {
  * Informações de contato
  */
 export const CONTATOS = {
-  whatsapp: '(11) 94002-8922',
-  email: 'contato@contadin.com.br'
+  whatsapp: '(11) 982515080',
+  whatsappLink: 'https://wa.me/5511982515080?text=Ola%2C%20preciso%20de%20ajuda%20com%20o%20Contadin.',
+  email: 'contadinbrasil01@gmail.com'
 };
+
+/**
+ * Outros canais de contato
+ */
+export const OUTROS_CONTATOS = [
+  {
+    id: 'site',
+    titulo: 'Site',
+    valor: 'www.contadin.com.br',
+    url: 'https://www.contadin.com.br',
+    icon: 'globe-outline'
+  },
+  {
+    id: 'instagram',
+    titulo: 'Instagram',
+    valor: '@contadin',
+    url: 'https://instagram.com/contadin',
+    icon: 'logo-instagram'
+  },
+  {
+    id: 'telefone',
+    titulo: 'Telefone',
+    valor: '(11) 3333-0000',
+    url: 'tel:+551133330000',
+    icon: 'call-outline'
+  }
+];
+
+/**
+ * Itens do FAQ (ajuste os textos quando quiser)
+ */
+export const FAQ_ITENS = [
+  {
+    id: 'faq-01',
+    pergunta: 'Como cadastrar uma transacao?',
+    resposta: 'Resposta a definir.'
+  },
+  {
+    id: 'faq-02',
+    pergunta: 'Como editar ou excluir um gasto?',
+    resposta: 'Resposta a definir.'
+  },
+  {
+    id: 'faq-03',
+    pergunta: 'Como criar e organizar categorias?',
+    resposta: 'Resposta a definir.'
+  },
+  {
+    id: 'faq-04',
+    pergunta: 'Como recuperar minha senha?',
+    resposta: 'Resposta a definir.'
+  }
+];
 
 /**
  * Tabs disponíveis na tela de ajuda

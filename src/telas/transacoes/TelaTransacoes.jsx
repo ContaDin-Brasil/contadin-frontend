@@ -226,15 +226,6 @@ const TelaTransacoes = ({ navigation, route }) => {
 
   const flatListData = prepararListaPlana();
 
-  /**
-   * Handler para carregar mais transações (infinite scroll)
-   */
-  const handleLoadMore = () => {
-    if (!gerenciador.loadingMore && gerenciador.hasMore) {
-      console.log('📜 [INFINITE SCROLL] Carregando mais transações...');
-      gerenciador.carregarMaisTransacoes();
-    }
-  };
 
   // Conta filtros ativos
   const countFiltrosAtivos = () => {
@@ -458,23 +449,23 @@ const TelaTransacoes = ({ navigation, route }) => {
         </TouchableOpacity>
       </View>
 
-      {/* Indicador de Última Atualização e Paginação */}
+      {/* Indicador de Última Atualização */}
       <View style={styles.lastUpdateContainer}>
         <Ionicons name="time-outline" size={12} color="#999" />
         <Text style={styles.lastUpdateText}>
           Atualizado às {lastUpdate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
         </Text>
-        {gerenciador.totalTransacoes > 0 && (
+        {transacoesOrdenadas.length > 0 && (
           <>
             <Text style={[styles.lastUpdateText, { marginHorizontal: 8 }]}>•</Text>
             <Text style={styles.lastUpdateText}>
-              {transacoesOrdenadas.length} de {gerenciador.totalTransacoes} transações
+              {transacoesOrdenadas.length} transações
             </Text>
           </>
         )}
       </View>
 
-      {/* Lista de Transações com Paginação */}
+      {/* Lista de Transações */}
       <FlatList 
         data={flatListData}
         keyExtractor={(item) => item.id}
@@ -485,34 +476,6 @@ const TelaTransacoes = ({ navigation, route }) => {
         // Pull to refresh
         refreshing={refreshing}
         onRefresh={onRefresh}
-        
-        // Infinite scroll
-        onEndReached={handleLoadMore}
-        onEndReachedThreshold={0.1}
-        
-        // Loading footer
-        ListFooterComponent={() => {
-          if (gerenciador.loadingMore) {
-            return (
-              <View style={styles.loadingMoreContainer}>
-                <ActivityIndicator size="small" color={COLORS.primary} />
-                <Text style={styles.loadingMoreText}>Carregando mais...</Text>
-              </View>
-            );
-          }
-          
-          if (!gerenciador.hasMore && flatListData.length > 0) {
-            return (
-              <View style={styles.endOfListContainer}>
-                <Text style={styles.endOfListText}>
-                  Você visualizou todas as transações
-                </Text>
-              </View>
-            );
-          }
-          
-          return null;
-        }}
         
         // Empty state
         ListEmptyComponent={() => (
