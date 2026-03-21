@@ -1,6 +1,6 @@
-const NOMES_MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+const NOMES_MESES: string[] = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
-export const formatarMesAno = (mesAno) => {
+export const formatarMesAno = (mesAno?: string | null): string => {
   if (!mesAno) return '';
 
   const matchBR = mesAno.match(/^(\d{2})\/(\d{4})$/);
@@ -19,7 +19,7 @@ export const formatarMesAno = (mesAno) => {
 };
 
 
-export const normalizarLabelHoje = (label, dataISO) => {
+export const normalizarLabelHoje = (label: string, dataISO: string): string => {
   const hoje = new Date();
   const ano  = hoje.getFullYear();
   const mes  = String(hoje.getMonth() + 1).padStart(2, '0');

@@ -1,5 +1,36 @@
 import { Transaction, Category, Institution } from '../types/transacao.types';
 
+export const parseTransacaoDate = (value: any): Date => {
+  if (!value) return new Date(0);
+
+  if (value instanceof Date) {
+    return value;
+  }
+
+  if (typeof value === 'string') {
+    const datePart = value.split('T')[0];
+
+    if (datePart.includes('/')) {
+      const [day, month, year] = datePart.split('/');
+      if (year && month && day) {
+        return new Date(`${year}-${month}-${day}T00:00:00`);
+      }
+    }
+
+    if (/^\d{4}-\d{2}-\d{2}$/.test(datePart)) {
+      return new Date(`${datePart}T00:00:00`);
+    }
+
+    const parsed = new Date(value);
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed;
+    }
+  }
+
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? new Date(0) : parsed;
+};
+
 /**
  * Formata um valor numérico para o formato de moeda brasileira
  */
@@ -34,7 +65,7 @@ export const formatDateLabel = (dateString: string): string => {
 export const groupTransactionsByDate = (transactions: Transaction[]): Record<string, Transaction[]> => {
   const grouped: Record<string, Transaction[]> = {};
   transactions.forEach(transaction => {
-    const dateKey = new Date(transaction.data_transacao).toLocaleDateString('pt-BR');
+    const dateKey = parseTransacaoDate(transaction.data_transacao).toLocaleDateString('pt-BR');
     if (!grouped[dateKey]) {
       grouped[dateKey] = [];
     }
@@ -109,10 +140,10 @@ export const ordenarTransacoes = (transactions: Transaction[], criterio: string)
   
   switch (criterio) {
     case 'Mais recentes':
-      return sorted.sort((a, b) => new Date(b.data_transacao).getTime() - new Date(a.data_transacao).getTime());
+      return sorted.sort((a, b) => parseTransacaoDate(b.data_transacao).getTime() - parseTransacaoDate(a.data_transacao).getTime());
     
     case 'Mais antigas':
-      return sorted.sort((a, b) => new Date(a.data_transacao).getTime() - new Date(b.data_transacao).getTime());
+      return sorted.sort((a, b) => parseTransacaoDate(a.data_transacao).getTime() - parseTransacaoDate(b.data_transacao).getTime());
     
     case 'Maior valor':
       return sorted.sort((a, b) => Math.abs(b.valor) - Math.abs(a.valor));
@@ -127,7 +158,7 @@ export const ordenarTransacoes = (transactions: Transaction[], criterio: string)
       return sorted.sort((a, b) => b.descricao.toLowerCase().localeCompare(a.descricao.toLowerCase()));
     
     default:
-      return sorted.sort((a, b) => new Date(b.data_transacao).getTime() - new Date(a.data_transacao).getTime());
+      return sorted.sort((a, b) => parseTransacaoDate(b.data_transacao).getTime() - parseTransacaoDate(a.data_transacao).getTime());
   }
 };
 
@@ -197,7 +228,7 @@ export const aplicarFiltros = (transactions: Transaction[], filtros: Filtros): T
     const dataInicioDate = new Date(`${anoInicio}-${mesInicio}-${diaInicio}T00:00:00`);
     
     filtered = filtered.filter(t => {
-      const dataTransacao = new Date(t.data_transacao);
+      const dataTransacao = parseTransacaoDate(t.data_transacao);
       return dataTransacao >= dataInicioDate;
     });
   }
@@ -208,7 +239,7 @@ export const aplicarFiltros = (transactions: Transaction[], filtros: Filtros): T
     const dataFimDate = new Date(`${anoFim}-${mesFim}-${diaFim}T23:59:59`);
     
     filtered = filtered.filter(t => {
-      const dataTransacao = new Date(t.data_transacao);
+      const dataTransacao = parseTransacaoDate(t.data_transacao);
       return dataTransacao <= dataFimDate;
     });
   }

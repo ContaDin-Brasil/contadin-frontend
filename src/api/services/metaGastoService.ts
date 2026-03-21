@@ -1,4 +1,5 @@
 import api from '../config';
+import type { MetaGastoApi, MetaGastoPayload } from '../types';
 
 /**
  * Serviço de Metas de Gasto
@@ -8,8 +9,8 @@ const metaGastoService = {
   /**
    * Busca todas as metas
    */
-  listar: async () => {
-    const response = await api.get('/meta_gasto');
+  listar: async (): Promise<MetaGastoApi[]> => {
+    const response = await api.get<MetaGastoApi[]>('/meta_gasto');
     return response.data;
   },
 
@@ -17,8 +18,8 @@ const metaGastoService = {
    * Busca metas por usuário
    * @param {number} usuarioId - ID do usuário
    */
-  listarPorUsuario: async (usuarioId) => {
-    const response = await api.get('/meta_gasto', { 
+  listarPorUsuario: async (usuarioId: number): Promise<MetaGastoApi[]> => {
+    const response = await api.get<MetaGastoApi[]>('/meta_gasto', {
       params: { fk_usuario: usuarioId } 
     });
     return response.data;
@@ -28,8 +29,8 @@ const metaGastoService = {
    * Busca uma meta por ID
    * @param {number} id - ID da meta
    */
-  buscarPorId: async (id) => {
-    const response = await api.get(`/meta_gasto/${id}`);
+  buscarPorId: async (id: number): Promise<MetaGastoApi> => {
+    const response = await api.get<MetaGastoApi>(`/meta_gasto/${id}`);
     return response.data;
   },
 
@@ -37,8 +38,8 @@ const metaGastoService = {
    * Busca meta por categoria
    * @param {number} categoriaId - ID da categoria
    */
-  buscarPorCategoria: async (categoriaId) => {
-    const response = await api.get('/meta_gasto', { 
+  buscarPorCategoria: async (categoriaId: number): Promise<MetaGastoApi[]> => {
+    const response = await api.get<MetaGastoApi[]>('/meta_gasto', {
       params: { fk_categoria: categoriaId } 
     });
     return response.data;
@@ -49,8 +50,8 @@ const metaGastoService = {
    * @param {number} usuarioId - ID do usuário
    * @param {string} dataAtual - Data atual (formato ISO)
    */
-  listarAtivas: async (usuarioId, dataAtual) => {
-    const response = await api.get('/meta_gasto', { 
+  listarAtivas: async (usuarioId: number, dataAtual: string): Promise<MetaGastoApi[]> => {
+    const response = await api.get<MetaGastoApi[]>('/meta_gasto', {
       params: { 
         fk_usuario: usuarioId,
         data_fim_meta_gte: dataAtual
@@ -63,8 +64,8 @@ const metaGastoService = {
    * Cria uma nova meta
    * @param {object} meta - Dados da meta
    */
-  criar: async (meta) => {
-    const response = await api.post('/meta_gasto', meta);
+  criar: async (meta: MetaGastoPayload): Promise<MetaGastoApi> => {
+    const response = await api.post<MetaGastoApi>('/meta_gasto', meta);
     return response.data;
   },
 
@@ -73,8 +74,8 @@ const metaGastoService = {
    * @param {number} id - ID da meta
    * @param {object} meta - Dados atualizados
    */
-  atualizar: async (id, meta) => {
-    const response = await api.put(`/meta_gasto/${id}`, meta);
+  atualizar: async (id: number, meta: MetaGastoPayload): Promise<MetaGastoApi> => {
+    const response = await api.put<MetaGastoApi>(`/meta_gasto/${id}`, meta);
     return response.data;
   },
 
@@ -82,8 +83,8 @@ const metaGastoService = {
    * Deleta uma meta
    * @param {number} id - ID da meta
    */
-  deletar: async (id) => {
-    const response = await api.delete(`/meta_gasto/${id}`);
+  deletar: async (id: number): Promise<MetaGastoApi> => {
+    const response = await api.delete<MetaGastoApi>(`/meta_gasto/${id}`);
     return response.data;
   },
 };

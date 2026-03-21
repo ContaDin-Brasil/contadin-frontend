@@ -222,22 +222,6 @@ export const styles = StyleSheet.create({
   expenseAmount: {
     color: COLORS.error,
   },
-  floatingButton: {
-    position: 'absolute',
-    right: 20,
-    bottom: 30,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: COLORS.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: COLORS.black,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-  },
   // Estilos do Banner de Instituição Selecionada
   selectedInstitutionBanner: {
     flexDirection: 'row',

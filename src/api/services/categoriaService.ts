@@ -1,4 +1,5 @@
 import api from '../config';
+import type { CategoriaApi, CategoriaPayload } from '../types';
 
 /**
  * Serviço de Categorias
@@ -8,8 +9,8 @@ const categoriaService = {
   /**
    * Busca todas as categorias
    */
-  listar: async () => {
-    const response = await api.get('/categoria');
+  listar: async (): Promise<CategoriaApi[]> => {
+    const response = await api.get<CategoriaApi[]>('/categoria');
     return response.data;
   },
 
@@ -18,14 +19,12 @@ const categoriaService = {
    * Retorna categorias padrão (fk_usuario: null) + categorias do usuário
    * @param {number} usuarioId - ID do usuário
    */
-  listarPorUsuario: async (usuarioId) => {
+  listarPorUsuario: async (usuarioId: number): Promise<CategoriaApi[]> => {
     try {
-      // Busca todas as categorias
-      const response = await api.get('/categoria');
+      const response = await api.get<CategoriaApi[]>('/categoria');
       const todasCategorias = response.data;
 
-      // Filtra: padrão (null) + do usuário
-      const categorias = todasCategorias.filter(cat => 
+      const categorias = todasCategorias.filter((cat) =>
         cat.fk_usuario === null || cat.fk_usuario === usuarioId
       );
 
@@ -40,8 +39,8 @@ const categoriaService = {
    * Busca uma categoria por ID
    * @param {number} id - ID da categoria
    */
-  buscarPorId: async (id) => {
-    const response = await api.get(`/categoria/${id}`);
+  buscarPorId: async (id: number): Promise<CategoriaApi> => {
+    const response = await api.get<CategoriaApi>(`/categoria/${id}`);
     return response.data;
   },
 
@@ -49,8 +48,8 @@ const categoriaService = {
    * Cria uma nova categoria
    * @param {object} categoria - Dados da categoria
    */
-  criar: async (categoria) => {
-    const response = await api.post('/categoria', categoria);
+  criar: async (categoria: CategoriaPayload): Promise<CategoriaApi> => {
+    const response = await api.post<CategoriaApi>('/categoria', categoria);
     return response.data;
   },
 
@@ -59,8 +58,8 @@ const categoriaService = {
    * @param {number} id - ID da categoria
    * @param {object} categoria - Dados atualizados
    */
-  atualizar: async (id, categoria) => {
-    const response = await api.put(`/categoria/${id}`, categoria);
+  atualizar: async (id: number, categoria: CategoriaPayload): Promise<CategoriaApi> => {
+    const response = await api.put<CategoriaApi>(`/categoria/${id}`, categoria);
     return response.data;
   },
 
@@ -68,8 +67,8 @@ const categoriaService = {
    * Deleta uma categoria
    * @param {number} id - ID da categoria
    */
-  deletar: async (id) => {
-    const response = await api.delete(`/categoria/${id}`);
+  deletar: async (id: number): Promise<CategoriaApi> => {
+    const response = await api.delete<CategoriaApi>(`/categoria/${id}`);
     return response.data;
   },
 };

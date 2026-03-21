@@ -33,7 +33,7 @@ const InstitutionCard = ({
           </View>
           <Text style={styles.gridName}>{name}</Text>
         </View>
-        <Text style={styles.gridBalance}>Saldo Atual: {balance}</Text>
+        <Text style={styles.gridBalance}>Saldo Atual:{'\n'}{balance}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -77,7 +77,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
     overflow: 'hidden',
   },
   logoImage: {

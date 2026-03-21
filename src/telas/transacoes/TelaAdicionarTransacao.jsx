@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity, Switch, Animated, ActivityIndicator, Alert, Image, SafeAreaView } from 'react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, Switch, Animated, ActivityIndicator, Alert, Image, SafeAreaView, Platform } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import TituloPagina from '../../componentes/TituloPagina';
@@ -59,6 +59,15 @@ const TelaAdicionarTransacao = ({ navigation }) => {
       formState.applyAISuggestion(aiState.aiSuggestion);
       aiState.dismissAISuggestion();
     }
+  };
+
+  const handleSuccessNavigation = () => {
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+      return;
+    }
+
+    navigation.navigate('TransactionsMain');
   };
 
   const handleSaveTransaction = async () => {
@@ -138,9 +147,14 @@ const TelaAdicionarTransacao = ({ navigation }) => {
       console.log('📥 Resposta do servidor:', JSON.stringify(resultado, null, 2));
       console.log('='.repeat(60) + '\n');
       
-      Alert.alert('Sucesso', 'Transação criada com sucesso!', [
-        { text: 'OK', onPress: () => navigation.goBack() }
-      ]);
+      if (Platform.OS === 'web') {
+        Alert.alert('Sucesso', 'Transação criada com sucesso!');
+        handleSuccessNavigation();
+      } else {
+        Alert.alert('Sucesso', 'Transação criada com sucesso!', [
+          { text: 'OK', onPress: handleSuccessNavigation }
+        ]);
+      }
     } catch (error) {
       console.error('Erro ao salvar transação:', error);
       Alert.alert('Erro', 'Não foi possível salvar a transação');
