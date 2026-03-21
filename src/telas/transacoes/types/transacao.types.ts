@@ -23,7 +23,10 @@ export interface Institution {
 export interface Category {
   id: number;
   nome: string;
-  fk_usuario?: number;
+  tipo: 'RECEITA' | 'GASTO' | 'GLOBAL';
+  cor: string;
+  icone: string;
+  fk_usuario: number | null;
 }
 
 // Interface de Frequência (para UI)
@@ -40,6 +43,7 @@ export interface Transaction {
   tipo: TransactionType;
   data_transacao: Date;
   parcelado: boolean;
+  qtdParcelas?: number;
   recorrencia?: FrequencyType;
   fim_recorrencia?: Date;
   fk_instituicao: number;

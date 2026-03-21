@@ -1,16 +1,11 @@
 import { StyleSheet } from 'react-native';
+import COLORS from '../../../styles/colors';
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F5F5F5',
-    paddingTop: 60,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    paddingHorizontal: 20,
-    marginBottom: 20,
+    paddingTop: 20,
   },
   periodFilter: {
     flexDirection: 'row',
@@ -46,6 +41,10 @@ export const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
   },
+  clearSearchButton: {
+    padding: 4,
+    marginLeft: 8,
+  },
   filtersRow: {
     flexDirection: 'row',
     paddingHorizontal: 20,
@@ -74,11 +73,29 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 8,
     gap: 5,
+    position: 'relative',
   },
   filterButtonText: {
     fontSize: 14,
     color: '#333',
     fontWeight: '500',
+  },
+  filterBadge: {
+    position: 'absolute',
+    top: -6,
+    right: -6,
+    backgroundColor: COLORS.primary,
+    borderRadius: 10,
+    minWidth: 20,
+    height: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 6,
+  },
+  filterBadgeText: {
+    color: COLORS.white,
+    fontSize: 11,
+    fontWeight: 'bold',
   },
   transactionsList: {
     flex: 1,
@@ -94,17 +111,17 @@ export const styles = StyleSheet.create({
     fontWeight: '500',
   },
   transactionItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
     backgroundColor: '#FFF',
+    borderColor: '#E0E0E0',
     padding: 15,
     borderRadius: 12,
     marginBottom: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 2,
+    borderWidth: 1,
+  },
+  transactionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
   },
   transactionIcon: {
     width: 48,
@@ -115,62 +132,237 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     marginRight: 12,
   },
-  transactionInfo: {
+  transactionCategory: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#333',
     flex: 1,
   },
-  transactionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  transactionHeaderRight: {
+    alignItems: 'flex-end',
+  },
+  transactionDate: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#999',
     marginBottom: 4,
   },
-  transactionCategory: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginRight: 8,
-  },
-  categoryBadge: {
+  transactionBadgesRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFE5E5',
+    gap: 6,
+  },
+  transactionBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.primaryLight + '20',
     paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 10,
+    paddingVertical: 3,
+    borderRadius: 8,
     gap: 3,
   },
-  categoryBadgeText: {
+  transactionBadgeText: {
     fontSize: 10,
-    color: '#E31C23',
-    fontWeight: '500',
+    fontWeight: '600',
+    color: COLORS.primary,
+  },
+  recurrenceBadge: {
+    backgroundColor: COLORS.success + '20',
+  },
+  recurrenceBadgeText: {
+    color: COLORS.success,
+  },
+  transactionBody: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+    paddingLeft: 0,
+  },
+  transactionLeft: {
+    flex: 1,
+    gap: 4,
+  },
+  institutionBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 4,
+    alignSelf: 'flex-start',
+  },
+  institutionBadgeIcon: {
+    fontSize: 12,
+  },
+  institutionBadgeLogo: {
+    width: 16,
+    height: 16,
+    objectFit: 'cover',
+    borderRadius: 4,
+  },
+  institutionBadgeText: {
+    fontSize: 11,
+    fontWeight: '600',
   },
   transactionDescription: {
     fontSize: 14,
     color: '#999',
+    marginTop: 2,
   },
   transactionAmount: {
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: 'bold',
+    textAlign: 'right',
+    marginLeft: 12,
   },
   incomeAmount: {
-    color: '#00C853',
+    color: COLORS.success,
   },
   expenseAmount: {
-    color: '#E31C23',
+    color: COLORS.error,
   },
-  floatingButton: {
-    position: 'absolute',
-    right: 20,
-    bottom: 90,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#0066FF',
+  // Estilos do Banner de Instituição Selecionada
+  selectedInstitutionBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginHorizontal: 20,
+    marginBottom: 15,
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 2,
+  },
+  bannerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  bannerIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+    overflow: 'hidden',
+  },
+  bannerIconText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#FFF',
+  },
+  bannerLogoImage: {
+    width: 36,
+    height: 36,
+    objectFit: 'cover',
+    borderRadius: 8,
+  },
+  bannerInfo: {
+    flex: 1,
+  },
+  bannerTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 2,
+  },
+  bannerSubtitle: {
+    fontSize: 13,
+    color: '#666',
+  },
+  bannerClose: {
+    padding: 4,
+  },
+  // Estilos do Banner Offline
+  offlineBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF3E0',
+    marginHorizontal: 20,
+    marginBottom: 15,
+    padding: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#FF9800',
+    gap: 10,
+  },
+  offlineBannerText: {
+    fontSize: 14,
+    color: '#FF9800',
+    fontWeight: '500',
+  },
+  // Indicador de última atualização
+  lastUpdateContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+    marginBottom: 10,
+    gap: 5,
+  },
+  lastUpdateText: {
+    fontSize: 12,
+    color: '#999',
+    fontStyle: 'italic',
+  },
+  // Estado vazio (sem transações ou sem resultados de busca)
+  emptyState: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 60,
+    paddingHorizontal: 40,
+  },
+  emptyStateTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#666',
+    marginTop: 20,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  emptyStateSubtitle: {
+    fontSize: 14,
+    color: '#999',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  emptyStateButton: {
+    marginTop: 20,
+    backgroundColor: COLORS.primary,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+  },
+  emptyStateButtonText: {
+    color: '#FFF',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  // Loading footer para paginação
+  loadingMoreContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 30,
+    paddingBottom: 40,
+    gap: 10,
+  },
+  loadingMoreText: {
+    fontSize: 14,
+    color: '#999',
+  },
+  endOfListContainer: {
+    alignItems: 'center',
+    paddingVertical: 40,
+    paddingBottom: 60,
+    paddingHorizontal: 40,
+  },
+  endOfListText: {
+    fontSize: 13,
+    color: '#999',
+    textAlign: 'center',
   },
 });

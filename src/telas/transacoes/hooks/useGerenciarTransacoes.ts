@@ -1,9 +1,24 @@
 import { useState, useEffect } from 'react';
 import { transacaoService, categoriaService, instituicaoService } from '../../../api';
+import { MOCK_TRANSACTIONS } from '../constants/constantesTransacao';
+import { CATEGORIES } from '../constants/constantesTransacao';
+import { parseTransacaoDate } from '../utils/utilitariosTransacao';
+
+export interface Filtros {
+  tipo: 'TODOS' | 'RECEITA' | 'GASTO';
+  instituicoes: number[];
+  categorias: number[];
+  valorMin: string;
+  valorMax: string;
+  apenasParcelado: boolean;
+  apenasRecorrente: boolean;
+  dataInicio: string;
+  dataFim: string;
+}
 
 /**
  * Hook customizado para gerenciar transações
- * Busca e gerencia transações da API
+ * Busca e gerencia transações da API com fallback para dados mockados
  */
 export const useGerenciarTransacoes = () => {
   const [transacoes, setTransacoes] = useState<any[]>([]);
@@ -13,8 +28,27 @@ export const useGerenciarTransacoes = () => {
   const [error, setError] = useState<string | null>(null);
   const [periodo, setPeriodo] = useState('Período Completo');
   const [ordenacao, setOrdenacao] = useState('Mais recentes');
+  const [usandoDadosMockados, setUsandoDadosMockados] = useState(false);
+  
+  const [filtros, setFiltros] = useState<Filtros>({
+    tipo: 'TODOS',
+    instituicoes: [],
+    categorias: [],
+    valorMin: '',
+    valorMax: '',
+    apenasParcelado: false,
+    apenasRecorrente: false,
+    dataInicio: '',
+    dataFim: '',
+  });
 
   const usuarioId = 1;
+
+  const ordenarPorDataDesc = (items: any[]) => {
+    return [...items].sort(
+      (a, b) => parseTransacaoDate(b.data_transacao).getTime() - parseTransacaoDate(a.data_transacao).getTime()
+    );
+  };
 
   /**
    * Carrega transações e dados relacionados ao montar
@@ -24,25 +58,42 @@ export const useGerenciarTransacoes = () => {
   }, []);
 
   /**
-   * Carrega todos os dados da API
+   * Carrega todos os dados da API (com fallback para dados mockados)
    */
   const carregarDados = async () => {
     setLoading(true);
     setError(null);
     
     try {
-      const [transacoesData, categoriasData, instituicoesData] = await Promise.all([
-        transacaoService.listar(),
+      console.log('🔄 [LOAD] Carregando dados da API...');
+      
+      // Carrega categorias e instituições (não paginados)
+      const [categoriasData, instituicoesData] = await Promise.all([
         categoriaService.listarPorUsuario(usuarioId),
         instituicaoService.listarPorUsuario(usuarioId)
       ]);
       
-      setTransacoes(transacoesData);
+      // TODO: Quando backend estiver pronto, substituir por endpoint paginado
+      const todasTransacoes = await transacaoService.listar();
+      
+      console.log(`📊 [LOAD] Dados carregados da API:`);
+      console.log(`   • ${todasTransacoes.length} transações`);
+      console.log(`   • ${categoriasData.length} categorias`);
+      console.log(`   • ${instituicoesData.length} instituições`);
+      
+      setTransacoes(ordenarPorDataDesc(todasTransacoes));
       setCategorias(categoriasData);
       setInstituicoes(instituicoesData);
+      setUsandoDadosMockados(false);
     } catch (err: any) {
-      console.error('Erro ao carregar dados:', err);
-      setError(err.message || 'Erro ao carregar dados');
+      console.warn('⚠️  API indisponível, usando dados mockados:', err.message);
+      
+      // Fallback para dados mockados
+      setTransacoes(ordenarPorDataDesc(MOCK_TRANSACTIONS));
+      setCategorias(CATEGORIES);
+      setInstituicoes([]);
+      setUsandoDadosMockados(true);
+      setError('Modo offline - usando dados de exemplo');
     } finally {
       setLoading(false);
     }
@@ -57,7 +108,7 @@ export const useGerenciarTransacoes = () => {
     
     try {
       const transacoesData = await transacaoService.listarPorPeriodo(dataInicio, dataFim);
-      setTransacoes(transacoesData);
+      setTransacoes(ordenarPorDataDesc(transacoesData));
     } catch (err: any) {
       console.error('Erro ao buscar transações:', err);
       setError(err.message || 'Erro ao buscar transações');
@@ -75,7 +126,7 @@ export const useGerenciarTransacoes = () => {
     
     try {
       const transacoesData = await transacaoService.listarPorTipo(tipo);
-      setTransacoes(transacoesData);
+      setTransacoes(ordenarPorDataDesc(transacoesData));
     } catch (err: any) {
       console.error('Erro ao buscar transações:', err);
       setError(err.message || 'Erro ao buscar transações');
@@ -104,7 +155,7 @@ export const useGerenciarTransacoes = () => {
   const deletarTransacao = async (id: number) => {
     try {
       await transacaoService.deletar(id);
-      setTransacoes(transacoes.filter(t => t.id !== id));
+      setTransacoes(prev => ordenarPorDataDesc(prev.filter(t => t.id !== id)));
     } catch (err: any) {
       console.error('Erro ao deletar transação:', err);
       setError(err.message || 'Erro ao deletar transação');
@@ -118,7 +169,7 @@ export const useGerenciarTransacoes = () => {
   const criarTransacao = async (transacao: any) => {
     try {
       const novaTransacao = await transacaoService.criar(transacao);
-      setTransacoes([novaTransacao, ...transacoes]);
+      setTransacoes(prev => ordenarPorDataDesc([novaTransacao, ...prev]));
       return novaTransacao;
     } catch (err: any) {
       console.error('Erro ao criar transação:', err);
@@ -133,7 +184,9 @@ export const useGerenciarTransacoes = () => {
   const atualizarTransacao = async (id: number, transacao: any) => {
     try {
       const transacaoAtualizada = await transacaoService.atualizar(id, transacao);
-      setTransacoes(transacoes.map(t => t.id === id ? transacaoAtualizada : t));
+      setTransacoes(prev =>
+        ordenarPorDataDesc(prev.map(t => t.id === id ? transacaoAtualizada : t))
+      );
       return transacaoAtualizada;
     } catch (err: any) {
       console.error('Erro ao atualizar transação:', err);
@@ -151,10 +204,13 @@ export const useGerenciarTransacoes = () => {
     error,
     periodo,
     ordenacao,
+    filtros,
+    usandoDadosMockados,
     
     // Modificadores
     setPeriodo,
     setOrdenacao,
+    setFiltros,
     
     // Ações
     carregarDados,

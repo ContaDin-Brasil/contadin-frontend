@@ -1,22 +1,15 @@
 import { StyleSheet } from 'react-native';
+import COLORS from '../../../styles/colors';
 
 export const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#FFF',
+    paddingTop: 20,
+  },
   container: {
     flex: 1,
     backgroundColor: '#FFF',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 20,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
   },
   section: {
     paddingHorizontal: 20,
@@ -90,8 +83,8 @@ export const styles = StyleSheet.create({
     backgroundColor: '#FFF',
   },
   typeButtonActive: {
-    backgroundColor: '#5BA3FF',
-    borderColor: '#5BA3FF',
+    backgroundColor: COLORS.primaryLight,
+    borderColor: COLORS.primaryLight,
   },
   typeButtonText: {
     fontSize: 16,
@@ -134,8 +127,8 @@ export const styles = StyleSheet.create({
     gap: 8,
   },
   categoryButtonActive: {
-    backgroundColor: '#5BA3FF',
-    borderColor: '#5BA3FF',
+    backgroundColor: COLORS.primaryLight,
+    borderColor: COLORS.primaryLight,
   },
   categoryButtonText: {
     fontSize: 14,
@@ -145,11 +138,23 @@ export const styles = StyleSheet.create({
   categoryButtonTextActive: {
     color: '#FFF',
   },
+  addCategoryButton: {
+    borderColor: COLORS.primary,
+    borderStyle: 'dashed',
+    backgroundColor: COLORS.primaryLight + '10',
+  },
+  addCategoryButtonText: {
+    color: COLORS.primary,
+    fontWeight: '600',
+  },
   recurringRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 15,
     gap: 10,
+  },
+  marginTop0: {
+    marginTop: 0,
   },
   recurringText: {
     fontSize: 16,
@@ -170,8 +175,8 @@ export const styles = StyleSheet.create({
     backgroundColor: '#FFF',
   },
   frequencyButtonActive: {
-    backgroundColor: '#5BA3FF',
-    borderColor: '#5BA3FF',
+    backgroundColor: COLORS.primaryLight,
+    borderColor: COLORS.primaryLight,
   },
   frequencyButtonText: {
     fontSize: 14,
@@ -180,6 +185,122 @@ export const styles = StyleSheet.create({
   },
   frequencyButtonTextActive: {
     color: '#FFF',
+  },
+  installmentButtons: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+    marginTop: 10,
+  },
+  installmentButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    alignItems: 'center',
+    backgroundColor: '#FFF',
+  },
+  installmentButtonActive: {
+    backgroundColor: COLORS.primaryLight,
+    borderColor: COLORS.primaryLight,
+  },
+  installmentButtonText: {
+    fontSize: 14,
+    color: '#333',
+    fontWeight: '500',
+  },
+  installmentButtonTextActive: {
+    color: '#FFF',
+  },
+  customInstallmentButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingHorizontal: 12,
+  },
+  customInstallmentInput: {
+    fontSize: 14,
+    color: '#333',
+    fontWeight: '500',
+    minWidth: 35,
+    textAlign: 'center',
+  },
+  customInstallmentInputActive: {
+    color: '#FFF',
+  },
+  installmentValueContainer: {
+    backgroundColor: COLORS.primaryLighter,
+    borderRadius: 12,
+    padding: 14,
+    marginTop: 10,
+    marginBottom: 8,
+  },
+  installmentValueRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  installmentValueText: {
+    fontSize: 15,
+    color: COLORS.textPrimary,
+    fontWeight: '500',
+  },
+  installmentValueHighlight: {
+    fontSize: 16,
+    color: COLORS.primary,
+    fontWeight: '700',
+  },
+  warningContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 8,
+  },
+  warningText: {
+    fontSize: 12,
+    color: COLORS.warning,
+    fontWeight: '500',
+  },
+  installmentInfoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 8,
+    paddingHorizontal: 4,
+  },
+  installmentInfoText: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    fontStyle: 'italic',
+  },
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+    marginLeft: 4,
+  },
+  errorText: {
+    fontSize: 12,
+    color: COLORS.error,
+    marginLeft: 4,
+  },
+  pickerLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.textPrimary,
+    marginTop: 8,
+    marginBottom: 8,
+  },
+  pickerContainer: {
+    backgroundColor: '#f5f5f5',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    overflow: 'hidden',
+  },
+  picker: {
+    height: 50,
   },
   institutionTypeButtons: {
     flexDirection: 'row',
@@ -207,6 +328,68 @@ export const styles = StyleSheet.create({
   institutionTypeButtonTextActive: {
     color: '#FFF',
   },
+  institutionChipContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    backgroundColor: '#FFF',
+  },
+  institutionChipWrapper: {
+    flex: 1,
+    marginRight: 8,
+  },
+  institutionChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderRadius: 20,
+    paddingVertical: 6,
+    paddingLeft: 6,
+    paddingRight: 12,
+    alignSelf: 'flex-start',
+    gap: 8,
+  },
+  chipIconContainer: {
+    width: 32,
+    height: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  chipLogoImage: {
+    width: 28,
+    height: 28,
+    borderRadius: 8,
+    objectFit: 'cover',
+  },
+  chipIconText: {
+    color: '#FFF',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  chipText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+  },
+  chipRemoveButton: {
+    marginLeft: 4,
+  },
+  institutionPlaceholderContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    flex: 1,
+  },
+  institutionPlaceholderText: {
+    fontSize: 15,
+    color: '#999',
+  },
   institutionSelector: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -220,6 +403,7 @@ export const styles = StyleSheet.create({
   institutionIcons: {
     flexDirection: 'row',
     gap: 8,
+    alignItems: 'center',
   },
   institutionIcon: {
     width: 40,
@@ -227,11 +411,25 @@ export const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
   },
   institutionIconText: {
     color: '#FFF',
     fontSize: 14,
     fontWeight: 'bold',
+  },
+  institutionLogoImage: {
+    width: 36,
+    height: 36,
+  },
+  institutionName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+  },
+  institutionPlaceholder: {
+    fontSize: 16,
+    color: '#999',
   },
   saveButton: {
     flexDirection: 'row',

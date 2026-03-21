@@ -7,7 +7,8 @@ import { TabAjuda } from '../types/configuracoes.types';
 export const useAjuda = () => {
   const [selectedTab, setSelectedTab] = useState<TabAjuda>('FAQ');
   const [emailExpanded, setEmailExpanded] = useState(false);
-  const [whatsappExpanded, setWhatsappExpanded] = useState(true);
+  const [whatsappExpanded, setWhatsappExpanded] = useState(false);
+  const [faqExpandedIds, setFaqExpandedIds] = useState<string[]>([]);
 
   const toggleEmail = () => {
     setEmailExpanded(!emailExpanded);
@@ -17,6 +18,12 @@ export const useAjuda = () => {
     setWhatsappExpanded(!whatsappExpanded);
   };
 
+  const toggleFaqItem = (id: string) => {
+    setFaqExpandedIds((prev) =>
+      prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id]
+    );
+  };
+
   return {
     selectedTab,
     setSelectedTab,
@@ -24,7 +31,10 @@ export const useAjuda = () => {
     setEmailExpanded,
     whatsappExpanded,
     setWhatsappExpanded,
+    faqExpandedIds,
+    setFaqExpandedIds,
     toggleEmail,
-    toggleWhatsapp
+    toggleWhatsapp,
+    toggleFaqItem
   };
 };
