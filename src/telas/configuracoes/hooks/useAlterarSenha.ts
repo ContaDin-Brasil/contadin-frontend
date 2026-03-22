@@ -1,61 +1,131 @@
 /**
  * Hook para gerenciar alteração de senha
  */
-import { useState } from 'react';
-import { AlterarSenha, ValidacaoSenha } from '../types/configuracoes.types';
+import { useCallback, useMemo, useState } from 'react';
+import { Alert } from 'react-native';
+import { AlterarSenha } from '../types/configuracoes.types';
+import { validarSenha } from '../constants/constantesConfiguracao';
+import { usuarioService } from '../../../api';
+import { useAuth } from '../../../contexts/AuthContext';
+
+interface UsuarioAuth {
+  id?: number;
+}
+
+interface UsuarioComSenha {
+  senha?: string;
+}
 
 export const useAlterarSenha = () => {
+  const { user } = useAuth();
   const [senhaAtual, setSenhaAtual] = useState('');
   const [novaSenha, setNovaSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  /**
-   * Valida a nova senha de acordo com os requisitos
-   */
-  const validarSenha = (senha: string): ValidacaoSenha => {
-    return {
-      temOitoCaracteres: senha.length >= 8,
-      temNumero: /\d/.test(senha),
-      temCaractereEspecial: /[!@$%&]/.test(senha),
-      semSequenciaNumerica: !/(?:012|123|234|345|456|567|678|789|321|210|432|543|654|765|876|987)/.test(senha),
-      semNumerosRepetidos: !/(\d)\1{2,}/.test(senha)
-    };
-  };
+  const userAuth = user as UsuarioAuth | null;
 
-  /**
-   * Verifica se todas as validações passaram
-   */
-  const senhaValida = (): boolean => {
-    const validacao = validarSenha(novaSenha);
-    return Object.values(validacao).every(v => v === true) && 
-           novaSenha === confirmarSenha;
-  };
+  const setSenhaAtualComResetErro = useCallback((valor: string) => {
+    setSenhaAtual(valor);
+    if (error) setError(null);
+  }, [error]);
 
-  const handleSavePassword = () => {
-    if (!senhaValida()) {
-      console.log('Senha inválida');
+  const setNovaSenhaComResetErro = useCallback((valor: string) => {
+    setNovaSenha(valor);
+    if (error) setError(null);
+  }, [error]);
+
+  const setConfirmarSenhaComResetErro = useCallback((valor: string) => {
+    setConfirmarSenha(valor);
+    if (error) setError(null);
+  }, [error]);
+
+  const senhaValida = useMemo(() => {
+    const erroSenha = validarSenha(novaSenha.trim());
+    return !erroSenha && novaSenha.trim() === confirmarSenha.trim();
+  }, [confirmarSenha, novaSenha]);
+
+  const handleSavePassword = async () => {
+    const senhaAtualTrim = senhaAtual.trim();
+    const novaSenhaTrim = novaSenha.trim();
+    const confirmarSenhaTrim = confirmarSenha.trim();
+
+    setError(null);
+
+    if (!senhaAtualTrim) {
+      setError('Informe a senha atual.');
+      return;
+    }
+
+    if (!novaSenhaTrim) {
+      setError('Informe a nova senha.');
+      return;
+    }
+
+    const erroSenha = validarSenha(novaSenhaTrim);
+    if (erroSenha) {
+      setError(erroSenha);
+      return;
+    }
+
+    if (novaSenhaTrim !== confirmarSenhaTrim) {
+      setError('As senhas não coincidem.');
+      return;
+    }
+
+    if (!userAuth?.id) {
+      setError('Não foi possível identificar o usuário logado.');
       return;
     }
 
     const dados: AlterarSenha = {
-      senhaAtual,
-      novaSenha,
-      confirmarSenha
+      senhaAtual: senhaAtualTrim,
+      novaSenha: novaSenhaTrim,
+      confirmarSenha: confirmarSenhaTrim,
     };
-    
-    // Implementar lógica de alteração de senha
-    console.log('Senha alterada:', dados);
+
+    try {
+      setLoading(true);
+
+      const usuario = (await usuarioService.buscarPorId(userAuth.id)) as UsuarioComSenha;
+      const senhaAtualMock = usuario?.senha ?? '';
+
+      if (!senhaAtualMock) {
+        setError('Não foi possível validar a senha atual no servidor mock.');
+        return;
+      }
+
+      if (senhaAtualTrim !== senhaAtualMock) {
+        setError('A senha atual informada está incorreta.');
+        return;
+      }
+
+      await usuarioService.atualizarParcial(userAuth.id, {
+        senha: novaSenhaTrim,
+      });
+
+      setSenhaAtual('');
+      setNovaSenha('');
+      setConfirmarSenha('');
+      Alert.alert('Senha atualizada', 'Sua senha foi alterada com sucesso.');
+    } catch (_error) {
+      setError('Não foi possível alterar a senha. Tente novamente.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return {
     senhaAtual,
-    setSenhaAtual,
+    setSenhaAtual: setSenhaAtualComResetErro,
     novaSenha,
-    setNovaSenha,
+    setNovaSenha: setNovaSenhaComResetErro,
     confirmarSenha,
-    setConfirmarSenha,
-    validarSenha,
+    setConfirmarSenha: setConfirmarSenhaComResetErro,
     senhaValida,
+    loading,
+    error,
     handleSavePassword
   };
 };
