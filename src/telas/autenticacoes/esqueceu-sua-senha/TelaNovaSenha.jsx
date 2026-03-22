@@ -11,19 +11,11 @@ import { Ionicons } from "@expo/vector-icons";
 import TituloPagina from "../../../componentes/TituloPagina";
 import { useNovaSenha } from "./hooks/useNovaSenha";
 import { REQUISITOS_SENHA } from "../../configuracoes/constants/constantesConfiguracao";
+import {
+  obterResultadosValidacaoSenha,
+  verificarSenhasConferem,
+} from "../../../utils/senhaUtils";
 import { styles } from "./styles/TelaNovaSenha.styles";
-
-const VALIDACOES_SENHA = [
-  { msg: REQUISITOS_SENHA[0], testar: (s) => s.length >= 8 },
-  { msg: REQUISITOS_SENHA[1], testar: (s) => /\d/.test(s) },
-  { msg: REQUISITOS_SENHA[2], testar: (s) => /[!@$%&_]/.test(s) },
-  {
-    msg: REQUISITOS_SENHA[3],
-    testar: (s) =>
-      !/(123|234|345|456|567|678|789|321|432|543|654|765|876|987)/.test(s),
-  },
-  { msg: REQUISITOS_SENHA[4], testar: (s) => !/(\d)\1{2}/.test(s) },
-];
 
 function TelaNovaSenha({ navigation, route }) {
   const token = route.params?.token ?? "";
@@ -34,18 +26,15 @@ function TelaNovaSenha({ navigation, route }) {
   const [senhaTocada, setSenhaTocada] = useState(false);
 
   const resultadosValidacao = useMemo(
-    () =>
-      VALIDACOES_SENHA.map((v) => ({
-        msg: v.msg,
-        valido: v.testar(novaSenha.senha),
-      })),
+    () => obterResultadosValidacaoSenha(novaSenha.senha),
     [novaSenha.senha],
   );
 
   const todasValidas = resultadosValidacao.every((r) => r.valido);
-  const senhasConferem =
-    novaSenha.senha.length > 0 &&
-    novaSenha.senha === novaSenha.confirmarSenha;
+  const senhasConferem = verificarSenhasConferem(
+    novaSenha.senha,
+    novaSenha.confirmarSenha,
+  );
 
   const onAtualizar = async () => {
     await novaSenha.handleAtualizar(navigation);
