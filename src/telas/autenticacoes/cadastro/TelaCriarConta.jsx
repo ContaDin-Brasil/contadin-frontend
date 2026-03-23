@@ -12,19 +12,11 @@ import { Ionicons } from "@expo/vector-icons";
 import TituloPagina from "../../../componentes/TituloPagina";
 import { useCriarConta } from "./hooks/useCriarConta";
 import { REQUISITOS_SENHA } from "../../configuracoes/constants/constantesConfiguracao";
+import {
+  obterResultadosValidacaoSenha,
+  verificarSenhasConferem,
+} from "../../../utils/senhaUtils";
 import { styles } from "./styles/TelaCriarConta.styles";
-
-const VALIDACOES_SENHA = [
-  { msg: REQUISITOS_SENHA[0], testar: (s) => s.length >= 8 },
-  { msg: REQUISITOS_SENHA[1], testar: (s) => /\d/.test(s) },
-  { msg: REQUISITOS_SENHA[2], testar: (s) => /[!@$%&_]/.test(s) },
-  {
-    msg: REQUISITOS_SENHA[3],
-    testar: (s) =>
-      !/(123|234|345|456|567|678|789|321|432|543|654|765|876|987)/.test(s),
-  },
-  { msg: REQUISITOS_SENHA[4], testar: (s) => !/(\d)\1{2}/.test(s) },
-];
 
 function TelaCriarConta({ navigation }) {
   const criar = useCriarConta();
@@ -34,17 +26,15 @@ function TelaCriarConta({ navigation }) {
   const [senhaTocada, setSenhaTocada] = useState(false);
 
   const resultadosValidacao = useMemo(
-    () =>
-      VALIDACOES_SENHA.map((v) => ({
-        msg: v.msg,
-        valido: v.testar(criar.senha),
-      })),
+    () => obterResultadosValidacaoSenha(criar.senha),
     [criar.senha],
   );
 
   const todasValidas = resultadosValidacao.every((r) => r.valido);
-  const senhasConferem =
-    criar.senha.length > 0 && criar.senha === criar.confirmarSenha;
+  const senhasConferem = verificarSenhasConferem(
+    criar.senha,
+    criar.confirmarSenha,
+  );
 
   const onCadastrar = async () => {
     await criar.handleCadastrar(navigation);

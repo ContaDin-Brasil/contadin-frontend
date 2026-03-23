@@ -1,13 +1,33 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, TextInput, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import TituloPagina from '../../componentes/TituloPagina';
 import { useAlterarSenha } from './hooks/useAlterarSenha';
 import { REQUISITOS_SENHA } from './constants/constantesConfiguracao';
+import {
+  obterResultadosValidacaoSenha,
+  verificarSenhasConferem,
+} from '../../utils/senhaUtils';
 import { styles } from './styles/TelaAlterarSenha.styles';
 
 const ChangePasswordScreen = ({ navigation }) => {
   const senha = useAlterarSenha();
+  const [showSenhaAtual, setShowSenhaAtual] = useState(false);
+  const [showNovaSenha, setShowNovaSenha] = useState(false);
+  const [showConfirmarSenha, setShowConfirmarSenha] = useState(false);
+  const [tooltipVisivel, setTooltipVisivel] = useState(false);
+  const [senhaTocada, setSenhaTocada] = useState(false);
+
+  const resultadosValidacao = useMemo(
+    () => obterResultadosValidacaoSenha(senha.novaSenha),
+    [senha.novaSenha],
+  );
+
+  const todasValidas = resultadosValidacao.every((resultado) => resultado.valido);
+  const senhasConferem = verificarSenhasConferem(
+    senha.novaSenha,
+    senha.confirmarSenha,
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -21,42 +41,144 @@ const ChangePasswordScreen = ({ navigation }) => {
 
       <View style={styles.formContainer}>
         <Text style={styles.label}>Adicione a sua senha atual</Text>
-        <TextInput
-          style={styles.input}
-          value={senha.senhaAtual}
-          onChangeText={senha.setSenhaAtual}
-          secureTextEntry
-          placeholder=""
-        />
-
-        <Text style={styles.label}>Nova Senha</Text>
-        <TextInput
-          style={styles.input}
-          value={senha.novaSenha}
-          onChangeText={senha.setNovaSenha}
-          secureTextEntry
-          placeholder=""
-        />
-
-        <Text style={styles.label}>Confirme a Nova Senha</Text>
-        <TextInput
-          style={styles.input}
-          value={senha.confirmarSenha}
-          onChangeText={senha.setConfirmarSenha}
-          secureTextEntry
-          placeholder=""
-        />
-
-        <View style={styles.requirementsContainer}>
-          {REQUISITOS_SENHA.map((requisito, index) => (
-            <Text key={index} style={styles.requirementText}>• {requisito}</Text>
-          ))}
+        <View style={styles.inputRow}>
+          <TextInput
+            style={[styles.input, styles.inputComIcone]}
+            value={senha.senhaAtual}
+            onChangeText={senha.setSenhaAtual}
+            secureTextEntry={!showSenhaAtual}
+            placeholder=""
+            editable={!senha.loading}
+          />
+          <TouchableOpacity
+            style={styles.eyeButton}
+            onPress={() => setShowSenhaAtual((valorAtual) => !valorAtual)}
+            activeOpacity={0.7}
+          >
+            <Ionicons
+              name={showSenhaAtual ? 'eye-off-outline' : 'eye-outline'}
+              size={22}
+              color="#666"
+            />
+          </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.saveButton} onPress={senha.handleSavePassword}>
+        <View style={styles.labelRow}>
+          <Text style={styles.labelInline}>Nova Senha</Text>
+          <TouchableOpacity
+            onPress={() => setTooltipVisivel((visivel) => !visivel)}
+            activeOpacity={0.7}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <Ionicons
+              name="information-circle-outline"
+              size={20}
+              color={tooltipVisivel ? '#2D85F8' : '#999'}
+            />
+          </TouchableOpacity>
+        </View>
+
+        {tooltipVisivel && (
+          <View style={styles.tooltip}>
+            <View style={styles.tooltipSeta} />
+            <Text style={styles.tooltipTitulo}>Requisitos da senha:</Text>
+            {REQUISITOS_SENHA.map((requisito, index) => (
+              <Text key={index} style={styles.tooltipTexto}>
+                • {requisito}
+              </Text>
+            ))}
+          </View>
+        )}
+
+        <View style={styles.inputRow}>
+          <TextInput
+            style={[styles.input, styles.inputComIcone]}
+            value={senha.novaSenha}
+            onChangeText={senha.setNovaSenha}
+            secureTextEntry={!showNovaSenha}
+            placeholder=""
+            editable={!senha.loading}
+            onBlur={() => setSenhaTocada(true)}
+          />
+          <TouchableOpacity
+            style={styles.eyeButton}
+            onPress={() => setShowNovaSenha((valorAtual) => !valorAtual)}
+            activeOpacity={0.7}
+          >
+            <Ionicons
+              name={showNovaSenha ? 'eye-off-outline' : 'eye-outline'}
+              size={22}
+              color="#666"
+            />
+          </TouchableOpacity>
+        </View>
+
+        {senhaTocada && senha.novaSenha.length > 0 && !todasValidas && (
+          <View style={styles.validacaoContainer}>
+            {resultadosValidacao.map((resultado, index) => (
+              <View key={index} style={styles.validacaoItem}>
+                <Ionicons
+                  name={resultado.valido ? 'checkmark-circle' : 'close-circle'}
+                  size={16}
+                  color={resultado.valido ? '#21C25E' : '#E53935'}
+                />
+                <Text
+                  style={[
+                    styles.validacaoTexto,
+                    resultado.valido
+                      ? styles.validacaoTextoOk
+                      : styles.validacaoTextoErro,
+                  ]}
+                >
+                  {resultado.msg}
+                </Text>
+              </View>
+            ))}
+          </View>
+        )}
+
+        <Text style={styles.label}>Confirme a Nova Senha</Text>
+        <View style={styles.inputRow}>
+          <TextInput
+            style={[styles.input, styles.inputComIcone]}
+            value={senha.confirmarSenha}
+            onChangeText={senha.setConfirmarSenha}
+            secureTextEntry={!showConfirmarSenha}
+            placeholder=""
+            editable={!senha.loading}
+          />
+          <TouchableOpacity
+            style={styles.eyeButton}
+            onPress={() => setShowConfirmarSenha((valorAtual) => !valorAtual)}
+            activeOpacity={0.7}
+          >
+            <Ionicons
+              name={showConfirmarSenha ? 'eye-off-outline' : 'eye-outline'}
+              size={22}
+              color="#666"
+            />
+          </TouchableOpacity>
+        </View>
+
+        {senhaTocada && senha.confirmarSenha.length > 0 && !senhasConferem && (
+          <View style={styles.validacaoItem}>
+            <Ionicons name="close-circle" size={16} color="#E53935" />
+            <Text style={styles.validacaoTextoErro}>As senhas não coincidem.</Text>
+          </View>
+        )}
+
+        <TouchableOpacity
+          style={[styles.saveButton, senha.loading && styles.saveButtonDisabled]}
+          onPress={senha.handleSavePassword}
+          disabled={senha.loading}
+        >
           <Ionicons name="save-outline" size={24} color="#000" />
-          <Text style={styles.saveButtonText}>Salvar Alterações</Text>
+          <Text style={styles.saveButtonText}>
+            {senha.loading ? 'Salvando...' : 'Salvar Alterações'}
+          </Text>
         </TouchableOpacity>
+
+        {senha.error ? <Text style={styles.mensagemErro}>{senha.error}</Text> : null}
       </View>
       </ScrollView>
     </SafeAreaView>

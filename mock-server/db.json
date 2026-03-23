@@ -2,11 +2,11 @@
   "usuario": [
     {
       "id": 1,
-      "nome": "João",
-      "sobrenome": "Silva",
+      "nome": "Joãozinho",
+      "sobrenome": "Gomez",
       "email": "joao.silva@email.com",
-      "senha": "$2a$10$hash_exemplo_senha",
-      "tel": "(11) 98765-4321",
+      "senha": "AuraFarm67@",
+      "tel": "11964217580",
       "ativo": true
     },
     {

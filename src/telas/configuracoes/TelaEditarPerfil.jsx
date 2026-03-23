@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView, TextInput, Switch, SafeAreaView } from 'react-native';
+import React, { useCallback, useEffect, useRef } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, TextInput, Switch, SafeAreaView, ActivityIndicator, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import TituloPagina from '../../componentes/TituloPagina';
 import { useEditarPerfil } from './hooks/useEditarPerfil';
@@ -7,31 +7,74 @@ import { styles } from './styles/TelaEditarPerfil.styles';
 
 const EditProfileScreen = ({ navigation }) => {
   const perfil = useEditarPerfil();
+  const permitirSaidaRef = useRef(false);
+
+  const confirmarSaidaSemSalvar = useCallback(
+    (onConfirmarSaida) => {
+      if (!perfil.isDirty) {
+        onConfirmarSaida();
+        return;
+      }
+
+      Alert.alert(
+        'Descartar alterações?',
+        'Você tem mudanças não salvas no perfil. Se sair agora, elas serão perdidas.',
+        [
+          {
+            text: 'Continuar editando',
+            style: 'cancel',
+          },
+          {
+            text: 'Sair sem salvar',
+            style: 'destructive',
+            onPress: onConfirmarSaida,
+          },
+        ],
+      );
+    },
+    [perfil.isDirty],
+  );
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', (event) => {
+      if (permitirSaidaRef.current || !perfil.isDirty) {
+        return;
+      }
+
+      event.preventDefault();
+      confirmarSaidaSemSalvar(() => {
+        permitirSaidaRef.current = true;
+        navigation.dispatch(event.data.action);
+      });
+    });
+
+    return unsubscribe;
+  }, [confirmarSaidaSemSalvar, navigation, perfil.isDirty]);
+
+  const handleVoltar = useCallback(() => {
+    navigation.goBack();
+  }, [navigation]);
 
   return (
     <SafeAreaView style={styles.container}>
       <TituloPagina 
         mostrarBotaoVoltar={true} 
-        onVoltar={() => navigation.goBack()}
+        onVoltar={handleVoltar}
       >
         Editar Perfil
       </TituloPagina>
+
+      {perfil.isLoading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#4A9EFF" />
+          <Text style={styles.loadingText}>Carregando perfil...</Text>
+        </View>
+      ) : (
       <ScrollView contentContainerStyle={styles.contentContainer}>
 
-      <View style={styles.avatarContainer}>
-        <View style={styles.avatar}>
-          <View style={styles.avatarIcon}>
-            <View style={styles.avatarHead} />
-            <View style={styles.avatarBody} />
-          </View>
-        </View>
-        <TouchableOpacity style={styles.changePhotoContainer}>
-          <Text style={styles.changePhotoText}>Alterar Foto</Text>
-          <Ionicons name="pencil" size={16} color="#333" style={styles.editIcon} />
-        </TouchableOpacity>
-      </View>
-
       <View style={styles.formContainer}>
+        <Text style={styles.sectionTitle}>Dados pessoais</Text>
+
         <Text style={styles.label}>Nome</Text>
         <TextInput
           style={styles.input}
@@ -64,7 +107,18 @@ const EditProfileScreen = ({ navigation }) => {
           onChangeText={perfil.setEmail}
           placeholder=""
           keyboardType="email-address"
+          autoCapitalize="none"
         />
+
+        {perfil.emailFoiAlterado ? (
+          <Text style={styles.impactText}>
+            Este email sera usado para login e recuperacao.
+          </Text>
+        ) : null}
+
+        <View style={styles.sectionDivider} />
+
+        <Text style={styles.sectionTitle}>Preferencias do app</Text>
 
         <View style={styles.switchContainer}>
           <Text style={styles.switchLabel}>Notificações Push</Text>
@@ -86,12 +140,26 @@ const EditProfileScreen = ({ navigation }) => {
           />
         </View>
 
-        <TouchableOpacity style={styles.saveButton} onPress={perfil.handleSaveProfile}>
-          <Ionicons name="save-outline" size={24} color="#000" />
-          <Text style={styles.saveButtonText}>Salvar Alterações</Text>
+        <TouchableOpacity
+          style={[
+            styles.saveButton,
+            (perfil.isSaving || !perfil.isDirty) && styles.saveButtonDisabled,
+          ]}
+          onPress={perfil.handleSaveProfile}
+          disabled={perfil.isSaving || !perfil.isDirty}
+        >
+          {perfil.isSaving ? (
+            <ActivityIndicator size="small" color="#000" />
+          ) : (
+            <Ionicons name="save-outline" size={24} color="#000" />
+          )}
+          <Text style={styles.saveButtonText}>
+            {perfil.isSaving ? 'Salvando...' : 'Salvar Alterações'}
+          </Text>
         </TouchableOpacity>
       </View>
       </ScrollView>
+      )}
     </SafeAreaView>
   );
 };

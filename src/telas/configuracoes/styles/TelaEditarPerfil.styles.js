@@ -6,60 +6,36 @@ export const styles = StyleSheet.create({
     backgroundColor: '#F5F5F5',
     paddingTop: 20,
   },
-  contentContainer: {
-    padding: 20,
-    paddingBottom: 100,
-  },
-  avatarContainer: {
+  loadingContainer: {
+    flex: 1,
     alignItems: 'center',
-    marginBottom: 30,
-  },
-  avatar: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: '#B8DBFF',
-    borderWidth: 4,
-    borderColor: '#4A9EFF',
     justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 16,
+    gap: 12,
   },
-  avatarIcon: {
-    alignItems: 'center',
-  },
-  avatarHead: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    borderWidth: 2,
-    borderColor: '#333',
-    marginBottom: 5,
-  },
-  avatarBody: {
-    width: 45,
-    height: 35,
-    borderTopLeftRadius: 25,
-    borderTopRightRadius: 25,
-    borderWidth: 2,
-    borderColor: '#333',
-    borderBottomWidth: 0,
-  },
-  changePhotoContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  changePhotoText: {
+  loadingText: {
     fontSize: 16,
     color: '#333',
     fontWeight: '500',
   },
-  editIcon: {
-    marginTop: 2,
+  contentContainer: {
+    paddingHorizontal: 20,
+    paddingBottom: 10,
   },
   formContainer: {
-    marginTop: 20,
+    marginTop: 12,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1F2937',
+    marginTop: 4,
+    marginBottom: 6,
+  },
+  sectionDivider: {
+    height: 1,
+    backgroundColor: '#D5DFEA',
+    marginTop: 26,
+    marginBottom: 12,
   },
   label: {
     fontSize: 16,
@@ -73,6 +49,13 @@ export const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 8,
     fontSize: 16,
+  },
+  impactText: {
+    marginTop: 8,
+    fontSize: 13,
+    lineHeight: 18,
+    color: '#4B5563',
+    fontWeight: '500',
   },
   switchContainer: {
     flexDirection: 'row',
@@ -95,6 +78,9 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 10,
     marginTop: 32,
+  },
+  saveButtonDisabled: {
+    opacity: 0.8,
   },
   saveButtonText: {
     color: '#000',
