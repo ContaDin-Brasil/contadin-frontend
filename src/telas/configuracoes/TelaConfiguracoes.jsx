@@ -43,6 +43,12 @@ const SettingsScreen = ({ navigation }) => {
           onPress={() => navigation.navigate('Account')}
           icon={<Ionicons name="settings-outline" size={24} color="#000" />}
         />
+
+        <CustomButton 
+          title="Metas" 
+          onPress={() => navigation.navigate('Goals')}
+          icon={<Ionicons name="flag-outline" size={24} color="#000" />}
+        />
         
         <CustomButton 
           title="Ajuda" 
