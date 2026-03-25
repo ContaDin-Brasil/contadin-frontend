@@ -1,11 +1,23 @@
 import { StyleSheet } from 'react-native';
 import COLORS from '../../../styles/colors';
+import { FOOTER_HEIGHT } from '../../../componentes/BotoesAcaoFixo';
 
 export const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: '#FFF',
     paddingTop: 20,
+  },
+  screen: {
+    flex: 1,
+  },
+  scroll: {
+    flex: 1,
+    backgroundColor: '#FFF',
+    marginBottom: FOOTER_HEIGHT,
+  },
+  contentContainer: {
+    paddingBottom: 20,
   },
   container: {
     flex: 1,

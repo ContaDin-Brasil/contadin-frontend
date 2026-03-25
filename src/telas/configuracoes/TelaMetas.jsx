@@ -7,33 +7,24 @@ import { styles } from './styles/TelaMetas.styles';
 const METAS_MOCK = [
   {
     id: 'meta-01',
-    titulo: 'Reduzir delivery no mes',
-    tipo: 'reduzir',
+    nome: 'Reduzir delivery no mes',
     categoria: 'Alimentacao',
-    alvo: 450,
-    atual: 320,
-    prazo: '30 dias',
-    status: 'em_andamento',
+    valor: 450,
+    dataFimMeta: '25/04/2026',
   },
   {
     id: 'meta-02',
-    titulo: 'Aumentar renda com freelas',
-    tipo: 'aumentar',
+    nome: 'Aumentar renda com freelas',
     categoria: 'Renda extra',
-    alvo: 1200,
-    atual: 860,
-    prazo: '20 dias',
-    status: 'em_andamento',
+    valor: 1200,
+    dataFimMeta: '12/04/2026',
   },
   {
     id: 'meta-03',
-    titulo: 'Diminuir transporte por app',
-    tipo: 'reduzir',
+    nome: 'Diminuir transporte por app',
     categoria: 'Mobilidade',
-    alvo: 300,
-    atual: 300,
-    prazo: 'Concluida',
-    status: 'concluida',
+    valor: 300,
+    dataFimMeta: '02/03/2026',
   },
 ];
 
@@ -50,13 +41,11 @@ const formatarMoeda = (valor) => {
 
 const TelaMetas = ({ navigation }) => {
   const resumo = useMemo(() => {
-    const ativas = METAS_MOCK.filter((meta) => meta.status === 'em_andamento').length;
-    const concluidas = METAS_MOCK.filter((meta) => meta.status === 'concluida').length;
-    const economia = METAS_MOCK
-      .filter((meta) => meta.tipo === 'reduzir')
-      .reduce((acc, meta) => acc + Math.max(meta.alvo - meta.atual, 0), 0);
+    const total = METAS_MOCK.length;
+    const valorTotal = METAS_MOCK.reduce((acc, meta) => acc + meta.valor, 0);
+    const proximaMeta = METAS_MOCK[0]?.dataFimMeta || '--/--/----';
 
-    return { ativas, concluidas, economia };
+    return { total, valorTotal, proximaMeta };
   }, []);
 
   return (
@@ -92,21 +81,21 @@ const TelaMetas = ({ navigation }) => {
 
         <View style={styles.resumoContainer}>
           <View style={styles.resumoCard}>
-            <Text style={styles.resumoLabel}>Ativas</Text>
-            <Text style={styles.resumoValue}>{resumo.ativas}</Text>
+            <Text style={styles.resumoLabel}>Total de metas</Text>
+            <Text style={styles.resumoValue}>{resumo.total}</Text>
           </View>
           <View style={styles.resumoCard}>
-            <Text style={styles.resumoLabel}>Concluidas</Text>
-            <Text style={styles.resumoValue}>{resumo.concluidas}</Text>
+            <Text style={styles.resumoLabel}>Valor total</Text>
+            <Text style={styles.resumoValue}>{formatarMoeda(resumo.valorTotal)}</Text>
           </View>
           <View style={styles.resumoCard}>
-            <Text style={styles.resumoLabel}>Economia estimada</Text>
-            <Text style={styles.resumoValue}>{formatarMoeda(resumo.economia)}</Text>
+            <Text style={styles.resumoLabel}>Proximo prazo</Text>
+            <Text style={styles.resumoValue}>{resumo.proximaMeta}</Text>
           </View>
         </View>
 
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Metas em andamento</Text>
+          <Text style={styles.sectionTitle}>Metas cadastradas</Text>
           <TouchableOpacity style={styles.linkButton}>
             <Text style={styles.linkButtonText}>Ver todas</Text>
             <Ionicons name="chevron-forward" size={16} color="#0052CC" />
@@ -115,46 +104,23 @@ const TelaMetas = ({ navigation }) => {
 
         <View style={styles.listaMetas}>
           {METAS_MOCK.map((meta) => {
-            const progresso = Math.min(meta.atual / meta.alvo, 1);
-            const progressoPct = Math.round(progresso * 100);
-
             return (
               <View key={meta.id} style={styles.metaCard}>
                 <View style={styles.metaHeader}>
                   <View style={styles.metaTag}>
-                    <Ionicons
-                      name={meta.tipo === 'reduzir' ? 'trending-down' : 'trending-up'}
-                      size={16}
-                      color={meta.tipo === 'reduzir' ? '#E31C23' : '#00C853'}
-                    />
-                    <Text style={styles.metaTagText} numberOfLines={1}>
-                      {meta.tipo === 'reduzir' ? 'Reduzir gastos' : 'Aumentar receita'}
-                    </Text>
+                    <Ionicons name="flag-outline" size={16} color="#0052CC" />
+                    <Text style={styles.metaTagText} numberOfLines={1}>Meta de gasto</Text>
                   </View>
-                  <Text style={styles.metaPrazo}>{meta.prazo}</Text>
+                  <Text style={styles.metaPrazo}>Ate {meta.dataFimMeta}</Text>
                 </View>
 
-                <Text style={styles.metaTitulo}>{meta.titulo}</Text>
+                <Text style={styles.metaTitulo}>{meta.nome}</Text>
                 <Text style={styles.metaCategoria}>{meta.categoria}</Text>
-
-                <View style={styles.progressoLinha}>
-                  <View style={styles.progressoInfo}>
-                    <Text style={styles.progressoLabel}>Progresso</Text>
-                    <Text style={styles.progressoValor}>{progressoPct}%</Text>
-                  </View>
-                  <View style={styles.progressoBarra}>
-                    <View style={[styles.progressoFill, { width: `${progressoPct}%` }]} />
-                  </View>
-                </View>
 
                 <View style={styles.metaFooter}>
                   <View>
-                    <Text style={styles.metaFooterLabel}>Atual</Text>
-                    <Text style={styles.metaFooterValue}>{formatarMoeda(meta.atual)}</Text>
-                  </View>
-                  <View>
-                    <Text style={styles.metaFooterLabel}>Meta</Text>
-                    <Text style={styles.metaFooterValue}>{formatarMoeda(meta.alvo)}</Text>
+                    <Text style={styles.metaFooterLabel}>Valor</Text>
+                    <Text style={styles.metaFooterValue}>{formatarMoeda(meta.valor)}</Text>
                   </View>
                   <TouchableOpacity
                     style={styles.secondaryButton}

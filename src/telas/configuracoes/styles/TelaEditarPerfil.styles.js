@@ -1,10 +1,18 @@
 import { StyleSheet } from 'react-native';
+import { FOOTER_HEIGHT } from '../../../componentes/BotoesAcaoFixo';
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F5F5F5',
     paddingTop: 20,
+  },
+  screen: {
+    flex: 1,
+  },
+  scroll: {
+    flex: 1,
+    marginBottom: FOOTER_HEIGHT,
   },
   loadingContainer: {
     flex: 1,

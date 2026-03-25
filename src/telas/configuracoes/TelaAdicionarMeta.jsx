@@ -1,16 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, SafeAreaView, TextInput, TouchableOpacity, Switch, Alert } from 'react-native';
+import { View, Text, ScrollView, SafeAreaView, TextInput, Alert } from 'react-native';
 import TituloPagina from '../../componentes/TituloPagina';
+import BotoesAcaoFixo from '../../componentes/BotoesAcaoFixo';
 import { styles } from './styles/TelaMetaForm.styles';
 
 const TelaAdicionarMeta = ({ navigation }) => {
-  const [tipo, setTipo] = useState('reduzir');
-  const [titulo, setTitulo] = useState('');
+  const [nome, setNome] = useState('');
   const [categoria, setCategoria] = useState('');
-  const [valorAlvo, setValorAlvo] = useState('');
-  const [prazoDias, setPrazoDias] = useState('');
-  const [observacoes, setObservacoes] = useState('');
-  const [lembretesAtivos, setLembretesAtivos] = useState(true);
+  const [valor, setValor] = useState('');
+  const [dataFimMeta, setDataFimMeta] = useState('');
 
   const handleSalvar = () => {
     Alert.alert('Meta criada', 'Sua meta foi adicionada com sucesso.', [
@@ -27,39 +25,17 @@ const TelaAdicionarMeta = ({ navigation }) => {
       <View style={styles.screen}>
         <ScrollView
           style={styles.scroll}
-          contentContainerStyle={[styles.content, styles.contentWithFooter]}
+          contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.section}>
-            <Text style={styles.label}>Tipo de meta</Text>
-            <View style={styles.typeButtons}>
-              <TouchableOpacity
-                style={[styles.typeButton, tipo === 'reduzir' && styles.typeButtonActive]}
-                onPress={() => setTipo('reduzir')}
-              >
-                <Text style={[styles.typeButtonText, tipo === 'reduzir' && styles.typeButtonTextActive]}>
-                  Reduzir gastos
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.typeButton, tipo === 'aumentar' && styles.typeButtonActive]}
-                onPress={() => setTipo('aumentar')}
-              >
-                <Text style={[styles.typeButtonText, tipo === 'aumentar' && styles.typeButtonTextActive]}>
-                  Aumentar receita
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          <View style={styles.section}>
-            <Text style={styles.label}>Titulo da meta</Text>
+            <Text style={styles.label}>Nome da meta</Text>
             <TextInput
               style={styles.input}
               placeholder="Ex: Reduzir gastos com delivery"
               placeholderTextColor="#999"
-              value={titulo}
-              onChangeText={setTitulo}
+              value={nome}
+              onChangeText={setNome}
             />
           </View>
 
@@ -75,7 +51,7 @@ const TelaAdicionarMeta = ({ navigation }) => {
           </View>
 
           <View style={styles.section}>
-            <Text style={styles.label}>Valor alvo</Text>
+            <Text style={styles.label}>Valor da meta</Text>
             <View style={styles.amountInputContainer}>
               <Text style={styles.currencySymbol}>R$</Text>
               <TextInput
@@ -83,53 +59,29 @@ const TelaAdicionarMeta = ({ navigation }) => {
                 placeholder="0,00"
                 placeholderTextColor="#999"
                 keyboardType="numeric"
-                value={valorAlvo}
-                onChangeText={setValorAlvo}
+                value={valor}
+                onChangeText={setValor}
               />
             </View>
-            <Text style={styles.helperText}>Defina quanto deseja economizar ou ganhar.</Text>
+            <Text style={styles.helperText}>Valor total da meta cadastrada.</Text>
           </View>
 
           <View style={styles.section}>
-            <Text style={styles.label}>Prazo (dias)</Text>
+            <Text style={styles.label}>Data fim da meta</Text>
             <TextInput
               style={styles.input}
-              placeholder="Ex: 30"
+              placeholder="Ex: 30/04/2026"
               placeholderTextColor="#999"
-              keyboardType="numeric"
-              value={prazoDias}
-              onChangeText={setPrazoDias}
-            />
-          </View>
-
-          <View style={styles.section}>
-            <Text style={styles.label}>Observacoes</Text>
-            <TextInput
-              style={[styles.input, styles.inputMultiline]}
-              placeholder="Descreva detalhes da meta"
-              placeholderTextColor="#999"
-              multiline={true}
-              value={observacoes}
-              onChangeText={setObservacoes}
-            />
-          </View>
-
-          <View style={styles.switchRow}>
-            <Text style={styles.switchText}>Receber lembretes semanais</Text>
-            <Switch
-              value={lembretesAtivos}
-              onValueChange={setLembretesAtivos}
-              trackColor={{ false: '#DDD', true: '#B8DBFF' }}
-              thumbColor={lembretesAtivos ? '#0066FF' : '#FFF'}
+              value={dataFimMeta}
+              onChangeText={setDataFimMeta}
             />
           </View>
         </ScrollView>
 
-        <View style={styles.fixedActionArea}>
-          <TouchableOpacity style={styles.primaryButton} onPress={handleSalvar}>
-            <Text style={styles.primaryButtonText}>Salvar meta</Text>
-          </TouchableOpacity>
-        </View>
+        <BotoesAcaoFixo
+          primaryLabel="Salvar meta"
+          onPrimaryPress={handleSalvar}
+        />
       </View>
     </SafeAreaView>
   );

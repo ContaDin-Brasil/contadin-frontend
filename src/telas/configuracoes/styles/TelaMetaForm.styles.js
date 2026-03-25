@@ -1,5 +1,6 @@
 import { StyleSheet } from 'react-native';
 import { COLORS } from '../../../styles/colors';
+import { FOOTER_HEIGHT } from '../../../componentes/BotoesAcaoFixo';
 
 export const styles = StyleSheet.create({
   safeArea: {
@@ -15,12 +16,10 @@ export const styles = StyleSheet.create({
   },
   scroll: {
     flex: 1,
+    marginBottom: FOOTER_HEIGHT,
   },
   content: {
-    paddingBottom: 120,
-  },
-  contentWithFooter: {
-    paddingBottom: 180,
+    paddingBottom: 20,
   },
   section: {
     paddingHorizontal: 20,

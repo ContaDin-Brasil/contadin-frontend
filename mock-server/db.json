@@ -117,18 +117,18 @@
       "fk_usuario": null
     },
     {
-      "nome": "Personal trainer ",
-      "tipo": "GLOBAL",
-      "cor": "#52B788",
-      "icone": "fitness-center",
+      "nome": "Teste de categorias",
+      "tipo": "GASTO",
+      "cor": "#85C1E2",
+      "icone": "spa",
       "fk_usuario": 1,
       "id": 12
     },
     {
       "nome": "Teste",
       "tipo": "GLOBAL",
-      "cor": "#98D8C8",
-      "icone": "computer",
+      "cor": "#2A9D8F",
+      "icone": "local-drink",
       "fk_usuario": 1,
       "id": 13
     },
@@ -185,7 +185,7 @@
     {
       "nome": "Itaú",
       "icone": "I",
-      "cor": "#FF6600",
+      "cor": "#005CA9",
       "tipoInstituicao": "banco",
       "fk_usuario": 1,
       "id": 20
@@ -193,7 +193,7 @@
     {
       "nome": "PicPay",
       "icone": "PP",
-      "cor": "#21C25E",
+      "cor": "#FFD700",
       "tipoInstituicao": "banco",
       "fk_usuario": 1,
       "id": 23
@@ -253,6 +253,46 @@
       "tipoInstituicao": "vale",
       "fk_usuario": 1,
       "id": 30
+    },
+    {
+      "nome": "Next",
+      "icone": "Nx",
+      "cor": "#00AB63",
+      "tipoInstituicao": "banco",
+      "fk_usuario": 1,
+      "id": 31
+    },
+    {
+      "nome": "Alelo",
+      "icone": "Al",
+      "cor": "#FF9800",
+      "tipoInstituicao": "vale",
+      "fk_usuario": 1,
+      "id": 32
+    },
+    {
+      "nome": "Sodexo",
+      "icone": "Sd",
+      "cor": "#E31C23",
+      "tipoInstituicao": "vale",
+      "fk_usuario": 1,
+      "id": 33
+    },
+    {
+      "nome": "Banco do Brasil",
+      "icone": "BB",
+      "cor": "#FFED00",
+      "tipoInstituicao": "banco",
+      "fk_usuario": 1,
+      "id": 34
+    },
+    {
+      "nome": "Teste Banco customizado",
+      "icone": "T",
+      "cor": "#9C27B0",
+      "tipoInstituicao": "banco",
+      "fk_usuario": 1,
+      "id": 35
     }
   ],
   "transacao": [
@@ -1087,6 +1127,32 @@
       "fk_instituicao": 14,
       "fk_categoria": 1,
       "id": 64
+    },
+    {
+      "id": 65,
+      "descricao": "Compra no Supermercado Extra",
+      "valor": 145.8,
+      "tipo": "GASTO",
+      "data_transacao": "2026-03-21T00:00:00.000Z",
+      "parcelado": true,
+      "qtdParcelas": 8,
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 14,
+      "fk_categoria": 1
+    },
+    {
+      "id": 66,
+      "descricao": "Compra no Supermercado Extra",
+      "valor": 145.8,
+      "tipo": "GASTO",
+      "data_transacao": "2026-03-21T00:00:00.000Z",
+      "parcelado": true,
+      "qtdParcelas": 9,
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 14,
+      "fk_categoria": 12
     }
   ],
   "meta_gasto": [

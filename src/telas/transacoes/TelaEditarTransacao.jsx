@@ -3,6 +3,7 @@ import { View, Text, ScrollView, TextInput, TouchableOpacity, Switch, ActivityIn
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import TituloPagina from '../../componentes/TituloPagina';
+import BotoesAcaoFixo from '../../componentes/BotoesAcaoFixo';
 import { DatePickerInput } from '../../componentes/DatePickerInput';
 import { getLogoByName } from '../../componentes/modais/logosInstituicoes';
 import ModalSelecaoInstituicao from '../../componentes/modais/ModalSelecaoInstituicao';
@@ -170,7 +171,12 @@ const TelaEditarTransacao = ({ navigation, route }) => {
       >
         Editar Transação
       </TituloPagina>
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <View style={styles.screen}>
+        <ScrollView
+          style={styles.scroll}
+          contentContainerStyle={styles.contentContainer}
+          showsVerticalScrollIndicator={false}
+        >
 
       {/* Descrição da transação */}
       <View style={styles.section}>
@@ -513,50 +519,21 @@ const TelaEditarTransacao = ({ navigation, route }) => {
         </TouchableOpacity>
       </View>
 
-      {/* Botões de Ação */}
-      <View style={{ marginBottom: 30 }}>
-        {/* Botão Salvar Alterações */}
-        <TouchableOpacity 
-          style={[styles.saveButton, salvando && { opacity: 0.6 }]} 
-          onPress={handleUpdateTransaction}
-          disabled={salvando || deletando}
-        >
-          {salvando ? (
-            <>
-              <ActivityIndicator size="small" color="#FFF" />
-              <Text style={[styles.saveButtonText, { marginLeft: 8 }]}>Salvando...</Text>
-            </>
-          ) : (
-            <>
-              <Ionicons name="checkmark-circle-outline" size={24} color="#FFF" />
-              <Text style={styles.saveButtonText}>Salvar Alterações</Text>
-            </>
-          )}
-        </TouchableOpacity>
+        </ScrollView>
 
-        {/* Botão Deletar */}
-        <TouchableOpacity 
-          style={[styles.saveButton, { 
-            backgroundColor: '#FFF', 
-            borderWidth: 2, 
-            borderColor: COLORS.error,
-            marginTop: 12
-          }, deletando && { opacity: 0.6 }]} 
-          onPress={handleDeleteTransaction}
-          disabled={salvando || deletando}
-        >
-          {deletando ? (
-            <>
-              <ActivityIndicator size="small" color={COLORS.error} />
-              <Text style={[styles.saveButtonText, { color: COLORS.error, marginLeft: 8 }]}>Excluindo...</Text>
-            </>
-          ) : (
-            <>
-              <Ionicons name="trash-outline" size={24} color={COLORS.error} />
-              <Text style={[styles.saveButtonText, { color: COLORS.error }]}>Excluir Transação</Text>
-            </>
-          )}
-        </TouchableOpacity>
+        <BotoesAcaoFixo
+          primaryLabel="Salvar Alterações"
+          primaryLoadingLabel="Salvando..."
+          onPrimaryPress={handleUpdateTransaction}
+          primaryDisabled={salvando || deletando}
+          primaryLoading={salvando}
+          secondaryLabel="Excluir Transação"
+          secondaryLoadingLabel="Excluindo..."
+          onSecondaryPress={handleDeleteTransaction}
+          secondaryDisabled={salvando || deletando}
+          secondaryLoading={deletando}
+          secondaryVariant="danger"
+        />
       </View>
 
       {/* Modais */}
@@ -583,7 +560,6 @@ const TelaEditarTransacao = ({ navigation, route }) => {
         onSave={handleCreateCategoria}
         tipoInicial={editState.tipo}
       />
-      </ScrollView>
     </SafeAreaView>
   );
 };

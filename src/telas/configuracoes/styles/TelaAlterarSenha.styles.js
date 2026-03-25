@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { FOOTER_HEIGHT } from '../../../componentes/BotoesAcaoFixo';
 
 export const styles = StyleSheet.create({
   container: {
@@ -6,9 +7,16 @@ export const styles = StyleSheet.create({
     backgroundColor: '#F5F5F5',
     paddingTop: 20,
   },
+  screen: {
+    flex: 1,
+  },
+  scroll: {
+    flex: 1,
+    marginBottom: FOOTER_HEIGHT,
+  },
   contentContainer: {
     paddingHorizontal: 20,
-    paddingBottom: 100,
+    paddingBottom: 20,
   },
   formContainer: {
     marginTop: 0,
