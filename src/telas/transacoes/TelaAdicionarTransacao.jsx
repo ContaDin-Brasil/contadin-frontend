@@ -3,6 +3,7 @@ import { View, Text, ScrollView, TextInput, TouchableOpacity, Switch, Animated, 
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import TituloPagina from '../../componentes/TituloPagina';
+import BotoesAcaoFixo from '../../componentes/BotoesAcaoFixo';
 import { DatePickerInput } from '../../componentes/DatePickerInput';
 import { getLogoByName } from '../../componentes/modais/logosInstituicoes';
 import ModalSelecaoInstituicao from '../../componentes/modais/ModalSelecaoInstituicao';
@@ -171,7 +172,12 @@ const TelaAdicionarTransacao = ({ navigation }) => {
       >
         Adicionar Transação
       </TituloPagina>
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <View style={styles.screen}>
+        <ScrollView
+          style={styles.scroll}
+          contentContainerStyle={styles.contentContainer}
+          showsVerticalScrollIndicator={false}
+        >
 
       {/* Botões de OCR/Áudio */}
       <View style={styles.aiSection}>
@@ -603,32 +609,23 @@ const TelaAdicionarTransacao = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      {/* Botão Salvar */}
-      <TouchableOpacity 
-        style={[styles.saveButton, salvando && { opacity: 0.6 }]} 
-        onPress={handleSaveTransaction}
-        disabled={salvando || formState.loading}
-      >
-        {salvando ? (
-          <>
-            <ActivityIndicator size="small" color="#FFF" />
-            <Text style={[styles.saveButtonText, { marginLeft: 8 }]}>Salvando...</Text>
-          </>
-        ) : (
-          <>
-            <Ionicons name="save-outline" size={24} color="#FFF" />
-            <Text style={styles.saveButtonText}>Salvar Transação</Text>
-          </>
-        )}
-      </TouchableOpacity>
+          {/* Indicador de carregamento de dados */}
+          {formState.loading && (
+            <View style={{ padding: 20, alignItems: 'center' }}>
+              <ActivityIndicator size="small" color={COLORS.primary} />
+              <Text style={{ marginTop: 8, color: '#666' }}>Carregando dados...</Text>
+            </View>
+          )}
+        </ScrollView>
 
-      {/* Indicador de carregamento de dados */}
-      {formState.loading && (
-        <View style={{ padding: 20, alignItems: 'center' }}>
-          <ActivityIndicator size="small" color={COLORS.primary} />
-          <Text style={{ marginTop: 8, color: '#666' }}>Carregando dados...</Text>
-        </View>
-      )}
+        <BotoesAcaoFixo
+          primaryLabel="Salvar Transação"
+          primaryLoadingLabel="Salvando..."
+          onPrimaryPress={handleSaveTransaction}
+          primaryDisabled={salvando || formState.loading}
+          primaryLoading={salvando}
+        />
+      </View>
 
       {/* Modais */}
       <ModalSelecaoInstituicao
@@ -654,7 +651,6 @@ const TelaAdicionarTransacao = ({ navigation }) => {
         onSave={handleCreateCategoria}
         tipoInicial={formState.tipo}
       />
-      </ScrollView>
     </SafeAreaView>
   );
 };
