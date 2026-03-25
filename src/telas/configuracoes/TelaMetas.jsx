@@ -59,7 +59,7 @@ const TelaMetas = ({ navigation }) => {
           <View style={styles.heroTop}>
             <View style={styles.heroContent}>
               <Text style={styles.heroEyebrow}>IA Contadin</Text>
-              <Text style={styles.heroTitle}>Metas inteligentes para seus proximos passos</Text>
+              <Text style={styles.heroTitle}>Metas inteligentes para seus próximos passos</Text>
               <Text style={styles.heroSubtitle}>
                 Crie metas para reduzir gastos ou aumentar receitas e acompanhe o progresso em tempo real.
               </Text>
