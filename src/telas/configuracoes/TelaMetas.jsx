@@ -135,7 +135,7 @@ const TelaMetas = ({ navigation }) => {
         </View>
 
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Sugestoes de metas</Text>
+          <Text style={styles.sectionTitle}>Sugestões de metas</Text>
           <Text style={styles.sectionSubtitle}>Prototipo IA</Text>
         </View>
 
