@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, SafeAreaView, TextInput, Alert } from 'react-native';
 import TituloPagina from '../../componentes/TituloPagina';
 import BotoesAcaoFixo from '../../componentes/BotoesAcaoFixo';
+import { confirmarAcao } from '../../utils/confirmarAcao';
 import { styles } from './styles/TelaMetaForm.styles';
 
 const META_MOCK = {
@@ -26,10 +27,14 @@ const TelaEditarMeta = ({ navigation, route }) => {
   };
 
   const handleExcluir = () => {
-    Alert.alert('Excluir meta', 'Tem certeza que deseja excluir esta meta?', [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Excluir', style: 'destructive', onPress: () => navigation.goBack() },
-    ]);
+    const mensagem = 'Tem certeza que deseja excluir esta meta?';
+
+    confirmarAcao({
+      titulo: 'Excluir meta',
+      mensagem,
+      textoConfirmar: 'Excluir',
+      onConfirmar: () => navigation.goBack(),
+    });
   };
 
   return (

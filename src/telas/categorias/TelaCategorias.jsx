@@ -15,6 +15,7 @@ import { isPadrao } from "../categorias/types/categoria.types";
 import ModalCategoria from "../categorias/modals/ModalCategoria";
 import TituloPagina from "../../componentes/TituloPagina";
 import BotaoFlutuanteAdicionar from "../../componentes/BotaoFlutuanteAdicionar";
+import { confirmarAcao } from "../../utils/confirmarAcao";
 
 const TelaCategorias = () => {
   const {
@@ -54,18 +55,14 @@ const TelaCategorias = () => {
       return;
     }
 
-    Alert.alert(
-      "Excluir Categoria",
-      `Tem certeza que deseja excluir "${categoria.nome}"?`,
-      [
-        { text: "Cancelar", style: "cancel" },
-        {
-          text: "Excluir",
-          style: "destructive",
-          onPress: () => deletarCategoria(categoria.id),
-        },
-      ],
-    );
+    const mensagem = `Tem certeza que deseja excluir "${categoria.nome}"?`;
+
+    confirmarAcao({
+      titulo: "Excluir Categoria",
+      mensagem,
+      textoConfirmar: "Excluir",
+      onConfirmar: () => deletarCategoria(categoria.id),
+    });
   };
 
   const handleSaveCategoria = async (data) => {

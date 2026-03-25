@@ -13,6 +13,7 @@ import { useEditarTransacao } from './hooks/useEditarTransacao';
 import { FREQUENCIES, INSTALLMENT_OPTIONS } from './constants/constantesTransacao';
 import { getCategoryIcon } from './utils/utilitariosTransacao';
 import { categoriaService } from '../../api';
+import { confirmarAcao } from '../../utils/confirmarAcao';
 import COLORS from '../../styles/colors';
 import { styles } from './styles/TelaAdicionarTransacao.styles';
 
@@ -90,33 +91,28 @@ const TelaEditarTransacao = ({ navigation, route }) => {
   };
 
   const handleDeleteTransaction = () => {
-    Alert.alert(
-      'Confirmar exclusão',
-      'Tem certeza que deseja excluir esta transação? Esta ação não pode ser desfeita.',
-      [
-        {
-          text: 'Cancelar',
-          style: 'cancel'
-        },
-        {
-          text: 'Excluir',
-          style: 'destructive',
-          onPress: async () => {
-            setDeletando(true);
-            try {
-              await editState.deletarTransacao();
-              Alert.alert('Sucesso', 'Transação excluída com sucesso!', [
-                { text: 'OK', onPress: () => navigation.goBack() }
-              ]);
-            } catch (error) {
-              console.error('Erro ao deletar transação:', error);
-              Alert.alert('Erro', 'Não foi possível excluir a transação');
-              setDeletando(false);
-            }
-          }
-        }
-      ]
-    );
+    const confirmarExclusao = async () => {
+      setDeletando(true);
+      try {
+        await editState.deletarTransacao();
+        Alert.alert('Sucesso', 'Transação excluída com sucesso!', [
+          { text: 'OK', onPress: () => navigation.goBack() }
+        ]);
+      } catch (error) {
+        console.error('Erro ao deletar transação:', error);
+        Alert.alert('Erro', 'Não foi possível excluir a transação');
+        setDeletando(false);
+      }
+    };
+
+    const mensagem = 'Tem certeza que deseja excluir esta transação? Esta ação não pode ser desfeita.';
+
+    confirmarAcao({
+      titulo: 'Confirmar exclusão',
+      mensagem,
+      textoConfirmar: 'Excluir',
+      onConfirmar: confirmarExclusao,
+    });
   };
 
   // Mostra loading enquanto carrega a transação

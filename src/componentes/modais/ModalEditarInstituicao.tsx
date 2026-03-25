@@ -8,11 +8,11 @@ import {
   Modal,
   ScrollView,
   Image,
-  Alert,
   Pressable,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getLogoByName } from './logosInstituicoes';
+import { confirmarAcao } from '../../utils/confirmarAcao';
 
 interface ModalEditarInstituicaoProps {
   visible: boolean;
@@ -88,22 +88,14 @@ const ModalEditarInstituicao: React.FC<ModalEditarInstituicaoProps> = ({
   };
 
   const handleDeleteConfirm = () => {
-    Alert.alert(
-      'Excluir Institui\u00e7\u00e3o',
-      `Tem certeza que deseja excluir "${instituicao?.nome}"?\n\n\u26a0\ufe0f Aten\u00e7\u00e3o: Todas as transa\u00e7\u00f5es vinculadas a esta institui\u00e7\u00e3o ser\u00e3o permanentemente deletadas.`,
-      [
-        {
-          text: 'Cancelar',
-          style: 'cancel',
-        },
-        {
-          text: 'Excluir',
-          style: 'destructive',
-          onPress: onDelete,
-        },
-      ],
-      { cancelable: true }
-    );
+    const mensagem = `Tem certeza que deseja excluir "${instituicao?.nome}"?\n\n⚠️ Atenção: Todas as transações vinculadas a esta instituição serão permanentemente deletadas.`;
+
+    confirmarAcao({
+      titulo: 'Excluir Instituição',
+      mensagem,
+      textoConfirmar: 'Excluir',
+      onConfirmar: onDelete,
+    });
   };
 
   const renderIcone = () => {

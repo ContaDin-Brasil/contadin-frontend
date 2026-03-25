@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Image, SafeAreaView, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Image, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import TituloPagina from '../../componentes/TituloPagina';
@@ -8,6 +8,7 @@ import AddCustomInstitutionModal from '../../componentes/modais/ModalAdicionarIn
 import ModalEditarInstituicao from '../../componentes/modais/ModalEditarInstituicao';
 import { useEditarVales } from './hooks/useEditarInstituicoes';
 import { getLogoByName } from '../../componentes/modais/logosInstituicoes';
+import { confirmarAcao } from '../../utils/confirmarAcao';
 import { styles } from './styles/TelaEditarVales.styles';
 
 const EditVouchersScreen = ({ navigation }) => {
@@ -21,22 +22,14 @@ const EditVouchersScreen = ({ navigation }) => {
   );
 
   const handleDeleteConfirm = (voucher) => {
-    Alert.alert(
-      'Excluir Institui\u00e7\u00e3o',
-      `Tem certeza que deseja excluir "${voucher.nome}"?\n\n\u26a0\ufe0f Aten\u00e7\u00e3o: Todas as transa\u00e7\u00f5es vinculadas a esta institui\u00e7\u00e3o ser\u00e3o permanentemente deletadas.`,
-      [
-        {
-          text: 'Cancelar',
-          style: 'cancel',
-        },
-        {
-          text: 'Excluir',
-          style: 'destructive',
-          onPress: () => editor.handleDelete(voucher),
-        },
-      ],
-      { cancelable: true }
-    );
+    const mensagem = `Tem certeza que deseja excluir "${voucher.nome}"?\n\n⚠️ Atenção: Todas as transações vinculadas a esta instituição serão permanentemente deletadas.`;
+
+    confirmarAcao({
+      titulo: 'Excluir Instituição',
+      mensagem,
+      textoConfirmar: 'Excluir',
+      onConfirmar: () => editor.handleDelete(voucher.id),
+    });
   };
 
   const renderIcon = (text, color, institutionName) => {
@@ -115,7 +108,7 @@ const EditVouchersScreen = ({ navigation }) => {
               <TouchableOpacity 
                 style={styles.deleteIconButton}
                 onPress={(e) => {
-                  e.stopPropagation();
+                  e?.stopPropagation?.();
                   handleDeleteConfirm(voucher);
                 }}
               >
@@ -156,8 +149,12 @@ const EditVouchersScreen = ({ navigation }) => {
         visible={editor.editModalVisible}
         onClose={() => editor.setEditModalVisible(false)}
         onSave={editor.handleUpdate}
-        onDelete={() => {
-          editor.handleDelete(editor.selectedVoucher);
+        onDelete={async () => {
+          if (!editor.selectedVoucher) {
+            return;
+          }
+
+          await editor.handleDelete(editor.selectedVoucher.id);
           editor.setEditModalVisible(false);
         }}
         instituicao={editor.selectedVoucher ? {

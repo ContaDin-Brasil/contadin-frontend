@@ -75,6 +75,10 @@ export const useEditarBancos = () => {
    */
   const handleDelete = async (id: number) => {
     try {
+      if (!Number.isFinite(id) || id <= 0) {
+        throw new Error('ID de banco inválido para exclusão');
+      }
+
       console.log(`🗑️  Iniciando deleção do banco ID: ${id}`);
       
       // Deleta banco e suas transações
@@ -281,12 +285,16 @@ export const useEditarVales = () => {
   /**
    * Remove um vale da lista (e suas transações)
    */
-  const handleDelete = async (voucher: Vale) => {
+  const handleDelete = async (voucherId: number) => {
     try {
-      console.log(`🗑️  Iniciando deleção do vale ID: ${voucher.id}`);
+      if (!Number.isFinite(voucherId) || voucherId <= 0) {
+        throw new Error('ID de vale inválido para exclusão');
+      }
+
+      console.log(`🗑️  Iniciando deleção do vale ID: ${voucherId}`);
       
       // Deleta vale e suas transações
-      await instituicaoService.deletar(voucher.id);
+      await instituicaoService.deletar(voucherId);
       
       // Invalida o cache e recarrega
       await invalidateCacheByPattern('instituicoes');

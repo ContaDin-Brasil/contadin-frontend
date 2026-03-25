@@ -285,14 +285,6 @@
       "tipoInstituicao": "banco",
       "fk_usuario": 1,
       "id": 34
-    },
-    {
-      "nome": "Teste Banco customizado",
-      "icone": "T",
-      "cor": "#9C27B0",
-      "tipoInstituicao": "banco",
-      "fk_usuario": 1,
-      "id": 35
     }
   ],
   "transacao": [

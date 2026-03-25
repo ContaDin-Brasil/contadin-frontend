@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, TextInput, Switch, SafeAreaView, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, TextInput, Switch, SafeAreaView, ActivityIndicator } from 'react-native';
 import TituloPagina from '../../componentes/TituloPagina';
 import BotoesAcaoFixo from '../../componentes/BotoesAcaoFixo';
 import { useEditarPerfil } from './hooks/useEditarPerfil';
+import { confirmarAcao } from '../../utils/confirmarAcao';
 import { styles } from './styles/TelaEditarPerfil.styles';
 
 const EditProfileScreen = ({ navigation }) => {
@@ -16,21 +17,14 @@ const EditProfileScreen = ({ navigation }) => {
         return;
       }
 
-      Alert.alert(
-        'Descartar alterações?',
-        'Você tem mudanças não salvas no perfil. Se sair agora, elas serão perdidas.',
-        [
-          {
-            text: 'Continuar editando',
-            style: 'cancel',
-          },
-          {
-            text: 'Sair sem salvar',
-            style: 'destructive',
-            onPress: onConfirmarSaida,
-          },
-        ],
-      );
+      const mensagem = 'Você tem mudanças não salvas no perfil. Se sair agora, elas serão perdidas.';
+
+      confirmarAcao({
+        titulo: 'Descartar alterações?',
+        mensagem,
+        textoConfirmar: 'Sair sem salvar',
+        onConfirmar: onConfirmarSaida,
+      });
     },
     [perfil.isDirty],
   );
