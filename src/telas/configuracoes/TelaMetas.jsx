@@ -111,7 +111,7 @@ const TelaMetas = ({ navigation }) => {
                     <Ionicons name="flag-outline" size={16} color="#0052CC" />
                     <Text style={styles.metaTagText} numberOfLines={1}>Meta de gasto</Text>
                   </View>
-                  <Text style={styles.metaPrazo}>Ate {meta.dataFimMeta}</Text>
+                  <Text style={styles.metaPrazo}>Até {meta.dataFimMeta}</Text>
                 </View>
 
                 <Text style={styles.metaTitulo}>{meta.nome}</Text>
