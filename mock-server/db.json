@@ -1145,6 +1145,19 @@
       "fim_recorrencia": null,
       "fk_instituicao": 14,
       "fk_categoria": 12
+    },
+    {
+      "descricao": "Teste IA zero",
+      "valor": 160,
+      "tipo": "GASTO",
+      "data_transacao": "2026-03-31T00:00:00.000Z",
+      "parcelado": false,
+      "qtdParcelas": 1,
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 27,
+      "fk_categoria": 7,
+      "id": 67
     }
   ],
   "meta_gasto": [

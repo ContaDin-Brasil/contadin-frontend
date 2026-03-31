@@ -5,12 +5,15 @@ import { Picker } from '@react-native-picker/picker';
 import TituloPagina from '../../componentes/TituloPagina';
 import BotoesAcaoFixo from '../../componentes/BotoesAcaoFixo';
 import { DatePickerInput } from '../../componentes/DatePickerInput';
+import { ImagePreview } from '../../componentes/ImagePreview';
+import { ModalSelecaoImagem } from '../../componentes/ModalSelecaoImagem';
 import { getLogoByName } from '../../componentes/modais/logosInstituicoes';
 import ModalSelecaoInstituicao from '../../componentes/modais/ModalSelecaoInstituicao';
 import ModalAdicionarInstituicao from '../../componentes/modais/ModalAdicionarInstituicao';
 import ModalCategoria from '../categorias/modals/ModalCategoria';
 import { useFormularioTransacao } from './hooks/useFormularioTransacao';
 import { useProcessamentoIA } from './hooks/useProcessamentoIA';
+import { useModalSelecaoImagem } from './hooks/useModalSelecaoImagem';
 import { transacaoService, categoriaService } from '../../api';
 import { FREQUENCIES, INSTALLMENT_OPTIONS } from './constants/constantesTransacao';
 import { getCategoryIcon } from './utils/utilitariosTransacao';
@@ -25,6 +28,7 @@ const TelaAdicionarTransacao = ({ navigation }) => {
   // Hooks customizados
   const formState = useFormularioTransacao();
   const aiState = useProcessamentoIA();
+  const modalImagem = useModalSelecaoImagem();
 
   const handleSelectInstitution = (institution) => {
     formState.handleSelectInstitution(institution);
@@ -60,6 +64,20 @@ const TelaAdicionarTransacao = ({ navigation }) => {
       formState.applyAISuggestion(aiState.aiSuggestion);
       aiState.dismissAISuggestion();
     }
+  };
+
+  const handlePhotoCapture = () => {
+    modalImagem.abrirModal();
+  };
+
+  const handleCamera = async () => {
+    modalImagem.fecharModal();
+    aiState.captureFromCamera();
+  };
+
+  const handleGallery = async () => {
+    modalImagem.fecharModal();
+    aiState.captureFromGallery();
   };
 
   const handleSuccessNavigation = () => {
@@ -179,13 +197,13 @@ const TelaAdicionarTransacao = ({ navigation }) => {
           showsVerticalScrollIndicator={false}
         >
 
-      {/* Botões de OCR/Áudio */}
+      {/* Botões de Sugestão via IA */}
       <View style={styles.aiSection}>
         <Text style={styles.aiSectionTitle}>✨ Adicionar via IA</Text>
         <View style={styles.aiButtons}>
           <TouchableOpacity 
             style={styles.aiButton}
-            onPress={aiState.handlePhotoOCR}
+            onPress={handlePhotoCapture}
             disabled={aiState.isProcessing}
           >
             <Ionicons name="camera" size={24} color={COLORS.primaryLight} />
@@ -217,6 +235,15 @@ const TelaAdicionarTransacao = ({ navigation }) => {
               A IA está extraindo as informações da transação
             </Text>
           </View>
+        )}
+
+        {/* Preview da imagem capturada */}
+        {aiState.capturedImage && !aiState.isProcessing && (
+          <ImagePreview
+            imageUri={aiState.capturedImage.uri}
+            onRemove={aiState.dismissAISuggestion}
+            size={150}
+          />
         )}
 
         {/* Card de sugestão da IA */}
@@ -650,6 +677,14 @@ const TelaAdicionarTransacao = ({ navigation }) => {
         onClose={() => formState.setModalCategoriaVisible(false)}
         onSave={handleCreateCategoria}
         tipoInicial={formState.tipo}
+      />
+
+      <ModalSelecaoImagem
+        visible={modalImagem.modalVisible}
+        onCamera={handleCamera}
+        onGallery={handleGallery}
+        onCancel={modalImagem.fecharModal}
+        isLoading={aiState.isProcessing}
       />
     </SafeAreaView>
   );

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Animated } from 'react-native';
 import { AISuggestion, ProcessingType } from '../types/transacao.types';
+import { useCaptureImage, CapturedImage } from './useCaptureImage';
 
 /**
  * Obtém a data de hoje no formato DD/MM/YYYY
@@ -14,12 +15,17 @@ const getTodayDate = (): string => {
 };
 
 /**
- * Hook customizado para gerenciar o processamento de IA/OCR
+ * Hook customizado para gerenciar o processamento de IA/Sugestões
+ * Gerencia captura de imagens e geração de sugestões
  */
 export const useProcessamentoIA = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingType, setProcessingType] = useState<ProcessingType | null>(null);
   const [aiSuggestion, setAiSuggestion] = useState<AISuggestion | null>(null);
+  const [capturedImage, setCapturedImage] = useState<CapturedImage | null>(null);
+  
+  // Hook para capturar imagens
+  const captureImage = useCaptureImage();
   
   // Animação do loading
   const pulseAnim = useRef(new Animated.Value(1)).current;
@@ -46,28 +52,42 @@ export const useProcessamentoIA = () => {
   }, [isProcessing, pulseAnim]);
 
   /**
-   * Simula o processamento OCR de uma foto
+   * Captura foto para gerar sugestão
    */
-  const handlePhotoOCR = () => {
+  const handlePhotoCapture = async () => {
     setProcessingType('photo');
     setIsProcessing(true);
-    
-    // Simular processamento de OCR
-    setTimeout(() => {
-      setAiSuggestion({
-        descricao: 'Compra no Supermercado Extra',
-        valor: '145,80',  // Valor já formatado sem R$ (será processado pelo input)
-        categoria: 'Alimentação',
-        tipo: 'GASTO',
-        instituicao: 'Nubank',
-        data: getTodayDate()
-      });
+
+    try {
+      // Chama o hook para capturar imagem (abre modal de escolha câmera/galeria)
+      const imageData = await captureImage.pickImage(true); // true = incluir base64
+
+      if (imageData) {
+        setCapturedImage(imageData);
+        
+        // Gera sugestão mock com dados fictícios
+        setTimeout(() => {
+          setAiSuggestion({
+            descricao: 'Compra no Supermercado Extra',
+            valor: '145,80',
+            categoria: 'Alimentação',
+            tipo: 'GASTO',
+            instituicao: 'Nubank',
+            data: getTodayDate()
+          });
+          setIsProcessing(false);
+        }, 2500);
+      } else {
+        setIsProcessing(false);
+      }
+    } catch (error) {
+      console.error('Erro ao processar foto:', error);
       setIsProcessing(false);
-    }, 2500);
+    }
   };
 
   /**
-   * Simula o processamento de transcrição de áudio
+   * Gera sugestão mock a partir de áudio
    */
   const handleAudioInput = () => {
     setProcessingType('audio');
@@ -92,15 +112,88 @@ export const useProcessamentoIA = () => {
    */
   const dismissAISuggestion = () => {
     setAiSuggestion(null);
+    setCapturedImage(null);
+    captureImage.clearImage();
+  };
+
+  /**
+   * Captura foto da câmera
+   */
+  const captureFromCamera = async () => {
+    setProcessingType('photo');
+    setIsProcessing(true);
+
+    try {
+      const imageData = await captureImage.captureFromCamera(true); // true = incluir base64
+
+      if (imageData) {
+        setCapturedImage(imageData);
+        
+        // Gera sugestão mock com dados fictícios
+        setTimeout(() => {
+          setAiSuggestion({
+            descricao: 'Compra no Supermercado Extra',
+            valor: '145,80',
+            categoria: 'Alimentação',
+            tipo: 'GASTO',
+            instituicao: 'Nubank',
+            data: getTodayDate()
+          });
+          setIsProcessing(false);
+        }, 2500);
+      } else {
+        setIsProcessing(false);
+      }
+    } catch (error) {
+      console.error('Erro ao capturar foto:', error);
+      setIsProcessing(false);
+    }
+  };
+
+  /**
+   * Seleciona foto da galeria
+   */
+  const captureFromGallery = async () => {
+    setProcessingType('photo');
+    setIsProcessing(true);
+
+    try {
+      const imageData = await captureImage.selectFromGallery(true); // true = incluir base64
+
+      if (imageData) {
+        setCapturedImage(imageData);
+        
+        // Gera sugestão mock com dados fictícios
+        setTimeout(() => {
+          setAiSuggestion({
+            descricao: 'Compra no Supermercado Extra',
+            valor: '145,80',
+            categoria: 'Alimentação',
+            tipo: 'GASTO',
+            instituicao: 'Nubank',
+            data: getTodayDate()
+          });
+          setIsProcessing(false);
+        }, 2500);
+      } else {
+        setIsProcessing(false);
+      }
+    } catch (error) {
+      console.error('Erro ao selecionar foto:', error);
+      setIsProcessing(false);
+    }
   };
 
   return {
     isProcessing,
     processingType,
     aiSuggestion,
+    capturedImage,
     pulseAnim,
-    handlePhotoOCR,
+    handlePhotoCapture,
     handleAudioInput,
     dismissAISuggestion,
+    captureFromCamera,
+    captureFromGallery,
   };
 };

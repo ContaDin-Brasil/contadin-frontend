@@ -464,7 +464,7 @@ export const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
-  // Estilos para OCR/IA
+  // Estilos para seção de IA/Sugestões
   aiSection: {
     paddingHorizontal: 20,
     marginBottom: 20,
