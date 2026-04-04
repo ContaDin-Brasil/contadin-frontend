@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
+import { COLORS } from "../../styles/colors";
 import { styles } from "./style/TelaCategorias.styles";
 import { useGerenciarCategorias } from "../categorias/hooks/useGerenciarCategorias";
 import { isPadrao } from "../categorias/types/categoria.types";
@@ -108,7 +109,7 @@ const TelaCategorias = () => {
       <View style={styles.categoriaItem}>
         <View style={styles.categoriaInfo}>
           <View style={[styles.categoriaIcone, { backgroundColor: item.cor }]}>
-            <MaterialIcons name={item.icone} size={24} color="#FFF" />
+            <MaterialIcons name={item.icone} size={24} color={COLORS.white} />
           </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.categoriaNome}>{item.nome}</Text>
@@ -121,13 +122,13 @@ const TelaCategorias = () => {
               style={styles.actionButton}
               onPress={() => handleEditCategoria(item)}
             >
-              <MaterialIcons name="edit" size={20} color="#666" />
+              <MaterialIcons name="edit" size={20} color={COLORS.textSecondary} />
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.actionButton}
               onPress={() => handleDeleteCategoria(item)}
             >
-              <MaterialIcons name="delete" size={20} color="#E53935" />
+              <MaterialIcons name="delete" size={20} color={COLORS.error} />
             </TouchableOpacity>
           </View>
         )}
@@ -155,7 +156,7 @@ const TelaCategorias = () => {
                 style={styles.searchButton}
                 onPress={handleSearchToggle}
               >
-                <MaterialIcons name="search" size={32} color="#333" />
+                <MaterialIcons name="search" size={32} color={COLORS.textPrimary} />
               </TouchableOpacity>
             </View>
           </>
@@ -165,19 +166,19 @@ const TelaCategorias = () => {
               <MaterialIcons
                 name="search"
                 size={24}
-                color="#999"
+                color={COLORS.textTertiary}
                 style={styles.searchIconExpanded}
               />
               <TextInput
                 style={styles.searchInputExpanded}
                 placeholder="Buscar Categoria"
-                placeholderTextColor="#999"
+                placeholderTextColor={COLORS.textTertiary}
                 value={searchQuery}
                 onChangeText={setSearchQuery}
                 autoFocus
               />
               <TouchableOpacity onPress={handleSearchToggle}>
-                <MaterialIcons name="close" size={24} color="#333" />
+                <MaterialIcons name="close" size={24} color={COLORS.textPrimary} />
               </TouchableOpacity>
             </View>
           </>
@@ -222,7 +223,7 @@ const TelaCategorias = () => {
         {/* Lista de Categorias */}
         {loading ? (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#333" />
+            <ActivityIndicator size="large" color={COLORS.textPrimary} />
           </View>
         ) : error ? (
           <View style={styles.errorContainer}>
@@ -236,7 +237,7 @@ const TelaCategorias = () => {
             contentContainerStyle={styles.listContainer}
             ListEmptyComponent={
               <View style={styles.emptyContainer}>
-                <MaterialIcons name="category" size={48} color="#CCC" />
+                <MaterialIcons name="category" size={48} color={COLORS.textDisabled} />
                 <Text style={styles.emptyText}>Nenhuma categoria encontrada</Text>
               </View>
             }

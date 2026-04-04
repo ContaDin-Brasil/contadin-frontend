@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { COLORS } from '../styles/colors';
 
 /**
  * Componente de título padrão para todas as páginas
@@ -16,7 +17,7 @@ const TituloPagina = ({ children, style, mostrarBotaoVoltar = false, onVoltar })
     return (
       <View style={styles.container}>
         <TouchableOpacity onPress={onVoltar} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={28} color="#000" />
+          <Ionicons name="arrow-back" size={28} color={COLORS.black} />
         </TouchableOpacity>
         <Text style={[styles.titleWithButton, style]}>
           {children}
@@ -49,13 +50,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     paddingHorizontal: 20,
     marginBottom: 20,
-    color: '#000',
+    color: COLORS.black,
     marginTop: 24,
   },
   titleWithButton: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#000',
+    color: COLORS.black,
     flex: 1,
   },
 });

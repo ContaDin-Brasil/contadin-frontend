@@ -1,9 +1,10 @@
 import { StyleSheet } from 'react-native';
+import { COLORS } from '../../../styles/colors';
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: COLORS.background,
     paddingTop: 20,
   },
   contentContainer: {
@@ -11,12 +12,12 @@ export const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   section: {
-    backgroundColor: '#FFF',
+    backgroundColor: COLORS.white,
     borderRadius: 16,
     padding: 16,
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: COLORS.border,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -36,15 +37,15 @@ export const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#000',
+    color: COLORS.black,
     marginBottom: 2,
   },
   sectionSubtitle: {
     fontSize: 13,
-    color: '#666',
+    color: COLORS.textSecondary,
   },
   editButton: {
-    backgroundColor: '#4A9EFF',
+    backgroundColor: COLORS.secondaryLight,
     width: 36,
     height: 36,
     borderRadius: 8,
@@ -58,7 +59,7 @@ export const styles = StyleSheet.create({
     marginBottom: 12,
   },
   addButton: {
-    backgroundColor: '#4A9EFF',
+    backgroundColor: COLORS.secondaryLight,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -67,7 +68,7 @@ export const styles = StyleSheet.create({
     gap: 8,
   },
   addButtonText: {
-    color: '#FFF',
+    color: COLORS.white,
     fontSize: 16,
     fontWeight: '600',
   },

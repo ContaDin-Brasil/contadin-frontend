@@ -1,16 +1,16 @@
 import { StyleSheet } from 'react-native';
-import COLORS from '../../../styles/colors';
+import { COLORS } from '../../../styles/colors';
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: COLORS.background,
     paddingTop: 20,
   },
   periodFilter: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#E0E0E0',
+    backgroundColor: COLORS.border,
     marginHorizontal: 20,
     paddingVertical: 12,
     paddingHorizontal: 15,
@@ -21,12 +21,12 @@ export const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 10,
     fontSize: 16,
-    color: '#333',
+    color: COLORS.textPrimary,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#E8E8E8',
+    backgroundColor: COLORS.backgroundDark,
     marginHorizontal: 20,
     paddingHorizontal: 15,
     paddingVertical: 12,
@@ -39,7 +39,7 @@ export const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: '#333',
+    color: COLORS.textPrimary,
   },
   clearSearchButton: {
     padding: 4,
@@ -55,7 +55,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#E0E0E0',
+    backgroundColor: COLORS.border,
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderRadius: 8,
@@ -63,12 +63,12 @@ export const styles = StyleSheet.create({
   sortFilterText: {
     flex: 1,
     fontSize: 14,
-    color: '#333',
+    color: COLORS.textPrimary,
   },
   filterButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#E0E0E0',
+    backgroundColor: COLORS.border,
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 8,
@@ -77,7 +77,7 @@ export const styles = StyleSheet.create({
   },
   filterButtonText: {
     fontSize: 14,
-    color: '#333',
+    color: COLORS.textPrimary,
     fontWeight: '500',
   },
   filterBadge: {

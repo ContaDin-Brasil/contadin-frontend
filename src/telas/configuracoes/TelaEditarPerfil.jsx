@@ -124,7 +124,7 @@ const EditProfileScreen = ({ navigation }) => {
                   value={perfil.pushNotifications}
                   onValueChange={perfil.setPushNotifications}
                   trackColor={{ false: '#D3D3D3', true: '#6BA7FF' }}
-                  thumbColor={perfil.pushNotifications ? '#FFF' : '#f4f3f4'}
+                  thumbColor={perfil.pushNotifications ? COLORS.white : '#f4f3f4'}
                 />
               </View>
 
@@ -134,7 +134,7 @@ const EditProfileScreen = ({ navigation }) => {
                   value={perfil.darkTheme}
                   onValueChange={perfil.setDarkTheme}
                   trackColor={{ false: '#D3D3D3', true: '#6BA7FF' }}
-                  thumbColor={perfil.darkTheme ? '#FFF' : '#f4f3f4'}
+                  thumbColor={perfil.darkTheme ? COLORS.white : '#f4f3f4'}
                 />
               </View>
             </View>

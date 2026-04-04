@@ -12,12 +12,12 @@ export const styles = StyleSheet.create({
     paddingBottom: 120,
   },
   heroCard: {
-    backgroundColor: '#E6F0FF',
+    backgroundColor: COLORS.secondaryLighter,
     borderRadius: 20,
     padding: 20,
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: '#D3E4FF',
+    borderColor: COLORS.secondaryBorder,
   },
   heroTop: {
     flexDirection: 'row',
@@ -31,7 +31,7 @@ export const styles = StyleSheet.create({
   heroEyebrow: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#0052CC',
+    color: COLORS.primaryDark,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
     marginBottom: 6,
@@ -39,13 +39,13 @@ export const styles = StyleSheet.create({
   heroTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#0B1B36',
+    color: COLORS.textDark,
     marginBottom: 6,
     flexShrink: 1,
   },
   heroSubtitle: {
     fontSize: 14,
-    color: '#2F3A4E',
+    color: COLORS.textSecondary,
     lineHeight: 20,
     flexShrink: 1,
   },
@@ -53,7 +53,7 @@ export const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 14,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.white,
     alignItems: 'center',
     justifyContent: 'center',
     alignSelf: 'flex-start',

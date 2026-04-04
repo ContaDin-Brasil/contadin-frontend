@@ -1,9 +1,10 @@
 import { StyleSheet } from "react-native";
+import { COLORS } from "../../../../styles/colors";
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: COLORS.background,
     paddingTop: 20,
   },
   overlay: {
@@ -12,7 +13,7 @@ export const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   modalContainer: {
-    backgroundColor: "#FFF",
+    backgroundColor: COLORS.white,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     maxHeight: "75%",
@@ -28,7 +29,7 @@ export const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#333",
+    color: COLORS.textPrimary,
     marginBottom: 20,
   },
   grid: {
@@ -44,12 +45,12 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 2,
-    borderColor: "#E0E0E0",
-    backgroundColor: "#FFF",
+    borderColor: COLORS.border,
+    backgroundColor: COLORS.white,
     padding: 6,
   },
   bankCardSelected: {
-    borderColor: "#2D85F8",
+    borderColor: COLORS.tooltip,
     backgroundColor: "rgba(107, 167, 255, 0.1)",
   },
   bankCardIcon: {
@@ -74,7 +75,7 @@ export const styles = StyleSheet.create({
   bankName: {
     fontSize: 10,
     fontWeight: "600",
-    color: "#333",
+    color: COLORS.textPrimary,
     textAlign: "center",
   },
   linkAdicionar: {
@@ -83,14 +84,14 @@ export const styles = StyleSheet.create({
   },
   linkAdicionarText: {
     fontSize: 15,
-    color: "#333",
+    color: COLORS.textPrimary,
   },
   linkAdicionarBold: {
     fontWeight: "700",
-    color: "#000",
+    color: COLORS.black,
   },
   selecionarButton: {
-    backgroundColor: "#E8E8E8",
+    backgroundColor: COLORS.backgroundDark,
     paddingVertical: 14,
     borderRadius: 24,
     alignItems: "center",
@@ -99,14 +100,14 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 40,
   },
   selecionarButtonText: {
-    color: "#333",
+    color: COLORS.textPrimary,
     fontSize: 16,
     fontWeight: "600",
   },
   mensagemErro: {
     marginTop: 12,
     fontSize: 14,
-    color: "#C62828",
+    color: COLORS.error,
     textAlign: "center",
   },
 });

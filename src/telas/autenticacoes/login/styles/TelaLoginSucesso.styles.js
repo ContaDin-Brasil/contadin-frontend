@@ -1,9 +1,10 @@
 import { StyleSheet } from "react-native";
+import { COLORS } from "../../../../styles/colors";
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: COLORS.background,
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 24,
@@ -14,12 +15,12 @@ export const styles = StyleSheet.create({
   textoSucesso: {
     fontSize: 22,
     fontWeight: "bold",
-    color: "#333",
+    color: COLORS.textPrimary,
     textAlign: "center",
     marginBottom: 48,
   },
   botaoContinuar: {
-    backgroundColor: "#2D85F8",
+    backgroundColor: COLORS.tooltip,
     paddingVertical: 16,
     paddingHorizontal: 32,
     borderRadius: 12,
@@ -28,7 +29,7 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
   },
   botaoContinuarText: {
-    color: "#FFF",
+    color: COLORS.white,
     fontSize: 18,
     fontWeight: "600",
   },

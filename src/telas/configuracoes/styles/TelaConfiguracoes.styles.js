@@ -1,9 +1,10 @@
 import { StyleSheet } from 'react-native';
+import { COLORS } from '../../../styles/colors';
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: COLORS.background,
     paddingTop: 20,
   },
   contentContainer: {
@@ -18,9 +19,9 @@ export const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: '#B8DBFF',
+    backgroundColor: COLORS.primaryLighter,
     borderWidth: 4,
-    borderColor: '#4A9EFF',
+    borderColor: COLORS.secondaryLight,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
@@ -33,7 +34,7 @@ export const styles = StyleSheet.create({
     height: 30,
     borderRadius: 15,
     borderWidth: 2,
-    borderColor: '#333',
+    borderColor: COLORS.textPrimary,
     marginBottom: 5,
   },
   avatarBody: {
@@ -42,7 +43,7 @@ export const styles = StyleSheet.create({
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
     borderWidth: 2,
-    borderColor: '#333',
+    borderColor: COLORS.textPrimary,
     borderBottomWidth: 0,
   },
   greeting: {
@@ -57,6 +58,6 @@ export const styles = StyleSheet.create({
   },
   modalText: {
     fontSize: 16,
-    color: '#666',
+    color: COLORS.textSecondary,
   },
 });
