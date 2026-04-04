@@ -14,6 +14,7 @@ import { useGerenciarCategorias } from "../categorias/hooks/useGerenciarCategori
 import { isPadrao } from "../categorias/types/categoria.types";
 import ModalCategoria from "../categorias/modals/ModalCategoria";
 import ModalConfirmDelete from "../../componentes/modais/ModalConfirmDelete";
+import ModalAviso from "../../componentes/modais/ModalAviso";
 import TituloPagina from "../../componentes/TituloPagina";
 import BotaoFlutuanteAdicionar from "../../componentes/BotaoFlutuanteAdicionar";
 
@@ -37,6 +38,8 @@ const TelaCategorias = () => {
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [categoriaDeletando, setCategoriaDeletando] = useState(null);
   const [isDeletando, setIsDeletando] = useState(false);
+  const [avisoModalVisible, setAvisoModalVisible] = useState(false);
+  const [avisoMensagem, setAvisoMensagem] = useState("");
 
   const handleAddCategoria = () => {
     setCategoriaParaEditar(null);
@@ -45,7 +48,8 @@ const TelaCategorias = () => {
 
   const handleEditCategoria = (categoria) => {
     if (isPadrao(categoria)) {
-      Alert.alert("Aviso", "Categorias padrão não podem ser editadas");
+      setAvisoMensagem("Categorias padrão não podem ser editadas");
+      setAvisoModalVisible(true);
       return;
     }
     setCategoriaParaEditar(categoria);
@@ -53,10 +57,13 @@ const TelaCategorias = () => {
   };
 
   const handleDeleteCategoria = (categoria) => {
+    console.log('handleDeleteCategoria chamado:', categoria);
     if (isPadrao(categoria)) {
-      Alert.alert("Aviso", "Categorias padrão não podem ser deletadas");
+      setAvisoMensagem("Categorias padrão não podem ser deletadas");
+      setAvisoModalVisible(true);
       return;
     }
+    console.log('Abrindo modal de deleção para:', categoria.nome);
     setCategoriaDeletando(categoria);
     setDeleteModalVisible(true);
   };
@@ -74,7 +81,8 @@ const TelaCategorias = () => {
       console.error('Erro ao deletar categoria:', error);
       setDeleteModalVisible(false);
       setIsDeletando(false);
-      Alert.alert('Erro', error.message || 'Não foi possível deletar a categoria');
+      setAvisoMensagem(error.message || 'Não foi possível deletar a categoria');
+      setAvisoModalVisible(true);
     }
   };
 
@@ -135,125 +143,135 @@ const TelaCategorias = () => {
   };
 
   return (
-    <View style={styles.container}>
-      {/* Header com busca expansível */}
+    <>
+      <View style={styles.container}>
+        {/* Header com busca expansível */}
 
-      {!searchExpanded ? (
-        <>
-          <View style={styles.header}>
-            <TituloPagina>Categorias</TituloPagina>
-            <TouchableOpacity
-              style={styles.searchButton}
-              onPress={handleSearchToggle}
+        {!searchExpanded ? (
+          <>
+            <View style={styles.header}>
+              <TituloPagina>Categorias</TituloPagina>
+              <TouchableOpacity
+                style={styles.searchButton}
+                onPress={handleSearchToggle}
+              >
+                <MaterialIcons name="search" size={32} color="#333" />
+              </TouchableOpacity>
+            </View>
+          </>
+        ) : (
+          <>
+            <View style={styles.headerHandleSearchExpanded}>
+              <MaterialIcons
+                name="search"
+                size={24}
+                color="#999"
+                style={styles.searchIconExpanded}
+              />
+              <TextInput
+                style={styles.searchInputExpanded}
+                placeholder="Buscar Categoria"
+                placeholderTextColor="#999"
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                autoFocus
+              />
+              <TouchableOpacity onPress={handleSearchToggle}>
+                <MaterialIcons name="close" size={24} color="#333" />
+              </TouchableOpacity>
+            </View>
+          </>
+        )}
+
+        {/* Toggle de Tipo */}
+        <View style={styles.typeToggle}>
+          <TouchableOpacity
+            style={[
+              styles.toggleButton,
+              selectedType === "RECEITA" && styles.toggleButtonActive,
+            ]}
+            onPress={() => setSelectedType("RECEITA")}
+          >
+            <Text
+              style={[
+                styles.toggleButtonText,
+                selectedType === "RECEITA" && styles.toggleButtonTextActive,
+              ]}
             >
-              <MaterialIcons name="search" size={32} color="#333" />
-            </TouchableOpacity>
-          </View>
-        </>
-      ) : (
-        <>
-          <View style={styles.headerHandleSearchExpanded}>
-            <MaterialIcons
-              name="search"
-              size={24}
-              color="#999"
-              style={styles.searchIconExpanded}
-            />
-            <TextInput
-              style={styles.searchInputExpanded}
-              placeholder="Buscar Categoria"
-              placeholderTextColor="#999"
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              autoFocus
-            />
-            <TouchableOpacity onPress={handleSearchToggle}>
-              <MaterialIcons name="close" size={24} color="#333" />
-            </TouchableOpacity>
-          </View>
-        </>
-      )}
+              Receitas
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.toggleButton,
+              selectedType === "GASTO" && styles.toggleButtonActive,
+            ]}
+            onPress={() => setSelectedType("GASTO")}
+          >
+            <Text
+              style={[
+                styles.toggleButtonText,
+                selectedType === "GASTO" && styles.toggleButtonTextActive,
+              ]}
+            >
+              Despesas
+            </Text>
+          </TouchableOpacity>
+        </View>
 
-      {/* Toggle de Tipo */}
-      <View style={styles.typeToggle}>
-        <TouchableOpacity
-          style={[
-            styles.toggleButton,
-            selectedType === "RECEITA" && styles.toggleButtonActive,
-          ]}
-          onPress={() => setSelectedType("RECEITA")}
-        >
-          <Text
-            style={[
-              styles.toggleButtonText,
-              selectedType === "RECEITA" && styles.toggleButtonTextActive,
-            ]}
-          >
-            Receitas
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.toggleButton,
-            selectedType === "GASTO" && styles.toggleButtonActive,
-          ]}
-          onPress={() => setSelectedType("GASTO")}
-        >
-          <Text
-            style={[
-              styles.toggleButtonText,
-              selectedType === "GASTO" && styles.toggleButtonTextActive,
-            ]}
-          >
-            Despesas
-          </Text>
-        </TouchableOpacity>
+        {/* Lista de Categorias */}
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#333" />
+          </View>
+        ) : error ? (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>{error}</Text>
+          </View>
+        ) : (
+          <FlatList
+            data={categorias}
+            renderItem={renderCategoriaItem}
+            keyExtractor={(item) => item.id.toString()}
+            contentContainerStyle={styles.listContainer}
+            ListEmptyComponent={
+              <View style={styles.emptyContainer}>
+                <MaterialIcons name="category" size={48} color="#CCC" />
+                <Text style={styles.emptyText}>Nenhuma categoria encontrada</Text>
+              </View>
+            }
+          />
+        )}
+
+        {/* Botão Flutuante */}
+        <BotaoFlutuanteAdicionar onPress={handleAddCategoria} iconSize={30} />
+
+        {/* Modal de Adicionar/Editar */}
+        <ModalCategoria
+          visible={modalVisible}
+          onClose={() => {
+            setModalVisible(false);
+            setCategoriaParaEditar(null);
+          }}
+          onSave={handleSaveCategoria}
+          categoria={categoriaParaEditar}
+          tipoInicial={selectedType}
+        />
+
+        {/* Modal de Aviso */}
+        <ModalAviso
+          visible={avisoModalVisible}
+          titulo="Aviso"
+          mensagem={avisoMensagem}
+          onClose={() => setAvisoModalVisible(false)}
+        />
       </View>
 
-      {/* Lista de Categorias */}
-      {loading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#333" />
-        </View>
-      ) : error ? (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{error}</Text>
-        </View>
-      ) : (
-        <FlatList
-          data={categorias}
-          renderItem={renderCategoriaItem}
-          keyExtractor={(item) => item.id.toString()}
-          contentContainerStyle={styles.listContainer}
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <MaterialIcons name="category" size={48} color="#CCC" />
-              <Text style={styles.emptyText}>Nenhuma categoria encontrada</Text>
-            </View>
-          }
-        />
-      )}
-
-      {/* Botão Flutuante */}
-      <BotaoFlutuanteAdicionar onPress={handleAddCategoria} iconSize={30} />
-
-      {/* Modal de Adicionar/Editar */}
-      <ModalCategoria
-        visible={modalVisible}
-        onClose={() => {
-          setModalVisible(false);
-          setCategoriaParaEditar(null);
-        }}
-        onSave={handleSaveCategoria}
-        categoria={categoriaParaEditar}
-        tipoInicial={selectedType}
-      />
-
-      {/* Modal de Confirmar Deleção */}
+      {/* Modal de Confirmar Deleção - Fora da View Principal */}
       <ModalConfirmDelete
         visible={deleteModalVisible}
         titulo="Excluir Categoria"
-        mensagem={`Tem certeza que deseja excluir "${categoriaDeletando?.nome}"?`}
+        mensagem={`Tem certeza que deseja excluir "${categoriaDeletando?.nome}"?\n\n⚠️ Atenção: Todas as transações vinculadas a esta categoria serão permanentemente deletadas.`}
         onConfirm={handleConfirmDelete}
         onClose={() => {
           setDeleteModalVisible(false);
@@ -261,7 +279,7 @@ const TelaCategorias = () => {
         }}
         isLoading={isDeletando}
       />
-    </View>
+    </>
   );
 };
 

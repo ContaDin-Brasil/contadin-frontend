@@ -131,14 +131,6 @@
       "icone": "local-drink",
       "fk_usuario": 1,
       "id": 13
-    },
-    {
-      "nome": "Gavassa",
-      "tipo": "GASTO",
-      "cor": "#4ECDC4",
-      "icone": "local-bar",
-      "fk_usuario": 1,
-      "id": 14
     }
   ],
   "instituicao": [
