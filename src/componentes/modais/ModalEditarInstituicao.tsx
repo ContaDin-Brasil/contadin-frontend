@@ -9,10 +9,11 @@ import {
   ScrollView,
   Image,
   Pressable,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getLogoByName } from './logosInstituicoes';
-import { confirmarAcao } from '../../utils/confirmarAcao';
+import ModalConfirmDelete from './ModalConfirmDelete';
 
 interface ModalEditarInstituicaoProps {
   visible: boolean;
@@ -41,6 +42,8 @@ const ModalEditarInstituicao: React.FC<ModalEditarInstituicaoProps> = ({
   const [cor, setCor] = useState('#E31C23');
   const [tipoInstituicao, setTipoInstituicao] = useState<'banco' | 'vale'>('banco');
   const [showColorWheel, setShowColorWheel] = useState(false);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [isDeletando, setIsDeletando] = useState(false);
 
   // Cores predefinidas organizadas em roda
   const coresPredefinidas = [
@@ -88,14 +91,20 @@ const ModalEditarInstituicao: React.FC<ModalEditarInstituicaoProps> = ({
   };
 
   const handleDeleteConfirm = () => {
-    const mensagem = `Tem certeza que deseja excluir "${instituicao?.nome}"?\n\n⚠️ Atenção: Todas as transações vinculadas a esta instituição serão permanentemente deletadas.`;
+    setDeleteModalVisible(true);
+  };
 
-    confirmarAcao({
-      titulo: 'Excluir Instituição',
-      mensagem,
-      textoConfirmar: 'Excluir',
-      onConfirmar: onDelete,
-    });
+  const handleConfirmDelete = async () => {
+    setIsDeletando(true);
+    try {
+      await onDelete();
+      setDeleteModalVisible(false);
+    } catch (error) {
+      console.error('Erro ao deletar instituição:', error);
+      Alert.alert('Erro', 'Não foi possível deletar a instituição');
+    } finally {
+      setIsDeletando(false);
+    }
   };
 
   const renderIcone = () => {
@@ -121,6 +130,7 @@ const ModalEditarInstituicao: React.FC<ModalEditarInstituicaoProps> = ({
   };
 
   return (
+    <>
     <Modal
       visible={visible}
       transparent={true}
@@ -289,7 +299,17 @@ const ModalEditarInstituicao: React.FC<ModalEditarInstituicaoProps> = ({
           </ScrollView>
         </Pressable>
       </Pressable>
+      <ModalConfirmDelete
+        visible={deleteModalVisible}
+        titulo="Excluir Instituição"
+        mensagem={`Tem certeza que deseja excluir "${instituicao?.nome}"?\n\n⚠️ Atenção: Todas as transações vinculadas a esta instituição serão permanentemente deletadas.`}
+        onConfirm={handleConfirmDelete}
+        onClose={() => setDeleteModalVisible(false)}
+        isLoading={isDeletando}
+      />
     </Modal>
+
+    </>
   );
 };
 

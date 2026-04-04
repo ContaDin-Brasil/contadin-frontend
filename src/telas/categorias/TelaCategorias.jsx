@@ -13,9 +13,9 @@ import { styles } from "./style/TelaCategorias.styles";
 import { useGerenciarCategorias } from "../categorias/hooks/useGerenciarCategorias";
 import { isPadrao } from "../categorias/types/categoria.types";
 import ModalCategoria from "../categorias/modals/ModalCategoria";
+import ModalConfirmDelete from "../../componentes/modais/ModalConfirmDelete";
 import TituloPagina from "../../componentes/TituloPagina";
 import BotaoFlutuanteAdicionar from "../../componentes/BotaoFlutuanteAdicionar";
-import { confirmarAcao } from "../../utils/confirmarAcao";
 
 const TelaCategorias = () => {
   const {
@@ -34,6 +34,9 @@ const TelaCategorias = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [categoriaParaEditar, setCategoriaParaEditar] = useState(null);
   const [searchExpanded, setSearchExpanded] = useState(false);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [categoriaDeletando, setCategoriaDeletando] = useState(null);
+  const [isDeletando, setIsDeletando] = useState(false);
 
   const handleAddCategoria = () => {
     setCategoriaParaEditar(null);
@@ -54,15 +57,25 @@ const TelaCategorias = () => {
       Alert.alert("Aviso", "Categorias padrão não podem ser deletadas");
       return;
     }
+    setCategoriaDeletando(categoria);
+    setDeleteModalVisible(true);
+  };
 
-    const mensagem = `Tem certeza que deseja excluir "${categoria.nome}"?`;
-
-    confirmarAcao({
-      titulo: "Excluir Categoria",
-      mensagem,
-      textoConfirmar: "Excluir",
-      onConfirmar: () => deletarCategoria(categoria.id),
-    });
+  const handleConfirmDelete = async () => {
+    if (!categoriaDeletando) return;
+    
+    setIsDeletando(true);
+    try {
+      await deletarCategoria(categoriaDeletando.id);
+      setDeleteModalVisible(false);
+      setCategoriaDeletando(null);
+      setIsDeletando(false);
+    } catch (error) {
+      console.error('Erro ao deletar categoria:', error);
+      setDeleteModalVisible(false);
+      setIsDeletando(false);
+      Alert.alert('Erro', error.message || 'Não foi possível deletar a categoria');
+    }
   };
 
   const handleSaveCategoria = async (data) => {
@@ -234,6 +247,19 @@ const TelaCategorias = () => {
         onSave={handleSaveCategoria}
         categoria={categoriaParaEditar}
         tipoInicial={selectedType}
+      />
+
+      {/* Modal de Confirmar Deleção */}
+      <ModalConfirmDelete
+        visible={deleteModalVisible}
+        titulo="Excluir Categoria"
+        mensagem={`Tem certeza que deseja excluir "${categoriaDeletando?.nome}"?`}
+        onConfirm={handleConfirmDelete}
+        onClose={() => {
+          setDeleteModalVisible(false);
+          setCategoriaDeletando(null);
+        }}
+        isLoading={isDeletando}
       />
     </View>
   );

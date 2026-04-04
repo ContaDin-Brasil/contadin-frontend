@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, SafeAreaView, TextInput, Alert } from 'react-native';
 import TituloPagina from '../../componentes/TituloPagina';
 import BotoesAcaoFixo from '../../componentes/BotoesAcaoFixo';
-import { confirmarAcao } from '../../utils/confirmarAcao';
+import ModalConfirmDelete from '../../componentes/modais/ModalConfirmDelete';
 import { styles } from './styles/TelaMetaForm.styles';
 
 const META_MOCK = {
@@ -19,6 +19,8 @@ const TelaEditarMeta = ({ navigation, route }) => {
   const [categoria, setCategoria] = useState(metaInicial.categoria);
   const [valor, setValor] = useState(String(metaInicial.valor));
   const [dataFimMeta, setDataFimMeta] = useState(metaInicial.dataFimMeta);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [isDeletando, setIsDeletando] = useState(false);
 
   const handleSalvar = () => {
     Alert.alert('Meta atualizada', 'As alteracoes foram salvas.', [
@@ -27,14 +29,22 @@ const TelaEditarMeta = ({ navigation, route }) => {
   };
 
   const handleExcluir = () => {
-    const mensagem = 'Tem certeza que deseja excluir esta meta?';
+    setDeleteModalVisible(true);
+  };
 
-    confirmarAcao({
-      titulo: 'Excluir meta',
-      mensagem,
-      textoConfirmar: 'Excluir',
-      onConfirmar: () => navigation.goBack(),
-    });
+  const handleConfirmDelete = async () => {
+    setIsDeletando(true);
+    try {
+      // TODO: Integrar com API real para deletar meta
+      setDeleteModalVisible(false);
+      setIsDeletando(false);
+      navigation.goBack();
+    } catch (error) {
+      console.error('Erro ao deletar meta:', error);
+      setDeleteModalVisible(false);
+      setIsDeletando(false);
+      Alert.alert('Erro', error.message || 'Não foi possível deletar a meta');
+    }
   };
 
   return (
@@ -106,6 +116,18 @@ const TelaEditarMeta = ({ navigation, route }) => {
           onSecondaryPress={handleExcluir}
         />
       </View>
+
+      {/* Modal de Confirmar Deleção */}
+      <ModalConfirmDelete
+        visible={deleteModalVisible}
+        titulo="Excluir Meta"
+        mensagem={`Tem certeza que deseja excluir "${nome}"?`}
+        onConfirm={handleConfirmDelete}
+        onClose={() => {
+          setDeleteModalVisible(false);
+        }}
+        isLoading={isDeletando}
+      />
     </SafeAreaView>
   );
 };
