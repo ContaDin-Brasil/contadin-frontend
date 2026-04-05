@@ -4,6 +4,7 @@ import TituloPagina from '../../componentes/TituloPagina';
 import BotoesAcaoFixo from '../../componentes/BotoesAcaoFixo';
 import { useEditarPerfil } from './hooks/useEditarPerfil';
 import { confirmarAcao } from '../../utils/confirmarAcao';
+import { COLORS } from '../../styles/colors';
 import { styles } from './styles/TelaEditarPerfil.styles';
 
 const EditProfileScreen = ({ navigation }) => {
