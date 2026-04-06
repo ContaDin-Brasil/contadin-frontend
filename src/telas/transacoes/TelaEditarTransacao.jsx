@@ -13,7 +13,7 @@ import ModalCategoria from '../categorias/modals/ModalCategoria';
 import { useEditarTransacao } from './hooks/useEditarTransacao';
 import { FREQUENCIES, INSTALLMENT_OPTIONS } from './constants/constantesTransacao';
 import { getCategoryIcon } from './utils/utilitariosTransacao';
-import { categoriaService } from '../../api';
+import { categoriaService, recorrenciaService } from '../../api';
 import COLORS from '../../styles/colors';
 import { styles } from './styles/TelaAdicionarTransacao.styles';
 
@@ -309,20 +309,35 @@ const TelaEditarTransacao = ({ navigation, route }) => {
 
       {/* Recorrência e Parcelamento */}
       <View style={styles.section}>
-        {/* Toggle de Recorrência */}
-        {!editState.isInstallment && (
-          <View style={styles.recurringRow}>
-            <Switch
-              value={editState.isRecurring}
-              onValueChange={editState.handleToggleRecurring}
-              trackColor={{ false: COLORS.borderDark, true: COLORS.primaryLight }}
-              thumbColor={COLORS.white}
-            />
-            <Text style={styles.recurringText}>Recorrência</Text>
-          </View>
-        )}
-        {editState.isRecurring && (
-          <>
+        {/* Seletor de Modo */}
+        <Text style={styles.label}>Tipo de repetição:</Text>
+        <View style={styles.typeButtons}>
+          {['NONE', 'RECORRENCIA', 'PARCELADO'].map((mode) => (
+            <TouchableOpacity
+              key={mode}
+              style={[
+                styles.typeButton,
+                editState.recurringMode === mode && styles.typeButtonActive
+              ]}
+              onPress={() => editState.setRecurringMode(mode)}
+            >
+              <Text style={[
+                styles.typeButtonText,
+                editState.recurringMode === mode && styles.typeButtonTextActive
+              ]}>
+                {mode === 'NONE' ? 'Nenhuma' : mode === 'RECORRENCIA' ? 'Recorrência' : 'Parcelado'}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+
+      {/* === RECORRÊNCIA === */}
+      {editState.recurringMode === 'RECORRENCIA' && (
+        <>
+          {/* Tipo de Frequência */}
+          <View style={styles.section}>
+            <Text style={styles.label}>Frequência:</Text>
             <View style={styles.frequencyButtons}>
               {FREQUENCIES.map(freq => (
                 <TouchableOpacity
@@ -342,126 +357,126 @@ const TelaEditarTransacao = ({ navigation, route }) => {
                 </TouchableOpacity>
               ))}
             </View>
-            <View style={styles.recurringRow}>
-              <Switch
-                value={editState.hasRecurrenceEndDate}
-                onValueChange={editState.setHasRecurrenceEndDate}
-                trackColor={{ false: COLORS.borderDark, true: COLORS.primaryLight }}
-                thumbColor={COLORS.white}
+          </View>
+
+          {/* Intervalo */}
+          <View style={styles.section}>
+            <Text style={styles.label}>A cada quantos?</Text>
+            <View style={styles.amountInputContainer}>
+              <TextInput
+                style={styles.amountInput}
+                placeholder="1"
+                placeholderTextColor="#999"
+                value={editState.recurrenceInterval?.toString()}
+                onChangeText={(text) => editState.setRecurrenceInterval(parseInt(text) || 1)}
+                keyboardType="number-pad"
               />
-              <Text style={styles.recurringText}>Data limite da recorrência</Text>
+              <Text style={styles.currencySymbol}>
+                {editState.frequency === 'DIARIA' && 'dias'}
+                {editState.frequency === 'SEMANAL' && 'semanas'}
+                {editState.frequency === 'MENSAL' && 'meses'}
+                {editState.frequency === 'ANUAL' && 'anos'}
+              </Text>
             </View>
-            {editState.hasRecurrenceEndDate && (
+          </View>
+
+          {/* APENAS INDEFINIDA ou DATA (sem OCORRENCIAS) */}
+          <View style={styles.section}>
+            <Text style={styles.label}>Duração:</Text>
+            <View style={styles.typeButtons}>
+              {['INDEFINIDA', 'DATA'].map((tipo) => (
+                <TouchableOpacity
+                  key={tipo}
+                  style={[
+                    styles.typeButton,
+                    editState.recurrenceLimitType === tipo && styles.typeButtonActive
+                  ]}
+                  onPress={() => editState.setRecurrenceLimitType(tipo)}
+                >
+                  <Text style={[
+                    styles.typeButtonText,
+                    editState.recurrenceLimitType === tipo && styles.typeButtonTextActive
+                  ]}>
+                    {tipo === 'INDEFINIDA' ? 'Sem limite' : 'Com data final'}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          {/* Data Limite (se tipo_limite === 'DATA') */}
+          {editState.recurrenceLimitType === 'DATA' && (
+            <View style={styles.section}>
+              <Text style={styles.label}>Data de término:</Text>
               <DatePickerInput
                 value={editState.recurrenceEndDate}
-                onChangeDate={editState.handleRecurrenceEndDateChange}
+                onChangeDate={editState.setRecurrenceEndDate}
                 placeholder="DD/MM/AAAA"
-                minDate={new Date()} // Não permite datas passadas
+                minDate={new Date()}
                 errorMessage={editState.validateRecurrenceEndDate()}
                 style={{ marginTop: 8 }}
               />
-            )}
-          </>
-        )}
-
-        {/* Toggle de Parcelamento */}
-        {!editState.isRecurring && (
-          <View style={[styles.recurringRow, editState.isInstallment && styles.marginTop0]}>
-            <Switch
-              value={editState.isInstallment}
-              onValueChange={editState.handleToggleInstallment}
-              trackColor={{ false: COLORS.borderDark, true: COLORS.primaryLight }}
-              thumbColor={COLORS.white}
-            />
-            <Text style={styles.recurringText}>Parcelado</Text>
-          </View>
-        )}
-        {editState.isInstallment && (
-          <>
-            {/* Valor por parcela */}
-            {editState.valor && editState.getInstallmentValue() > 0 && (
-              <View style={styles.installmentValueContainer}>
-                <View style={styles.installmentValueRow}>
-                  <Ionicons name="calculator-outline" size={20} color={COLORS.primary} />
-                  <Text style={styles.installmentValueText}>
-                    {editState.installmentCount === 0 
-                      ? (editState.customInstallmentValue || '?')
-                      : editState.installmentCount}x de{' '}
-                    <Text style={styles.installmentValueHighlight}>
-                      R$ {editState.getInstallmentValue().toFixed(2).replace('.', ',')}
-                    </Text>
-                  </Text>
-                </View>
-                {editState.getInstallmentWarning() && (
-                  <View style={styles.warningContainer}>
-                    <Ionicons name="alert-circle-outline" size={14} color={COLORS.warning} />
-                    <Text style={styles.warningText}>{editState.getInstallmentWarning()}</Text>
-                  </View>
-                )}
-              </View>
-            )}
-
-            {/* Seletor de parcelas */}
-            <Text style={styles.pickerLabel}>Quantidade de parcelas:</Text>
-            <View style={styles.pickerContainer}>
-              <Picker
-                selectedValue={editState.installmentCount}
-                onValueChange={(itemValue) => {
-                  editState.setInstallmentCount(itemValue);
-                  // Limpa o valor customizado quando seleciona uma opção pré-definida
-                  if (itemValue !== 0) {
-                    editState.setCustomInstallmentValue('');
-                  }
-                }}
-                style={styles.picker}
-                dropdownIconColor={COLORS.primary}
-              >
-                {INSTALLMENT_OPTIONS.map(option => (
-                  <Picker.Item 
-                    key={option.value} 
-                    label={option.label} 
-                    value={option.value}
-                  />
-                ))}
-              </Picker>
             </View>
+          )}
+        </>
+      )}
 
-            {/* Campo customizado quando seleciona "Outro valor" */}
-            {editState.installmentCount === 0 && (
-              <View style={styles.customInstallmentContainer}>
-                <Text style={styles.label}>Digite a quantidade de parcelas (máx. 720):</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Ex: 24"
-                  placeholderTextColor="#999"
-                  value={editState.customInstallmentValue}
-                  onChangeText={editState.handleCustomInstallmentChange}
-                  keyboardType="numeric"
-                  maxLength={3}
-                />
-              </View>
-            )}
+      {/* === PARCELADO === */}
+      {editState.recurringMode === 'PARCELADO' && (
+        <>
+          {/* Frequência das parcelas (informativo) */}
+          <View style={styles.section}>
+            <Text style={styles.label}>Frequência das parcelas:</Text>
+            <View style={styles.frequencyButtons}>
+              {FREQUENCIES.map(freq => (
+                <TouchableOpacity
+                  key={freq.id}
+                  style={[
+                    styles.frequencyButton,
+                    editState.parceladoFrequency === freq.id && styles.frequencyButtonActive
+                  ]}
+                  onPress={() => editState.setParceladoFrequency(freq.id)}
+                >
+                  <Text style={[
+                    styles.frequencyButtonText,
+                    editState.parceladoFrequency === freq.id && styles.frequencyButtonTextActive
+                  ]}>
+                    {freq.nome}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
 
-            {/* Validação de parcelamento */}
-            {editState.validateInstallment() && (
-              <View style={styles.errorContainer}>
-                <Ionicons name="alert-circle" size={14} color={COLORS.error} />
-                <Text style={styles.errorText}>{editState.validateInstallment()}</Text>
-              </View>
-            )}
+          {/* Quantidade de Parcelas */}
+          <View style={styles.section}>
+            <Text style={styles.label}>Quantidade de parcelas:</Text>
+            <View style={styles.amountInputContainer}>
+              <TextInput
+                style={styles.amountInput}
+                placeholder="12"
+                placeholderTextColor="#999"
+                value={editState.parceladoOccurrenceCount?.toString()}
+                onChangeText={(text) => editState.setParceladoOccurrenceCount(parseInt(text) || 1)}
+                keyboardType="number-pad"
+              />
+              <Text style={styles.currencySymbol}>parcelas</Text>
+            </View>
+          </View>
 
-            {/* Data da última parcela (info) */}
-            {editState.getLastInstallmentDate() && !editState.validateInstallment() && (
-              <View style={styles.installmentInfoContainer}>
-                <Ionicons name="information-circle-outline" size={16} color={COLORS.textSecondary} />
-                <Text style={styles.installmentInfoText}>
-                  Última parcela: {editState.getLastInstallmentDate()}
+          {/* Preview da divisão do valor */}
+          {editState.valor && (
+            <View style={styles.parceladoValuePreview}>
+              <Text style={styles.parceladoValueLabel}>
+                {editState.parceladoOccurrenceCount}x de{' '}
+                <Text style={styles.parceladoValueHighlight}>
+                  R$ {(parseFloat(editState.valor) / editState.parceladoOccurrenceCount).toFixed(2).replace('.', ',')}
                 </Text>
-              </View>
-            )}
-          </>
-        )}
-      </View>
+              </Text>
+            </View>
+          )}
+        </>
+      )}
 
       {/* Seleção de instituição */}
       <View style={styles.section}>

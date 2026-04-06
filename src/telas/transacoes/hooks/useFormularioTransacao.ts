@@ -32,10 +32,24 @@ export const useFormularioTransacao = () => {
   const [categorySearch, setCategorySearch] = useState('');
   const [debouncedCategorySearch, setDebouncedCategorySearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(1); // ID da primeira categoria
-  const [isRecurring, setIsRecurring] = useState(false);
+  // ✨ NOVO: Modo de recorrência simplificado
+  // 'NONE' = sem recorrência/parcelamento
+  // 'RECORRENCIA' = recorre indefinidamente ou até uma data
+  // 'PARCELADO' = repete um número fixo de vezes
+  const [recurringMode, setRecurringMode] = useState<'NONE' | 'RECORRENCIA' | 'PARCELADO'>('NONE');
+  
+  // Estados para RECORRÊNCIA (apenas para tipo = 'RECORRENCIA')
   const [frequency, setFrequency] = useState<FrequencyType>('MENSAL');
-  const [hasRecurrenceEndDate, setHasRecurrenceEndDate] = useState(false);
+  const [recurrenceInterval, setRecurrenceInterval] = useState(1); // a cada N dias/semanas/meses/anos
+  const [recurrenceLimitType, setRecurrenceLimitType] = useState<'INDEFINIDA' | 'DATA'>('INDEFINIDA'); // Sem OCORRENCIAS aqui!
   const [recurrenceEndDate, setRecurrenceEndDate] = useState(getTodayDate());
+  
+  // Estados para PARCELADO (apenas para tipo = 'PARCELADO')
+  const [parceladoFrequency, setParceladoFrequency] = useState<FrequencyType>('MENSAL'); // frequência das parcelas
+  const [parceladoOccurrenceCount, setParceladoOccurrenceCount] = useState(12); // quantidade de parcelas
+  
+  // Estados legados (mantidos para compatibilidade)
+  const [isRecurring, setIsRecurring] = useState(false);
   const [isInstallment, setIsInstallment] = useState(false);
   const [installmentCount, setInstallmentCount] = useState(2);
   const [customInstallmentValue, setCustomInstallmentValue] = useState('');
@@ -397,23 +411,37 @@ export const useFormularioTransacao = () => {
   };
 
   /**
-   * Ativa recorrência e desativa parcelamento
+   * Define o modo de recorrência: NONE, RECORRENCIA ou PARCELADO
+   * Simplesmente seta o estado sem lógica complexa
    */
-  const handleToggleRecurring = (value: boolean) => {
-    setIsRecurring(value);
-    if (value) {
+  const setRecurringModeHandler = (mode: 'NONE' | 'RECORRENCIA' | 'PARCELADO') => {
+    setRecurringMode(mode);
+    
+    // Sincroniza states legados para compatibilidade com código existente
+    if (mode === 'NONE') {
+      setIsRecurring(false);
       setIsInstallment(false);
+    } else if (mode === 'RECORRENCIA') {
+      setIsRecurring(true);
+      setIsInstallment(false);
+    } else if (mode === 'PARCELADO') {
+      setIsRecurring(false);
+      setIsInstallment(true);
     }
   };
 
   /**
-   * Ativa parcelamento e desativa recorrência
+   * Ativa recorrência e desativa parcelamento (método legado, agora delega para novo handler)
+   */
+  const handleToggleRecurring = (value: boolean) => {
+    setRecurringModeHandler(value ? 'RECORRENCIA' : 'NONE');
+  };
+
+  /**
+   * Ativa parcelamento e desativa recorrência (método legado, agora delega para novo handler)
    */
   const handleToggleInstallment = (value: boolean) => {
-    setIsInstallment(value);
-    if (value) {
-      setIsRecurring(false);
-    }
+    setRecurringModeHandler(value ? 'PARCELADO' : 'NONE');
   };
 
   /**
@@ -440,9 +468,25 @@ export const useFormularioTransacao = () => {
 
   /**
    * Retorna os dados do formulário para salvar
+   * Agora usa recurringMode para determinar tipo de recorrência
    */
   const getFormData = () => {
     const valorNumerico = converterParaNumero(valor);
+    
+    // Determina tipo_limite baseado no modo selecionado
+    let tipoLimiteRecorrencia: 'INDEFINIDA' | 'DATA' | 'OCORRENCIAS' = 'INDEFINIDA';
+    let qtdOcorrenciasRecorrencia = null;
+    let dataFimRecorrencia = null;
+    
+    if (recurringMode === 'RECORRENCIA') {
+      tipoLimiteRecorrencia = recurrenceLimitType; // INDEFINIDA ou DATA
+      if (recurrenceLimitType === 'DATA') {
+        dataFimRecorrencia = recurrenceEndDate;
+      }
+    } else if (recurringMode === 'PARCELADO') {
+      tipoLimiteRecorrencia = 'OCORRENCIAS';
+      qtdOcorrenciasRecorrencia = parceladoOccurrenceCount;
+    }
     
     const formData = {
       descricao,
@@ -450,19 +494,30 @@ export const useFormularioTransacao = () => {
       date,
       tipo,
       selectedCategory,
-      isRecurring,
-      frequency: isRecurring ? frequency : null,
-      hasRecurrenceEndDate,
-      recurrenceEndDate: hasRecurrenceEndDate && isRecurring ? recurrenceEndDate : null,
-      parcelado: isInstallment,
-      qtdParcelas: isInstallment 
-        ? (installmentCount === 0 ? parseInt(customInstallmentValue) || 2 : installmentCount) 
-        : 1,
+      
+      // Novo: modo de recorrência
+      recurringMode,
+      
+      // RECORRÊNCIA (se recurringMode = 'RECORRENCIA')
+      frequency: recurringMode === 'RECORRENCIA' ? frequency : null,
+      recurrenceInterval: recurringMode === 'RECORRENCIA' ? recurrenceInterval : 1,
+      recurrenceLimitType: tipoLimiteRecorrencia,
+      recurrenceEndDate: dataFimRecorrencia,
+      
+      // PARCELADO (se recurringMode = 'PARCELADO')
+      parceladoFrequency: recurringMode === 'PARCELADO' ? parceladoFrequency : null,
+      parceladoOccurrenceCount: qtdOcorrenciasRecorrencia,
+      
+      // Legado
+      isRecurring: recurringMode === 'RECORRENCIA',
+      parcelado: recurringMode === 'PARCELADO',
+      
       selectedInstitution,
       institutionType
     };
     
     console.log('📋 [FORM DATA] Dados do formulário:');
+    console.log('   • Modo:', recurringMode);
     console.log('   • Valor formatado:', valor);
     console.log('   • Valor numérico:', valorNumerico);
     console.log('   • Dados completos:', JSON.stringify(formData, null, 2));
@@ -481,10 +536,14 @@ export const useFormularioTransacao = () => {
     if (categorias.length > 0) {
       setSelectedCategory(categorias[0].id);
     }
-    setIsRecurring(false);
+    setRecurringMode('NONE');
     setFrequency('MENSAL');
-    setHasRecurrenceEndDate(false);
+    setRecurrenceInterval(1);
+    setRecurrenceLimitType('INDEFINIDA');
     setRecurrenceEndDate(getTodayDate());
+    setParceladoFrequency('MENSAL');
+    setParceladoOccurrenceCount(12);
+    setIsRecurring(false);
     setIsInstallment(false);
     setInstallmentCount(2);
     setCustomInstallmentValue('');
@@ -568,13 +627,27 @@ export const useFormularioTransacao = () => {
     tipo,
     categorySearch,
     selectedCategory,
-    isRecurring,
+    
+    // ✨ NOVO: Modo de recorrência simplificado
+    recurringMode,
+    
+    // RECORRÊNCIA (apenas quando recurringMode = 'RECORRENCIA')
     frequency,
-    hasRecurrenceEndDate,
+    recurrenceInterval,
+    recurrenceLimitType,
     recurrenceEndDate,
+    
+    // PARCELADO (apenas quando recurringMode = 'PARCELADO')
+    parceladoFrequency,
+    parceladoOccurrenceCount,
+    
+    // Estados legados (mantidos para compatibilidade)
+    isRecurring,
+    recurrenceOccurrenceCount: parceladoOccurrenceCount, // mapeia pro novo
     isInstallment,
     installmentCount,
     customInstallmentValue,
+    
     institutionType,
     selectedInstitution,
     categorias,
@@ -589,9 +662,14 @@ export const useFormularioTransacao = () => {
     setTipo,
     setCategorySearch,
     setSelectedCategory,
-    setIsRecurring,
+    setRecurringMode: setRecurringModeHandler, // NEW!
     setFrequency,
-    setHasRecurrenceEndDate,
+    setRecurrenceInterval,
+    setRecurrenceLimitType,
+    setRecurrenceEndDate,
+    setParceladoFrequency, // NEW!
+    setParceladoOccurrenceCount, // NEW!
+    setIsRecurring,
     setIsInstallment,
     setInstallmentCount,
     setCustomInstallmentValue,

@@ -74,6 +74,13 @@ const SettingsScreen = ({ navigation }) => {
               subtitle="Gerencie suas metas de gastos"
               onPress={() => navigation.navigate('Goals')}
             />
+            <View style={styles.divider} />
+            <SettingItem 
+              icon={<Ionicons name="repeat-outline" size={24} color="#5BA3FF" />}
+              title="Recorrências" 
+              subtitle="Gerencie suas transações recorrentes"
+              onPress={() => navigation.navigate('Recurrencies')}
+            />
           </View>
         </View>
 

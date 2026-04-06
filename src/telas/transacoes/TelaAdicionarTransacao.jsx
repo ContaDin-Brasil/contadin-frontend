@@ -11,7 +11,7 @@ import ModalAdicionarInstituicao from '../../componentes/modais/ModalAdicionarIn
 import ModalCategoria from '../categorias/modals/ModalCategoria';
 import { useFormularioTransacao } from './hooks/useFormularioTransacao';
 import { useProcessamentoIA } from './hooks/useProcessamentoIA';
-import { transacaoService, categoriaService } from '../../api';
+import { transacaoService, categoriaService, recorrenciaService } from '../../api';
 import { FREQUENCIES, INSTALLMENT_OPTIONS } from './constants/constantesTransacao';
 import { getCategoryIcon } from './utils/utilitariosTransacao';
 import COLORS from '../../styles/colors';
@@ -113,7 +113,7 @@ const TelaAdicionarTransacao = ({ navigation }) => {
 
       // Converte data fim de recorrência se houver
       let fimRecorrenciaISO = null;
-      if (data.hasRecurrenceEndDate && data.recurrenceEndDate) {
+      if (data.recurrenceEndDate && data.isRecurring) {
         const [endDay, endMonth, endYear] = data.recurrenceEndDate.split('/');
         fimRecorrenciaISO = new Date(`${endYear}-${endMonth}-${endDay}`).toISOString();
       }
@@ -147,6 +147,68 @@ const TelaAdicionarTransacao = ({ navigation }) => {
       console.log('='.repeat(60));
       console.log('📥 Resposta do servidor:', JSON.stringify(resultado, null, 2));
       console.log('='.repeat(60) + '\n');
+
+      // 🔄 Se a transação é recorrente ou parcelada, cria também no sistema de recorrências
+      if ((data.recurringMode === 'RECORRENCIA' || data.recurringMode === 'PARCELADO') && resultado.id) {
+        try {
+          let recorrenciaPayload = null;
+
+          if (data.recurringMode === 'RECORRENCIA') {
+            // ✨ RECORRÊNCIA: INDEFINIDA ou DATA
+            recorrenciaPayload = {
+              descricao: data.descricao,
+              frequencia: data.frequency,
+              intervalo: data.recurrenceInterval || 1,
+              dia_inicio: dataISO.split('T')[0],
+              tipo_limite: data.recurrenceLimitType, // INDEFINIDA ou DATA
+              data_fim: data.recurrenceLimitType === 'DATA' ? fimRecorrenciaISO?.split('T')[0] : null,
+              qtd_ocorrencias: null, // Não usa para RECORRÊNCIA
+              ocorrencias_criadas: 1,
+              ativo: true,
+              valor: parseFloat(data.valor),
+              tipo: data.tipo,
+              fk_usuario: 1,
+              fk_categoria: data.selectedCategory,
+              fk_instituicao: data.selectedInstitution.id,
+            };
+          } else if (data.recurringMode === 'PARCELADO') {
+            // ✨ PARCELADO: OCORRENCIAS
+            recorrenciaPayload = {
+              descricao: data.descricao,
+              frequencia: data.parceladoFrequency,
+              intervalo: 1, // Sempre intervalo 1 para parcelado
+              dia_inicio: dataISO.split('T')[0],
+              tipo_limite: 'OCORRENCIAS',
+              data_fim: null,
+              qtd_ocorrencias: data.parceladoOccurrenceCount,
+              ocorrencias_criadas: 1,
+              ativo: true,
+              valor: parseFloat(data.valor),
+              tipo: data.tipo,
+              fk_usuario: 1,
+              fk_categoria: data.selectedCategory,
+              fk_instituicao: data.selectedInstitution.id,
+            };
+          }
+
+          if (recorrenciaPayload) {
+            console.log('\n' + '='.repeat(60));
+            console.log('🔄 [CREATE RECURRENCE] Criando recorrência associada');
+            console.log('='.repeat(60));
+            console.log('📦 Modo:', data.recurringMode);
+            console.log('📦 Payload de recorrência:', JSON.stringify(recorrenciaPayload, null, 2));
+            console.log('='.repeat(60) + '\n');
+
+            await recorrenciaService.criar(recorrenciaPayload);
+
+            console.log('✅ Recorrência criada com sucesso!');
+          }
+        } catch (recorrenciaError) {
+          console.error('⚠️ Erro ao criar recorrência:', recorrenciaError);
+          // Não falha a transação se a recorrência falhar, apenas registra o aviso
+          Alert.alert('Atenção', 'Transação criada, mas não foi possível registrar a recorrência.');
+        }
+      }
       
       if (Platform.OS === 'web') {
         Alert.alert('Sucesso', 'Transação criada com sucesso!');
@@ -399,22 +461,36 @@ const TelaAdicionarTransacao = ({ navigation }) => {
         </View>
       </View>
 
-      {/* Recorrência e Parcelamento */}
+      {/* ✨ NOVA SEÇÃO: Tipo de Recorrência Simplificada */}
       <View style={styles.section}>
-        {/* Toggle de Recorrência */}
-        {!formState.isInstallment && (
-          <View style={styles.recurringRow}>
-            <Switch
-              value={formState.isRecurring}
-              onValueChange={formState.handleToggleRecurring}
-              trackColor={{ false: COLORS.borderDark, true: COLORS.primaryLight }}
-              thumbColor={COLORS.white}
-            />
-            <Text style={styles.recurringText}>Recorrência</Text>
-          </View>
-        )}
-        {formState.isRecurring && (
-          <>
+        <Text style={styles.label}>Tipo de repetição:</Text>
+        <View style={styles.typeButtons}>
+          {['NONE', 'RECORRENCIA', 'PARCELADO'].map((mode) => (
+            <TouchableOpacity
+              key={mode}
+              style={[
+                styles.typeButton,
+                formState.recurringMode === mode && styles.typeButtonActive
+              ]}
+              onPress={() => formState.setRecurringMode(mode)}
+            >
+              <Text style={[
+                styles.typeButtonText,
+                formState.recurringMode === mode && styles.typeButtonTextActive
+              ]}>
+                {mode === 'NONE' ? 'Nenhuma' : mode === 'RECORRENCIA' ? 'Recorrência' : 'Parcelado'}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+
+      {/* === RECORRÊNCIA === */}
+      {formState.recurringMode === 'RECORRENCIA' && (
+        <>
+          {/* Tipo de Frequência */}
+          <View style={styles.section}>
+            <Text style={styles.label}>Frequência:</Text>
             <View style={styles.frequencyButtons}>
               {FREQUENCIES.map(freq => (
                 <TouchableOpacity
@@ -434,126 +510,129 @@ const TelaAdicionarTransacao = ({ navigation }) => {
                 </TouchableOpacity>
               ))}
             </View>
-            <View style={styles.recurringRow}>
-              <Switch
-                value={formState.hasRecurrenceEndDate}
-                onValueChange={formState.setHasRecurrenceEndDate}
-                trackColor={{ false: COLORS.borderDark, true: COLORS.primaryLight }}
-                thumbColor={COLORS.white}
+          </View>
+
+          {/* Intervalo */}
+          <View style={styles.section}>
+            <Text style={styles.label}>A cada quantos?</Text>
+            <View style={styles.amountInputContainer}>
+              <TextInput
+                style={styles.amountInput}
+                placeholder="1"
+                placeholderTextColor="#999"
+                value={formState.recurrenceInterval?.toString()}
+                onChangeText={(text) => formState.setRecurrenceInterval(parseInt(text) || 1)}
+                keyboardType="number-pad"
               />
-              <Text style={styles.recurringText}>Data limite da recorrência</Text>
+              <Text style={styles.currencySymbol}>
+                {formState.frequency === 'DIARIA' && 'dias'}
+                {formState.frequency === 'SEMANAL' && 'semanas'}
+                {formState.frequency === 'MENSAL' && 'meses'}
+                {formState.frequency === 'ANUAL' && 'anos'}
+              </Text>
             </View>
-            {formState.hasRecurrenceEndDate && (
+          </View>
+
+          {/* APENAS INDEFINIDA ou DATA (sem OCORRENCIAS) */}
+          <View style={styles.section}>
+            <Text style={styles.label}>Duração:</Text>
+            <View style={styles.typeButtons}>
+              {['INDEFINIDA', 'DATA'].map((tipo) => (
+                <TouchableOpacity
+                  key={tipo}
+                  style={[
+                    styles.typeButton,
+                    formState.recurrenceLimitType === tipo && styles.typeButtonActive
+                  ]}
+                  onPress={() => formState.setRecurrenceLimitType(tipo)}
+                >
+                  <Text style={[
+                    styles.typeButtonText,
+                    formState.recurrenceLimitType === tipo && styles.typeButtonTextActive
+                  ]}>
+                    {tipo === 'INDEFINIDA' ? 'Sem limite' : 'Com data final'}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          {/* Data Limite (se tipo_limite === 'DATA') */}
+          {formState.recurrenceLimitType === 'DATA' && (
+            <View style={styles.section}>
+              <Text style={styles.label}>Data de término:</Text>
               <DatePickerInput
                 value={formState.recurrenceEndDate}
-                onChangeDate={formState.handleRecurrenceEndDateChange}
+                onChangeDate={formState.setRecurrenceEndDate}
                 placeholder="DD/MM/AAAA"
-                minDate={new Date()} // Não permite datas passadas
+                minDate={new Date()}
                 errorMessage={formState.validateRecurrenceEndDate()}
                 style={{ marginTop: 8 }}
               />
-            )}
-          </>
-        )}
-
-        {/* Toggle de Parcelamento */}
-        {!formState.isRecurring && (
-          <View style={[styles.recurringRow, formState.isInstallment && styles.marginTop0]}>
-            <Switch
-              value={formState.isInstallment}
-              onValueChange={formState.handleToggleInstallment}
-              trackColor={{ false: COLORS.borderDark, true: COLORS.primaryLight }}
-              thumbColor={COLORS.white}
-            />
-            <Text style={styles.recurringText}>Parcelado</Text>
-          </View>
-        )}
-        {formState.isInstallment && (
-          <>
-            {/* Valor por parcela */}
-            {formState.valor && formState.getInstallmentValue() > 0 && (
-              <View style={styles.installmentValueContainer}>
-                <View style={styles.installmentValueRow}>
-                  <Ionicons name="calculator-outline" size={20} color={COLORS.primary} />
-                  <Text style={styles.installmentValueText}>
-                    {formState.installmentCount === 0 
-                      ? (formState.customInstallmentValue || '?')
-                      : formState.installmentCount}x de{' '}
-                    <Text style={styles.installmentValueHighlight}>
-                      R$ {formState.getInstallmentValue().toFixed(2).replace('.', ',')}
-                    </Text>
-                  </Text>
-                </View>
-                {formState.getInstallmentWarning() && (
-                  <View style={styles.warningContainer}>
-                    <Ionicons name="alert-circle-outline" size={14} color={COLORS.warning} />
-                    <Text style={styles.warningText}>{formState.getInstallmentWarning()}</Text>
-                  </View>
-                )}
-              </View>
-            )}
-
-            {/* Seletor de parcelas */}
-            <Text style={styles.pickerLabel}>Quantidade de parcelas:</Text>
-            <View style={styles.pickerContainer}>
-              <Picker
-                selectedValue={formState.installmentCount}
-                onValueChange={(itemValue) => {
-                  formState.setInstallmentCount(itemValue);
-                  // Limpa o valor customizado quando seleciona uma opção pré-definida
-                  if (itemValue !== 0) {
-                    formState.setCustomInstallmentValue('');
-                  }
-                }}
-                style={styles.picker}
-                dropdownIconColor={COLORS.primary}
-              >
-                {INSTALLMENT_OPTIONS.map(option => (
-                  <Picker.Item 
-                    key={option.value} 
-                    label={option.label} 
-                    value={option.value}
-                  />
-                ))}
-              </Picker>
             </View>
+          )}
+        </>
+      )}
 
-            {/* Campo customizado quando seleciona "Outro valor" */}
-            {formState.installmentCount === 0 && (
-              <View style={styles.customInstallmentContainer}>
-                <Text style={styles.label}>Digite a quantidade de parcelas (máx. 720):</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Ex: 24"
-                  placeholderTextColor="#999"
-                  value={formState.customInstallmentValue}
-                  onChangeText={formState.handleCustomInstallmentChange}
-                  keyboardType="numeric"
-                  maxLength={3}
-                />
-              </View>
-            )}
+      {/* === PARCELADO === */}
+      {formState.recurringMode === 'PARCELADO' && (
+        <>
+          {/* Frequência das parcelas (informativo) */}
+          <View style={styles.section}>
+            <Text style={styles.label}>Frequência das parcelas:</Text>
+            <View style={styles.frequencyButtons}>
+              {FREQUENCIES.map(freq => (
+                <TouchableOpacity
+                  key={freq.id}
+                  style={[
+                    styles.frequencyButton,
+                    formState.parceladoFrequency === freq.id && styles.frequencyButtonActive
+                  ]}
+                  onPress={() => formState.setParceladoFrequency(freq.id)}
+                >
+                  <Text style={[
+                    styles.frequencyButtonText,
+                    formState.parceladoFrequency === freq.id && styles.frequencyButtonTextActive
+                  ]}>
+                    {freq.nome}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
 
-            {/* Validação de parcelamento */}
-            {formState.validateInstallment() && (
-              <View style={styles.errorContainer}>
-                <Ionicons name="alert-circle" size={14} color={COLORS.error} />
-                <Text style={styles.errorText}>{formState.validateInstallment()}</Text>
-              </View>
-            )}
+          {/* Quantidade de Parcelas */}
+          <View style={styles.section}>
+            <Text style={styles.label}>Quantidade de parcelas:</Text>
+            <View style={styles.amountInputContainer}>
+              <TextInput
+                style={styles.amountInput}
+                placeholder="12"
+                placeholderTextColor="#999"
+                value={formState.parceladoOccurrenceCount?.toString()}
+                onChangeText={(text) => formState.setParceladoOccurrenceCount(parseInt(text) || 1)}
+                keyboardType="number-pad"
+              />
+              <Text style={styles.currencySymbol}>parcelas</Text>
+            </View>
+          </View>
 
-            {/* Data da última parcela (info) */}
-            {formState.getLastInstallmentDate() && !formState.validateInstallment() && (
-              <View style={styles.installmentInfoContainer}>
-                <Ionicons name="information-circle-outline" size={16} color={COLORS.textSecondary} />
-                <Text style={styles.installmentInfoText}>
-                  Última parcela: {formState.getLastInstallmentDate()}
+          {/* Preview da divisão do valor */}
+          {formState.valor && (
+            <View style={styles.installmentValueContainer}>
+              <View style={styles.installmentValueRow}>
+                <Ionicons name="calculator-outline" size={20} color={COLORS.primary} />
+                <Text style={styles.installmentValueText}>
+                  {formState.parceladoOccurrenceCount}x de{' '}
+                  <Text style={styles.installmentValueHighlight}>
+                    R$ {(formState.valor / formState.parceladoOccurrenceCount).toFixed(2).replace('.', ',')}
+                  </Text>
                 </Text>
               </View>
-            )}
-          </>
-        )}
-      </View>
+            </View>
+          )}
+        </>
+      )}
 
       {/* Seleção de instituição */}
       <View style={styles.section}>

@@ -12,6 +12,7 @@ export { default as categoriaService } from './services/categoriaService';
 export { default as instituicaoService } from './services/instituicaoService';
 export { default as transacaoService } from './services/transacaoService';
 export { default as metaGastoService } from './services/metaGastoService';
+export { default as recorrenciaService } from './services/recorrenciaService';
 
 // Exportar constantes
 export * from './constants';

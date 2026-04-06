@@ -127,6 +127,46 @@ export interface MetaGastoPayload {
   fk_usuario: number;
 }
 
+export type FrequenciaType = 'DIARIA' | 'SEMANAL' | 'MENSAL' | 'ANUAL';
+export type TipoLimiteType = 'DATA' | 'OCORRENCIAS' | 'INDEFINIDA';
+
+export interface RecorrenciaApi {
+  id: number;
+  descricao: string;
+  frequencia: FrequenciaType;
+  intervalo: number;
+  dia_inicio: string;
+  tipo_limite: TipoLimiteType;
+  data_fim: string | null;
+  qtd_ocorrencias: number | null;
+  ocorrencias_criadas: number;
+  ativo: boolean;
+  fk_usuario: number;
+  fk_categoria: number;
+  fk_instituicao: number;
+  valor: number;
+  tipo: TransactionType;
+  data_criacao: string;
+}
+
+export interface RecorrenciaPayload {
+  descricao: string;
+  frequencia: FrequenciaType;
+  intervalo: number;
+  dia_inicio: string;
+  tipo_limite: TipoLimiteType;
+  data_fim?: string | null;
+  qtd_ocorrencias?: number | null;
+  ativo?: boolean;
+  fk_usuario?: number;
+  fk_categoria: number;
+  fk_instituicao: number;
+  valor: number;
+  tipo: TransactionType;
+}
+
+export type RecorrenciaParcialPayload = Partial<RecorrenciaPayload>;
+
 export interface TransacaoOrfa {
   id: number;
   descricao: string;
