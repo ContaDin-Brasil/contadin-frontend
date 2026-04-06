@@ -10,17 +10,17 @@ import { PERFIL_INICIAL } from '../constants/constantesConfiguracao';
 import { apenasDigitosTelefone, formatarTelefone } from '../../../utils/mascaraTelefone';
 
 interface UsuarioComId {
-  id?: number;
+  id?: string | number;
   nome?: string;
   sobrenome?: string;
   email?: string;
-  tel?: string;
+  telefone?: string;
 }
 
 interface PerfilSnapshot {
   nome: string;
   sobrenome: string;
-  tel: string;
+  telefone: string;
   email: string;
   pushNotifications: boolean;
   darkTheme: boolean;
@@ -46,7 +46,7 @@ export const useEditarPerfil = () => {
 
   const [nome, setNome] = useState(PERFIL_INICIAL.nome);
   const [sobrenome, setSobrenome] = useState(PERFIL_INICIAL.sobrenome);
-  const [tel, setTel] = useState(PERFIL_INICIAL.tel);
+  const [telefone, setTelefone] = useState(PERFIL_INICIAL.telefone);
   const [email, setEmail] = useState(PERFIL_INICIAL.email);
   const [pushNotifications, setPushNotifications] = useState(PERFIL_INICIAL.pushNotifications);
   const [darkTheme, setDarkTheme] = useState(PERFIL_INICIAL.darkTheme);
@@ -55,7 +55,7 @@ export const useEditarPerfil = () => {
   const [initialSnapshot, setInitialSnapshot] = useState<PerfilSnapshot>({
     nome: PERFIL_INICIAL.nome,
     sobrenome: PERFIL_INICIAL.sobrenome,
-    tel: apenasDigitosTelefone(PERFIL_INICIAL.tel),
+    telefone: apenasDigitosTelefone(PERFIL_INICIAL.telefone),
     email: PERFIL_INICIAL.email,
     pushNotifications: PERFIL_INICIAL.pushNotifications,
     darkTheme: PERFIL_INICIAL.darkTheme,
@@ -67,7 +67,7 @@ export const useEditarPerfil = () => {
     return {
       nome: dados.nome.trim(),
       sobrenome: dados.sobrenome.trim(),
-      tel: apenasDigitosTelefone(dados.tel),
+      telefone: apenasDigitosTelefone(dados.telefone),
       email: dados.email.trim().toLowerCase(),
       pushNotifications: dados.pushNotifications,
       darkTheme: dados.darkTheme,
@@ -75,20 +75,20 @@ export const useEditarPerfil = () => {
   }, []);
 
   const preencherDadosPerfil = useCallback((perfil: UsuarioComId) => {
-    const telFormatado = formatarTelefone(perfil.tel ?? '');
+    const telefoneFormatado = formatarTelefone(perfil.telefone ?? '');
     const nomePerfil = perfil.nome ?? '';
     const sobrenomePerfil = perfil.sobrenome ?? '';
     const emailPerfil = perfil.email ?? '';
 
     setNome(nomePerfil);
     setSobrenome(sobrenomePerfil);
-    setTel(telFormatado);
+    setTelefone(telefoneFormatado);
     setEmail(emailPerfil);
 
     setInitialSnapshot(normalizarSnapshot({
       nome: nomePerfil,
       sobrenome: sobrenomePerfil,
-      tel: telFormatado,
+      telefone: telefoneFormatado,
       email: emailPerfil,
       pushNotifications: PERFIL_INICIAL.pushNotifications,
       darkTheme: PERFIL_INICIAL.darkTheme,
@@ -120,12 +120,12 @@ export const useEditarPerfil = () => {
       normalizarSnapshot({
         nome,
         sobrenome,
-        tel,
+        telefone,
         email,
         pushNotifications,
         darkTheme,
       }),
-    [darkTheme, email, nome, normalizarSnapshot, pushNotifications, sobrenome, tel],
+    [darkTheme, email, nome, normalizarSnapshot, pushNotifications, sobrenome, telefone],
   );
 
   const isDirty = useMemo(() => {
@@ -137,7 +137,7 @@ export const useEditarPerfil = () => {
   }, [currentSnapshot.email, initialSnapshot.email]);
 
   const handleChangeTelefone = useCallback((texto: string) => {
-    setTel(formatarTelefone(texto));
+    setTelefone(formatarTelefone(texto));
   }, []);
 
   const handleSaveProfile = async () => {
@@ -150,17 +150,17 @@ export const useEditarPerfil = () => {
     const perfil: PerfilUsuario = {
       nome,
       sobrenome,
-      tel: apenasDigitosTelefone(tel),
+      telefone: apenasDigitosTelefone(telefone),
       email,
       pushNotifications,
       darkTheme
     };
 
     try {
-      const usuarioAtualizado = await usuarioService.atualizarParcial(userAuth.id, {
+      const usuarioAtualizado = await usuarioService.atualizarCadastro(userAuth.id, {
         nome: perfil.nome,
         sobrenome: perfil.sobrenome,
-        tel: perfil.tel,
+        telefone: perfil.telefone,
         email: perfil.email,
       });
 
@@ -169,7 +169,7 @@ export const useEditarPerfil = () => {
         ...usuarioAtualizado,
       });
 
-      setTel(formatarTelefone(usuarioAtualizado.tel ?? perfil.tel));
+      setTelefone(formatarTelefone(usuarioAtualizado.telefone ?? perfil.telefone));
       setInitialSnapshot(currentSnapshot);
 
       Alert.alert('Perfil atualizado', 'Suas alterações foram salvas com sucesso.');
@@ -185,8 +185,8 @@ export const useEditarPerfil = () => {
     setNome,
     sobrenome,
     setSobrenome,
-    tel,
-    setTel: handleChangeTelefone,
+    telefone,
+    setTelefone: handleChangeTelefone,
     email,
     setEmail,
     pushNotifications,

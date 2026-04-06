@@ -18,8 +18,9 @@ import {
 import { styles } from "./styles/TelaNovaSenha.styles";
 
 function TelaNovaSenha({ navigation, route }) {
+  const email = route.params?.email ?? "";
   const token = route.params?.token ?? "";
-  const novaSenha = useNovaSenha(token);
+  const novaSenha = useNovaSenha(email, token);
   const [showSenha, setShowSenha] = useState(false);
   const [showConfirmar, setShowConfirmar] = useState(false);
   const [tooltipVisivel, setTooltipVisivel] = useState(false);

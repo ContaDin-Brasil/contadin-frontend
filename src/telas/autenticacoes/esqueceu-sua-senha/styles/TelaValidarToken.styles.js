@@ -4,6 +4,7 @@ export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F5F5F5",
+    paddingTop: 20,
   },
   contentContainer: {
     padding: 30,
@@ -25,14 +26,19 @@ export const styles = StyleSheet.create({
   pinRow: {
     display: "flex",
     flexDirection: "row",
-    gap: 10,
+    width: "100%",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   pinInput: {
-    width: "100%",
+    width: "14.5%",
+    minWidth: 38,
+    maxWidth: 48,
+    height: 52,
     backgroundColor: "#E0E0E0",
     borderRadius: 10,
     fontSize: 22,
-    padding: 10,
+    paddingHorizontal: 6,
     textAlign: "center",
     fontWeight: "700",
     color: "#333",
