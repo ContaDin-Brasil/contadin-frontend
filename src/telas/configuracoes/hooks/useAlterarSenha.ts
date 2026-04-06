@@ -100,6 +100,7 @@ export const useAlterarSenha = () => {
           ?.response?.data?.message ||
         (err as { response?: { data?: { message?: string; mensagem?: string } } })
           ?.response?.data?.mensagem ||
+        (err as { message?: string })?.message ||
         'Não foi possível alterar a senha. Tente novamente.';
       setError(String(msg));
     } finally {
