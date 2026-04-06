@@ -39,7 +39,7 @@ const getBaseURL = (): string => {
     if (Platform.OS === "web") {
       baseURL = "http://localhost:8080";
     } else if (Platform.OS === "android") {
-      baseURL = "http://192.168.18.233:8080";
+      baseURL = "http://10.0.2.2:8080";
     } else {
       baseURL = "http://localhost:8080";
     }
