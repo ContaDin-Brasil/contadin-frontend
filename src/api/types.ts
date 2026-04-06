@@ -19,20 +19,32 @@ export interface CredenciaisLogin {
   senha: string;
 }
 
-export interface UsuarioApi {
-  id: number;
+export interface CadastroPayload {
   nome: string;
   sobrenome: string;
   email: string;
-  tel: string;
+  telefone?: string;
+  senha: string;
+  ativo?: boolean;
+}
+
+export interface UsuarioApi {
+  id: string | number;
+  nome: string;
+  sobrenome: string;
+  email: string;
+  telefone?: string;
   ativo: boolean;
+  status?: string;
+  criadoEm?: string;
+  atualizadoEm?: string;
 }
 
 export interface UsuarioPayload {
   nome: string;
   sobrenome: string;
   email: string;
-  tel: string;
+  telefone?: string;
   senha?: string;
   ativo?: boolean;
 }
@@ -40,7 +52,7 @@ export interface UsuarioPayload {
 export type UsuarioParcialPayload = Partial<UsuarioPayload>;
 
 export interface UsuarioAutenticado {
-  id: number;
+  id: string | number;
   nome: string;
   sobrenome: string;
   email: string;
@@ -49,7 +61,7 @@ export interface UsuarioAutenticado {
 export interface RespostaLogin {
   data: {
     token: string;
-    user: UsuarioAutenticado;
+    user?: UsuarioAutenticado;
   };
 }
 
@@ -57,9 +69,27 @@ export interface RecuperarSenhaPayload {
   email: string;
 }
 
+export interface ValidarPinPayload {
+  email: string;
+  pin: string;
+}
+
+export interface ReenviarPinPayload {
+  email: string;
+}
+
+export interface RedefinirSenhaPayload {
+  email: string;
+  pin: string;
+  novaSenha: string;
+  confirmacaoSenha: string;
+}
+
 export interface AlterarSenhaPayload {
-  token: string;
-  senha: string;
+  id: string | number;
+  senhaAtual: string;
+  novaSenha: string;
+  confirmacaoNovaSenha: string;
 }
 
 export interface InstituicaoApi {
