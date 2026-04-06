@@ -38,7 +38,7 @@ export function validarSenha(senha: string): string | null {
 export const PERFIL_INICIAL = {
   nome: '',
   sobrenome: '',
-  tel: '',
+  telefone: '',
   email: '',
   pushNotifications: true,
   darkTheme: false

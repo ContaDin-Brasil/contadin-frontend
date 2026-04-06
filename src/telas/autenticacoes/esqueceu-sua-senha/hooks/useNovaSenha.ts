@@ -1,8 +1,8 @@
 /**
  * Hook para a tela Nova Senha (Frame 65).
  * Estado: senha, confirmarSenha; email e token de route.params.
- * handleAtualizar: validação (senha forte, senhas iguais); authService.alterarSenha({ token, senha });
- * em 204 navega para TelaSenhaAtualizadaSucesso; em 4xx setError("Token inválido ou expirado...").
+ * handleAtualizar: validação (senha forte, senhas iguais); authService.redefinirSenha(...).
+ * em 200 navega para TelaSenhaAtualizadaSucesso; em 4xx setError("Token inválido ou expirado...").
  */
 import { useState } from "react";
 import { authService } from "../../../../api";
@@ -20,7 +20,7 @@ export interface UseNovaSenhaResult {
   }) => Promise<boolean>;
 }
 
-export function useNovaSenha(token: string): UseNovaSenhaResult {
+export function useNovaSenha(email: string, token: string): UseNovaSenhaResult {
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
   const [loading, setLoading] = useState(false);
@@ -49,7 +49,12 @@ export function useNovaSenha(token: string): UseNovaSenhaResult {
 
     setLoading(true);
     try {
-      await authService.alterarSenha({ token, senha: senhaTrim });
+      await authService.redefinirSenha({
+        email,
+        pin: token,
+        novaSenha: senhaTrim,
+        confirmacaoSenha: confirmarTrim,
+      });
       setLoading(false);
       navigation.navigate("SenhaAtualizadaSucesso");
       return true;
@@ -57,8 +62,13 @@ export function useNovaSenha(token: string): UseNovaSenhaResult {
       const status = (err as { response?: { status?: number } })?.response
         ?.status;
       const msg =
-        (err as { response?: { data?: { message?: string } } })?.response?.data
-          ?.message || (err as { message?: string })?.message;
+        (err as { response?: { data?: { message?: string; mensagem?: string } } })
+          ?.response?.data
+          ?.message ||
+        (err as { response?: { data?: { message?: string; mensagem?: string } } })
+          ?.response?.data
+          ?.mensagem ||
+        (err as { message?: string })?.message;
       setError(
         status && status >= 400 && status < 500
           ? "Token inválido ou expirado. Solicite um novo código."
