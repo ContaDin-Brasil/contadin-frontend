@@ -1,9 +1,10 @@
 import { StyleSheet } from "react-native";
+import { COLORS } from "../../../../styles/colors";
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: COLORS.background,
     paddingTop: 20,
   },
   contentContainer: {
@@ -21,7 +22,7 @@ export const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: "500",
-    color: "#333",
+    color: COLORS.textPrimary,
   },
   pinRow: {
     display: "flex",
@@ -35,24 +36,24 @@ export const styles = StyleSheet.create({
     minWidth: 38,
     maxWidth: 48,
     height: 52,
-    backgroundColor: "#E0E0E0",
+    backgroundColor: COLORS.border,
     borderRadius: 10,
     fontSize: 22,
     paddingHorizontal: 6,
     textAlign: "center",
     fontWeight: "700",
-    color: "#333",
+    color: COLORS.textPrimary,
   },
   linkReenviarText: {
     fontSize: 16,
-    color: "#6BA7FF",
+    color: COLORS.primaryLight,
     textDecorationLine: "underline",
   },
   linkReenviarDisabled: {
     color: "#999",
   },
   saveButton: {
-    backgroundColor: "#2D85F8",
+    backgroundColor: COLORS.tooltip,
     borderRadius: 12,
     flexDirection: "row",
     alignItems: "center",
@@ -61,12 +62,12 @@ export const styles = StyleSheet.create({
     padding: 10,
   },
   saveButtonText: {
-    color: "#FFF",
+    color: COLORS.white,
     fontSize: 18,
     fontWeight: "600",
   },
   mensagemErro: {
     fontSize: 14,
-    color: "#C62828",
+    color: COLORS.error,
   },
 });

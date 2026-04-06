@@ -1,9 +1,10 @@
 import { StyleSheet } from "react-native";
+import { COLORS } from "../../../../styles/colors";
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: COLORS.background,
     paddingTop: 20,
   },
   contentContainer: {
@@ -18,10 +19,10 @@ export const styles = StyleSheet.create({
     fontWeight: "500",
     marginBottom: 8,
     marginTop: 16,
-    color: "#333",
+    color: COLORS.textPrimary,
   },
   input: {
-    backgroundColor: "#E0E0E0",
+    backgroundColor: COLORS.border,
     padding: 16,
     borderRadius: 8,
     fontSize: 16,
@@ -43,7 +44,7 @@ export const styles = StyleSheet.create({
   labelInline: {
     fontSize: 16,
     fontWeight: "500",
-    color: "#333",
+    color: COLORS.textPrimary,
   },
   labelRow: {
     flexDirection: "row",
@@ -53,7 +54,7 @@ export const styles = StyleSheet.create({
     marginBottom: 8,
   },
   tooltip: {
-    backgroundColor: "#333",
+    backgroundColor: COLORS.textPrimary,
     borderRadius: 10,
     padding: 14,
     marginBottom: 10,
@@ -64,19 +65,19 @@ export const styles = StyleSheet.create({
     left: 60,
     width: 12,
     height: 12,
-    backgroundColor: "#333",
+    backgroundColor: COLORS.textPrimary,
     transform: [{ rotate: "45deg" }],
     borderRadius: 2,
   },
   tooltipTitulo: {
     fontSize: 13,
     fontWeight: "700",
-    color: "#FFF",
+    color: COLORS.white,
     marginBottom: 8,
   },
   tooltipTexto: {
     fontSize: 12,
-    color: "#DDD",
+    color: COLORS.borderLight,
     lineHeight: 18,
     marginBottom: 2,
   },
@@ -96,10 +97,10 @@ export const styles = StyleSheet.create({
     lineHeight: 18,
   },
   validacaoTextoOk: {
-    color: "#21C25E",
+    color: COLORS.success,
   },
   validacaoTextoErro: {
-    color: "#E53935",
+    color: COLORS.error,
     fontSize: 13,
   },
   termosContainer: {

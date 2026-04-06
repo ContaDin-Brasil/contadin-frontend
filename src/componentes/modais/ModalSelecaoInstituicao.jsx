@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, Image, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getLogoByName } from './logosInstituicoes';
+import { COLORS } from '../../styles/colors';
 
 const InstitutionSelectionModal = ({ visible, onClose, onSelectInstitution, onAddCustom, availableInstitutions = [] }) => {
   // Separa instituições por tipo
@@ -22,7 +23,7 @@ const InstitutionSelectionModal = ({ visible, onClose, onSelectInstitution, onAd
         onPress={() => handleSelect(institution)}
         activeOpacity={0.7}
       >
-        <View style={[styles.cardIconContainer, { backgroundColor: logo ? '#FFF' : institution.cor }]}>
+        <View style={[styles.cardIconContainer, { backgroundColor: logo ? COLORS.white : institution.cor }]}>
           {logo ? (
             <Image 
               source={logo} 
@@ -50,7 +51,7 @@ const InstitutionSelectionModal = ({ visible, onClose, onSelectInstitution, onAd
           <View style={styles.header}>
             <Text style={styles.title}>Selecione uma Instituição</Text>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <Ionicons name="close" size={28} color="#333" />
+              <Ionicons name="close" size={28} color={COLORS.textPrimary} />
             </TouchableOpacity>
           </View>
           
@@ -59,7 +60,7 @@ const InstitutionSelectionModal = ({ visible, onClose, onSelectInstitution, onAd
             {bancos.length > 0 && (
               <View style={styles.section}>
                 <View style={styles.sectionHeader}>
-                  <Ionicons name="business" size={20} color="#666" />
+                  <Ionicons name="business" size={20} color={COLORS.textSecondary} />
                   <Text style={styles.sectionTitle}>Bancos</Text>
                 </View>
                 <View style={styles.grid}>
@@ -72,7 +73,7 @@ const InstitutionSelectionModal = ({ visible, onClose, onSelectInstitution, onAd
             {vales.length > 0 && (
               <View style={styles.section}>
                 <View style={styles.sectionHeader}>
-                  <Ionicons name="card" size={20} color="#666" />
+                  <Ionicons name="card" size={20} color={COLORS.textSecondary} />
                   <Text style={styles.sectionTitle}>Vales</Text>
                 </View>
                 <View style={styles.grid}>
@@ -86,7 +87,7 @@ const InstitutionSelectionModal = ({ visible, onClose, onSelectInstitution, onAd
               style={styles.addCustomButton}
               onPress={onAddCustom}
             >
-              <Ionicons name="add-circle-outline" size={24} color="#5BA3FF" />
+              <Ionicons name="add-circle-outline" size={24} color={COLORS.primaryLight} />
               <Text style={styles.addCustomText}>Adicionar instituição personalizada</Text>
             </TouchableOpacity>
           </ScrollView>
@@ -103,7 +104,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContainer: {
-    backgroundColor: '#FFF',
+    backgroundColor: COLORS.white,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     maxHeight: '80%',
@@ -117,12 +118,12 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    borderBottomColor: COLORS.backgroundDark,
   },
   title: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#333',
+    color: COLORS.textPrimary,
   },
   closeButton: {
     padding: 4,
@@ -143,7 +144,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#666',
+    color: COLORS.textSecondary,
   },
   grid: {
     flexDirection: 'row',
@@ -157,8 +158,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#E0E0E0',
-    backgroundColor: '#FFF',
+    borderColor: COLORS.border,
+    backgroundColor: COLORS.white,
     padding: 8,
   },
   cardIconContainer: {
@@ -177,7 +178,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   institutionIcon: {
-    color: '#FFF',
+    color: COLORS.white,
     fontSize: 18,
     fontWeight: 'bold',
     objectFit: 'cover',
@@ -185,19 +186,19 @@ const styles = StyleSheet.create({
   institutionName: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#333',
+    color: COLORS.textPrimary,
     textAlign: 'center',
   },
   addCustomButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#F5F9FF',
+    backgroundColor: COLORS.secondaryLighter,
     paddingVertical: 16,
     paddingHorizontal: 20,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: '#5BA3FF',
+    borderColor: COLORS.primaryLight,
     borderStyle: 'dashed',
     gap: 8,
     marginTop: 8,
@@ -206,7 +207,7 @@ const styles = StyleSheet.create({
   addCustomText: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#5BA3FF',
+    color: COLORS.primaryLight,
   },
 });
 

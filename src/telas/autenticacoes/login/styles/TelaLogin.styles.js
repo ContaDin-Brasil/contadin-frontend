@@ -1,9 +1,10 @@
 import { StyleSheet } from "react-native";
+import { COLORS } from "../../../../styles/colors";
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: COLORS.background,
     paddingTop: 20,
   },
   contentContainer: {
@@ -18,10 +19,10 @@ export const styles = StyleSheet.create({
     fontWeight: "500",
     marginBottom: 8,
     marginTop: 16,
-    color: "#333",
+    color: COLORS.textPrimary,
   },
   input: {
-    backgroundColor: "#E0E0E0",
+    backgroundColor: COLORS.border,
     padding: 16,
     borderRadius: 8,
     fontSize: 16,
@@ -41,7 +42,7 @@ export const styles = StyleSheet.create({
     padding: 8,
   },
   saveButton: {
-    backgroundColor: "#2D85F8",
+    backgroundColor: COLORS.tooltip,
     paddingVertical: 16,
     borderRadius: 12,
     flexDirection: "row",
@@ -51,20 +52,20 @@ export const styles = StyleSheet.create({
     marginTop: 24,
   },
   saveButtonText: {
-    color: "#FFF",
+    color: COLORS.white,
     fontSize: 18,
     fontWeight: "600",
   },
   linkTexto: {
     marginTop: 16,
     fontSize: 16,
-    color: "#6BA7FF",
+    color: COLORS.primaryLight,
     textDecorationLine: "underline",
   },
   mensagemErro: {
     marginTop: 12,
     fontSize: 14,
-    color: "#C62828",
+    color: COLORS.error,
   },
   areaGoogle: {
     marginTop: 24,
@@ -72,34 +73,34 @@ export const styles = StyleSheet.create({
   },
   ouConecte: {
     fontSize: 14,
-    color: "#666",
+    color: COLORS.textSecondary,
     marginBottom: 12,
   },
   botaoGoogle: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#FFF",
+    backgroundColor: COLORS.white,
     paddingVertical: 14,
     paddingHorizontal: 24,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#E0E0E0",
+    borderColor: COLORS.border,
     gap: 10,
   },
   botaoGoogleText: {
     fontSize: 16,
-    color: "#333",
+    color: COLORS.textPrimary,
     fontWeight: "600",
   },
   linkCadastro: {
     marginTop: 32,
     fontSize: 16,
-    color: "#333",
+    color: COLORS.textPrimary,
     textAlign: "center",
   },
   linkCadastroDestaque: {
-    color: "#6BA7FF",
+    color: COLORS.primaryLight,
     textDecorationLine: "underline",
     fontWeight: "600",
   },

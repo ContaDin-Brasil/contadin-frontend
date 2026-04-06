@@ -1,18 +1,21 @@
-import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Image, SafeAreaView } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Image, SafeAreaView, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import TituloPagina from '../../componentes/TituloPagina';
 import InstitutionSelectionModal from '../../componentes/modais/ModalSelecaoInstituicao';
 import AddCustomInstitutionModal from '../../componentes/modais/ModalAdicionarInstituicao';
 import ModalEditarInstituicao from '../../componentes/modais/ModalEditarInstituicao';
+import ModalConfirmDelete from '../../componentes/modais/ModalConfirmDelete';
 import { useEditarVales } from './hooks/useEditarInstituicoes';
 import { getLogoByName } from '../../componentes/modais/logosInstituicoes';
-import { confirmarAcao } from '../../utils/confirmarAcao';
 import { styles } from './styles/TelaEditarVales.styles';
 
 const EditVouchersScreen = ({ navigation }) => {
   const editor = useEditarVales();
+  const [deleteModalVisible, setDeleteModalVisible] = React.useState(false);
+  const [voucherDeletando, setVoucherDeletando] = React.useState(null);
+  const [isDeletando, setIsDeletando] = React.useState(false);
 
   // Recarrega vales quando a tela recebe foco
   useFocusEffect(
@@ -22,14 +25,24 @@ const EditVouchersScreen = ({ navigation }) => {
   );
 
   const handleDeleteConfirm = (voucher) => {
-    const mensagem = `Tem certeza que deseja excluir "${voucher.nome}"?\n\n⚠️ Atenção: Todas as transações vinculadas a esta instituição serão permanentemente deletadas.`;
+    setVoucherDeletando(voucher);
+    setDeleteModalVisible(true);
+  };
 
-    confirmarAcao({
-      titulo: 'Excluir Instituição',
-      mensagem,
-      textoConfirmar: 'Excluir',
-      onConfirmar: () => editor.handleDelete(voucher.id),
-    });
+  const handleConfirmDelete = async () => {
+    if (!voucherDeletando) return;
+
+    setIsDeletando(true);
+    try {
+      await editor.handleDelete(voucherDeletando.id);
+      setDeleteModalVisible(false);
+      setVoucherDeletando(null);
+    } catch (error) {
+      console.error('Erro ao deletar vale:', error);
+      Alert.alert('Erro', 'Não foi possível deletar o vale');
+    } finally {
+      setIsDeletando(false);
+    }
   };
 
   const renderIcon = (text, color, institutionName) => {
@@ -164,6 +177,19 @@ const EditVouchersScreen = ({ navigation }) => {
           cor: editor.selectedVoucher.cor,
           tipoInstituicao: 'vale',
         } : null}
+      />
+
+      {/* Modal de Confirmar Deleção */}
+      <ModalConfirmDelete
+        visible={deleteModalVisible}
+        titulo="Excluir Vale"
+        mensagem={`Tem certeza que deseja excluir "${voucherDeletando?.nome}"?\n\n⚠️ Atenção: Todas as transações vinculadas a este vale serão permanentemente deletadas.`}
+        onConfirm={handleConfirmDelete}
+        onClose={() => {
+          setDeleteModalVisible(false);
+          setVoucherDeletando(null);
+        }}
+        isLoading={isDeletando}
       />
       </ScrollView>
     </SafeAreaView>

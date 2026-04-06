@@ -115,7 +115,7 @@ TestesFinance/
 │   │   └── NavegadorPrincipal.js
 │   └── telas/
 │       ├── TelaInicial.js
-│       ├── TelaCategorias.js
+│       ├── TelaCategorias.jsx
 │       ├── carteira/              # Módulo de Carteiras
 │       │   ├── TelaCarteira.js
 │       │   ├── TelaEditarBancos.js

@@ -1,11 +1,12 @@
 import { StyleSheet, Dimensions } from 'react-native';
+import { COLORS } from '../../../styles/colors';
 
 const { width } = Dimensions.get('window');
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: COLORS.background,
   },
   scrollView: {
     flex: 1,
@@ -15,7 +16,7 @@ export const styles = StyleSheet.create({
   },
 
   header: {
-    backgroundColor: '#569FFE',
+    backgroundColor: COLORS.secondary,
     paddingTop: 50,
     paddingBottom: 30,
     paddingHorizontal: 20,
@@ -32,12 +33,12 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   saudacaoTexto: {
-    color: '#FFFFFF',
+    color: COLORS.white,
     fontSize: 16,
     opacity: 0.9,
   },
   nomeUsuario: {
-    color: '#FFFFFF',
+    color: COLORS.white,
     fontSize: 20,
     fontWeight: 'bold',
     marginTop: 2,
@@ -50,13 +51,13 @@ export const styles = StyleSheet.create({
     marginBottom: 20,
   },
   saldoLabel: {
-    color: '#FFFFFF',
+    color: COLORS.white,
     fontSize: 14,
     opacity: 0.9,
     marginBottom: 5,
   },
   saldoValor: {
-    color: '#FFFFFF',
+    color: COLORS.white,
     fontSize: 32,
     fontWeight: 'bold',
   },
@@ -67,11 +68,11 @@ export const styles = StyleSheet.create({
   },
   cardResumo: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.white,
     borderRadius: 12,
     padding: 15,
     elevation: 2,
-    shadowColor: '#000',
+    shadowColor: COLORS.black,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -85,17 +86,17 @@ export const styles = StyleSheet.create({
     marginRight: 8,
   },
   cardResumoLabel: {
-    color: '#666666',
+    color: COLORS.textSecondary,
     fontSize: 12,
     fontWeight: '500',
   },
   cardResumoMes: {
-    color: '#AAAAAA',
+    color: COLORS.textTertiary,
     fontSize: 10,
     marginTop: 1,
   },
   cardResumoValor: {
-    color: '#333333',
+    color: COLORS.textPrimary,
     fontSize: 18,
     fontWeight: 'bold',
   },
@@ -113,21 +114,21 @@ export const styles = StyleSheet.create({
   secaoTitulo: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333333',
+    color: COLORS.textPrimary,
   },
   secaoLinkGrafico: {
     fontSize: 13,
-    color: '#569FFE',
+    color: COLORS.secondary,
     fontWeight: '600',
   },
 
   itemCategoria: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.white,
     borderRadius: 12,
     padding: 15,
     marginBottom: 12,
     elevation: 1,
-    shadowColor: '#000',
+    shadowColor: COLORS.black,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 3,
@@ -154,22 +155,22 @@ export const styles = StyleSheet.create({
   itemCategoriaNome: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#333333',
+    color: COLORS.textPrimary,
     marginBottom: 2,
   },
   itemCategoriaValor: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333333',
+    color: COLORS.textPrimary,
   },
   itemCategoriaPorcentagem: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#666666',
+    color: COLORS.textSecondary,
   },
   barraProgresso: {
     height: 6,
-    backgroundColor: '#E0E0E0',
+    backgroundColor: COLORS.border,
     borderRadius: 3,
     overflow: 'hidden',
   },
@@ -179,12 +180,12 @@ export const styles = StyleSheet.create({
   },
 
   itemInstituicao: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.white,
     borderRadius: 12,
     padding: 15,
     marginBottom: 12,
     elevation: 1,
-    shadowColor: '#000',
+    shadowColor: COLORS.black,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 3,
@@ -206,7 +207,7 @@ export const styles = StyleSheet.create({
   itemInstituicaoTextoIcone: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: COLORS.white,
   },
   itemInstituicaoLogo: {
     width: 36,
@@ -219,27 +220,27 @@ export const styles = StyleSheet.create({
   itemInstituicaoNome: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#333333',
+    color: COLORS.textPrimary,
     marginBottom: 2,
   },
   itemInstituicaoValor: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333333',
+    color: COLORS.textPrimary,
   },
   itemInstituicaoPorcentagem: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#666666',
+    color: COLORS.textSecondary,
   },
 
   graficoContainer: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.white,
     borderRadius: 12,
     padding: 15,
     marginTop: 15,
     elevation: 1,
-    shadowColor: '#000',
+    shadowColor: COLORS.black,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 3,
@@ -250,11 +251,11 @@ export const styles = StyleSheet.create({
   graficoTitulo: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333333',
+    color: COLORS.textPrimary,
   },
   graficoSubtitulo: {
     fontSize: 12,
-    color: '#999999',
+    color: COLORS.textTertiary,
     marginTop: 2,
   },
   graficoLegenda: {
@@ -275,41 +276,41 @@ export const styles = StyleSheet.create({
   },
   graficoLegendaTexto: {
     fontSize: 12,
-    color: '#555555',
+    color: COLORS.textPale,
   },
 
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F5F5F5',
+    backgroundColor: COLORS.background,
   },
   loadingText: {
     marginTop: 10,
     fontSize: 14,
-    color: '#666666',
+    color: COLORS.textSecondary,
   },
   erroContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: COLORS.background,
   },
   erroTexto: {
     fontSize: 16,
-    color: '#E31C23',
+    color: COLORS.error,
     textAlign: 'center',
     marginBottom: 20,
   },
   botaoTentarNovamente: {
-    backgroundColor: '#5BA3FF',
+    backgroundColor: COLORS.primaryLight,
     paddingHorizontal: 30,
     paddingVertical: 12,
     borderRadius: 8,
   },
   botaoTentarNovamenteTexto: {
-    color: '#FFFFFF',
+    color: COLORS.white,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -321,17 +322,17 @@ export const styles = StyleSheet.create({
   },
   emptyTexto: {
     fontSize: 14,
-    color: '#999999',
+    color: COLORS.textTertiary,
     textAlign: 'center',
   },
   
   containerStyle: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.white,
     borderRadius: 16,
     padding: 16,
     marginTop: 4,
     elevation: 2,
-    shadowColor: '#000',
+    shadowColor: COLORS.black,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.07,
     shadowRadius: 4,
@@ -340,14 +341,14 @@ export const styles = StyleSheet.create({
  tituloStyle: {
   fontSize: 15,
   fontWeight: '700',
-  color: '#1A1A1A',
+  color: COLORS.textDark,
   marginBottom: 14,
 },
 
 resumoStyle: {
   flexDirection: 'row',
   alignItems: 'center',
-  backgroundColor: '#F7F9FF',
+  backgroundColor: COLORS.backgroundLight,
   borderRadius: 12,
   paddingVertical: 12,
   paddingHorizontal: 8,
@@ -361,7 +362,7 @@ resumoItemStyle: {
 
 resumoLabelStyle: {
   fontSize: 10,
-  color: '#999999',
+  color: COLORS.textTertiary,
   marginBottom: 3,
   textAlign: 'center',
 },
@@ -369,19 +370,19 @@ resumoLabelStyle: {
 resumoValorStyle: {
   fontSize: 13,
   fontWeight: '700',
-  color: '#1A1A1A',
+  color: COLORS.textDark,
   textAlign: 'center',
 },
 
 separadorStyle: {
   width: 1,
   height: 32,
-  backgroundColor: '#E0E0E0',
+  backgroundColor: COLORS.border,
 },
 
 periodoContainerStyle: {
   flexDirection: 'row',
-  backgroundColor: '#F0F0F0',
+  backgroundColor: COLORS.backgroundDark,
   borderRadius: 10,
   padding: 3,
   marginBottom: 14,
@@ -398,13 +399,13 @@ periodoItemStyle: {
 periodoTextoStyle: {
   fontSize: 13,
   fontWeight: '600',
-  color: '#666666',
+  color: COLORS.textSecondary,
 },
 
 
 yAxisLabelStyle: {
   fontSize: 9,
-  color: '#999999',
+  color: COLORS.textTertiary,
   textAlign: 'right',
 },
 
@@ -417,13 +418,13 @@ emptyStyle: {
 
 emptyTextoStyle: {
   fontSize: 13,
-  color: '#999999',
+  color: COLORS.textTertiary,
   textAlign: 'center',
 },
 
 legendaBaseStyle: {
   fontSize: 10,
-  color: '#BBBBBB',
+  color: COLORS.textTertiary,
   marginTop: 10,
   textAlign: 'center',
   fontStyle: 'italic',
@@ -438,7 +439,7 @@ overlayStyle: {
 },
 
 modalStyle: {
-  backgroundColor: '#FFFFFF',
+  backgroundColor: COLORS.white,
   borderRadius: 20,
   width: '100%',
   paddingTop: 20,
@@ -457,7 +458,7 @@ closeButtonStyle: {
 titleStyle: {
   fontSize: 18,
   fontWeight: '700',
-  color: '#1A1A1A',
+  color: COLORS.textDark,
   textAlign: 'center',
   marginBottom: 24,
   marginTop: 4,
@@ -491,7 +492,7 @@ legendaCorStyle: {
 legendaNomeStyle: {
   fontSize: 13,
   fontWeight: '600',
-  color: '#1A1A1A',
+  color: COLORS.textDark,
   flexShrink: 1,
 },
 

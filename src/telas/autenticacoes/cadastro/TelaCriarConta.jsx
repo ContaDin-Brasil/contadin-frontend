@@ -175,7 +175,7 @@ function TelaCriarConta({ navigation }) {
               value={criar.aceiteTermos}
               onValueChange={criar.setAceiteTermos}
               trackColor={{ false: "#D3D3D3", true: "#2D85F8" }}
-              thumbColor={criar.aceiteTermos ? "#FFF" : "#f4f3f4"}
+              thumbColor={criar.aceiteTermos ? COLORS.white : "#f4f3f4"}
             />
             <Text style={styles.termosTexto}>
               Li e aceito os{" "}

@@ -1,9 +1,10 @@
 import { StyleSheet } from 'react-native';
+import { COLORS } from '../../../styles/colors';
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: COLORS.background,
     paddingTop: 20,
   },
   contentContainer: {
@@ -11,11 +12,11 @@ export const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   section: {
-    backgroundColor: '#FFF',
+    backgroundColor: COLORS.white,
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: COLORS.border,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -29,12 +30,12 @@ export const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#000',
+    color: COLORS.black,
     marginBottom: 2,
   },
   sectionSubtitle: {
     fontSize: 13,
-    color: '#666',
+    color: COLORS.textSecondary,
   },
   banksList: {
     gap: 10,
@@ -45,10 +46,10 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 12,
     paddingHorizontal: 8,
-    backgroundColor: '#F9F9F9',
+    backgroundColor: COLORS.backgroundLight,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#E8E8E8',
+    borderColor: COLORS.backgroundDark,
   },
   bankInfo: {
     flexDirection: 'row',
@@ -68,7 +69,7 @@ export const styles = StyleSheet.create({
   iconText: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#FFF',
+    color: COLORS.white,
   },
   bankDetails: {
     flex: 1,
@@ -76,12 +77,12 @@ export const styles = StyleSheet.create({
   bankName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#000',
+    color: COLORS.black,
     marginBottom: 2,
   },
   bankBalance: {
     fontSize: 13,
-    color: '#666',
+    color: COLORS.textSecondary,
   },
   deleteButton: {
     padding: 8,
@@ -90,7 +91,7 @@ export const styles = StyleSheet.create({
     marginTop: 20,
   },
   addButton: {
-    backgroundColor: '#4A9EFF',
+    backgroundColor: COLORS.secondaryLight,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

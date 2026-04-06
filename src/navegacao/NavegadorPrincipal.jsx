@@ -3,6 +3,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { COLORS } from '../styles/colors';
 
 // Importar telas
 import TelaInicial from '../telas/dashboard/TelaInicial';
@@ -83,13 +84,13 @@ function NavegadorPrincipal() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: "#5BA3FF",
+          backgroundColor: COLORS.primaryLight,
           height: 55 + insets.bottom, 
           paddingBottom: 0 + insets.bottom,
           paddingTop: 10,
           borderTopWidth: 0,
         },
-        tabBarActiveTintColor: '#FFF',
+        tabBarActiveTintColor: COLORS.white,
         tabBarInactiveTintColor: 'rgba(255, 255, 255, 0.6)',
         tabBarShowLabel: false,
       }}

@@ -1,9 +1,10 @@
 import { StyleSheet } from 'react-native';
+import { COLORS } from '../../../styles/colors';
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: COLORS.background,
     paddingTop: 20,
   },
   contentContainer: {
@@ -18,26 +19,26 @@ export const styles = StyleSheet.create({
   },
   bulletPoint: {
     fontSize: 15,
-    color: '#333',
+    color: COLORS.textPrimary,
     marginBottom: 12,
     lineHeight: 20,
   },
   modalQuestion: {
     fontSize: 16,
-    color: '#333',
+    color: COLORS.textPrimary,
     marginTop: 10,
     fontWeight: '500',
   },
   modalText: {
     fontSize: 16,
-    color: '#333',
+    color: COLORS.textPrimary,
     marginBottom: 16,
   },
   boldText: {
     fontWeight: 'bold',
   },
   input: {
-    backgroundColor: '#E0E0E0',
+    backgroundColor: COLORS.border,
     padding: 16,
     borderRadius: 8,
     fontSize: 16,
