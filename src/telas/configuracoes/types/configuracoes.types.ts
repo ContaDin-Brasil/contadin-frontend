@@ -4,10 +4,10 @@
  */
 
 export interface PerfilUsuario {
-  id?: number;
+  id?: string | number;
   nome: string;
   sobrenome: string;
-  tel: string;
+  telefone: string;
   email: string;
   senha?: string; // Apenas para contextos específicos
   ativo?: boolean;
