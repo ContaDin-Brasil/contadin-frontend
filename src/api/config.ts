@@ -5,16 +5,27 @@ import axios, {
 } from "axios";
 import { Platform } from "react-native";
 
+const normalizeEnvUrl = (value?: string): string | null => {
+  if (!value) return null;
+
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+
+  // Aceita valor com ou sem aspas no .env
+  const unquoted = trimmed.replace(/^['\"]|['\"]$/g, "").trim();
+  return unquoted || null;
+};
+
 /**
  * Configuração da URL base da API
  *
- * Lê EXPO_PUBLIC_API_BASE_URL do .env (Ex.: http://192.168.15.13:3001).
+ * Lê EXPO_PUBLIC_API_BASE_URL do .env (Ex.: http://192.168.15.13:8080).
  * Se não estiver definida, usa fallback por plataforma em __DEV__.
  *
  * Para produção: defina EXPO_PUBLIC_API_BASE_URL ou a URL será https://api.seudominio.com
  */
 const getBaseURL = (): string => {
-  const fromEnv = process.env.EXPO_PUBLIC_API_BASE_URL?.trim();
+  const fromEnv = normalizeEnvUrl(process.env.EXPO_PUBLIC_API_BASE_URL);
 
   if (fromEnv) {
     console.log("🌐 API Base URL (env):", fromEnv);
@@ -26,9 +37,11 @@ const getBaseURL = (): string => {
 
   if (__DEV__) {
     if (Platform.OS === "web") {
-      baseURL = "http://localhost:3001";
+      baseURL = "http://localhost:8080";
+    } else if (Platform.OS === "android") {
+      baseURL = "http://192.168.18.233:8080";
     } else {
-      baseURL = "http://192.168.15.35:3001";
+      baseURL = "http://localhost:8080";
     }
   } else {
     baseURL = "https://api.seudominio.com";
