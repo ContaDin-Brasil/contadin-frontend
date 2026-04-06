@@ -1,12 +1,10 @@
 /**
  * Hook para a tela "Crie sua conta" (Frame 55).
  * Estado: email, senha, confirmarSenha; validação (email, senha mínimo 8 caracteres, senhas iguais).
- * handleCadastrar: usuarioService.criar -> authService.login -> navega para TelaBemVindo com { token, user }.
- * loginWithToken só é chamado ao final do fluxo (TelaCadastroSucesso).
+ * handleCadastrar apenas valida dados iniciais e navega para o próximo passo.
+ * O cadastro real na API ocorre após preencher nome/sobrenome/telefone.
  */
 import { useState } from "react";
-import { usuarioService, authService } from "../../../../api";
-import { setAuthToken } from "../../../../api/config";
 import { validarSenha } from "../../../configuracoes/constants/constantesConfiguracao";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -73,72 +71,20 @@ export function useCriarConta(): UseCriarContaResult {
     setLoading(true);
 
     try {
-      const usuarioCriado = await usuarioService.criar({
-        email: emailTrim,
-        senha: senhaTrim,
-        nome: "",
-        sobrenome: "",
-        tel: "",
+      navigation.replace("BemVindo", {
+        cadastro: {
+          email: emailTrim,
+          senha: senhaTrim,
+        },
       });
-      const createdUser =
-        usuarioCriado &&
-        typeof usuarioCriado === "object" &&
-        "id" in usuarioCriado
-          ? (usuarioCriado as {
-              id: number;
-              email?: string;
-              nome?: string;
-              sobrenome?: string;
-              tel?: string;
-            })
-          : null;
-
-      const loginResponse = await authService.login({
-        email: emailTrim,
-        senha: senhaTrim,
-      });
-      const token =
-        (
-          loginResponse as {
-            data?: { data?: { token?: string }; token?: string };
-          }
-        )?.data?.data?.token ??
-        (loginResponse as { data?: { token?: string } })?.data?.token ??
-        (loginResponse as { token?: string })?.token;
-
-      if (!token) {
-        setError(
-          "Conta criada, mas não foi possível entrar. Faça login na tela de login.",
-        );
-        setLoading(false);
-        return false;
-      }
-
-      setAuthToken(token);
-      const userToStore = createdUser
-        ? {
-            id: createdUser.id,
-            email: createdUser.email ?? emailTrim,
-            nome: createdUser.nome ?? "",
-            sobrenome: createdUser.sobrenome ?? "",
-            tel: createdUser.tel ?? "",
-          }
-        : {
-            id: (usuarioCriado as any)?.id,
-            email: emailTrim,
-            nome: "",
-            sobrenome: "",
-            tel: "",
-          };
       setLoading(false);
-      navigation.replace("BemVindo", { token, user: userToStore });
       return true;
     } catch (err: unknown) {
       const msg =
         (err as { response?: { data?: { message?: string } } })?.response?.data
           ?.message ||
         (err as { message?: string })?.message ||
-        "Falha ao criar conta. Tente novamente.";
+        "Falha ao seguir com o cadastro. Tente novamente.";
       setError(String(msg));
       setLoading(false);
       return false;

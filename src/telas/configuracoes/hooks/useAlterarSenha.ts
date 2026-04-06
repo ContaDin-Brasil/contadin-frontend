@@ -5,15 +5,11 @@ import { useCallback, useMemo, useState } from 'react';
 import { Alert } from 'react-native';
 import { AlterarSenha } from '../types/configuracoes.types';
 import { validarSenha } from '../constants/constantesConfiguracao';
-import { usuarioService } from '../../../api';
+import { authService } from '../../../api';
 import { useAuth } from '../../../contexts/AuthContext';
 
 interface UsuarioAuth {
-  id?: number;
-}
-
-interface UsuarioComSenha {
-  senha?: string;
+  id?: string | number;
 }
 
 export const useAlterarSenha = () => {
@@ -87,30 +83,25 @@ export const useAlterarSenha = () => {
 
     try {
       setLoading(true);
-
-      const usuario = (await usuarioService.buscarPorId(userAuth.id)) as UsuarioComSenha;
-      const senhaAtualMock = usuario?.senha ?? '';
-
-      if (!senhaAtualMock) {
-        setError('Não foi possível validar a senha atual no servidor mock.');
-        return;
-      }
-
-      if (senhaAtualTrim !== senhaAtualMock) {
-        setError('A senha atual informada está incorreta.');
-        return;
-      }
-
-      await usuarioService.atualizarParcial(userAuth.id, {
-        senha: novaSenhaTrim,
+      await authService.alterarSenha({
+        id: userAuth.id,
+        senhaAtual: dados.senhaAtual,
+        novaSenha: dados.novaSenha,
+        confirmacaoNovaSenha: dados.confirmarSenha,
       });
 
       setSenhaAtual('');
       setNovaSenha('');
       setConfirmarSenha('');
       Alert.alert('Senha atualizada', 'Sua senha foi alterada com sucesso.');
-    } catch (_error) {
-      setError('Não foi possível alterar a senha. Tente novamente.');
+    } catch (err: unknown) {
+      const msg =
+        (err as { response?: { data?: { message?: string; mensagem?: string } } })
+          ?.response?.data?.message ||
+        (err as { response?: { data?: { message?: string; mensagem?: string } } })
+          ?.response?.data?.mensagem ||
+        'Não foi possível alterar a senha. Tente novamente.';
+      setError(String(msg));
     } finally {
       setLoading(false);
     }
