@@ -13,13 +13,11 @@ import { formatarTelefone } from "../../../utils/mascaraTelefone";
 import { styles } from "./styles/TelaInformacoesPessoais.styles";
 
 function TelaInformacoesPessoais({ navigation, route }) {
-  const { token, user } = route.params || {};
-  const userId =
-    user && typeof user === "object" && "id" in user ? user.id : null;
-  const info = useInformacoesPessoais(userId);
+  const cadastro = route.params?.cadastro;
+  const info = useInformacoesPessoais(cadastro);
 
   const onContinuar = async () => {
-    await info.handleContinuar(navigation, token, user);
+    await info.handleContinuar(navigation);
   };
 
   return (

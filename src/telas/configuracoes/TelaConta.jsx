@@ -58,7 +58,7 @@ const AccountScreen = ({ navigation }) => {
         onClose={conta.handleCloseConfirmModal}
         title="Para Excluir:"
         onConfirm={conta.handleConfirmDelete}
-        confirmText="Continuar"
+        confirmText={conta.isDeactivating ? "Desativando..." : "Continuar"}
         cancelText="Cancelar"
       >
         <View style={styles.modalContent}>

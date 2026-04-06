@@ -92,8 +92,8 @@ const EditProfileScreen = ({ navigation }) => {
               <Text style={styles.label}>Telefone</Text>
               <TextInput
                 style={styles.input}
-                value={perfil.tel}
-                onChangeText={perfil.setTel}
+                value={perfil.telefone}
+                onChangeText={perfil.setTelefone}
                 placeholder=""
                 keyboardType="phone-pad"
               />

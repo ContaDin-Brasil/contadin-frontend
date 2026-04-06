@@ -19,8 +19,8 @@ function TelaValidarToken({ navigation, route }) {
   const validar = useValidarToken(email);
   const inputRefs = useRef([]);
 
-  const onValidar = () => {
-    const ok = validar.handleValidar();
+  const onValidar = async () => {
+    const ok = await validar.handleValidar();
     if (ok) {
       navigation.navigate("NovaSenha", { email, token: validar.token });
     }
