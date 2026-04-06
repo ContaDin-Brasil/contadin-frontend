@@ -67,7 +67,16 @@ export const useGerenciarConta = () => {
 
   const handleFinalConfirm = async () => {
     setDeactivatedModalVisible(false);
-    await logout();
+    try {
+      await logout();
+    } catch (error) {
+      Alert.alert(
+        'Erro ao sair',
+        error instanceof Error && error.message
+          ? error.message
+          : 'Não foi possível encerrar a sessão. Tente novamente.'
+      );
+    }
   };
 
   const handleCloseConfirmModal = () => {
