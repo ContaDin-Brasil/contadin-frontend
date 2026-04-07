@@ -39,7 +39,7 @@ const getBaseURL = (): string => {
     if (Platform.OS === "web") {
       baseURL = "http://localhost:8080";
     } else if (Platform.OS === "android") {
-      baseURL = "http://localhost:8080";
+      baseURL = "http://192.168.15.23:8080";
     } else {
       baseURL = "http://localhost:8080";
     }
@@ -66,6 +66,20 @@ const api: AxiosInstance = axios.create({
 // O interceptor do axios é síncrono, então não podemos ler AsyncStorage aqui.
 let authTokenInMemory: string | null = null;
 
+const AUTH_PUBLIC_ROUTES = [
+  "/auth/cadastro",
+  "/auth/login",
+  "/auth/esqueceu-senha",
+  "/auth/validar-pin",
+  "/auth/redefinir-senha",
+  "/auth/reenviar-pin",
+];
+
+const isPublicAuthRoute = (url?: string): boolean => {
+  if (!url) return false;
+  return AUTH_PUBLIC_ROUTES.some((route) => url.includes(route));
+};
+
 export const setAuthToken = (token: string | null): void => {
   authTokenInMemory = token;
 };
@@ -73,6 +87,14 @@ export const setAuthToken = (token: string | null): void => {
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     console.log(`➡️  ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`);
+
+    if (isPublicAuthRoute(config.url)) {
+      if (config.headers?.Authorization) {
+        delete config.headers.Authorization;
+      }
+      return config;
+    }
+
     if (authTokenInMemory) {
       config.headers.Authorization = `Bearer ${authTokenInMemory}`;
     }
@@ -89,12 +111,19 @@ api.interceptors.response.use(
     return response;
   },
   (error: AxiosError<any>) => {
+    const requestUrl = error.config?.url ?? "";
+    const isLogoutRequest = requestUrl.includes("/auth/logout");
+
     // Tratamento de erros globais
     if (error.response) {
       // Erro da API (status code fora de 2xx)
       console.error("❌ Erro da API:", error.response.data);
       console.error("❌ Status:", error.response.status);
     } else if (error.request) {
+      if (isLogoutRequest) {
+        return Promise.reject(error);
+      }
+
       // Erro de rede (sem resposta)
       console.error("❌ Erro de rede - Sem resposta do servidor");
       console.error("❌ URL tentada:", error.config?.baseURL + error.config?.url);
