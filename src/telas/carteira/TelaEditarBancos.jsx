@@ -175,7 +175,7 @@ const EditBanksScreen = ({ navigation }) => {
           nome: editor.selectedBank.nome,
           icone: editor.selectedBank.icone,
           cor: editor.selectedBank.cor,
-          tipoInstituicao: 'banco',
+          type: 'BANCO',
         } : null}
       />
 

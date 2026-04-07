@@ -265,7 +265,7 @@ export const buscarSaldosPorInstituicao = async (
         nome: inst.nome,
         icone: inst.icone,
         cor: inst.cor,
-        tipo: inst.tipoInstituicao,
+        tipo: inst.type,
         valor: saldo,
         porcentagem: 0,
       };

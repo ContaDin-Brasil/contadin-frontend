@@ -175,7 +175,7 @@ const EditVouchersScreen = ({ navigation }) => {
           nome: editor.selectedVoucher.nome,
           icone: editor.selectedVoucher.icone,
           cor: editor.selectedVoucher.cor,
-          tipoInstituicao: 'vale',
+          type: 'VALE',
         } : null}
       />
 

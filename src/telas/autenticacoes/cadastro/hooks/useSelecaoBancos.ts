@@ -1,19 +1,25 @@
 /**
  * Hook para a tela "Quais bancos você utiliza" (Frames 58/59).
  * Lista instituições padrão (BANCOS_PADRAO), estado selecionados (ids).
- * Ao Continuar: instituicaoService.criar para cada selecionado com fk_usuario; navega para TelaCadastroSucesso com token e user.
+ * Ao Continuar: instituicaoService.criar para cada selecionado com fkUsuario; navega para TelaCadastroSucesso com token e user.
  */
 import { useState } from "react";
 import { instituicaoService } from "../../../../api";
 import { BANCOS_PADRAO } from "../../../carteira/constants/instituicoesPadrao";
+import { obterUsuarioIdOuErro } from "../../../../utils/normalizacao";
 
 export interface InstituicaoPadrao {
   id: string;
   nome: string;
   icone: string;
   cor: string;
-  tipoInstituicao: string;
+  type: 'BANCO' | 'VALE';
 }
+
+const bancosPadraoNormalizados: InstituicaoPadrao[] = BANCOS_PADRAO.map((banco) => ({
+  ...banco,
+  type: banco.type === 'VALE' ? 'VALE' : 'BANCO',
+}));
 
 export interface UseSelecaoBancosResult {
   bancos: InstituicaoPadrao[];
@@ -29,7 +35,7 @@ export interface UseSelecaoBancosResult {
 }
 
 export function useSelecaoBancos(
-  userId: number | null,
+  userId: number | string | null,
 ): UseSelecaoBancosResult {
   const [selecionados, setSelecionados] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
@@ -50,8 +56,9 @@ export function useSelecaoBancos(
     user: object | undefined,
   ): Promise<boolean> => {
     setError(null);
-    if (!userId) {
-      setError("Sessão inválida. Faça login novamente.");
+    const userIdNormalizado = obterUsuarioIdOuErro(userId, (message) => setError(message));
+
+    if (!userIdNormalizado) {
       return false;
     }
 
@@ -64,14 +71,15 @@ export function useSelecaoBancos(
     setLoading(true);
     try {
       for (const id of lista) {
-        const banco = BANCOS_PADRAO.find((b) => b.id === id);
+        const banco = bancosPadraoNormalizados.find((b) => b.id === id);
         if (banco) {
           await instituicaoService.criar({
             nome: banco.nome,
             icone: banco.icone,
             cor: banco.cor,
-            tipoInstituicao: "banco",
-            fk_usuario: userId,
+            type: "BANCO",
+            fkUsuario: userIdNormalizado,
+            ativo: true,
           });
         }
       }
@@ -91,7 +99,7 @@ export function useSelecaoBancos(
   };
 
   return {
-    bancos: BANCOS_PADRAO,
+    bancos: bancosPadraoNormalizados,
     selecionados,
     toggleSelecao,
     loading,

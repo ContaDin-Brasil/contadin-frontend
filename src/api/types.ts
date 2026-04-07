@@ -11,6 +11,8 @@ import type {
 } from '../telas/dashboard/types/dashboard.types';
 import type { FrequencyType, TransactionType } from '../telas/transacoes/types/transacao.types';
 
+export type TipoInstituicao = 'BANCO' | 'VALE';
+
 export type CategoriaApi = Category;
 export type CategoriaPayload = CategoryFormData;
 
@@ -61,7 +63,7 @@ export interface UsuarioAutenticado {
 export interface RespostaLogin {
   data: {
     token: string;
-    user?: UsuarioAutenticado;
+    user: UsuarioAutenticado;
   };
 }
 
@@ -93,20 +95,26 @@ export interface AlterarSenhaPayload {
 }
 
 export interface InstituicaoApi {
-  id: number;
+  id: string | number;
   nome: string;
   icone: string;
   cor: string;
-  tipoInstituicao: 'banco' | 'vale';
-  fk_usuario?: number;
+  type: TipoInstituicao;
+  fk_usuario?: string | number;
+  ativo?: boolean;
+  criadoEm?: string;
+  atualizadoEm?: string;
+  fkUsuario?: string | number;
 }
 
 export interface InstituicaoPayload {
   nome: string;
   icone: string;
   cor: string;
-  tipoInstituicao: 'banco' | 'vale';
-  fk_usuario?: number;
+  type: TipoInstituicao;
+  fk_usuario?: string | number;
+  ativo?: boolean;
+  fkUsuario?: string | number;
 }
 
 export interface InstituicaoComTransacoes extends InstituicaoApi {
@@ -123,7 +131,7 @@ export interface TransacaoApi {
   qtdParcelas?: number | null;
   recorrencia?: FrequencyType | null;
   fim_recorrencia?: string | null;
-  fk_instituicao: number;
+  fk_instituicao: string | number;
   fk_categoria: number;
 }
 
@@ -136,7 +144,7 @@ export interface TransacaoPayload {
   qtdParcelas?: number | null;
   recorrencia?: FrequencyType | null;
   fim_recorrencia?: string | null;
-  fk_instituicao: number;
+  fk_instituicao: string | number;
   fk_categoria: number;
 }
 
@@ -160,7 +168,7 @@ export interface MetaGastoPayload {
 export interface TransacaoOrfa {
   id: number;
   descricao: string;
-  fk_instituicao: number;
+  fk_instituicao: string | number;
 }
 
 export interface ResultadoLimpezaOrfaos {
