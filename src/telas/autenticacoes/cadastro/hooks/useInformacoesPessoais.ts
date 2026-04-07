@@ -79,33 +79,20 @@ export function useInformacoesPessoais(
       });
 
       const loginResponse = await authService.login({ email, senha });
-      const token =
-        (
-          loginResponse as {
-            data?: { data?: { token?: string }; token?: string };
-          }
-        )?.data?.data?.token ??
-        (loginResponse as { data?: { token?: string } })?.data?.token ??
-        (loginResponse as { token?: string })?.token;
+      const token = loginResponse.data.token;
 
-      if (!token) {
-        setError(
-          "Conta criada, mas não foi possível entrar. Faça login na tela de login.",
-        );
-        setLoading(false);
-        return false;
-      }
+      const userId =
+        usuarioCriado.id ??
+        loginResponse.data.user.id;
 
       setAuthToken(token);
 
       const user = {
-        id: (usuarioCriado as { id?: string | number })?.id,
-        email: (usuarioCriado as { email?: string })?.email ?? email,
-        nome: (usuarioCriado as { nome?: string })?.nome ?? nomeTrim,
-        sobrenome: (usuarioCriado as { sobrenome?: string })?.sobrenome ?? sobrenomeTrim,
-        telefone:
-          (usuarioCriado as { telefone?: string })?.telefone ??
-          telefoneDigitos,
+        id: userId,
+        email: usuarioCriado.email ?? email,
+        nome: usuarioCriado.nome ?? nomeTrim,
+        sobrenome: usuarioCriado.sobrenome ?? sobrenomeTrim,
+        telefone: usuarioCriado.telefone ?? telefoneDigitos,
       };
 
       setLoading(false);
