@@ -5,6 +5,7 @@
  */
 import { useState } from "react";
 import { authService } from "../../../../api";
+import type { UsuarioAutenticado } from "../../../../api/types";
 
 export interface UseLoginResult {
   email: string;
@@ -14,7 +15,7 @@ export interface UseLoginResult {
   loading: boolean;
   error: string | null;
   handleLogin: () => Promise<
-    { success: true; token: string; user?: object } | { success: false }
+    { success: true; token: string; user: UsuarioAutenticado } | { success: false }
   >;
 }
 
@@ -25,7 +26,7 @@ export function useLogin(): UseLoginResult {
   const [error, setError] = useState<string | null>(null);
 
   const handleLogin = async (): Promise<
-    { success: true; token: string; user?: object } | { success: false }
+    { success: true; token: string; user: UsuarioAutenticado } | { success: false }
   > => {
     const emailTrim = email.trim();
     const senhaTrim = senha.trim();
@@ -46,22 +47,9 @@ export function useLogin(): UseLoginResult {
         email: emailTrim,
         senha: senhaTrim,
       });
-      // Backend pode enviar response.data.data.token ou response.data.token
-      const token =
-        (response as { data?: { data?: { token?: string }; token?: string } })
-          ?.data?.data?.token ??
-        (response as { data?: { token?: string } })?.data?.token ??
-        (response as { token?: string })?.token;
-      const user =
-        (response as { data?: { data?: { user?: object }; user?: object } })
-          ?.data?.data?.user ??
-        (response as { data?: { user?: object } })?.data?.user ??
-        (response as { user?: object })?.user;
+      const token = response.data.token;
+      const user = response.data.user;
 
-      if (!token) {
-        setError("Resposta inválida do servidor.");
-        return { success: false };
-      }
       setLoading(false);
       return { success: true, token, user };
     } catch (err: unknown) {
