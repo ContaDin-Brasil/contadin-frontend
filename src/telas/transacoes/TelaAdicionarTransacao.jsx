@@ -6,14 +6,12 @@ import TituloPagina from '../../componentes/TituloPagina';
 import BotoesAcaoFixo from '../../componentes/BotoesAcaoFixo';
 import { DatePickerInput } from '../../componentes/DatePickerInput';
 import { ImagePreview } from '../../componentes/ImagePreview';
-import { ModalSelecaoImagem } from '../../componentes/ModalSelecaoImagem';
 import { getLogoByName } from '../../componentes/modais/logosInstituicoes';
 import ModalSelecaoInstituicao from '../../componentes/modais/ModalSelecaoInstituicao';
 import ModalAdicionarInstituicao from '../../componentes/modais/ModalAdicionarInstituicao';
 import ModalCategoria from '../categorias/modals/ModalCategoria';
 import { useFormularioTransacao } from './hooks/useFormularioTransacao';
 import { useProcessamentoIA } from './hooks/useProcessamentoIA';
-import { useModalSelecaoImagem } from './hooks/useModalSelecaoImagem';
 import { transacaoService, categoriaService } from '../../api';
 import { FREQUENCIES, INSTALLMENT_OPTIONS } from './constants/constantesTransacao';
 import { getCategoryIcon } from './utils/utilitariosTransacao';
@@ -28,7 +26,6 @@ const TelaAdicionarTransacao = ({ navigation }) => {
   // Hooks customizados
   const formState = useFormularioTransacao();
   const aiState = useProcessamentoIA();
-  const modalImagem = useModalSelecaoImagem();
 
   const handleSelectInstitution = (institution) => {
     formState.handleSelectInstitution(institution);
@@ -61,22 +58,36 @@ const TelaAdicionarTransacao = ({ navigation }) => {
 
   const applyAISuggestion = () => {
     if (aiState.aiSuggestion) {
-      formState.applyAISuggestion(aiState.aiSuggestion);
+      // Encontra a instituição sugerida no array disponível
+      let instituicaoSugerida = null;
+      
+      if (aiState.ocrMetadata?.idInstituicaoExistente) {
+        // Prioriza instituição existente encontrada pela IA
+        instituicaoSugerida = formState.instituicoes?.find(
+          inst => inst.id === aiState.ocrMetadata.idInstituicaoExistente
+        ) || null;
+        
+        if (instituicaoSugerida) {
+          console.log('✅ [SUGGESTION] Instituição encontrada pela IA:', instituicaoSugerida.nome);
+        }
+      }
+      
+      // Aplica sugestão com instituição e categoria
+      formState.applyAISuggestion(
+        aiState.aiSuggestion,
+        instituicaoSugerida, // Instituição pode ser nula
+        aiState.ocrMetadata?.fkCategoria || null // Categoria sugerida
+      );
+      
       aiState.dismissAISuggestion();
     }
   };
 
-  const handlePhotoCapture = () => {
-    modalImagem.abrirModal();
-  };
-
   const handleCamera = async () => {
-    modalImagem.fecharModal();
     aiState.captureFromCamera();
   };
 
   const handleGallery = async () => {
-    modalImagem.fecharModal();
     aiState.captureFromGallery();
   };
 
@@ -203,11 +214,19 @@ const TelaAdicionarTransacao = ({ navigation }) => {
         <View style={styles.aiButtons}>
           <TouchableOpacity 
             style={styles.aiButton}
-            onPress={handlePhotoCapture}
+            onPress={handleCamera}
             disabled={aiState.isProcessing}
           >
             <Ionicons name="camera" size={24} color={COLORS.primaryLight} />
-            <Text style={styles.aiButtonText}>Foto</Text>
+            <Text style={styles.aiButtonText}>Câmera</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.aiButton}
+            onPress={handleGallery}
+            disabled={aiState.isProcessing}
+          >
+            <Ionicons name="image" size={24} color={COLORS.primaryLight} />
+            <Text style={styles.aiButtonText}>Galeria</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.aiButton}
@@ -299,7 +318,7 @@ const TelaAdicionarTransacao = ({ navigation }) => {
         <Text style={styles.label}>Descrição da transação:</Text>
         <TextInput
           style={styles.input}
-          placeholder="Salário Avanade"
+          placeholder="Ex: Salário, Conta de Luz, Compras no mercado..."
           placeholderTextColor="#999"
           value={formState.descricao}
           onChangeText={formState.setDescricao}
@@ -545,13 +564,13 @@ const TelaAdicionarTransacao = ({ navigation }) => {
               </Picker>
             </View>
 
-            {/* Campo customizado quando seleciona "Outro valor" */}
+        {/* Campo customizado quando seleciona "Outro valor" */}
             {formState.installmentCount === 0 && (
               <View style={styles.customInstallmentContainer}>
                 <Text style={styles.label}>Digite a quantidade de parcelas (máx. 720):</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder="Ex: 24"
+                  placeholder="Ex: 12, 24, 35..."
                   placeholderTextColor="#999"
                   value={formState.customInstallmentValue}
                   onChangeText={formState.handleCustomInstallmentChange}
@@ -677,14 +696,6 @@ const TelaAdicionarTransacao = ({ navigation }) => {
         onClose={() => formState.setModalCategoriaVisible(false)}
         onSave={handleCreateCategoria}
         tipoInicial={formState.tipo}
-      />
-
-      <ModalSelecaoImagem
-        visible={modalImagem.modalVisible}
-        onCamera={handleCamera}
-        onGallery={handleGallery}
-        onCancel={modalImagem.fecharModal}
-        isLoading={aiState.isProcessing}
       />
     </SafeAreaView>
   );

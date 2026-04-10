@@ -59,9 +59,8 @@ export const openCamera = async (includeBase64: boolean = false): Promise<ImageD
     }
 
     const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
+      mediaTypes: ['images'] as any,
+      allowsEditing: false,
       quality: 0.8,
       base64: includeBase64,
     });
@@ -102,9 +101,8 @@ export const openGallery = async (includeBase64: boolean = false): Promise<Image
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
+      mediaTypes: ['images'] as any,
+      allowsEditing: false,
       quality: 0.8,
       base64: includeBase64,
     });

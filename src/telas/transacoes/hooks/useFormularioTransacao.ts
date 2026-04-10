@@ -98,12 +98,6 @@ export const useFormularioTransacao = () => {
       
       setInstituicoes(instituicoesFormatadas);
       
-      // Seleciona primeira instituição do tipo banco como padrão
-      const primeiroBanco = instituicoesFormatadas.find((inst: any) => inst.tipoInstituicao === 'banco');
-      if (primeiroBanco) {
-        setSelectedInstitution(primeiroBanco);
-      }
-      
       // Define primeira categoria como padrão
       if (categoriasData.length > 0) {
         setSelectedCategory(categoriasData[0].id);
@@ -417,9 +411,16 @@ export const useFormularioTransacao = () => {
   };
 
   /**
-   * Aplica as sugestões da IA ao formulário
+   * Aplica as sugestões da IA ao formulário, incluindo instituição
+   * @param suggestion - Dados da transaction sugeridos pela IA
+   * @param instituicaoSugerida - Instituição sugerida (com filtro para evitar Mercado Pago)
+   * @param categoriaSugerida - Categoria sugerida
    */
-  const applyAISuggestion = (suggestion: AISuggestion) => {
+  const applyAISuggestion = (
+    suggestion: AISuggestion,
+    instituicaoSugerida?: Institution | null,
+    categoriaSugerida?: number | null
+  ) => {
     setDescricao(suggestion.descricao);
     
     // A IA já retorna valores formatados (ex: "145,80" ou "5.000,00")
@@ -432,10 +433,27 @@ export const useFormularioTransacao = () => {
     }
     setTipo(suggestion.tipo);
     
+    // Aplica instituição sugerida (com validação contra Mercado Pago)
+    if (instituicaoSugerida && instituicaoSugerida.id !== 14) {
+      setSelectedInstitution(instituicaoSugerida);
+      console.log('🏦 [AI SUGGESTION] Instituição aplicada:', instituicaoSugerida.nome);
+    } else if (instituicaoSugerida && instituicaoSugerida.id === 14) {
+      // Bloqueia Mercado Pago - deixa nula para usuário selecionar
+      setSelectedInstitution(null);
+      console.log('⚠️ [AI SUGGESTION] Mercado Pago (id 14) foi bloqueado, selecione manualmente');
+    }
+    
+    // Aplica categoria sugerida (se houver e for válida)
+    if (categoriaSugerida && categoriaSugerida > 0) {
+      setSelectedCategory(categoriaSugerida);
+      console.log('📂 [AI SUGGESTION] Categoria aplicada:', categoriaSugerida);
+    }
+    
     console.log('📝 [AI SUGGESTION] Aplicando sugestão:');
     console.log('   • Descrição:', suggestion.descricao);
     console.log('   • Valor original:', suggestion.valor);
     console.log('   • Valor aplicado:', valorFormatado);
+    console.log('   • Tipo:', suggestion.tipo);
   };
 
   /**
