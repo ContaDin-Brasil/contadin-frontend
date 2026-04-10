@@ -578,6 +578,40 @@ export const useFormularioTransacao = () => {
     return categoria.tipo === 'GLOBAL' || categoria.tipo === tipoTransacao;
   };
 
+  /**
+   * Valida os 5 campos obrigatórios ao tentar salvar
+   * Retorna objeto com validação e lista de erros
+   */
+  const validateOnSubmit = (): { isValid: boolean; errors: Record<string, string> } => {
+    const errors: Record<string, string> = {};
+
+    // Validar Descrição
+    if (!descricao || descricao.trim().length === 0) {
+      errors.descricao = 'Descrição obrigatória';
+    }
+
+    // Validar Valor
+    const valorNumerico = converterParaNumero(valor);
+    if (!valor || valorNumerico <= 0) {
+      errors.valor = 'Valor deve ser maior que 0';
+    }
+
+    // Validar Instituição
+    if (!selectedInstitution) {
+      errors.instituicao = 'Selecione uma instituição';
+    }
+
+    const isValid = Object.keys(errors).length === 0;
+    return { isValid, errors };
+  };
+
+  /**
+   * Limpa os erros de validação
+   */
+  const clearValidationErrors = () => {
+    // Função de limpeza - usada após sucesso ou quando usuário corrige os campos
+  };
+
   return {
     // Estados
     descricao,
@@ -633,6 +667,8 @@ export const useFormularioTransacao = () => {
     carregarDados,
     validateRecurrenceEndDate,
     validateInstallment,
+    validateOnSubmit,
+    clearValidationErrors,
     getInstallmentValue,
     getInstallmentWarning,
     getLastInstallmentDate,

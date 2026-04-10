@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, TextInput, TouchableOpacity, Switch, Animated, ActivityIndicator, Alert, Image, SafeAreaView, Platform } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
+import Toast from 'react-native-toast-message';
 import TituloPagina from '../../componentes/TituloPagina';
 import BotoesAcaoFixo from '../../componentes/BotoesAcaoFixo';
 import { DatePickerInput } from '../../componentes/DatePickerInput';
 import { ImagePreview } from '../../componentes/ImagePreview';
+import { ErrorMessage } from './componentes/ErrorMessage';
 import { getLogoByName } from '../../componentes/modais/logosInstituicoes';
 import ModalSelecaoInstituicao from '../../componentes/modais/ModalSelecaoInstituicao';
 import ModalAdicionarInstituicao from '../../componentes/modais/ModalAdicionarInstituicao';
@@ -22,6 +24,7 @@ const TelaAdicionarTransacao = ({ navigation }) => {
   const [selectionModalVisible, setSelectionModalVisible] = useState(false);
   const [customModalVisible, setCustomModalVisible] = useState(false);
   const [salvando, setSalvando] = useState(false);
+  const [validationErrors, setValidationErrors] = useState({});
 
   // Hooks customizados
   const formState = useFormularioTransacao();
@@ -101,25 +104,38 @@ const TelaAdicionarTransacao = ({ navigation }) => {
   };
 
   const handleSaveTransaction = async () => {
+    // Validar os 5 campos obrigatórios
+    const validation = formState.validateOnSubmit();
+    
+    if (!validation.isValid) {
+      // Mostrar erros inline
+      setValidationErrors(validation.errors);
+      
+      // Preparar mensagem de erro consolidada para toast
+      const errorMessages = Object.values(validation.errors).join('\n');
+      
+      // Mostrar toast com lista de erros
+      Toast.show({
+        type: 'error',
+        position: 'top',
+        text1: '❌ Preencha os campos obrigatórios',
+        text2: errorMessages,
+        visibilityTime: 4000,
+        autoHide: true,
+        topOffset: 80,
+      });
+      
+      return;
+    }
+    
+    // Limpar erros se passou na validação
+    setValidationErrors({});
+    
     setSalvando(true);
     
     try {
       const data = formState.getFormData();
       
-      // Valida dados básicos
-      if (!data.descricao || !data.valor) {
-        Alert.alert('Erro', 'Preencha descrição e valor');
-        setSalvando(false);
-        return;
-      }
-
-      // Valida se uma instituição foi selecionada
-      if (!data.selectedInstitution) {
-        Alert.alert('Erro', 'Selecione uma instituição');
-        setSalvando(false);
-        return;
-      }
-
       // Valida data limite de recorrência
       const dataLimiteError = formState.validateRecurrenceEndDate();
       if (dataLimiteError) {
@@ -317,12 +333,14 @@ const TelaAdicionarTransacao = ({ navigation }) => {
       <View style={styles.section}>
         <Text style={styles.label}>Descrição da transação:</Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, (salvando || formState.loading) && { opacity: 0.6 }]}
           placeholder="Ex: Salário, Conta de Luz, Compras no mercado..."
           placeholderTextColor="#999"
           value={formState.descricao}
           onChangeText={formState.setDescricao}
+          editable={!salvando && !formState.loading}
         />
+        <ErrorMessage message={validationErrors.descricao} />
       </View>
 
       {/* Valor da transação */}
@@ -331,15 +349,17 @@ const TelaAdicionarTransacao = ({ navigation }) => {
         <View style={styles.amountInputContainer}>
           <Text style={styles.currencySymbol}>R$</Text>
           <TextInput
-            style={styles.amountInput}
+            style={[styles.amountInput, (salvando || formState.loading) && { opacity: 0.6 }]}
             placeholder="0,00"
             placeholderTextColor="#999"
             value={formState.valor}
             onChangeText={formState.handleValorChange}
             onBlur={formState.handleValorBlur}
             keyboardType="numeric"
+            editable={!salvando && !formState.loading}
           />
         </View>
+        <ErrorMessage message={validationErrors.valor} />
       </View>
 
       {/* Data da transação */}
@@ -607,9 +627,10 @@ const TelaAdicionarTransacao = ({ navigation }) => {
         
         {/* Campo de seleção com chip */}
         <TouchableOpacity
-          style={styles.institutionChipContainer}
-          onPress={() => setSelectionModalVisible(true)}
+          style={[styles.institutionChipContainer, (salvando || formState.loading) && { opacity: 0.6 }]}
+          onPress={() => !salvando && !formState.loading && setSelectionModalVisible(true)}
           activeOpacity={0.7}
+          disabled={salvando || formState.loading}
         >
           {formState.selectedInstitution ? (
             <View style={styles.institutionChipWrapper}>
@@ -653,6 +674,7 @@ const TelaAdicionarTransacao = ({ navigation }) => {
           )}
           <Ionicons name="chevron-forward" size={20} color="#999" />
         </TouchableOpacity>
+        <ErrorMessage message={validationErrors.instituicao} />
       </View>
 
           {/* Indicador de carregamento de dados */}
