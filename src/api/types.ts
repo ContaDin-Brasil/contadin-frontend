@@ -22,20 +22,20 @@ export interface CredenciaisLogin {
 }
 
 export interface CadastroPayload {
-  nome: string;
-  sobrenome: string;
+  nome: string | null;
+  sobrenome: string | null;
   email: string;
-  telefone?: string;
+  telefone?: string | null;
   senha: string;
   ativo?: boolean;
 }
 
 export interface UsuarioApi {
   id: string | number;
-  nome: string;
-  sobrenome: string;
+  nome: string | null;
+  sobrenome: string | null;
   email: string;
-  telefone?: string;
+  telefone?: string | null;
   ativo: boolean;
   status?: string;
   criadoEm?: string;
@@ -43,10 +43,10 @@ export interface UsuarioApi {
 }
 
 export interface UsuarioPayload {
-  nome: string;
-  sobrenome: string;
+  nome: string | null;
+  sobrenome: string | null;
   email: string;
-  telefone?: string;
+  telefone?: string | null;
   senha?: string;
   ativo?: boolean;
 }

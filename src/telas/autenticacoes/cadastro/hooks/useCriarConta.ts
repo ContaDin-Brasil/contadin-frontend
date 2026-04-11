@@ -1,11 +1,12 @@
 /**
  * Hook para a tela "Crie sua conta" (Frame 55).
  * Estado: email, senha, confirmarSenha; validação (email, senha mínimo 8 caracteres, senhas iguais).
- * handleCadastrar apenas valida dados iniciais e navega para o próximo passo.
- * O cadastro real na API ocorre após preencher nome/sobrenome/telefone.
+ * handleCadastrar valida dados iniciais, cria o usuário e autentica.
+ * O preenchimento de nome/sobrenome/telefone ocorre no próximo passo via PATCH.
  */
 import { useState } from "react";
 import { validarSenha } from "../../../configuracoes/constants/constantesConfiguracao";
+import { authService } from "../../../../api";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -71,10 +72,32 @@ export function useCriarConta(): UseCriarContaResult {
     setLoading(true);
 
     try {
+      const usuarioCriado = await authService.cadastrar({
+        nome: null,
+        sobrenome: null,
+        email: emailTrim,
+        telefone: null,
+        senha: senhaTrim,
+        ativo: true,
+      });
+
+      const loginResponse = await authService.login({
+        email: emailTrim,
+        senha: senhaTrim,
+      });
+
+      const token = loginResponse.data.token;
+      const user = {
+        id: usuarioCriado.id ?? loginResponse.data.user.id,
+        email: loginResponse.data.user.email,
+        nome: loginResponse.data.user.nome,
+        sobrenome: loginResponse.data.user.sobrenome,
+      };
+
       navigation.replace("BemVindo", {
         cadastro: {
-          email: emailTrim,
-          senha: senhaTrim,
+          token,
+          user,
         },
       });
       setLoading(false);
