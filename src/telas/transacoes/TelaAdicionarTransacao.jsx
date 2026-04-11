@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity, Switch, Animated, ActivityIndicator, Alert, Image, SafeAreaView, Platform } from 'react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, Switch, Animated, ActivityIndicator, Alert, Image, SafeAreaView, Platform, Modal, Pressable } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import Toast from 'react-native-toast-message';
@@ -23,12 +23,20 @@ import { styles } from './styles/TelaAdicionarTransacao.styles';
 const TelaAdicionarTransacao = ({ navigation }) => {
   const [selectionModalVisible, setSelectionModalVisible] = useState(false);
   const [customModalVisible, setCustomModalVisible] = useState(false);
+  const [aiSuggestionModalVisible, setAiSuggestionModalVisible] = useState(false);
   const [salvando, setSalvando] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
 
   // Hooks customizados
   const formState = useFormularioTransacao();
   const aiState = useProcessamentoIA();
+
+  // Efeito para abrir modal quando sugestão de IA aparece
+  React.useEffect(() => {
+    if (aiState.aiSuggestion && !aiState.isProcessing) {
+      setAiSuggestionModalVisible(true);
+    }
+  }, [aiState.aiSuggestion, aiState.isProcessing]);
 
   const handleSelectInstitution = (institution) => {
     formState.handleSelectInstitution(institution);
@@ -75,6 +83,8 @@ const TelaAdicionarTransacao = ({ navigation }) => {
         }
       }
       
+      // Fecha o modal e descarta a sugestão
+      setAiSuggestionModalVisible(false);
       // Aplica sugestão com instituição e categoria
       formState.applyAISuggestion(
         aiState.aiSuggestion,
@@ -193,16 +203,32 @@ const TelaAdicionarTransacao = ({ navigation }) => {
       console.log('📥 Resposta do servidor:', JSON.stringify(resultado, null, 2));
       console.log('='.repeat(60) + '\n');
       
-      if (Platform.OS === 'web') {
-        Alert.alert('Sucesso', 'Transação criada com sucesso!');
-        handleSuccessNavigation();
-      } else {
-        Alert.alert('Sucesso', 'Transação criada com sucesso!', [
-          { text: 'OK', onPress: handleSuccessNavigation }
-        ]);
-      }
+      // Mostrar toast de sucesso
+      Toast.show({
+        type: 'success',
+        position: 'top',
+        text1: '✅ Transação criada com sucesso!',
+        text2: formState.descricao,
+        visibilityTime: 3000,
+        autoHide: true,
+        topOffset: 80,
+      });
+      
+      
     } catch (error) {
       console.error('Erro ao salvar transação:', error);
+      
+      // Mostrar toast de erro
+      Toast.show({
+        type: 'error',
+        position: 'top',
+        text1: '❌ Erro ao salvar transação',
+        text2: 'Tente novamente mais tarde',
+        visibilityTime: 4000,
+        autoHide: true,
+        topOffset: 80,
+      });
+      
       Alert.alert('Erro', 'Não foi possível salvar a transação');
     } finally {
       setSalvando(false);
@@ -226,7 +252,7 @@ const TelaAdicionarTransacao = ({ navigation }) => {
 
       {/* Botões de Sugestão via IA */}
       <View style={styles.aiSection}>
-        <Text style={styles.aiSectionTitle}>✨ Adicionar via IA</Text>
+        <Text style={styles.aiSectionTitle}>Adicionar via IA</Text>
         <View style={styles.aiButtons}>
           <TouchableOpacity 
             style={styles.aiButton}
@@ -276,56 +302,12 @@ const TelaAdicionarTransacao = ({ navigation }) => {
         {aiState.capturedImage && !aiState.isProcessing && (
           <ImagePreview
             imageUri={aiState.capturedImage.uri}
-            onRemove={aiState.dismissAISuggestion}
+            onRemove={() => {
+              setAiSuggestionModalVisible(false);
+              aiState.dismissAISuggestion();
+            }}
             size={150}
           />
-        )}
-
-        {/* Card de sugestão da IA */}
-        {aiState.aiSuggestion && !aiState.isProcessing && (
-          <View style={styles.suggestionCard}>
-            <View style={styles.suggestionHeader}>
-              <Ionicons name="sparkles" size={20} color={COLORS.primaryLight} />
-              <Text style={styles.suggestionTitle}>Sugestão da IA</Text>
-            </View>
-            <View style={styles.suggestionContent}>
-              <View style={styles.suggestionRow}>
-                <Text style={styles.suggestionLabel}>Descrição:</Text>
-                <Text style={styles.suggestionValue}>{aiState.aiSuggestion.descricao}</Text>
-              </View>
-              <View style={styles.suggestionRow}>
-                <Text style={styles.suggestionLabel}>Valor:</Text>
-                <Text style={styles.suggestionValue}>R$ {aiState.aiSuggestion.valor}</Text>
-              </View>
-              {aiState.aiSuggestion.data && (
-                <View style={styles.suggestionRow}>
-                  <Text style={styles.suggestionLabel}>Data:</Text>
-                  <Text style={styles.suggestionValue}>{aiState.aiSuggestion.data}</Text>
-                </View>
-              )}
-              <View style={styles.suggestionRow}>
-                <Text style={styles.suggestionLabel}>Tipo:</Text>
-                <Text style={styles.suggestionValue}>
-                  {aiState.aiSuggestion.tipo === 'RECEITA' ? 'Receita' : 'Gasto'}
-                </Text>
-              </View>
-            </View>
-            <View style={styles.suggestionButtons}>
-              <TouchableOpacity 
-                style={styles.suggestionButtonReject}
-                onPress={aiState.dismissAISuggestion}
-              >
-                <Text style={styles.suggestionButtonRejectText}>Descartar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={styles.suggestionButtonAccept}
-                onPress={applyAISuggestion}
-              >
-                <Ionicons name="checkmark" size={18} color="#FFF" />
-                <Text style={styles.suggestionButtonAcceptText}>Aplicar</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
         )}
       </View>
 
@@ -719,6 +701,100 @@ const TelaAdicionarTransacao = ({ navigation }) => {
         onSave={handleCreateCategoria}
         tipoInicial={formState.tipo}
       />
+
+      {/* Modal de Sugestão da IA */}
+      <Modal
+        visible={aiSuggestionModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => {
+          setAiSuggestionModalVisible(false);
+          aiState.dismissAISuggestion();
+        }}
+      >
+        <Pressable 
+          style={styles.modalOverlay}
+          onPress={() => {
+            setAiSuggestionModalVisible(false);
+            aiState.dismissAISuggestion();
+          }}
+        >
+          <Pressable 
+            style={styles.modalContainer}
+            onPress={(e) => e.stopPropagation()}
+          >
+            {/* Handle bar */}
+            <View style={styles.modalHandle} />
+
+            {/* Header */}
+            <View style={styles.modalHeader}>
+              <View style={styles.modalTitleContainer}>
+                <Ionicons name="sparkles" size={24} color={COLORS.primaryLight} />
+                <Text style={styles.modalTitle}>Sugestão da IA</Text>
+              </View>
+              <TouchableOpacity 
+                onPress={() => {
+                  setAiSuggestionModalVisible(false);
+                  aiState.dismissAISuggestion();
+                }}
+              >
+                <Ionicons name="close" size={28} color="#333" />
+              </TouchableOpacity>
+            </View>
+
+            {/* Content */}
+            <View style={styles.modalContent}>
+              {aiState.aiSuggestion && (
+                <>
+                  <View style={styles.modalSuggestionRow}>
+                    <Text style={styles.modalSuggestionLabel}>Descrição:</Text>
+                    <Text style={styles.modalSuggestionValue}>{aiState.aiSuggestion.descricao}</Text>
+                  </View>
+
+                  <View style={styles.modalSuggestionRow}>
+                    <Text style={styles.modalSuggestionLabel}>Valor:</Text>
+                    <Text style={styles.modalSuggestionValue}>R$ {aiState.aiSuggestion.valor}</Text>
+                  </View>
+
+                  {aiState.aiSuggestion.data && (
+                    <View style={styles.modalSuggestionRow}>
+                      <Text style={styles.modalSuggestionLabel}>Data:</Text>
+                      <Text style={styles.modalSuggestionValue}>{aiState.aiSuggestion.data}</Text>
+                    </View>
+                  )}
+
+                  <View style={styles.modalSuggestionRow}>
+                    <Text style={styles.modalSuggestionLabel}>Tipo:</Text>
+                    <Text style={styles.modalSuggestionValue}>
+                      {aiState.aiSuggestion.tipo === 'RECEITA' ? 'Receita' : 'Gasto'}
+                    </Text>
+                  </View>
+                </>
+              )}
+            </View>
+
+            {/* Buttons */}
+            <View style={styles.modalButtonContainer}>
+              <TouchableOpacity
+                style={styles.modalButtonCancel}
+                onPress={() => {
+                  setAiSuggestionModalVisible(false);
+                  aiState.dismissAISuggestion();
+                }}
+              >
+                <Text style={styles.modalButtonCancelText}>Descartar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalButtonConfirm}
+                onPress={applyAISuggestion}
+              >
+                <Ionicons name="checkmark" size={18} color="#FFF" />
+                <Text style={styles.modalButtonConfirmText}>Aplicar</Text>
+              </TouchableOpacity>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 };
