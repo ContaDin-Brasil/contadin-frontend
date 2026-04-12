@@ -464,7 +464,7 @@ export const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
-  // Estilos para OCR/IA
+  // Estilos para seção de IA/Sugestões
   aiSection: {
     paddingHorizontal: 20,
     marginBottom: 20,
@@ -596,6 +596,96 @@ export const styles = StyleSheet.create({
   suggestionButtonAcceptText: {
     fontSize: 14,
     color: '#FFF',
+    fontWeight: '600',
+  },
+  // Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContainer: {
+    backgroundColor: '#FFF',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 24,
+    paddingBottom: 40,
+    minHeight: 300,
+  },
+  modalHandle: {
+    width: 40,
+    height: 4,
+    backgroundColor: '#CCC',
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginBottom: 20,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  modalTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    flex: 1,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#333',
+  },
+  modalContent: {
+    marginBottom: 24,
+  },
+  modalSuggestionRow: {
+    marginBottom: 16,
+  },
+  modalSuggestionLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#999',
+    marginBottom: 6,
+    textTransform: 'uppercase',
+  },
+  modalSuggestionValue: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#333',
+  },
+  modalButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 16,
+  },
+  modalButtonCancel: {
+    flex: 1,
+    backgroundColor: '#E8E8E8',
+    paddingVertical: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalButtonCancelText: {
+    color: '#666',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  modalButtonConfirm: {
+    flex: 1,
+    backgroundColor: COLORS.primary,
+    paddingVertical: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    gap: 8,
+  },
+  modalButtonConfirmText: {
+    color: '#FFF',
+    fontSize: 16,
     fontWeight: '600',
   },
 });

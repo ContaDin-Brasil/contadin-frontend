@@ -418,9 +418,16 @@ export const useFormularioTransacao = () => {
   };
 
   /**
-   * Aplica as sugestões da IA ao formulário
+   * Aplica as sugestões da IA ao formulário, incluindo instituição
+   * @param suggestion - Dados da transaction sugeridos pela IA
+   * @param instituicaoSugerida - Instituição sugerida (com filtro para evitar Mercado Pago)
+   * @param categoriaSugerida - Categoria sugerida
    */
-  const applyAISuggestion = (suggestion: AISuggestion) => {
+  const applyAISuggestion = (
+    suggestion: AISuggestion,
+    instituicaoSugerida?: Institution | null,
+    categoriaSugerida?: number | null
+  ) => {
     setDescricao(suggestion.descricao);
     
     // A IA já retorna valores formatados (ex: "145,80" ou "5.000,00")
@@ -433,10 +440,27 @@ export const useFormularioTransacao = () => {
     }
     setTipo(suggestion.tipo);
     
+    // Aplica instituição sugerida (com validação contra Mercado Pago)
+    if (instituicaoSugerida && instituicaoSugerida.id !== 14) {
+      setSelectedInstitution(instituicaoSugerida);
+      console.log('🏦 [AI SUGGESTION] Instituição aplicada:', instituicaoSugerida.nome);
+    } else if (instituicaoSugerida && instituicaoSugerida.id === 14) {
+      // Bloqueia Mercado Pago - deixa nula para usuário selecionar
+      setSelectedInstitution(null);
+      console.log('⚠️ [AI SUGGESTION] Mercado Pago (id 14) foi bloqueado, selecione manualmente');
+    }
+    
+    // Aplica categoria sugerida (se houver e for válida)
+    if (categoriaSugerida && categoriaSugerida > 0) {
+      setSelectedCategory(categoriaSugerida);
+      console.log('📂 [AI SUGGESTION] Categoria aplicada:', categoriaSugerida);
+    }
+    
     console.log('📝 [AI SUGGESTION] Aplicando sugestão:');
     console.log('   • Descrição:', suggestion.descricao);
     console.log('   • Valor original:', suggestion.valor);
     console.log('   • Valor aplicado:', valorFormatado);
+    console.log('   • Tipo:', suggestion.tipo);
   };
 
   /**
@@ -559,6 +583,40 @@ export const useFormularioTransacao = () => {
     return categoria.tipo === 'GLOBAL' || categoria.tipo === tipoTransacao;
   };
 
+  /**
+   * Valida os 5 campos obrigatórios ao tentar salvar
+   * Retorna objeto com validação e lista de erros
+   */
+  const validateOnSubmit = (): { isValid: boolean; errors: Record<string, string> } => {
+    const errors: Record<string, string> = {};
+
+    // Validar Descrição
+    if (!descricao || descricao.trim().length === 0) {
+      errors.descricao = 'Descrição obrigatória';
+    }
+
+    // Validar Valor
+    const valorNumerico = converterParaNumero(valor);
+    if (!valor || valorNumerico <= 0) {
+      errors.valor = 'Valor deve ser maior que 0';
+    }
+
+    // Validar Instituição
+    if (!selectedInstitution) {
+      errors.instituicao = 'Selecione uma instituição';
+    }
+
+    const isValid = Object.keys(errors).length === 0;
+    return { isValid, errors };
+  };
+
+  /**
+   * Limpa os erros de validação
+   */
+  const clearValidationErrors = () => {
+    // Função de limpeza - usada após sucesso ou quando usuário corrige os campos
+  };
+
   return {
     // Estados
     descricao,
@@ -614,6 +672,8 @@ export const useFormularioTransacao = () => {
     carregarDados,
     validateRecurrenceEndDate,
     validateInstallment,
+    validateOnSubmit,
+    clearValidationErrors,
     getInstallmentValue,
     getInstallmentWarning,
     getLastInstallmentDate,

@@ -184,7 +184,7 @@ const TelaEditarTransacao = ({ navigation, route }) => {
         <Text style={styles.label}>Descrição da transação:</Text>
         <TextInput
           style={styles.input}
-          placeholder="Ex: Salário Avanade"
+          placeholder="Ex: Salário, Conta de Luz, Compras no mercado..."
           placeholderTextColor="#999"
           value={editState.descricao}
           onChangeText={editState.setDescricao}
@@ -198,7 +198,7 @@ const TelaEditarTransacao = ({ navigation, route }) => {
           <Text style={styles.currencySymbol}>R$</Text>
           <TextInput
             style={styles.amountInput}
-            placeholder="0,00"
+            placeholder="Digite o valor (ex: 100,00)"
             placeholderTextColor="#999"
             value={editState.valor}
             onChangeText={editState.handleValorChange}
@@ -494,7 +494,12 @@ const TelaEditarTransacao = ({ navigation, route }) => {
                           <Text style={styles.chipIconText}>{editState.selectedInstitution.icone}</Text>
                         )}
                       </View>
-                      <Text style={styles.chipText}>{editState.selectedInstitution.nome}</Text>
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.chipText}>{editState.selectedInstitution.nome}</Text>
+                        <Text style={{ fontSize: 12, color: '#999', marginTop: 2, marginLeft: 2 }}>
+                          {editState.selectedInstitution.tipoInstituicao === 'vale' ? 'Vale' : 'Banco'}
+                        </Text>
+                      </View>
                       <TouchableOpacity 
                         style={styles.chipRemoveButton}
                         onPress={(e) => {
@@ -503,7 +508,7 @@ const TelaEditarTransacao = ({ navigation, route }) => {
                         }}
                         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                       >
-                        <Ionicons name="close-circle" size={20} color="#666" />
+                        <Ionicons name="close-circle" size={20} color="#E31C23" />
                       </TouchableOpacity>
                     </>
                   );
@@ -513,7 +518,8 @@ const TelaEditarTransacao = ({ navigation, route }) => {
           ) : (
             <View style={styles.institutionPlaceholderContainer}>
               <Ionicons name="business-outline" size={20} color="#999" />
-              <Text style={styles.institutionPlaceholderText}>Toque para selecionar uma instituição</Text>
+              <Text style={styles.institutionPlaceholderText}>Selecione uma instituição</Text>
+              <Text style={{ fontSize: 12, color: '#CCC', marginTop: 4 }}>(obrigatório)</Text>
             </View>
           )}
           <Ionicons name="chevron-forward" size={20} color="#999" />
