@@ -1,12 +1,15 @@
 export type CategoryType = 'RECEITA' | 'GASTO' | 'GLOBAL';
 
 export interface Category {
-  id: number;
+  id: string;
   nome: string;
   tipo: CategoryType;
   cor: string;
   icone: string;
-  fk_usuario: number | null;
+  fkUsuario?: string | null;
+  ativo?: boolean;
+  criadoEm?: string;
+  atualizadoEm?: string;
 }
 
 export interface CategoryFormData {
@@ -14,13 +17,14 @@ export interface CategoryFormData {
   tipo: CategoryType;
   cor: string;
   icone: string;
+  fkUsuario?: string | null;
 }
 
 /**
  * Verifica se a categoria é padrão (global)
  */
 export const isPadrao = (categoria: Category): boolean => {
-  return categoria.fk_usuario === null;
+  return categoria.fkUsuario == null;
 };
 
 /**

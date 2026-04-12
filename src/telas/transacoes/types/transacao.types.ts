@@ -21,7 +21,7 @@ export interface Institution {
 
 // Interface de Categoria (alinhado com DB: categoria)
 export interface Category {
-  id: number;
+  id: string;
   nome: string;
   tipo: 'RECEITA' | 'GASTO' | 'GLOBAL';
   cor: string;
