@@ -213,6 +213,11 @@ const TelaAdicionarTransacao = ({ navigation }) => {
         autoHide: true,
         topOffset: 80,
       });
+
+      // Navegar de volta após o sucesso
+      setTimeout(() => {
+        handleSuccessNavigation();
+      }, 500);
       
       
     } catch (error) {

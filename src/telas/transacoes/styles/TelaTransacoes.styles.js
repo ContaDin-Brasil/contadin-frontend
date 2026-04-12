@@ -102,12 +102,12 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   dateGroup: {
-    marginBottom: 20,
+    marginBottom: 8,
   },
   dateLabel: {
     fontSize: 14,
     color: '#666',
-    marginBottom: 12,
+    marginBottom: 6,
     fontWeight: '500',
   },
   transactionItem: {

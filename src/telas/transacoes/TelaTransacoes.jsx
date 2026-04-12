@@ -16,7 +16,8 @@ import {
   groupTransactionsByDate,
   getCategoryIcon,
   ordenarTransacoes,
-  aplicarFiltros
+  aplicarFiltros,
+  parseTransacaoDate
 } from './utils/utilitariosTransacao';
 import { styles } from './styles/TelaTransacoes.styles';
 
@@ -267,7 +268,7 @@ const TelaTransacoes = ({ navigation, route }) => {
     const institutionColor = institution?.cor || '#666';
     const institutionIcon = institution?.icone || '📱';
     const institutionLogo = getLogoByName(institutionName);
-    const transactionDate = new Date(item.data_transacao).toLocaleDateString('pt-BR');
+    const transactionDate = parseTransacaoDate(item.data_transacao).toLocaleDateString('pt-BR');
     
     // Mapeia frequência para texto amigável
     const getFrequencyLabel = (freq) => {

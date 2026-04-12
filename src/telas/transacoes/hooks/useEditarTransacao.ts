@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useFormularioTransacao } from './useFormularioTransacao';
 import { transacaoService, instituicaoService } from '../../../api';
 import { limparValorMonetario } from '../utils/formatacaoMoeda';
+import { parseTransacaoDate } from '../utils/utilitariosTransacao';
 
 /**
  * Hook customizado para gerenciar a edição de uma transação existente
@@ -98,7 +99,7 @@ export const useEditarTransacao = (transacaoId: number | null) => {
     formState.setValor(valorFormatado);
     
     // Data - converte de ISO para DD/MM/YYYY
-    const dataTransacao = new Date(transacao.data_transacao);
+    const dataTransacao = parseTransacaoDate(transacao.data_transacao);
     const dia = String(dataTransacao.getDate()).padStart(2, '0');
     const mes = String(dataTransacao.getMonth() + 1).padStart(2, '0');
     const ano = dataTransacao.getFullYear();

@@ -1158,6 +1158,32 @@
       "fk_instituicao": 27,
       "fk_categoria": 7,
       "id": 67
+    },
+    {
+      "descricao": "Pix para Keeta Delivery Brazil Ltda",
+      "valor": 48.46,
+      "tipo": "GASTO",
+      "data_transacao": "2026-03-26T00:00:00.000Z",
+      "parcelado": false,
+      "qtdParcelas": 1,
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 34,
+      "fk_categoria": 1,
+      "id": 68
+    },
+    {
+      "descricao": "Teste",
+      "valor": 100,
+      "tipo": "RECEITA",
+      "data_transacao": "2026-04-11T00:00:00.000Z",
+      "parcelado": false,
+      "qtdParcelas": 1,
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 31,
+      "fk_categoria": 10,
+      "id": 69
     }
   ],
   "meta_gasto": [
