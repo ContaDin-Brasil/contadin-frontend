@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { transacaoService, categoriaService, instituicaoService } from '../../../api';
+import { useAuth } from '../../../contexts/AuthContext';
 import { MOCK_TRANSACTIONS } from '../constants/constantesTransacao';
 import { CATEGORIES } from '../constants/constantesTransacao';
 import { parseTransacaoDate } from '../utils/utilitariosTransacao';
@@ -21,6 +22,7 @@ export interface Filtros {
  * Busca e gerencia transações da API com fallback para dados mockados
  */
 export const useGerenciarTransacoes = () => {
+  const { user } = useAuth();
   const [transacoes, setTransacoes] = useState<any[]>([]);
   const [categorias, setCategorias] = useState<any[]>([]);
   const [instituicoes, setInstituicoes] = useState<any[]>([]);
@@ -42,7 +44,7 @@ export const useGerenciarTransacoes = () => {
     dataFim: '',
   });
 
-  const usuarioId = 1;
+  const usuarioId = user?.id;
 
   const ordenarPorDataDesc = (items: any[]) => {
     return [...items].sort(
@@ -51,16 +53,20 @@ export const useGerenciarTransacoes = () => {
   };
 
   /**
-   * Carrega transações e dados relacionados ao montar
+   * Carrega transações e dados relacionados ao montar (ou quando o usuário mudar)
    */
   useEffect(() => {
-    carregarDados();
-  }, []);
+    if (usuarioId) {
+      carregarDados();
+    }
+  }, [usuarioId]);
 
   /**
    * Carrega todos os dados da API (com fallback para dados mockados)
    */
   const carregarDados = async () => {
+    if (!usuarioId) return;
+
     setLoading(true);
     setError(null);
     

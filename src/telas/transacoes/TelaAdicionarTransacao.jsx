@@ -11,6 +11,7 @@ import ModalAdicionarInstituicao from '../../componentes/modais/ModalAdicionarIn
 import ModalCategoria from '../categorias/modals/ModalCategoria';
 import { useFormularioTransacao } from './hooks/useFormularioTransacao';
 import { useProcessamentoIA } from './hooks/useProcessamentoIA';
+import { useAuth } from '../../contexts/AuthContext';
 import { transacaoService, categoriaService } from '../../api';
 import { FREQUENCIES, INSTALLMENT_OPTIONS } from './constants/constantesTransacao';
 import { getCategoryIcon } from './utils/utilitariosTransacao';
@@ -18,6 +19,7 @@ import COLORS from '../../styles/colors';
 import { styles } from './styles/TelaAdicionarTransacao.styles';
 
 const TelaAdicionarTransacao = ({ navigation }) => {
+  const { user } = useAuth();
   const [selectionModalVisible, setSelectionModalVisible] = useState(false);
   const [customModalVisible, setCustomModalVisible] = useState(false);
   const [salvando, setSalvando] = useState(false);
@@ -40,7 +42,7 @@ const TelaAdicionarTransacao = ({ navigation }) => {
     try {
       await categoriaService.criar({
         ...data,
-        fk_usuario: 1 // ID do usuário
+        fkUsuario: user?.id ?? null,
       });
       
       // Recarrega categorias
@@ -107,29 +109,29 @@ const TelaAdicionarTransacao = ({ navigation }) => {
         return;
       }
 
-      // Converte data DD/MM/YYYY para ISO
+      // Converte data DD/MM/YYYY para o formato esperado pelo backend: yyyy-MM-dd'T'HH:mm:ss
       const [day, month, year] = data.date.split('/');
-      const dataISO = new Date(`${year}-${month}-${day}`).toISOString();
+      const dataTransacao = `${year}-${month}-${day}T00:00:00`;
 
-      // Converte data fim de recorrência se houver
-      let fimRecorrenciaISO = null;
+      // Converte data fim de recorrência para yyyy-MM-dd (sem horário)
+      let fimRecorrencia = null;
       if (data.hasRecurrenceEndDate && data.recurrenceEndDate) {
         const [endDay, endMonth, endYear] = data.recurrenceEndDate.split('/');
-        fimRecorrenciaISO = new Date(`${endYear}-${endMonth}-${endDay}`).toISOString();
+        fimRecorrencia = `${endYear}-${endMonth}-${endDay}`;
       }
 
-      // Prepara dados para envio
+      // Prepara dados para envio (campos em camelCase conforme TransacaoRequest)
       const transacao = {
         descricao: data.descricao,
-        valor: parseFloat(data.valor),
+        valor: data.valor,
         tipo: data.tipo,
-        data_transacao: dataISO,
+        dataTransacao,
         parcelado: data.parcelado,
-        qtdParcelas: data.qtdParcelas,
-        recorrencia: data.isRecurring ? data.frequency : null,
-        fim_recorrencia: fimRecorrenciaISO,
-        fk_instituicao: data.selectedInstitution.id,
-        fk_categoria: data.selectedCategory,
+        recorrencia: data.frequency ?? null,
+        fimRecorrencia,
+        ativo: true,
+        fkInstituicao: String(data.selectedInstitution.id),
+        fkCategoria: String(data.selectedCategory),
       };
 
       console.log('\n' + '='.repeat(60));

@@ -7,10 +7,44 @@ import { limparValorMonetario } from '../utils/formatacaoMoeda';
  * Hook customizado para gerenciar a edição de uma transação existente
  * Reutiliza useFormularioTransacao mas inicializa com dados da transação
  */
-export const useEditarTransacao = (transacaoId: number | null) => {
+export const useEditarTransacao = (transacaoId: string | null) => {
   const formState = useFormularioTransacao();
   const [loadingTransacao, setLoadingTransacao] = useState(true);
   const [transacaoOriginal, setTransacaoOriginal] = useState<any>(null);
+  const [pendingFkInstituicao, setPendingFkInstituicao] = useState<string | null>(null);
+  const [pendingFkCategoria, setPendingFkCategoria] = useState<string | null>(null);
+
+  /**
+   * Aplica a instituição pendente assim que a lista de instituições estiver disponível
+   */
+  useEffect(() => {
+    if (!pendingFkInstituicao || formState.instituicoes.length === 0) return;
+
+    const instituicao = formState.instituicoes.find(
+      (inst: any) => String(inst.id) === pendingFkInstituicao
+    );
+
+    if (instituicao) {
+      console.log('🏦 Instituição aplicada:', instituicao.nome);
+      formState.handleSelectInstitution(instituicao);
+      formState.setInstitutionType(
+        instituicao.tipoInstituicao === 'VALE' ? 'vouchers' : 'banks'
+      );
+      setPendingFkInstituicao(null);
+    } else {
+      console.warn('⚠️ Instituição ainda não encontrada:', pendingFkInstituicao);
+    }
+  }, [pendingFkInstituicao, formState.instituicoes]);
+
+  /**
+   * Aplica a categoria pendente assim que a lista de categorias estiver disponível
+   */
+  useEffect(() => {
+    if (!pendingFkCategoria || formState.categorias.length === 0) return;
+
+    formState.setSelectedCategory(pendingFkCategoria);
+    setPendingFkCategoria(null);
+  }, [pendingFkCategoria, formState.categorias]);
 
   /**
    * Carrega os dados da transação para edição
@@ -67,33 +101,26 @@ export const useEditarTransacao = (transacaoId: number | null) => {
     const valorFormatado = valorNumerico.toFixed(2).replace('.', ',');
     formState.setValor(valorFormatado);
     
-    // Data - converte de ISO para DD/MM/YYYY
-    const dataTransacao = new Date(transacao.data_transacao);
-    const dia = String(dataTransacao.getDate()).padStart(2, '0');
-    const mes = String(dataTransacao.getMonth() + 1).padStart(2, '0');
-    const ano = dataTransacao.getFullYear();
-    const dataFormatada = `${dia}/${mes}/${ano}`;
-    formState.handleDateChange(dataFormatada);
-    
-    // Categoria
-    if (transacao.fk_categoria) {
-      formState.setSelectedCategory(transacao.fk_categoria);
+    // Data - backend retorna no formato "dd/MM/yyyy HH:mm:ss", extrai apenas a parte da data
+    const dataRaw = transacao.dataTransacao;
+    if (dataRaw) {
+      const datePart = dataRaw.includes(' ') ? dataRaw.split(' ')[0] : dataRaw.split('T')[0];
+      // Se já é dd/MM/yyyy, usa direto. Se é yyyy-MM-dd, inverte
+      const partes = datePart.split('/');
+      const dataFormatada = partes.length === 3 && partes[0].length === 2
+        ? datePart
+        : partes.reverse().join('/');
+      formState.handleDateChange(dataFormatada);
     }
-    
+
+    // Categoria — armazena o ID pendente para ser aplicado via useEffect quando as categorias carregarem
+    if (transacao.fkCategoria) {
+      setPendingFkCategoria(String(transacao.fkCategoria));
+    }
+
     // Parcelamento
     if (transacao.parcelado) {
       formState.setIsInstallment(true);
-      const qtdParcelas = transacao.qtdParcelas || 2;
-      
-      // Verifica se a quantidade de parcelas está nas opções padrão (2-12)
-      const opcoesParcelamento = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-      if (opcoesParcelamento.includes(qtdParcelas)) {
-        formState.setInstallmentCount(qtdParcelas);
-      } else {
-        // Se não está nas opções padrão, usa "Outro valor" (0)
-        formState.setInstallmentCount(0);
-        formState.setCustomInstallmentValue(qtdParcelas.toString());
-      }
     }
     
     // Recorrência
@@ -101,40 +128,22 @@ export const useEditarTransacao = (transacaoId: number | null) => {
       formState.setIsRecurring(true);
       formState.setFrequency(transacao.recorrencia);
       
-      // Data fim de recorrência
-      if (transacao.fim_recorrencia) {
+      // Data fim de recorrência - backend retorna "dd/MM/yyyy"
+      if (transacao.fimRecorrencia) {
         formState.setHasRecurrenceEndDate(true);
-        const fimRecorrencia = new Date(transacao.fim_recorrencia);
-        const diaFim = String(fimRecorrencia.getDate()).padStart(2, '0');
-        const mesFim = String(fimRecorrencia.getMonth() + 1).padStart(2, '0');
-        const anoFim = fimRecorrencia.getFullYear();
-        const dataFimFormatada = `${diaFim}/${mesFim}/${anoFim}`;
-        formState.handleRecurrenceEndDateChange(dataFimFormatada);
+        const fimRaw = transacao.fimRecorrencia;
+        const fimPart = fimRaw.includes(' ') ? fimRaw.split(' ')[0] : fimRaw;
+        const fimPartes = fimPart.split('/');
+        const fimFormatado = fimPartes.length === 3 && fimPartes[0].length === 2
+          ? fimPart
+          : fimPartes.reverse().join('/');
+        formState.handleRecurrenceEndDateChange(fimFormatado);
       }
     }
-    
-    // Instituição - aguarda carregar as instituições
-    if (transacao.fk_instituicao) {
-      // Aguarda um momento para garantir que as instituições foram carregadas
-      setTimeout(async () => {
-        const instituicao = formState.instituicoes.find(
-          (inst: any) => inst.id === transacao.fk_instituicao
-        );
-        
-        if (instituicao) {
-          console.log('🏦 Instituição encontrada:', instituicao.nome);
-          formState.handleSelectInstitution(instituicao);
-          
-          // Define o tipo de instituição correto
-          if (instituicao.tipoInstituicao === 'vale') {
-            formState.setInstitutionType('vouchers');
-          } else {
-            formState.setInstitutionType('banks');
-          }
-        } else {
-          console.warn('⚠️ Instituição não encontrada:', transacao.fk_instituicao);
-        }
-      }, 500);
+
+    // Instituição — armazena o ID pendente para ser aplicado via useEffect quando a lista carregar
+    if (transacao.fkInstituicao) {
+      setPendingFkInstituicao(String(transacao.fkInstituicao));
     }
     
     console.log('✅ Formulário preenchido com sucesso');
@@ -159,30 +168,29 @@ export const useEditarTransacao = (transacaoId: number | null) => {
       throw new Error('Selecione uma instituição');
     }
 
-    // Converte data DD/MM/YYYY para ISO
+    // Converte data DD/MM/YYYY para o formato esperado pelo backend: yyyy-MM-dd'T'HH:mm:ss
     const [day, month, year] = data.date.split('/');
-    const dataISO = new Date(`${year}-${month}-${day}`).toISOString();
+    const dataTransacao = `${year}-${month}-${day}T00:00:00`;
 
-    // Converte data fim de recorrência se houver
-    let fimRecorrenciaISO = null;
+    // Converte data fim de recorrência para yyyy-MM-dd (sem horário)
+    let fimRecorrencia = null;
     if (data.hasRecurrenceEndDate && data.recurrenceEndDate) {
       const [endDay, endMonth, endYear] = data.recurrenceEndDate.split('/');
-      fimRecorrenciaISO = new Date(`${endYear}-${endMonth}-${endDay}`).toISOString();
+      fimRecorrencia = `${endYear}-${endMonth}-${endDay}`;
     }
 
-    // Prepara dados para envio
+    // Prepara dados para envio (campos em camelCase conforme TransacaoRequest)
     const transacaoAtualizada = {
-      id: transacaoId,
       descricao: data.descricao,
-      valor: data.valor, // Valor já está como number do getFormData
+      valor: data.valor,
       tipo: data.tipo,
-      data_transacao: dataISO,
+      dataTransacao,
       parcelado: data.parcelado,
-      qtdParcelas: data.qtdParcelas,
-      recorrencia: data.isRecurring ? data.frequency : null,
-      fim_recorrencia: fimRecorrenciaISO,
-      fk_instituicao: data.selectedInstitution.id,
-      fk_categoria: data.selectedCategory,
+      recorrencia: data.frequency ?? null,
+      fimRecorrencia,
+      ativo: true,
+      fkInstituicao: String(data.selectedInstitution.id),
+      fkCategoria: String(data.selectedCategory),
     };
 
     console.log('\n' + '='.repeat(60));
@@ -192,7 +200,7 @@ export const useEditarTransacao = (transacaoId: number | null) => {
     console.log('📦 Payload:', JSON.stringify(transacaoAtualizada, null, 2));
     console.log('='.repeat(60) + '\n');
 
-    const resultado = await transacaoService.atualizar(transacaoId, transacaoAtualizada);
+    const resultado = await transacaoService.atualizar(String(transacaoId), transacaoAtualizada);
     
     console.log('\n' + '='.repeat(60));
     console.log('✅ [SUCCESS] Transação atualizada com sucesso!');
@@ -217,7 +225,7 @@ export const useEditarTransacao = (transacaoId: number | null) => {
     console.log('🆔 ID:', transacaoId);
     console.log('='.repeat(60) + '\n');
 
-    await transacaoService.deletar(transacaoId);
+    await transacaoService.deletar(String(transacaoId));
     
     console.log('✅ [SUCCESS] Transação deletada com sucesso!\n');
   };

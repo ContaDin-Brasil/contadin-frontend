@@ -7,6 +7,7 @@ import {
   AISuggestion 
 } from '../types/transacao.types';
 import { instituicaoService, categoriaService, transacaoService } from '../../../api';
+import { useAuth } from '../../../contexts/AuthContext';
 import { formatarValorMonetario, limparValorMonetario, converterParaNumero } from '../utils/formatacaoMoeda';
 
 /**
@@ -25,6 +26,7 @@ const getTodayDate = (): string => {
  * Alinhado com o schema do DB (tabela: transacao)
  */
 export const useFormularioTransacao = () => {
+  const { user } = useAuth();
   const [descricao, setDescricao] = useState('');
   const [valor, setValor] = useState('');
   const [date, setDate] = useState(getTodayDate());
@@ -50,7 +52,7 @@ export const useFormularioTransacao = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const usuarioId = 1;
+  const usuarioId = user?.id;
 
   /**
    * Debounce para busca de categorias (500ms)
@@ -64,16 +66,20 @@ export const useFormularioTransacao = () => {
   }, [categorySearch]);
 
   /**
-   * Carrega categorias e instituições ao montar
+   * Carrega categorias e instituições ao montar (ou quando o usuário mudar)
    */
   useEffect(() => {
-    carregarDados();
-  }, []);
+    if (usuarioId) {
+      carregarDados();
+    }
+  }, [usuarioId]);
 
   /**
    * Carrega dados da API
    */
   const carregarDados = async () => {
+    if (!usuarioId) return;
+
     setLoading(true);
     setError(null);
     
@@ -88,18 +94,19 @@ export const useFormularioTransacao = () => {
       setTransacoes(transacoesData || []);
       
       // Mapeia instituições para o formato esperado
+      // O campo do backend é 'type' com valores 'BANCO' ou 'VALE'
       const instituicoesFormatadas = instituicoesData.map((inst: any) => ({
         id: inst.id,
         nome: inst.nome,
         cor: inst.cor,
         icone: inst.icone,
-        tipoInstituicao: inst.tipoInstituicao
+        tipoInstituicao: inst.type ?? inst.tipoInstituicao
       }));
       
       setInstituicoes(instituicoesFormatadas);
       
       // Seleciona primeira instituição do tipo banco como padrão
-      const primeiroBanco = instituicoesFormatadas.find((inst: any) => inst.tipoInstituicao === 'banco');
+      const primeiroBanco = instituicoesFormatadas.find((inst: any) => inst.tipoInstituicao === 'BANCO');
       if (primeiroBanco) {
         setSelectedInstitution(primeiroBanco);
       }
@@ -196,9 +203,9 @@ export const useFormularioTransacao = () => {
   const getFilteredInstitutions = () => {
     return instituicoes.filter((inst: any) => {
       if (institutionType === 'banks') {
-        return inst.tipoInstituicao === 'banco';
+        return inst.tipoInstituicao === 'BANCO';
       } else {
-        return inst.tipoInstituicao === 'vale';
+        return inst.tipoInstituicao === 'VALE';
       }
     });
   };
@@ -216,7 +223,7 @@ export const useFormularioTransacao = () => {
   const handleAddCustomInstitution = (institution: Institution) => {
     const novaInstituicao = {
       ...institution,
-      tipoInstituicao: institutionType === 'banks' ? 'banco' : 'vale'
+      tipoInstituicao: institutionType === 'banks' ? 'BANCO' : 'VALE'
     };
     setInstituicoes([...instituicoes, novaInstituicao]);
     setSelectedInstitution(novaInstituicao);
@@ -489,7 +496,7 @@ export const useFormularioTransacao = () => {
     setInstallmentCount(2);
     setCustomInstallmentValue('');
     setInstitutionType('banks');
-    const primeiroBanco = instituicoes.find((inst: any) => inst.tipoInstituicao === 'banco');
+    const primeiroBanco = instituicoes.find((inst: any) => inst.tipoInstituicao === 'BANCO');
     if (primeiroBanco) {
       setSelectedInstitution(primeiroBanco);
     }
@@ -508,8 +515,9 @@ export const useFormularioTransacao = () => {
     const frequencia: { [key: number]: number } = {};
     
     transacoes.forEach((transacao: any) => {
-      if (transacao.fk_categoria) {
-        frequencia[transacao.fk_categoria] = (frequencia[transacao.fk_categoria] || 0) + 1;
+      const catId = transacao.fkCategoria ?? transacao.fk_categoria;
+      if (catId) {
+        frequencia[catId] = (frequencia[catId] || 0) + 1;
       }
     });
 

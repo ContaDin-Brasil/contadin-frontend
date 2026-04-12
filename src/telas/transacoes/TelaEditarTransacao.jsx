@@ -14,10 +14,12 @@ import { useEditarTransacao } from './hooks/useEditarTransacao';
 import { FREQUENCIES, INSTALLMENT_OPTIONS } from './constants/constantesTransacao';
 import { getCategoryIcon } from './utils/utilitariosTransacao';
 import { categoriaService } from '../../api';
+import { useAuth } from '../../contexts/AuthContext';
 import COLORS from '../../styles/colors';
 import { styles } from './styles/TelaAdicionarTransacao.styles';
 
 const TelaEditarTransacao = ({ navigation, route }) => {
+  const { user } = useAuth();
   const transacaoId = route.params?.transacaoId || null;
   
   const [selectionModalVisible, setSelectionModalVisible] = useState(false);
@@ -43,7 +45,7 @@ const TelaEditarTransacao = ({ navigation, route }) => {
     try {
       await categoriaService.criar({
         ...data,
-        fk_usuario: 1 // ID do usuário
+        fkUsuario: user?.id ?? null,
       });
       
       // Recarrega categorias
