@@ -13,17 +13,36 @@
       "backgroundColor": "#03408E"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "Precisamos de acesso à câmera para capturar fotos para OCR",
+        "NSPhotoLibraryUsageDescription": "Precisamos de acesso à galeria para selecionar imagens para OCR",
+        "NSPhotoLibraryAddOnlyUsageDescription": "Precisamos de permissão para salvar fotos"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#03408E"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Precisamos de acesso à galeria para selecionar imagens",
+          "cameraPermission": "Precisamos de acesso à câmera para capturar fotos"
+        }
+      ]
+    ]
   }
 }

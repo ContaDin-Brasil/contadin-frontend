@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useFormularioTransacao } from './useFormularioTransacao';
 import { transacaoService, instituicaoService } from '../../../api';
 import { limparValorMonetario } from '../utils/formatacaoMoeda';
+import { parseTransacaoDate } from '../utils/utilitariosTransacao';
 
 /**
  * Hook customizado para gerenciar a edição de uma transação existente
@@ -14,12 +15,23 @@ export const useEditarTransacao = (transacaoId: number | null) => {
 
   /**
    * Carrega os dados da transação para edição
+   * Aguarda formState estar pronto (loading === false)
    */
   useEffect(() => {
-    if (transacaoId) {
+    if (transacaoId && !formState.loading) {
+      console.log('✅ [READY] formState pronto, carregando transação...');
       carregarTransacao();
+    } else if (transacaoId && formState.loading) {
+      console.log('⏳ [WAITING] Aguardando formState ficar pronto...');
     }
-  }, [transacaoId]);
+  }, [transacaoId, formState.loading]);
+
+  /**
+   * Monitor no estado de loading do formState
+   */
+  useEffect(() => {
+    console.log('[MONITOR] formState.loading:', formState.loading, '| instituicoes:', formState.instituicoes.length);
+  }, [formState.loading, formState.instituicoes.length]);
 
   const carregarTransacao = async () => {
     if (!transacaoId) {
@@ -34,15 +46,19 @@ export const useEditarTransacao = (transacaoId: number | null) => {
       console.log('📖 [LOAD TRANSACTION] Carregando transação para edição');
       console.log('='.repeat(60));
       console.log('🆔 ID da transação:', transacaoId);
+      console.log('🔄 formState.loading:', formState.loading);
+      console.log('📦 formState.instituicoes.length:', formState.instituicoes.length);
       
       const transacao = await transacaoService.buscarPorId(transacaoId);
       
+      console.log('✅ Transação buscada na API');
       console.log('📦 Dados recebidos:', JSON.stringify(transacao, null, 2));
       console.log('='.repeat(60) + '\n');
       
       setTransacaoOriginal(transacao);
       
       // Preenche o formulário com os dados da transação
+      // As instituições já foram carregadas pelo useEffect de useFormularioTransacao
       await preencherFormulario(transacao);
       
     } catch (error) {
@@ -56,7 +72,22 @@ export const useEditarTransacao = (transacaoId: number | null) => {
    * Preenche o formulário com os dados da transação
    */
   const preencherFormulario = async (transacao: any) => {
-    console.log('✏️ [FILL FORM] Preenchendo formulário com dados da transação');
+    // ⏳ Aguarda até que as instituições estejam carregadas (formState.loading === false)
+    // Isso evita race condition quando carregarDados() ainda está em progresso
+    const maxWaitTime = 5000; // 5 segundos máximo
+    const startTime = Date.now();
+    
+    while (formState.loading) {
+      if (Date.now() - startTime > maxWaitTime) {
+        console.warn('⚠️ [FILL FORM] Timeout esperando carregamento de instituições (5s)');
+        break;
+      }
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    
+    console.log('✏️ [FILL FORM] Instituições carregadas! Preenchendo formulário...');
+    console.log('   formState.loading:', formState.loading);
+    console.log('   formState.instituicoes.length:', formState.instituicoes.length);
     
     // Descrição e tipo
     formState.setDescricao(transacao.descricao);
@@ -68,7 +99,7 @@ export const useEditarTransacao = (transacaoId: number | null) => {
     formState.setValor(valorFormatado);
     
     // Data - converte de ISO para DD/MM/YYYY
-    const dataTransacao = new Date(transacao.data_transacao);
+    const dataTransacao = parseTransacaoDate(transacao.data_transacao);
     const dia = String(dataTransacao.getDate()).padStart(2, '0');
     const mes = String(dataTransacao.getMonth() + 1).padStart(2, '0');
     const ano = dataTransacao.getFullYear();
@@ -113,28 +144,32 @@ export const useEditarTransacao = (transacaoId: number | null) => {
       }
     }
     
-    // Instituição - aguarda carregar as instituições
+    // Instituição - agora as instituições já estão carregadas no formState
     if (transacao.fk_instituicao) {
-      // Aguarda um momento para garantir que as instituições foram carregadas
-      setTimeout(async () => {
-        const instituicao = formState.instituicoes.find(
-          (inst: any) => inst.id === transacao.fk_instituicao
-        );
+      console.log('🏦 [INSTITUTION] Buscando instituição com ID:', transacao.fk_instituicao);
+      console.log('   Instituições disponíveis no formState:', formState.instituicoes.length);
+      console.log('   IDs:', formState.instituicoes.map((i: any) => i.id).join(', '));
+      
+      const instituicao = formState.instituicoes.find(
+        (inst: any) => inst.id === transacao.fk_instituicao
+      );
+      
+      if (instituicao) {
+        console.log('✅ [INSTITUTION] Instituição encontrada:', instituicao.nome);
+        formState.handleSelectInstitution(instituicao);
         
-        if (instituicao) {
-          console.log('🏦 Instituição encontrada:', instituicao.nome);
-          formState.handleSelectInstitution(instituicao);
-          
-          // Define o tipo de instituição correto
-          if (instituicao.tipoInstituicao === 'vale') {
-            formState.setInstitutionType('vouchers');
-          } else {
-            formState.setInstitutionType('banks');
-          }
+        // Define o tipo de instituição correto
+        if (instituicao.tipoInstituicao === 'vale') {
+          formState.setInstitutionType('vouchers');
         } else {
-          console.warn('⚠️ Instituição não encontrada:', transacao.fk_instituicao);
+          formState.setInstitutionType('banks');
         }
-      }, 500);
+      } else {
+        console.warn('⚠️ [INSTITUTION] Instituição não encontrada no array:', transacao.fk_instituicao);
+        console.warn('   Instituições disponíveis:', formState.instituicoes.map((i: any) => `${i.id}:${i.nome}`).join(', '));
+      }
+    } else {
+      console.log('ℹ️ [INSTITUTION] Transação não tem instituição associada');
     }
     
     console.log('✅ Formulário preenchido com sucesso');

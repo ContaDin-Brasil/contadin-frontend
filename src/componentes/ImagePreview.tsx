@@ -1,0 +1,65 @@
+/**
+ * Componente para exibir preview de imagem capturada
+ */
+
+import React from 'react';
+import { View, Image, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import COLORS from '../styles/colors';
+
+interface ImagePreviewProps {
+  imageUri: string;
+  onRemove?: () => void;
+  size?: number;
+}
+
+export const ImagePreview: React.FC<ImagePreviewProps> = ({
+  imageUri,
+  onRemove,
+  size = 150,
+}) => {
+  return (
+    <View style={styles.container}>
+      <View style={[styles.imageContainer, { width: size, height: size }]}>
+        <Image
+          source={{ uri: imageUri }}
+          style={styles.image}
+          resizeMode="cover"
+        />
+        {onRemove && (
+          <TouchableOpacity style={styles.removeButton} onPress={onRemove}>
+            <Ionicons name="close-circle" size={32} color={COLORS.primaryLight} />
+          </TouchableOpacity>
+        )}
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    alignItems: 'center',
+    marginVertical: 12,
+  },
+  imageContainer: {
+    borderRadius: 8,
+    overflow: 'hidden',
+    backgroundColor: '#f0f0f0',
+    position: 'relative',
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+  },
+  removeButton: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 16,
+    width: 32,
+    height: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
