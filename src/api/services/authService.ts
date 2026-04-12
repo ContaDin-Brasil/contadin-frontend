@@ -44,7 +44,7 @@ const authService = {
       nome: payload.nome,
       sobrenome: payload.sobrenome,
       email: payload.email,
-      ...(payload.telefone ? { telefone: payload.telefone } : {}),
+      ...(payload.telefone !== undefined ? { telefone: payload.telefone } : {}),
       senha: payload.senha,
       ...(typeof payload.ativo === 'boolean' ? { ativo: payload.ativo } : {}),
     });
