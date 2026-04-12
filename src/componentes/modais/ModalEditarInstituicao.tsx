@@ -9,10 +9,11 @@ import {
   ScrollView,
   Image,
   Pressable,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getLogoByName } from './logosInstituicoes';
-import { confirmarAcao } from '../../utils/confirmarAcao';
+import ModalConfirmDelete from './ModalConfirmDelete';
 
 interface ModalEditarInstituicaoProps {
   visible: boolean;
@@ -23,11 +24,11 @@ interface ModalEditarInstituicaoProps {
 }
 
 export interface InstituicaoEdit {
-  id: number;
+  id: string | number;
   nome: string;
   icone: string;
   cor: string;
-  tipoInstituicao: 'banco' | 'vale';
+  type: 'BANCO' | 'VALE';
 }
 
 const ModalEditarInstituicao: React.FC<ModalEditarInstituicaoProps> = ({
@@ -39,8 +40,10 @@ const ModalEditarInstituicao: React.FC<ModalEditarInstituicaoProps> = ({
 }) => {
   const [nome, setNome] = useState('');
   const [cor, setCor] = useState('#E31C23');
-  const [tipoInstituicao, setTipoInstituicao] = useState<'banco' | 'vale'>('banco');
+  const [type, setType] = useState<'BANCO' | 'VALE'>('BANCO');
   const [showColorWheel, setShowColorWheel] = useState(false);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [isDeletando, setIsDeletando] = useState(false);
 
   // Cores predefinidas organizadas em roda
   const coresPredefinidas = [
@@ -72,7 +75,7 @@ const ModalEditarInstituicao: React.FC<ModalEditarInstituicaoProps> = ({
     if (instituicao) {
       setNome(instituicao.nome);
       setCor(instituicao.cor);
-      setTipoInstituicao(instituicao.tipoInstituicao);
+      setType(instituicao.type);
     }
   }, [instituicao]);
 
@@ -82,20 +85,26 @@ const ModalEditarInstituicao: React.FC<ModalEditarInstituicaoProps> = ({
         ...instituicao,
         nome: nome.trim(),
         cor,
-        tipoInstituicao,
+        type,
       });
     }
   };
 
   const handleDeleteConfirm = () => {
-    const mensagem = `Tem certeza que deseja excluir "${instituicao?.nome}"?\n\n⚠️ Atenção: Todas as transações vinculadas a esta instituição serão permanentemente deletadas.`;
+    setDeleteModalVisible(true);
+  };
 
-    confirmarAcao({
-      titulo: 'Excluir Instituição',
-      mensagem,
-      textoConfirmar: 'Excluir',
-      onConfirmar: onDelete,
-    });
+  const handleConfirmDelete = async () => {
+    setIsDeletando(true);
+    try {
+      await onDelete();
+      setDeleteModalVisible(false);
+    } catch (error) {
+      console.error('Erro ao deletar instituição:', error);
+      Alert.alert('Erro', 'Não foi possível deletar a instituição');
+    } finally {
+      setIsDeletando(false);
+    }
   };
 
   const renderIcone = () => {
@@ -121,6 +130,7 @@ const ModalEditarInstituicao: React.FC<ModalEditarInstituicaoProps> = ({
   };
 
   return (
+    <>
     <Modal
       visible={visible}
       transparent={true}
@@ -177,35 +187,35 @@ const ModalEditarInstituicao: React.FC<ModalEditarInstituicaoProps> = ({
                 <TouchableOpacity
                   style={[
                     styles.tipoButton,
-                    tipoInstituicao === 'banco' && styles.tipoButtonActive
+                    type === 'BANCO' && styles.tipoButtonActive
                   ]}
-                  onPress={() => setTipoInstituicao('banco')}
+                  onPress={() => setType('BANCO')}
                 >
                   <Ionicons 
                     name="business" 
                     size={18} 
-                    color={tipoInstituicao === 'banco' ? '#FFF' : '#666'}
+                    color={type === 'BANCO' ? '#FFF' : '#666'}
                   />
                   <Text style={[
                     styles.tipoButtonText,
-                    tipoInstituicao === 'banco' && styles.tipoButtonTextActive
+                    type === 'BANCO' && styles.tipoButtonTextActive
                   ]}>Banco</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[
                     styles.tipoButton,
-                    tipoInstituicao === 'vale' && styles.tipoButtonActive
+                    type === 'VALE' && styles.tipoButtonActive
                   ]}
-                  onPress={() => setTipoInstituicao('vale')}
+                  onPress={() => setType('VALE')}
                 >
                   <Ionicons 
                     name="card" 
                     size={18} 
-                    color={tipoInstituicao === 'vale' ? '#FFF' : '#666'}
+                    color={type === 'VALE' ? '#FFF' : '#666'}
                   />
                   <Text style={[
                     styles.tipoButtonText,
-                    tipoInstituicao === 'vale' && styles.tipoButtonTextActive
+                    type === 'VALE' && styles.tipoButtonTextActive
                   ]}>Vale</Text>
                 </TouchableOpacity>
               </View>
@@ -289,7 +299,17 @@ const ModalEditarInstituicao: React.FC<ModalEditarInstituicaoProps> = ({
           </ScrollView>
         </Pressable>
       </Pressable>
+      <ModalConfirmDelete
+        visible={deleteModalVisible}
+        titulo="Excluir Instituição"
+        mensagem={`Tem certeza que deseja excluir "${instituicao?.nome}"?\n\n⚠️ Atenção: Todas as transações vinculadas a esta instituição serão permanentemente deletadas.`}
+        onConfirm={handleConfirmDelete}
+        onClose={() => setDeleteModalVisible(false)}
+        isLoading={isDeletando}
+      />
     </Modal>
+
+    </>
   );
 };
 

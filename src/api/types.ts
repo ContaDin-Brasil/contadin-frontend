@@ -11,6 +11,8 @@ import type {
 } from '../telas/dashboard/types/dashboard.types';
 import type { FrequencyType, TransactionType } from '../telas/transacoes/types/transacao.types';
 
+export type TipoInstituicao = 'BANCO' | 'VALE';
+
 export type CategoriaApi = Category;
 export type CategoriaPayload = CategoryFormData;
 
@@ -19,20 +21,32 @@ export interface CredenciaisLogin {
   senha: string;
 }
 
-export interface UsuarioApi {
-  id: number;
-  nome: string;
-  sobrenome: string;
+export interface CadastroPayload {
+  nome: string | null;
+  sobrenome: string | null;
   email: string;
-  tel: string;
+  telefone?: string | null;
+  senha: string;
+  ativo?: boolean;
+}
+
+export interface UsuarioApi {
+  id: string | number;
+  nome: string | null;
+  sobrenome: string | null;
+  email: string;
+  telefone?: string | null;
   ativo: boolean;
+  status?: string;
+  criadoEm?: string;
+  atualizadoEm?: string;
 }
 
 export interface UsuarioPayload {
-  nome: string;
-  sobrenome: string;
+  nome: string | null;
+  sobrenome: string | null;
   email: string;
-  tel: string;
+  telefone?: string | null;
   senha?: string;
   ativo?: boolean;
 }
@@ -40,7 +54,7 @@ export interface UsuarioPayload {
 export type UsuarioParcialPayload = Partial<UsuarioPayload>;
 
 export interface UsuarioAutenticado {
-  id: number;
+  id: string | number;
   nome: string;
   sobrenome: string;
   email: string;
@@ -57,26 +71,50 @@ export interface RecuperarSenhaPayload {
   email: string;
 }
 
+export interface ValidarPinPayload {
+  email: string;
+  pin: string;
+}
+
+export interface ReenviarPinPayload {
+  email: string;
+}
+
+export interface RedefinirSenhaPayload {
+  email: string;
+  pin: string;
+  novaSenha: string;
+  confirmacaoSenha: string;
+}
+
 export interface AlterarSenhaPayload {
-  token: string;
-  senha: string;
+  id: string | number;
+  senhaAtual: string;
+  novaSenha: string;
+  confirmacaoNovaSenha: string;
 }
 
 export interface InstituicaoApi {
-  id: number;
+  id: string | number;
   nome: string;
   icone: string;
   cor: string;
-  tipoInstituicao: 'banco' | 'vale';
-  fk_usuario?: number;
+  type: TipoInstituicao;
+  fk_usuario?: string | number;
+  ativo?: boolean;
+  criadoEm?: string;
+  atualizadoEm?: string;
+  fkUsuario?: string | number;
 }
 
 export interface InstituicaoPayload {
   nome: string;
   icone: string;
   cor: string;
-  tipoInstituicao: 'banco' | 'vale';
-  fk_usuario?: number;
+  type: TipoInstituicao;
+  fk_usuario?: string | number;
+  ativo?: boolean;
+  fkUsuario?: string | number;
 }
 
 export interface InstituicaoComTransacoes extends InstituicaoApi {
@@ -93,7 +131,7 @@ export interface TransacaoApi {
   qtdParcelas?: number | null;
   recorrencia?: FrequencyType | null;
   fim_recorrencia?: string | null;
-  fk_instituicao: number;
+  fk_instituicao: string | number;
   fk_categoria: number;
 }
 
@@ -106,7 +144,7 @@ export interface TransacaoPayload {
   qtdParcelas?: number | null;
   recorrencia?: FrequencyType | null;
   fim_recorrencia?: string | null;
-  fk_instituicao: number;
+  fk_instituicao: string | number;
   fk_categoria: number;
 }
 
@@ -130,7 +168,7 @@ export interface MetaGastoPayload {
 export interface TransacaoOrfa {
   id: number;
   descricao: string;
-  fk_instituicao: number;
+  fk_instituicao: string | number;
 }
 
 export interface ResultadoLimpezaOrfaos {

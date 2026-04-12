@@ -16,8 +16,12 @@ import { styles } from "./styles/TelaSelecaoBancos.styles";
 
 function TelaSelecaoBancos({ navigation, route }) {
   const { token, user } = route.params || {};
-  const userId =
+  const rawUserId =
     user && typeof user === "object" && "id" in user ? user.id : null;
+  const userId =
+    typeof rawUserId === "string" || typeof rawUserId === "number"
+      ? rawUserId
+      : null;
   const sel = useSelecaoBancos(userId);
 
   const onSelecionar = async () => {

@@ -1,6 +1,33 @@
 import api from '../config';
 import type { TransacaoApi, TransacaoPayload } from '../types';
 
+type EnvelopeArray<T> = {
+  data?: T[];
+  content?: T[];
+  items?: T[];
+};
+
+const toArray = <T>(payload: unknown): T[] => {
+  if (Array.isArray(payload)) {
+    return payload as T[];
+  }
+
+  if (payload && typeof payload === 'object') {
+    const source = payload as EnvelopeArray<T>;
+    if (Array.isArray(source.data)) {
+      return source.data;
+    }
+    if (Array.isArray(source.content)) {
+      return source.content;
+    }
+    if (Array.isArray(source.items)) {
+      return source.items;
+    }
+  }
+
+  return [];
+};
+
 /**
  * Serviço de Transações
  * Gerencia operações relacionadas a gastos e receitas
@@ -10,8 +37,8 @@ const transacaoService = {
    * Busca todas as transações
    */
   listar: async (): Promise<TransacaoApi[]> => {
-    const response = await api.get<TransacaoApi[]>('/transacao');
-    return response.data;
+    const response = await api.get<TransacaoApi[] | EnvelopeArray<TransacaoApi>>('/transacao');
+    return toArray<TransacaoApi>(response.data);
   },
 
   /**
@@ -23,8 +50,8 @@ const transacaoService = {
   listarPorUsuario: async (_usuarioId: number): Promise<TransacaoApi[]> => {
     // Por enquanto, retorna todas as transações
     // Em produção, isso seria filtrado pelo backend
-    const response = await api.get<TransacaoApi[]>('/transacao');
-    return response.data;
+    const response = await api.get<TransacaoApi[] | EnvelopeArray<TransacaoApi>>('/transacao');
+    return toArray<TransacaoApi>(response.data);
   },
 
   /**
@@ -41,10 +68,10 @@ const transacaoService = {
    * @param {number} instituicaoId - ID da instituição
    */
   listarPorInstituicao: async (instituicaoId: number): Promise<TransacaoApi[]> => {
-    const response = await api.get<TransacaoApi[]>('/transacao', {
+    const response = await api.get<TransacaoApi[] | EnvelopeArray<TransacaoApi>>('/transacao', {
       params: { fk_instituicao: instituicaoId } 
     });
-    return response.data;
+    return toArray<TransacaoApi>(response.data);
   },
 
   /**
@@ -52,10 +79,10 @@ const transacaoService = {
    * @param {number} categoriaId - ID da categoria
    */
   listarPorCategoria: async (categoriaId: number): Promise<TransacaoApi[]> => {
-    const response = await api.get<TransacaoApi[]>('/transacao', {
+    const response = await api.get<TransacaoApi[] | EnvelopeArray<TransacaoApi>>('/transacao', {
       params: { fk_categoria: categoriaId } 
     });
-    return response.data;
+    return toArray<TransacaoApi>(response.data);
   },
 
   /**
@@ -63,10 +90,10 @@ const transacaoService = {
    * @param {string} tipo - Tipo da transação ('GASTO' ou 'RECEITA')
    */
   listarPorTipo: async (tipo: TransacaoApi['tipo']): Promise<TransacaoApi[]> => {
-    const response = await api.get<TransacaoApi[]>('/transacao', {
+    const response = await api.get<TransacaoApi[] | EnvelopeArray<TransacaoApi>>('/transacao', {
       params: { tipo } 
     });
-    return response.data;
+    return toArray<TransacaoApi>(response.data);
   },
 
   /**
@@ -75,7 +102,7 @@ const transacaoService = {
    * @param {string} dataFim - Data final (formato ISO)
    */
   listarPorPeriodo: async (dataInicio: string, dataFim: string): Promise<TransacaoApi[]> => {
-    const response = await api.get<TransacaoApi[]>('/transacao', {
+    const response = await api.get<TransacaoApi[] | EnvelopeArray<TransacaoApi>>('/transacao', {
       params: { 
         data_transacao_gte: dataInicio,
         data_transacao_lte: dataFim,
@@ -83,17 +110,17 @@ const transacaoService = {
         _order: 'desc'
       } 
     });
-    return response.data;
+    return toArray<TransacaoApi>(response.data);
   },
 
   /**
    * Busca transações recorrentes
    */
   listarRecorrentes: async (): Promise<TransacaoApi[]> => {
-    const response = await api.get<TransacaoApi[]>('/transacao', {
+    const response = await api.get<TransacaoApi[] | EnvelopeArray<TransacaoApi>>('/transacao', {
       params: { recorrencia_ne: null } 
     });
-    return response.data;
+    return toArray<TransacaoApi>(response.data);
   },
 
   /**
@@ -146,7 +173,7 @@ const transacaoService = {
    * @param {number} limite - Quantidade por página
    */
   listarComPaginacao: async (pagina = 1, limite = 10): Promise<TransacaoApi[]> => {
-    const response = await api.get<TransacaoApi[]>('/transacao', {
+    const response = await api.get<TransacaoApi[] | EnvelopeArray<TransacaoApi>>('/transacao', {
       params: { 
         _page: pagina,
         _limit: limite,
@@ -154,7 +181,7 @@ const transacaoService = {
         _order: 'desc'
       } 
     });
-    return response.data;
+    return toArray<TransacaoApi>(response.data);
   },
 };
 

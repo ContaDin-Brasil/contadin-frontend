@@ -7,7 +7,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { authService } from "../../../../api";
 
-const COUNTDOWN_SEGUNDOS = 10;
+const COUNTDOWN_SEGUNDOS = 60;
 
 export interface UseValidarTokenResult {
   token: string;
@@ -19,7 +19,7 @@ export interface UseValidarTokenResult {
   countdown: number;
   podeReenviar: boolean;
   handleReenviar: () => Promise<void>;
-  handleValidar: () => boolean;
+  handleValidar: () => Promise<boolean>;
 }
 
 export function useValidarToken(email: string): UseValidarTokenResult {
@@ -80,22 +80,45 @@ export function useValidarToken(email: string): UseValidarTokenResult {
     setError(null);
     setLoading(true);
     try {
-      await authService.recuperarSenha({ email });
+      await authService.reenviarPin({ email });
       setCountdown(COUNTDOWN_SEGUNDOS);
-    } catch {
-      setError("Falha ao reenviar código. Tente novamente.");
+    } catch (err: unknown) {
+      const msg =
+        (err as { response?: { data?: { message?: string; mensagem?: string } } })
+          ?.response?.data?.message ||
+        (err as { response?: { data?: { message?: string; mensagem?: string } } })
+          ?.response?.data?.mensagem ||
+        (err as { message?: string })?.message ||
+        "Falha ao reenviar código. Tente novamente.";
+      setError(String(msg));
     } finally {
       setLoading(false);
     }
   };
 
-  const handleValidar = (): boolean => {
+  const handleValidar = async (): Promise<boolean> => {
     setError(null);
     if (token.length !== 6) {
       setError("PIN incorreto, tente novamente.");
       return false;
     }
-    return true;
+
+    setLoading(true);
+    try {
+      await authService.validarPin({ email, pin: token });
+      return true;
+    } catch (err: unknown) {
+      const msg =
+        (err as { response?: { data?: { message?: string; mensagem?: string } } })
+          ?.response?.data?.message ||
+        (err as { response?: { data?: { message?: string; mensagem?: string } } })
+          ?.response?.data?.mensagem ||
+        "PIN incorreto, tente novamente.";
+      setError(String(msg));
+      return false;
+    } finally {
+      setLoading(false);
+    }
   };
 
   return {

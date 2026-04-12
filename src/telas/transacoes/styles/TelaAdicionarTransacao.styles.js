@@ -1,11 +1,11 @@
 import { StyleSheet } from 'react-native';
-import COLORS from '../../../styles/colors';
+import { COLORS } from '../../../styles/colors';
 import { FOOTER_HEIGHT } from '../../../componentes/BotoesAcaoFixo';
 
 export const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFF',
+    backgroundColor: COLORS.white,
     paddingTop: 20,
   },
   screen: {
@@ -13,7 +13,7 @@ export const styles = StyleSheet.create({
   },
   scroll: {
     flex: 1,
-    backgroundColor: '#FFF',
+    backgroundColor: COLORS.white,
     marginBottom: FOOTER_HEIGHT,
   },
   contentContainer: {
@@ -21,7 +21,7 @@ export const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: '#FFF',
+    backgroundColor: COLORS.white,
   },
   section: {
     paddingHorizontal: 20,
@@ -29,24 +29,24 @@ export const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    color: '#333',
+    color: COLORS.textPrimary,
     marginBottom: 10,
     fontWeight: '500',
   },
   input: {
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: COLORS.border,
     borderRadius: 10,
     paddingHorizontal: 15,
     paddingVertical: 12,
     fontSize: 16,
-    color: '#333',
+    color: COLORS.textPrimary,
   },
   amountInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: COLORS.border,
     borderRadius: 10,
     paddingHorizontal: 15,
     paddingVertical: 12,
@@ -54,20 +54,20 @@ export const styles = StyleSheet.create({
   currencySymbol: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
+    color: COLORS.textPrimary,
     marginRight: 8,
   },
   amountInput: {
     flex: 1,
     fontSize: 18,
     fontWeight: '600',
-    color: '#333',
+    color: COLORS.textPrimary,
   },
   dateInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: COLORS.border,
     borderRadius: 10,
     paddingHorizontal: 15,
     paddingVertical: 12,
@@ -76,7 +76,7 @@ export const styles = StyleSheet.create({
   dateInput: {
     flex: 1,
     fontSize: 16,
-    color: '#333',
+    color: COLORS.textPrimary,
   },
   typeButtons: {
     flexDirection: 'row',
@@ -87,12 +87,12 @@ export const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: COLORS.border,
     alignItems: 'center',
-    backgroundColor: '#FFF',
+    backgroundColor: COLORS.white,
   },
   typeButtonIncome: {
-    backgroundColor: '#FFF',
+    backgroundColor: COLORS.white,
   },
   typeButtonActive: {
     backgroundColor: COLORS.primaryLight,
@@ -100,17 +100,17 @@ export const styles = StyleSheet.create({
   },
   typeButtonText: {
     fontSize: 16,
-    color: '#333',
+    color: COLORS.textPrimary,
     fontWeight: '500',
   },
   typeButtonTextActive: {
-    color: '#FFF',
+    color: COLORS.white,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: COLORS.border,
     borderRadius: 10,
     paddingHorizontal: 15,
     paddingVertical: 10,
@@ -120,7 +120,7 @@ export const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: '#333',
+    color: COLORS.textPrimary,
   },
   categoryButtons: {
     flexDirection: 'row',
@@ -134,8 +134,8 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 15,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
-    backgroundColor: '#FFF',
+    borderColor: COLORS.border,
+    backgroundColor: COLORS.white,
     gap: 8,
   },
   categoryButtonActive: {
@@ -144,7 +144,7 @@ export const styles = StyleSheet.create({
   },
   categoryButtonText: {
     fontSize: 14,
-    color: '#333',
+    color: COLORS.textPrimary,
     fontWeight: '500',
   },
   categoryButtonTextActive: {

@@ -19,13 +19,13 @@ export interface GastoCategoria {
 }
 
 export interface SaldoInstituicao {
-  id: number;
+  id: string | number;
   nome: string;
   icone: string;
   valor: number;
   porcentagem: number;
   cor: string;
-  tipo: 'banco' | 'vale';
+  tipo: 'BANCO' | 'VALE';
 }
 
 export interface DadosDashboard {

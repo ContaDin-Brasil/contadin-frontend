@@ -1,9 +1,10 @@
 import { StyleSheet } from "react-native";
+import { COLORS } from "../../../../styles/colors";
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: COLORS.background,
     paddingTop: 20,
   },
   contentContainer: {
@@ -15,7 +16,7 @@ export const styles = StyleSheet.create({
   },
   instrucao: {
     fontSize: 16,
-    color: "#333",
+    color: COLORS.textPrimary,
     marginBottom: 16,
     lineHeight: 22,
   },
@@ -24,16 +25,16 @@ export const styles = StyleSheet.create({
     fontWeight: "500",
     marginBottom: 8,
     marginTop: 16,
-    color: "#333",
+    color: COLORS.textPrimary,
   },
   input: {
-    backgroundColor: "#E0E0E0",
+    backgroundColor: COLORS.border,
     padding: 16,
     borderRadius: 8,
     fontSize: 16,
   },
   saveButton: {
-    backgroundColor: "#2D85F8",
+    backgroundColor: COLORS.tooltip,
     paddingVertical: 16,
     borderRadius: 12,
     flexDirection: "row",
@@ -43,13 +44,13 @@ export const styles = StyleSheet.create({
     marginTop: 24,
   },
   saveButtonText: {
-    color: "#FFF",
+    color: COLORS.white,
     fontSize: 18,
     fontWeight: "600",
   },
   mensagemErro: {
     marginTop: 12,
     fontSize: 14,
-    color: "#C62828",
+    color: COLORS.error,
   },
 });

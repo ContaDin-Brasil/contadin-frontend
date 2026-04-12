@@ -1,9 +1,10 @@
 import { StyleSheet } from "react-native";
+import { COLORS } from "../../../../styles/colors";
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: COLORS.background,
     paddingTop: 20,
     paddingHorizontal: 24,
     justifyContent: "center",
@@ -12,25 +13,25 @@ export const styles = StyleSheet.create({
   titulo: {
     fontSize: 28,
     fontWeight: "bold",
-    color: "#000",
+    color: COLORS.black,
     textAlign: "center",
     marginBottom: 12,
   },
   subtitulo: {
     fontSize: 18,
-    color: "#666",
+    color: COLORS.textSecondary,
     textAlign: "center",
     marginBottom: 48,
   },
   pergunta: {
     fontSize: 20,
     fontWeight: "600",
-    color: "#333",
+    color: COLORS.textPrimary,
     textAlign: "center",
     marginBottom: 32,
   },
   botao: {
-    backgroundColor: "#2D85F8",
+    backgroundColor: COLORS.tooltip,
     paddingVertical: 16,
     paddingHorizontal: 32,
     borderRadius: 12,
@@ -39,7 +40,7 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
   },
   botaoText: {
-    color: "#FFF",
+    color: COLORS.white,
     fontSize: 18,
     fontWeight: "600",
   },

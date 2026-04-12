@@ -1,10 +1,11 @@
 import { StyleSheet } from 'react-native';
+import { COLORS } from '../../../styles/colors';
 import { FOOTER_HEIGHT } from '../../../componentes/BotoesAcaoFixo';
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: COLORS.background,
     paddingTop: 20,
   },
   screen: {
@@ -26,7 +27,7 @@ export const styles = StyleSheet.create({
     fontWeight: '500',
     marginBottom: 8,
     marginTop: 16,
-    color: '#333',
+    color: COLORS.textPrimary,
   },
   labelRow: {
     flexDirection: 'row',
@@ -38,11 +39,11 @@ export const styles = StyleSheet.create({
   labelInline: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#333',
+    color: COLORS.textPrimary,
   },
   tooltip: {
-    backgroundColor: '#EAF3FF',
-    borderColor: '#2D85F8',
+    backgroundColor: COLORS.tooltipBg,
+    borderColor: COLORS.tooltip,
     borderWidth: 1,
     borderRadius: 10,
     padding: 10,
@@ -55,26 +56,26 @@ export const styles = StyleSheet.create({
     right: 12,
     width: 12,
     height: 12,
-    backgroundColor: '#EAF3FF',
+    backgroundColor: COLORS.tooltipBg,
     borderLeftWidth: 1,
     borderTopWidth: 1,
-    borderColor: '#2D85F8',
+    borderColor: COLORS.tooltip,
     transform: [{ rotate: '45deg' }],
   },
   tooltipTitulo: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#2D85F8',
+    color: COLORS.tooltip,
     marginBottom: 6,
   },
   tooltipTexto: {
     fontSize: 12,
     lineHeight: 17,
-    color: '#355070',
+    color: COLORS.tooltipText,
     marginBottom: 2,
   },
   input: {
-    backgroundColor: '#E0E0E0',
+    backgroundColor: COLORS.border,
     padding: 16,
     borderRadius: 8,
     fontSize: 16,

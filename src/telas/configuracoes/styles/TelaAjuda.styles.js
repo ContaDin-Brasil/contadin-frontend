@@ -4,7 +4,7 @@ import { COLORS } from '../../../styles/colors';
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: COLORS.background,
     paddingTop: 20,
   },
   body: {
@@ -16,7 +16,7 @@ export const styles = StyleSheet.create({
   },
   tabsContainer: {
     flexDirection: 'row',
-    backgroundColor: '#FFF',
+    backgroundColor: COLORS.white,
     borderRadius: 12,
     padding: 4,
     marginBottom: 20,
@@ -28,22 +28,22 @@ export const styles = StyleSheet.create({
     borderRadius: 10,
   },
   activeTab: {
-    backgroundColor: '#B8DBFF',
+    backgroundColor: COLORS.primaryLighter,
   },
   tabText: {
     fontSize: 16,
-    color: '#666',
+    color: COLORS.textSecondary,
     fontWeight: '500',
   },
   activeTabText: {
-    color: '#000',
+    color: COLORS.black,
     fontWeight: '600',
   },
   content: {
     marginTop: 20,
   },
   contactItem: {
-    backgroundColor: '#FFF',
+    backgroundColor: COLORS.white,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -61,7 +61,7 @@ export const styles = StyleSheet.create({
     fontWeight: '600',
   },
   expandedContent: {
-    backgroundColor: '#FFF',
+    backgroundColor: COLORS.white,
     padding: 20,
     borderRadius: 12,
     marginTop: -8,
@@ -69,7 +69,7 @@ export const styles = StyleSheet.create({
   },
   contactInfo: {
     fontSize: 16,
-    color: '#333',
+    color: COLORS.textPrimary,
   },
   linkButton: {
     marginTop: 12,
@@ -80,7 +80,7 @@ export const styles = StyleSheet.create({
   linkButtonText: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#1A73E8',
+    color: COLORS.tooltip,
   },
   contactSection: {
     marginTop: 20,
@@ -88,7 +88,7 @@ export const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
+    color: COLORS.textPrimary,
     marginBottom: 10,
   },
   channelItem: {

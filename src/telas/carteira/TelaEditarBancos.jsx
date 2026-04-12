@@ -1,18 +1,21 @@
-import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Image, SafeAreaView } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Image, SafeAreaView, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import TituloPagina from '../../componentes/TituloPagina';
 import InstitutionSelectionModal from '../../componentes/modais/ModalSelecaoInstituicao';
 import AddCustomInstitutionModal from '../../componentes/modais/ModalAdicionarInstituicao';
 import ModalEditarInstituicao from '../../componentes/modais/ModalEditarInstituicao';
+import ModalConfirmDelete from '../../componentes/modais/ModalConfirmDelete';
 import { useEditarBancos } from './hooks/useEditarInstituicoes';
 import { getLogoByName } from '../../componentes/modais/logosInstituicoes';
-import { confirmarAcao } from '../../utils/confirmarAcao';
 import { styles } from './styles/TelaEditarBancos.styles';
 
 const EditBanksScreen = ({ navigation }) => {
   const editor = useEditarBancos();
+  const [deleteModalVisible, setDeleteModalVisible] = React.useState(false);
+  const [bankDeletando, setBankDeletando] = React.useState(null);
+  const [isDeletando, setIsDeletando] = React.useState(false);
 
   // Recarrega bancos quando a tela recebe foco
   useFocusEffect(
@@ -22,14 +25,24 @@ const EditBanksScreen = ({ navigation }) => {
   );
 
   const handleDeleteConfirm = (bank) => {
-    const mensagem = `Tem certeza que deseja excluir "${bank.nome}"?\n\n⚠️ Atenção: Todas as transações vinculadas a esta instituição serão permanentemente deletadas.`;
+    setBankDeletando(bank);
+    setDeleteModalVisible(true);
+  };
 
-    confirmarAcao({
-      titulo: 'Excluir Instituição',
-      mensagem,
-      textoConfirmar: 'Excluir',
-      onConfirmar: () => editor.handleDelete(bank.id),
-    });
+  const handleConfirmDelete = async () => {
+    if (!bankDeletando) return;
+
+    setIsDeletando(true);
+    try {
+      await editor.handleDelete(bankDeletando.id);
+      setDeleteModalVisible(false);
+      setBankDeletando(null);
+    } catch (error) {
+      console.error('Erro ao deletar banco:', error);
+      Alert.alert('Erro', 'Não foi possível deletar o banco');
+    } finally {
+      setIsDeletando(false);
+    }
   };
 
   const renderIcon = (text, color, institutionName) => {
@@ -162,8 +175,21 @@ const EditBanksScreen = ({ navigation }) => {
           nome: editor.selectedBank.nome,
           icone: editor.selectedBank.icone,
           cor: editor.selectedBank.cor,
-          tipoInstituicao: 'banco',
+          type: 'BANCO',
         } : null}
+      />
+
+      {/* Modal de Confirmar Deleção */}
+      <ModalConfirmDelete
+        visible={deleteModalVisible}
+        titulo="Excluir Banco"
+        mensagem={`Tem certeza que deseja excluir "${bankDeletando?.nome}"?\n\n⚠️ Atenção: Todas as transações vinculadas a este banco serão permanentemente deletadas.`}
+        onConfirm={handleConfirmDelete}
+        onClose={() => {
+          setDeleteModalVisible(false);
+          setBankDeletando(null);
+        }}
+        isLoading={isDeletando}
       />
       </ScrollView>
     </SafeAreaView>

@@ -1,103 +1,141 @@
+import api from '../config';
 import type {
   AlterarSenhaPayload,
+  CadastroPayload,
   CredenciaisLogin,
+  RedefinirSenhaPayload,
+  ReenviarPinPayload,
   RecuperarSenhaPayload,
   RespostaLogin,
   UsuarioApi,
+  ValidarPinPayload,
 } from '../types';
 
-type ErroComResposta = Error & {
-  response: {
-    data: { message: string };
-    status?: number;
-  };
+type ApiEnvelope<T> = {
+  data?: T;
 };
 
-interface UsuarioMock extends UsuarioApi {
-  senha: string;
-}
-
-const criarErroAuth = (message: string, status?: number): ErroComResposta => {
-  const error = new Error(message) as ErroComResposta;
-  error.response = {
-    data: { message },
-    ...(status ? { status } : {}),
-  };
-  return error;
+type ApiMensagem = {
+  mensagem?: string;
+  message?: string;
 };
 
-const MOCK_USUARIOS: UsuarioMock[] = [
-  {
-    id: 1,
-    nome: 'Sysadmin',
-    sobrenome: 'Silva',
-    email: process.env.EXPO_PUBLIC_SYSADMIN_EMAIL || 'sysadmin@silva.com',
-    senha: process.env.EXPO_PUBLIC_SYSADMIN_PASSWORD || 'FarmAura67@',
-    tel: '11987654321',
-    ativo: true,
-  },
-];
+const extrairData = <T>(payload: T | ApiEnvelope<T>): T => {
+  const maybeEnvelope = payload as ApiEnvelope<T>;
+  return maybeEnvelope?.data !== undefined ? maybeEnvelope.data : (payload as T);
+};
 
-const MOCK_TOKEN_RECUPERACAO_VALIDO = 'abc123def456';
+type LoginBackendResponse = {
+  accessToken?: string;
+  id?: string | number;
+  nome?: string;
+  sobrenome?: string;
+  email?: string;
+  ativo?: boolean;
+};
+
+const extrairTokenLogin = (payload: LoginBackendResponse): string | null => {
+  return payload.accessToken ?? null;
+};
 
 const authService = {
+  cadastrar: async (payload: CadastroPayload): Promise<UsuarioApi> => {
+    const response = await api.post<UsuarioApi | ApiEnvelope<UsuarioApi>>('/auth/cadastro', {
+      nome: payload.nome,
+      sobrenome: payload.sobrenome,
+      email: payload.email,
+      ...(payload.telefone !== undefined ? { telefone: payload.telefone } : {}),
+      senha: payload.senha,
+      ...(typeof payload.ativo === 'boolean' ? { ativo: payload.ativo } : {}),
+    });
+
+    return extrairData(response.data);
+  },
+
   login: async ({ email, senha }: CredenciaisLogin): Promise<RespostaLogin> => {
-    if (email === undefined || email === null || senha === undefined) {
-      throw criarErroAuth('email e senha são obrigatórios');
+    const response = await api.post<LoginBackendResponse | ApiEnvelope<LoginBackendResponse>>('/auth/login', {
+      email: String(email).trim(),
+      senha: String(senha).trim(),
+    });
+
+    const loginData = extrairData(response.data);
+    const token = extrairTokenLogin(loginData);
+    if (!token) {
+      throw new Error('Resposta inválida do servidor: token ausente.');
     }
 
-    const emailTrim = String(email).trim();
-    const senhaTrim = String(senha).trim();
-
-    if (!emailTrim || senhaTrim === '') {
-      throw criarErroAuth('Credenciais inválidas');
+    if (!loginData.id) {
+      throw new Error('Resposta inválida do servidor: id do usuário ausente.');
     }
 
-    const usuario = MOCK_USUARIOS.find((item) => item.email === emailTrim);
-
-    if (!usuario || usuario.senha !== senhaTrim) {
-      throw criarErroAuth('Credenciais inválidas');
-    }
-
-    const token = `mock-token-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const normalizedUser = {
+      id: loginData.id,
+      nome: loginData.nome ?? '',
+      sobrenome: loginData.sobrenome ?? '',
+      email: loginData.email ?? String(email).trim(),
+    };
 
     return {
       data: {
         token,
-        user: {
-          id: usuario.id,
-          nome: usuario.nome,
-          sobrenome: usuario.sobrenome,
-          email: usuario.email,
-        },
+        user: normalizedUser,
       },
     };
   },
 
   logout: async (): Promise<void> => {
-    return undefined;
+    await api.post('/auth/logout');
   },
 
-  recuperarSenha: async ({ email }: RecuperarSenhaPayload): Promise<void> => {
-    if (email === undefined || email === null || String(email).trim() === '') {
-      throw criarErroAuth('email é obrigatório');
-    }
+  recuperarSenha: async ({ email }: RecuperarSenhaPayload): Promise<ApiMensagem> => {
+    const response = await api.post<ApiMensagem>('/auth/esqueceu-senha', {
+      email: String(email).trim(),
+    });
+    return response.data ?? {};
   },
 
-  alterarSenha: async ({ token, senha }: AlterarSenhaPayload): Promise<void> => {
-    if (token === undefined || token === null || String(token).trim() === '') {
-      throw criarErroAuth('token e senha são obrigatórios');
-    }
+  validarPin: async ({ email, pin }: ValidarPinPayload): Promise<ApiMensagem> => {
+    const response = await api.post<ApiMensagem>('/auth/validar-pin', {
+      email: String(email).trim(),
+      pin: String(pin).trim(),
+    });
+    return response.data ?? {};
+  },
 
-    if (senha === undefined || senha === null) {
-      throw criarErroAuth('token e senha são obrigatórios');
-    }
+  reenviarPin: async ({ email }: ReenviarPinPayload): Promise<ApiMensagem> => {
+    const response = await api.post<ApiMensagem>('/auth/reenviar-pin', {
+      email: String(email).trim(),
+    });
+    return response.data ?? {};
+  },
 
-    const tokenTrim = String(token).trim();
+  redefinirSenha: async ({
+    email,
+    pin,
+    novaSenha,
+    confirmacaoSenha,
+  }: RedefinirSenhaPayload): Promise<ApiMensagem> => {
+    const response = await api.post<ApiMensagem>('/auth/redefinir-senha', {
+      email: String(email).trim(),
+      pin: String(pin).trim(),
+      novaSenha,
+      confirmacaoSenha,
+    });
+    return response.data ?? {};
+  },
 
-    if (tokenTrim !== MOCK_TOKEN_RECUPERACAO_VALIDO) {
-      throw criarErroAuth('Token inválido ou expirado. Solicite um novo código.', 401);
-    }
+  alterarSenha: async ({
+    id,
+    senhaAtual,
+    novaSenha,
+    confirmacaoNovaSenha,
+  }: AlterarSenhaPayload): Promise<void> => {
+    await api.patch('/auth/senha', {
+      id,
+      senhaAtual,
+      novaSenha,
+      confirmacaoNovaSenha,
+    });
   },
 };
 

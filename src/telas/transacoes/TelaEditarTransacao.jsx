@@ -8,12 +8,12 @@ import { DatePickerInput } from '../../componentes/DatePickerInput';
 import { getLogoByName } from '../../componentes/modais/logosInstituicoes';
 import ModalSelecaoInstituicao from '../../componentes/modais/ModalSelecaoInstituicao';
 import ModalAdicionarInstituicao from '../../componentes/modais/ModalAdicionarInstituicao';
+import ModalConfirmDelete from '../../componentes/modais/ModalConfirmDelete';
 import ModalCategoria from '../categorias/modals/ModalCategoria';
 import { useEditarTransacao } from './hooks/useEditarTransacao';
 import { FREQUENCIES, INSTALLMENT_OPTIONS } from './constants/constantesTransacao';
 import { getCategoryIcon } from './utils/utilitariosTransacao';
 import { categoriaService } from '../../api';
-import { confirmarAcao } from '../../utils/confirmarAcao';
 import COLORS from '../../styles/colors';
 import { styles } from './styles/TelaAdicionarTransacao.styles';
 
@@ -23,7 +23,8 @@ const TelaEditarTransacao = ({ navigation, route }) => {
   const [selectionModalVisible, setSelectionModalVisible] = useState(false);
   const [customModalVisible, setCustomModalVisible] = useState(false);
   const [salvando, setSalvando] = useState(false);
-  const [deletando, setDeletando] = useState(false);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [isDeletando, setIsDeletando] = useState(false);
 
   // Hook customizado para edição
   const editState = useEditarTransacao(transacaoId);
@@ -91,28 +92,28 @@ const TelaEditarTransacao = ({ navigation, route }) => {
   };
 
   const handleDeleteTransaction = () => {
-    const confirmarExclusao = async () => {
-      setDeletando(true);
-      try {
-        await editState.deletarTransacao();
-        Alert.alert('Sucesso', 'Transação excluída com sucesso!', [
-          { text: 'OK', onPress: () => navigation.goBack() }
-        ]);
-      } catch (error) {
-        console.error('Erro ao deletar transação:', error);
-        Alert.alert('Erro', 'Não foi possível excluir a transação');
-        setDeletando(false);
-      }
-    };
+    setDeleteModalVisible(true);
+  };
 
-    const mensagem = 'Tem certeza que deseja excluir esta transação? Esta ação não pode ser desfeita.';
-
-    confirmarAcao({
-      titulo: 'Confirmar exclusão',
-      mensagem,
-      textoConfirmar: 'Excluir',
-      onConfirmar: confirmarExclusao,
-    });
+  const handleConfirmDeleteTransaction = async () => {
+    setIsDeletando(true);
+    try {
+      await editState.deletarTransacao();
+      setDeleteModalVisible(false);
+      setIsDeletando(false);
+      Alert.alert('Sucesso', 'Transação excluída com sucesso!', [
+        { text: 'OK', onPress: () => navigation.goBack() }
+      ]);
+      // Fallback para web onde Alert pode não funcionar
+      setTimeout(() => {
+        navigation.goBack();
+      }, 100);
+    } catch (error) {
+      console.error('Erro ao deletar transação:', error);
+      setDeleteModalVisible(false);
+      setIsDeletando(false);
+      Alert.alert('Erro', error.message || 'Não foi possível excluir a transação');
+    }
   };
 
   // Mostra loading enquanto carrega a transação
@@ -527,13 +528,13 @@ const TelaEditarTransacao = ({ navigation, route }) => {
           primaryLabel="Salvar Alterações"
           primaryLoadingLabel="Salvando..."
           onPrimaryPress={handleUpdateTransaction}
-          primaryDisabled={salvando || deletando}
+          primaryDisabled={salvando || isDeletando}
           primaryLoading={salvando}
           secondaryLabel="Excluir Transação"
           secondaryLoadingLabel="Excluindo..."
           onSecondaryPress={handleDeleteTransaction}
-          secondaryDisabled={salvando || deletando}
-          secondaryLoading={deletando}
+          secondaryDisabled={salvando || isDeletando}
+          secondaryLoading={isDeletando}
           secondaryVariant="danger"
         />
       </View>
@@ -561,6 +562,15 @@ const TelaEditarTransacao = ({ navigation, route }) => {
         onClose={() => editState.setModalCategoriaVisible(false)}
         onSave={handleCreateCategoria}
         tipoInicial={editState.tipo}
+      />
+
+      <ModalConfirmDelete
+        visible={deleteModalVisible}
+        titulo="Confirmar exclusão"
+        mensagem="Tem certeza que deseja excluir esta transação? Esta ação não pode ser desfeita."
+        onConfirm={handleConfirmDeleteTransaction}
+        onClose={() => setDeleteModalVisible(false)}
+        isLoading={isDeletando}
       />
     </SafeAreaView>
   );

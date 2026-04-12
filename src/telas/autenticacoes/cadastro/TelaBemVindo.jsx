@@ -3,9 +3,10 @@ import { View, Text, TouchableOpacity, SafeAreaView } from "react-native";
 import { styles } from "./styles/TelaBemVindo.styles";
 
 function TelaBemVindo({ navigation, route }) {
-  const { token, user } = route.params || {};
+  const cadastro = route.params?.cadastro;
+
   const onAdicionarInformacoes = () => {
-    navigation.navigate("InformacoesPessoais", { token, user });
+    navigation.navigate("InformacoesPessoais", { cadastro });
   };
 
   return (

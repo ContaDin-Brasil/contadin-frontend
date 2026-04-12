@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Modal, ScrollView, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { COLORS } from '../../styles/colors';
 
 const AddCustomInstitutionModal = ({ visible, onClose, onAdd, tipoInicial = 'banco' }) => {
   const [name, setName] = useState('');
@@ -30,7 +31,7 @@ const AddCustomInstitutionModal = ({ visible, onClose, onAdd, tipoInicial = 'ban
       const newInstitution = {
         id: Date.now(),
         nome: name.trim(),
-        tipoInstituicao: type === 'Banco' ? 'banco' : 'vale',
+        type: type === 'Banco' ? 'BANCO' : 'VALE',
         cor: selectedColor,
         icone: name.charAt(0).toUpperCase(),
         balance: 'R$ 0,00',
@@ -91,7 +92,7 @@ const AddCustomInstitutionModal = ({ visible, onClose, onAdd, tipoInicial = 'ban
                   <Ionicons 
                     name="business" 
                     size={18} 
-                    color={type === 'Banco' ? '#FFF' : '#666'}
+                    color={type === 'Banco' ? COLORS.white : COLORS.textSecondary}
                   />
                   <Text style={[
                     styles.typeButtonText,
@@ -108,7 +109,7 @@ const AddCustomInstitutionModal = ({ visible, onClose, onAdd, tipoInicial = 'ban
                   <Ionicons 
                     name="card" 
                     size={18} 
-                    color={type === 'Vale' ? '#FFF' : '#666'}
+                    color={type === 'Vale' ? COLORS.white : COLORS.textSecondary}
                   />
                   <Text style={[
                     styles.typeButtonText,
@@ -140,7 +141,7 @@ const AddCustomInstitutionModal = ({ visible, onClose, onAdd, tipoInicial = 'ban
                   <Ionicons 
                     name={showColorWheel ? 'chevron-up' : 'chevron-down'} 
                     size={20} 
-                    color="#666" 
+                    color={COLORS.textSecondary}
                   />
                 </View>
               </TouchableOpacity>
@@ -164,7 +165,7 @@ const AddCustomInstitutionModal = ({ visible, onClose, onAdd, tipoInicial = 'ban
                       >
                         {selectedColor === color && (
                           <View style={styles.checkContainer}>
-                            <Ionicons name="checkmark" size={20} color="#FFF" />
+                            <Ionicons name="checkmark" size={20} color={COLORS.white} />
                           </View>
                         )}
                       </TouchableOpacity>
@@ -204,7 +205,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContainer: {
-    backgroundColor: '#FFF',
+    backgroundColor: COLORS.white,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     maxHeight: '90%',
@@ -213,7 +214,7 @@ const styles = StyleSheet.create({
   handle: {
     width: 40,
     height: 5,
-    backgroundColor: '#DDD',
+    backgroundColor: COLORS.borderLight,
     borderRadius: 3,
     alignSelf: 'center',
     marginTop: 12,
@@ -228,7 +229,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#000',
+    color: COLORS.black,
     marginBottom: 24,
     textAlign: 'center',
   },
@@ -238,18 +239,18 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#000',
+    color: COLORS.black,
     marginBottom: 12,
   },
   input: {
-    backgroundColor: '#F5F5F5',
+    backgroundColor: COLORS.background,
     borderRadius: 10,
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 16,
-    color: '#000',
+    color: COLORS.black,
     borderWidth: 1,
-    borderColor: '#E8E8E8',
+    borderColor: COLORS.backgroundDark,
   },
   typeButtonContainer: {
     flexDirection: 'row',
@@ -260,37 +261,37 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#F0F0F0',
+    backgroundColor: COLORS.backgroundDark,
     paddingVertical: 14,
     borderRadius: 10,
     gap: 8,
     borderWidth: 2,
-    borderColor: '#F0F0F0',
+    borderColor: COLORS.backgroundDark,
   },
   typeButtonActive: {
-    backgroundColor: '#4A9EFF',
-    borderColor: '#4A9EFF',
+    backgroundColor: COLORS.secondaryLight,
+    borderColor: COLORS.secondaryLight,
   },
   typeButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#666',
+    color: COLORS.textSecondary,
   },
   typeButtonTextActive: {
-    color: '#FFF',
+    color: COLORS.white,
   },
   seletorCorExecutivo: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.white,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: COLORS.border,
     paddingVertical: 16,
     paddingHorizontal: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 16,
-    shadowColor: '#000',
+    shadowColor: COLORS.black,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 3,
@@ -307,8 +308,8 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 24,
     borderWidth: 3,
-    borderColor: '#F5F5F5',
-    shadowColor: '#000',
+    borderColor: COLORS.background,
+    shadowColor: COLORS.black,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 4,
@@ -319,14 +320,14 @@ const styles = StyleSheet.create({
   },
   corNomeLabel: {
     fontSize: 13,
-    color: '#888',
+    color: COLORS.textSecondary,
     fontWeight: '500',
     marginBottom: 2,
   },
   corHexCode: {
     fontSize: 17,
     fontWeight: '700',
-    color: '#000',
+    color: COLORS.black,
     letterSpacing: 0.5,
   },
   alterarCorContainer: {
@@ -337,14 +338,14 @@ const styles = StyleSheet.create({
   alterarCorTexto: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#666',
+    color: COLORS.textSecondary,
   },
   rodaDeCores: {
-    backgroundColor: '#FAFAFA',
+    backgroundColor: COLORS.backgroundLight,
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#E8E8E8',
+    borderColor: COLORS.backgroundDark,
   },
   gridCores: {
     flexDirection: 'row',
@@ -363,8 +364,8 @@ const styles = StyleSheet.create({
   },
   colorOptionSelected: {
     borderWidth: 3,
-    borderColor: '#FFF',
-    shadowColor: '#000',
+    borderColor: COLORS.white,
+    shadowColor: COLORS.black,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.4,
     shadowRadius: 4,
@@ -386,35 +387,35 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     flex: 1,
-    backgroundColor: '#E8E8E8',
+    backgroundColor: COLORS.backgroundDark,
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
   },
   cancelButtonText: {
-    color: '#666',
+    color: COLORS.textSecondary,
     fontSize: 16,
     fontWeight: '600',
   },
   addButton: {
     flex: 1,
-    backgroundColor: '#4A9EFF',
+    backgroundColor: COLORS.secondaryLight,
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
-    shadowColor: '#4A9EFF',
+    shadowColor: COLORS.secondaryLight,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 3,
   },
   addButtonDisabled: {
-    backgroundColor: '#B0D4FF',
+    backgroundColor: COLORS.primaryLighter,
     shadowOpacity: 0,
     elevation: 0,
   },
   addButtonText: {
-    color: '#FFF',
+    color: COLORS.white,
     fontSize: 16,
     fontWeight: '600',
   },

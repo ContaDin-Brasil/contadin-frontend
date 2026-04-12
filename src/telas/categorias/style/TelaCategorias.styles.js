@@ -1,9 +1,10 @@
 import { StyleSheet } from 'react-native';
+import { COLORS } from '../../../styles/colors';
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: COLORS.background,
   },
   headerHandleSearchExpanded: {
     flexDirection: 'row',
@@ -12,7 +13,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 40,
     paddingBottom:10,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: COLORS.background,
   },
   header: {
     flexDirection: 'row',
@@ -30,13 +31,13 @@ export const styles = StyleSheet.create({
   searchInputExpanded: {
     flex: 1,
     fontSize: 18,
-    color: '#333',
+    color: COLORS.textPrimary,
   },
   typeToggle: {
     flexDirection: 'row',
     marginHorizontal: 20,
     marginBottom: 15,
-    backgroundColor: '#FFF',
+    backgroundColor: COLORS.white,
     borderRadius: 12,
     padding: 4,
   },
@@ -47,15 +48,15 @@ export const styles = StyleSheet.create({
     borderRadius: 10,
   },
   toggleButtonActive: {
-    backgroundColor: '#B8DBFF',
+    backgroundColor: COLORS.primaryLighter,
   },
   toggleButtonText: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#666',
+    color: COLORS.textSecondary,
   },
   toggleButtonTextActive: {
-    color: '#000',
+    color: COLORS.black,
     fontWeight: '600',
   },
   listContainer: {
@@ -68,11 +69,11 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 15,
     paddingHorizontal: 15,
-    backgroundColor: '#FFF',
+    backgroundColor: COLORS.white,
     borderRadius: 12,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: COLORS.border,
   },
   categoriaInfo: {
     flexDirection: 'row',
@@ -90,11 +91,11 @@ export const styles = StyleSheet.create({
   categoriaNome: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#333',
+    color: COLORS.textPrimary,
   },
   categoriaBadge: {
     fontSize: 11,
-    color: '#999',
+    color: COLORS.textTertiary,
     marginTop: 2,
     fontWeight: '400',
   },
@@ -118,7 +119,7 @@ export const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 16,
-    color: '#E53935',
+    color: COLORS.error,
     textAlign: 'center',
   },
   emptyContainer: {
@@ -128,7 +129,7 @@ export const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    color: '#999',
+    color: COLORS.textTertiary,
     marginTop: 10,
   },
 });

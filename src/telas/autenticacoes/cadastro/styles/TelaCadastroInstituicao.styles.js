@@ -1,9 +1,10 @@
 import { StyleSheet } from "react-native";
+import { COLORS } from "../../../../styles/colors";
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: COLORS.background,
     paddingTop: 20,
   },
   contentContainer: {
@@ -18,16 +19,16 @@ export const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 16,
-    color: "#666",
+    color: COLORS.textSecondary,
   },
   mensagemErro: {
     marginTop: 8,
     fontSize: 14,
-    color: "#C62828",
+    color: COLORS.error,
     marginBottom: 8,
   },
   botao: {
-    backgroundColor: "#2D85F8",
+    backgroundColor: COLORS.tooltip,
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: "center",
@@ -35,7 +36,7 @@ export const styles = StyleSheet.create({
     marginTop: 16,
   },
   botaoText: {
-    color: "#FFF",
+    color: COLORS.white,
     fontSize: 18,
     fontWeight: "600",
   },

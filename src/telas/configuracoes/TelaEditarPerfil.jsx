@@ -4,6 +4,7 @@ import TituloPagina from '../../componentes/TituloPagina';
 import BotoesAcaoFixo from '../../componentes/BotoesAcaoFixo';
 import { useEditarPerfil } from './hooks/useEditarPerfil';
 import { confirmarAcao } from '../../utils/confirmarAcao';
+import { COLORS } from '../../styles/colors';
 import { styles } from './styles/TelaEditarPerfil.styles';
 
 const EditProfileScreen = ({ navigation }) => {
@@ -92,8 +93,8 @@ const EditProfileScreen = ({ navigation }) => {
               <Text style={styles.label}>Telefone</Text>
               <TextInput
                 style={styles.input}
-                value={perfil.tel}
-                onChangeText={perfil.setTel}
+                value={perfil.telefone}
+                onChangeText={perfil.setTelefone}
                 placeholder=""
                 keyboardType="phone-pad"
               />
@@ -124,7 +125,7 @@ const EditProfileScreen = ({ navigation }) => {
                   value={perfil.pushNotifications}
                   onValueChange={perfil.setPushNotifications}
                   trackColor={{ false: '#D3D3D3', true: '#6BA7FF' }}
-                  thumbColor={perfil.pushNotifications ? '#FFF' : '#f4f3f4'}
+                  thumbColor={perfil.pushNotifications ? COLORS.white : '#f4f3f4'}
                 />
               </View>
 
@@ -134,7 +135,7 @@ const EditProfileScreen = ({ navigation }) => {
                   value={perfil.darkTheme}
                   onValueChange={perfil.setDarkTheme}
                   trackColor={{ false: '#D3D3D3', true: '#6BA7FF' }}
-                  thumbColor={perfil.darkTheme ? '#FFF' : '#f4f3f4'}
+                  thumbColor={perfil.darkTheme ? COLORS.white : '#f4f3f4'}
                 />
               </View>
             </View>

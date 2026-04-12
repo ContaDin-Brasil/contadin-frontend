@@ -1,9 +1,10 @@
 import { StyleSheet } from 'react-native';
+import { COLORS } from '../../../styles/colors';
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: COLORS.background,
     paddingTop: 20,
   },
   contentContainer: {
@@ -11,11 +12,11 @@ export const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   section: {
-    backgroundColor: '#FFF',
+    backgroundColor: COLORS.white,
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: COLORS.border,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -29,12 +30,12 @@ export const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#000',
+    color: COLORS.black,
     marginBottom: 2,
   },
   sectionSubtitle: {
     fontSize: 13,
-    color: '#666',
+    color: COLORS.textSecondary,
   },
   vouchersList: {
     gap: 10,
@@ -45,10 +46,10 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 12,
     paddingHorizontal: 12,
-    backgroundColor: '#F9F9F9',
+    backgroundColor: COLORS.backgroundLight,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#E8E8E8',
+    borderColor: COLORS.backgroundDark,
   },
   voucherInfo: {
     flexDirection: 'row',
@@ -70,17 +71,17 @@ export const styles = StyleSheet.create({
   iconText: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#FFF',
+    color: COLORS.white,
   },
   voucherName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#000',
+    color: COLORS.black,
     marginBottom: 2,
   },
   voucherBalance: {
     fontSize: 13,
-    color: '#666',
+    color: COLORS.textSecondary,
   },
   deleteIconButton: {
     padding: 4,
@@ -89,7 +90,7 @@ export const styles = StyleSheet.create({
     marginTop: 20,
   },
   addButton: {
-    backgroundColor: '#4A9EFF',
+    backgroundColor: COLORS.secondaryLight,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -98,7 +99,7 @@ export const styles = StyleSheet.create({
     gap: 8,
   },
   addButtonText: {
-    color: '#FFF',
+    color: COLORS.white,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -106,7 +107,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   deleteInstitutionButton: {
-    backgroundColor: '#FF6B6B',
+    backgroundColor: COLORS.error,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -116,7 +117,7 @@ export const styles = StyleSheet.create({
     marginBottom: 20,
   },
   deleteInstitutionText: {
-    color: '#FFF',
+    color: COLORS.white,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -140,12 +141,12 @@ export const styles = StyleSheet.create({
   institutionName: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#000',
+    color: COLORS.black,
     marginBottom: 8,
   },
   changeIconText: {
     fontSize: 16,
-    color: '#000',
+    color: COLORS.black,
     marginBottom: 20,
     textAlign: 'center',
   },
@@ -155,11 +156,11 @@ export const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#000',
+    color: COLORS.black,
     marginBottom: 8,
   },
   input: {
-    backgroundColor: '#E0E0E0',
+    backgroundColor: COLORS.border,
     padding: 14,
     borderRadius: 8,
     fontSize: 16,
@@ -171,8 +172,8 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 3,
-    borderColor: '#FFF',
-    shadowColor: '#000',
+    borderColor: COLORS.white,
+    shadowColor: COLORS.black,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
@@ -185,25 +186,25 @@ export const styles = StyleSheet.create({
   },
   cancelButton: {
     flex: 1,
-    backgroundColor: '#D3D3D3',
+    backgroundColor: COLORS.borderLight,
     paddingVertical: 14,
     borderRadius: 8,
     alignItems: 'center',
   },
   cancelButtonText: {
-    color: '#666',
+    color: COLORS.textSecondary,
     fontSize: 16,
     fontWeight: '600',
   },
   confirmButton: {
     flex: 1,
-    backgroundColor: '#4A9EFF',
+    backgroundColor: COLORS.secondaryLight,
     paddingVertical: 14,
     borderRadius: 8,
     alignItems: 'center',
   },
   confirmButtonText: {
-    color: '#FFF',
+    color: COLORS.white,
     fontSize: 16,
     fontWeight: '600',
   },
