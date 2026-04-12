@@ -105,12 +105,6 @@ export const useFormularioTransacao = () => {
       
       setInstituicoes(instituicoesFormatadas);
       
-      // Seleciona primeira instituição do tipo banco como padrão
-      const primeiroBanco = instituicoesFormatadas.find((inst: any) => inst.tipoInstituicao === 'BANCO');
-      if (primeiroBanco) {
-        setSelectedInstitution(primeiroBanco);
-      }
-      
       // Define primeira categoria como padrão
       if (categoriasData.length > 0) {
         setSelectedCategory(categoriasData[0].id);
@@ -496,10 +490,7 @@ export const useFormularioTransacao = () => {
     setInstallmentCount(2);
     setCustomInstallmentValue('');
     setInstitutionType('banks');
-    const primeiroBanco = instituicoes.find((inst: any) => inst.tipoInstituicao === 'BANCO');
-    if (primeiroBanco) {
-      setSelectedInstitution(primeiroBanco);
-    }
+    setSelectedInstitution(null);
   };
 
   /**

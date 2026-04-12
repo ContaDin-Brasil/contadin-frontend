@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useFormularioTransacao } from './useFormularioTransacao';
-import { transacaoService, instituicaoService } from '../../../api';
+import { transacaoService } from '../../../api';
 import { limparValorMonetario } from '../utils/formatacaoMoeda';
 
 /**
@@ -11,17 +11,20 @@ export const useEditarTransacao = (transacaoId: string | null) => {
   const formState = useFormularioTransacao();
   const [loadingTransacao, setLoadingTransacao] = useState(true);
   const [transacaoOriginal, setTransacaoOriginal] = useState<any>(null);
-  const [pendingFkInstituicao, setPendingFkInstituicao] = useState<string | null>(null);
-  const [pendingFkCategoria, setPendingFkCategoria] = useState<string | null>(null);
 
   /**
-   * Aplica a instituição pendente assim que a lista de instituições estiver disponível
+   * Aplica a instituição correta sempre que a transação ou a lista de instituições estiver disponível.
+   * Trata tanto fkInstituicao (camelCase) quanto fk_instituicao (snake_case) para compatibilidade com a API.
    */
   useEffect(() => {
-    if (!pendingFkInstituicao || formState.instituicoes.length === 0) return;
+    const fkInstId =
+      transacaoOriginal?.fkInstituicao ??
+      (transacaoOriginal as any)?.fk_instituicao;
+
+    if (!fkInstId || formState.instituicoes.length === 0) return;
 
     const instituicao = formState.instituicoes.find(
-      (inst: any) => String(inst.id) === pendingFkInstituicao
+      (inst: any) => String(inst.id) === String(fkInstId)
     );
 
     if (instituicao) {
@@ -30,21 +33,24 @@ export const useEditarTransacao = (transacaoId: string | null) => {
       formState.setInstitutionType(
         instituicao.tipoInstituicao === 'VALE' ? 'vouchers' : 'banks'
       );
-      setPendingFkInstituicao(null);
     } else {
-      console.warn('⚠️ Instituição ainda não encontrada:', pendingFkInstituicao);
+      console.warn('⚠️ Instituição não encontrada para fkInstituicao:', fkInstId);
     }
-  }, [pendingFkInstituicao, formState.instituicoes]);
+  }, [transacaoOriginal, formState.instituicoes]);
 
   /**
-   * Aplica a categoria pendente assim que a lista de categorias estiver disponível
+   * Aplica a categoria correta sempre que a transação ou a lista de categorias estiver disponível.
+   * Trata tanto fkCategoria (camelCase) quanto fk_categoria (snake_case) para compatibilidade com a API.
    */
   useEffect(() => {
-    if (!pendingFkCategoria || formState.categorias.length === 0) return;
+    const fkCatId =
+      transacaoOriginal?.fkCategoria ??
+      (transacaoOriginal as any)?.fk_categoria;
 
-    formState.setSelectedCategory(pendingFkCategoria);
-    setPendingFkCategoria(null);
-  }, [pendingFkCategoria, formState.categorias]);
+    if (!fkCatId || formState.categorias.length === 0) return;
+
+    formState.setSelectedCategory(String(fkCatId));
+  }, [transacaoOriginal, formState.categorias]);
 
   /**
    * Carrega os dados da transação para edição
@@ -113,10 +119,7 @@ export const useEditarTransacao = (transacaoId: string | null) => {
       formState.handleDateChange(dataFormatada);
     }
 
-    // Categoria — armazena o ID pendente para ser aplicado via useEffect quando as categorias carregarem
-    if (transacao.fkCategoria) {
-      setPendingFkCategoria(String(transacao.fkCategoria));
-    }
+    // Categoria e instituição são aplicadas via useEffect que observa transacaoOriginal
 
     // Parcelamento
     if (transacao.parcelado) {
@@ -141,11 +144,6 @@ export const useEditarTransacao = (transacaoId: string | null) => {
       }
     }
 
-    // Instituição — armazena o ID pendente para ser aplicado via useEffect quando a lista carregar
-    if (transacao.fkInstituicao) {
-      setPendingFkInstituicao(String(transacao.fkInstituicao));
-    }
-    
     console.log('✅ Formulário preenchido com sucesso');
   };
 
