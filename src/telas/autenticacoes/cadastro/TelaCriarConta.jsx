@@ -16,6 +16,7 @@ import {
   obterResultadosValidacaoSenha,
   verificarSenhasConferem,
 } from "../../../utils/senhaUtils";
+import COLORS from "../../../styles/colors";
 import { styles } from "./styles/TelaCriarConta.styles";
 
 function TelaCriarConta({ navigation }) {

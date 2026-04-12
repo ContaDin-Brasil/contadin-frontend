@@ -2,7 +2,14 @@ import { useState, useEffect } from 'react';
 import { Banco, Vale, Instituicao } from '../types/carteira.types';
 import { instituicaoService } from '../../../api';
 import { useCache } from '../../../contexts/CacheContext';
+import { useAuth } from '../../../contexts/AuthContext';
 import { getInstituicoesPadrao } from '../constants/instituicoesPadrao';
+import {
+  extrairUsuarioId,
+  idValido,
+  obterUsuarioIdOuErro,
+  normalizarTipoInstituicaoDaEntidade,
+} from '../../../utils/normalizacao';
 
 /**
  * Hook para gerenciar edição de bancos (COM CACHE)
@@ -16,12 +23,13 @@ export const useEditarBancos = () => {
   const [selectionModalVisible, setSelectionModalVisible] = useState(false);
   const [customModalVisible, setCustomModalVisible] = useState(false);
 
-  const usuarioId = 1;
+  const { user } = useAuth();
+  const usuarioId = extrairUsuarioId(user);
   const { getCache, setCache, invalidateCacheByPattern } = useCache();
 
   useEffect(() => {
     carregarBancos();
-  }, []);
+  }, [usuarioId]);
 
   /**
    * Carrega bancos da API (com cache)
@@ -31,7 +39,13 @@ export const useEditarBancos = () => {
     setError(null);
     
     try {
-      const cacheKey = `instituicoes:bancos:user:${usuarioId}`;
+      const usuarioIdValido = obterUsuarioIdOuErro(usuarioId, (message) => setError(message));
+      if (!usuarioIdValido) {
+        setBanks([]);
+        return;
+      }
+
+      const cacheKey = `instituicoes:bancos:user:${usuarioIdValido}`;
       
       // Tenta buscar do cache primeiro (a menos que force refresh)
       if (!forceRefresh) {
@@ -43,11 +57,11 @@ export const useEditarBancos = () => {
         }
       }
       
-      const instituicoes = await instituicaoService.listarPorUsuario(usuarioId);
+      const instituicoes = await instituicaoService.listarPorUsuario(usuarioIdValido);
       
-      // Filtra apenas bancos usando tipoInstituicao
+      // Filtra apenas bancos usando type
       const bancosList: Banco[] = instituicoes
-        .filter((inst: any) => inst.tipoInstituicao === 'banco')
+        .filter((inst: any) => normalizarTipoInstituicaoDaEntidade(inst) === 'BANCO' && inst.ativo !== false)
         .map((inst: any) => ({
           id: inst.id,
           nome: inst.nome,
@@ -55,7 +69,7 @@ export const useEditarBancos = () => {
           expenses: 'R$ 0,00',
           cor: inst.cor,
           icone: inst.icone,
-          tipoInstituicao: 'banco',
+          type: 'BANCO',
         }));
       
       // Salva no cache
@@ -73,9 +87,9 @@ export const useEditarBancos = () => {
   /**
    * Remove um banco da lista (e suas transações)
    */
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string | number) => {
     try {
-      if (!Number.isFinite(id) || id <= 0) {
+      if (!idValido(id)) {
         throw new Error('ID de banco inválido para exclusão');
       }
 
@@ -108,12 +122,17 @@ export const useEditarBancos = () => {
    */
   const handleSelectInstitution = async (institution: Instituicao) => {
     try {
+      const usuarioIdValido = obterUsuarioIdOuErro(usuarioId, (message) => setError(message));
+      if (!usuarioIdValido) {
+        return;
+      }
+
       await instituicaoService.criar({
         nome: institution.nome,
         icone: institution.icone,
         cor: institution.cor,
-        tipoInstituicao: 'banco',
-        fk_usuario: usuarioId,
+        type: 'BANCO',
+        fkUsuario: usuarioIdValido,
       });
       
       // Invalida o cache e recarrega
@@ -138,12 +157,18 @@ export const useEditarBancos = () => {
    */
   const handleAddCustom = async (institution: Banco) => {
     try {
+      const usuarioIdValido = obterUsuarioIdOuErro(usuarioId, (message) => setError(message));
+      if (!usuarioIdValido) {
+        return;
+      }
+
+      const type = normalizarTipoInstituicaoDaEntidade(institution);
       await instituicaoService.criar({
         nome: institution.nome,
         icone: institution.icone,
         cor: institution.cor,
-        tipoInstituicao: institution.tipoInstituicao,
-        fk_usuario: usuarioId,
+        type,
+        fkUsuario: usuarioIdValido,
       });
       
       // Invalida o cache e recarrega
@@ -169,12 +194,18 @@ export const useEditarBancos = () => {
    */
   const handleUpdate = async (updatedBank: Banco) => {
     try {
+      const usuarioIdValido = obterUsuarioIdOuErro(usuarioId, (message) => setError(message));
+      if (!usuarioIdValido) {
+        return;
+      }
+
+      const type = normalizarTipoInstituicaoDaEntidade(updatedBank);
       await instituicaoService.atualizar(updatedBank.id, {
         nome: updatedBank.nome,
         icone: updatedBank.icone,
         cor: updatedBank.cor,
-        tipoInstituicao: updatedBank.tipoInstituicao,
-        fk_usuario: usuarioId,
+        type,
+        fkUsuario: usuarioIdValido,
       });
       
       // Invalida o cache e recarrega
@@ -221,12 +252,13 @@ export const useEditarVales = () => {
   const [selectionModalVisible, setSelectionModalVisible] = useState(false);
   const [customModalVisible, setCustomModalVisible] = useState(false);
 
-  const usuarioId = 1;
+  const { user } = useAuth();
+  const usuarioId = extrairUsuarioId(user);
   const { getCache, setCache, invalidateCacheByPattern } = useCache();
 
   useEffect(() => {
     carregarVales();
-  }, []);
+  }, [usuarioId]);
 
   /**
    * Carrega vales da API (com cache)
@@ -236,7 +268,13 @@ export const useEditarVales = () => {
     setError(null);
     
     try {
-      const cacheKey = `instituicoes:vales:user:${usuarioId}`;
+      const usuarioIdValido = obterUsuarioIdOuErro(usuarioId, (message) => setError(message));
+      if (!usuarioIdValido) {
+        setVouchers([]);
+        return;
+      }
+
+      const cacheKey = `instituicoes:vales:user:${usuarioIdValido}`;
       
       // Tenta buscar do cache primeiro (a menos que force refresh)
       if (!forceRefresh) {
@@ -248,18 +286,18 @@ export const useEditarVales = () => {
         }
       }
       
-      const instituicoes = await instituicaoService.listarPorUsuario(usuarioId);
+      const instituicoes = await instituicaoService.listarPorUsuario(usuarioIdValido);
       
-      // Filtra apenas vales usando tipoInstituicao
+      // Filtra apenas vales usando type
       const valesList: Vale[] = instituicoes
-        .filter((inst: any) => inst.tipoInstituicao === 'vale')
+        .filter((inst: any) => normalizarTipoInstituicaoDaEntidade(inst) === 'VALE' && inst.ativo !== false)
         .map((inst: any) => ({
           id: inst.id,
           nome: inst.nome,
           balance: 'R$ 0,00',
           cor: inst.cor,
           icone: inst.icone,
-          tipoInstituicao: 'vale',
+          type: 'VALE',
         }));
       
       // Salva no cache
@@ -285,9 +323,9 @@ export const useEditarVales = () => {
   /**
    * Remove um vale da lista (e suas transações)
    */
-  const handleDelete = async (voucherId: number) => {
+  const handleDelete = async (voucherId: string | number) => {
     try {
-      if (!Number.isFinite(voucherId) || voucherId <= 0) {
+      if (!idValido(voucherId)) {
         throw new Error('ID de vale inválido para exclusão');
       }
 
@@ -312,12 +350,17 @@ export const useEditarVales = () => {
    */
   const handleSelectInstitution = async (institution: Instituicao) => {
     try {
+      const usuarioIdValido = obterUsuarioIdOuErro(usuarioId, (message) => setError(message));
+      if (!usuarioIdValido) {
+        return;
+      }
+
       await instituicaoService.criar({
         nome: institution.nome,
         icone: institution.icone,
         cor: institution.cor,
-        tipoInstituicao: 'vale',
-        fk_usuario: usuarioId,
+        type: 'VALE',
+        fkUsuario: usuarioIdValido,
       });
       
       // Invalida o cache e recarrega
@@ -342,12 +385,18 @@ export const useEditarVales = () => {
    */
   const handleAddCustom = async (institution: Vale) => {
     try {
+      const usuarioIdValido = obterUsuarioIdOuErro(usuarioId, (message) => setError(message));
+      if (!usuarioIdValido) {
+        return;
+      }
+
+      const type = normalizarTipoInstituicaoDaEntidade(institution);
       await instituicaoService.criar({
         nome: institution.nome,
         icone: institution.icone,
         cor: institution.cor,
-        tipoInstituicao: institution.tipoInstituicao,
-        fk_usuario: usuarioId,
+        type,
+        fkUsuario: usuarioIdValido,
       });
       
       // Invalida o cache e recarrega
@@ -373,12 +422,18 @@ export const useEditarVales = () => {
    */
   const handleUpdate = async (updatedVoucher: Vale) => {
     try {
+      const usuarioIdValido = obterUsuarioIdOuErro(usuarioId, (message) => setError(message));
+      if (!usuarioIdValido) {
+        return;
+      }
+
+      const type = normalizarTipoInstituicaoDaEntidade(updatedVoucher);
       await instituicaoService.atualizar(updatedVoucher.id, {
         nome: updatedVoucher.nome,
         icone: updatedVoucher.icone,
         cor: updatedVoucher.cor,
-        tipoInstituicao: updatedVoucher.tipoInstituicao,
-        fk_usuario: usuarioId,
+        type,
+        fkUsuario: usuarioIdValido,
       });
       
       // Invalida o cache e recarrega

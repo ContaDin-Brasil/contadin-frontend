@@ -1,16 +1,22 @@
 /**
  * Hook para a tela "Adicione suas informações" (Frame 57).
  * Estado: nome, sobrenome, telefone.
- * handleContinuar cria a conta no backend com todos os dados e já faz login.
+ * handleContinuar atualiza os dados do usuário já criado no passo anterior.
  */
 import { useState } from "react";
-import { authService } from "../../../../api";
+import { usuarioService } from "../../../../api";
 import { setAuthToken } from "../../../../api/config";
 import { apenasDigitosTelefone } from "../../../../utils/mascaraTelefone";
+import {
+  extrairUsuarioId,
+  MENSAGEM_SESSAO_INVALIDA,
+  obterUsuarioIdOuErro,
+} from "../../../../utils/normalizacao";
+import type { UsuarioAutenticado } from "../../../../api/types";
 
 interface DadosCadastroInicial {
-  email?: string;
-  senha?: string;
+  token?: string;
+  user?: UsuarioAutenticado;
 }
 
 export interface UseInformacoesPessoaisResult {
@@ -40,11 +46,14 @@ export function useInformacoesPessoais(
     navigate: (route: string, params?: object) => void;
   }): Promise<boolean> => {
     setError(null);
-    const email = cadastroInicial?.email?.trim();
-    const senha = cadastroInicial?.senha?.trim();
+    const token = cadastroInicial?.token;
+    const user = cadastroInicial?.user;
+    const userId = obterUsuarioIdOuErro(extrairUsuarioId(user), (message) =>
+      setError(message),
+    );
 
-    if (!email || !senha) {
-      setError("Sessão inválida. Faça login novamente.");
+    if (!token || !userId) {
+      setError(MENSAGEM_SESSAO_INVALIDA);
       return false;
     }
 
@@ -69,47 +78,22 @@ export function useInformacoesPessoais(
 
     setLoading(true);
     try {
-      const usuarioCriado = await authService.cadastrar({
+      setAuthToken(token);
+      const usuarioAtualizado = await usuarioService.atualizarCadastro(userId, {
         nome: nomeTrim,
         sobrenome: sobrenomeTrim,
-        email,
         telefone: telefoneDigitos,
-        senha,
-        ativo: true,
       });
 
-      const loginResponse = await authService.login({ email, senha });
-      const token =
-        (
-          loginResponse as {
-            data?: { data?: { token?: string }; token?: string };
-          }
-        )?.data?.data?.token ??
-        (loginResponse as { data?: { token?: string } })?.data?.token ??
-        (loginResponse as { token?: string })?.token;
-
-      if (!token) {
-        setError(
-          "Conta criada, mas não foi possível entrar. Faça login na tela de login.",
-        );
-        setLoading(false);
-        return false;
-      }
-
-      setAuthToken(token);
-
-      const user = {
-        id: (usuarioCriado as { id?: string | number })?.id,
-        email: (usuarioCriado as { email?: string })?.email ?? email,
-        nome: (usuarioCriado as { nome?: string })?.nome ?? nomeTrim,
-        sobrenome: (usuarioCriado as { sobrenome?: string })?.sobrenome ?? sobrenomeTrim,
-        telefone:
-          (usuarioCriado as { telefone?: string })?.telefone ??
-          telefoneDigitos,
+      const userAtualizado = {
+        id: usuarioAtualizado.id,
+        email: usuarioAtualizado.email ?? user?.email ?? "",
+        nome: usuarioAtualizado.nome ?? nomeTrim,
+        sobrenome: usuarioAtualizado.sobrenome ?? sobrenomeTrim,
       };
 
       setLoading(false);
-      navigation.navigate("SelecaoBancos", { token, user });
+      navigation.navigate("SelecaoBancos", { token, user: userAtualizado });
       return true;
     } catch (err: unknown) {
       const msg =

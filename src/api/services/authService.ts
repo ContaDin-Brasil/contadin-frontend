@@ -27,7 +27,6 @@ const extrairData = <T>(payload: T | ApiEnvelope<T>): T => {
 
 type LoginBackendResponse = {
   accessToken?: string;
-  token?: string;
   id?: string | number;
   nome?: string;
   sobrenome?: string;
@@ -36,7 +35,7 @@ type LoginBackendResponse = {
 };
 
 const extrairTokenLogin = (payload: LoginBackendResponse): string | null => {
-  return payload.accessToken ?? payload.token ?? null;
+  return payload.accessToken ?? null;
 };
 
 const authService = {
@@ -45,7 +44,7 @@ const authService = {
       nome: payload.nome,
       sobrenome: payload.sobrenome,
       email: payload.email,
-      ...(payload.telefone ? { telefone: payload.telefone } : {}),
+      ...(payload.telefone !== undefined ? { telefone: payload.telefone } : {}),
       senha: payload.senha,
       ...(typeof payload.ativo === 'boolean' ? { ativo: payload.ativo } : {}),
     });
@@ -65,17 +64,21 @@ const authService = {
       throw new Error('Resposta inválida do servidor: token ausente.');
     }
 
+    if (!loginData.id) {
+      throw new Error('Resposta inválida do servidor: id do usuário ausente.');
+    }
+
+    const normalizedUser = {
+      id: loginData.id,
+      nome: loginData.nome ?? '',
+      sobrenome: loginData.sobrenome ?? '',
+      email: loginData.email ?? String(email).trim(),
+    };
+
     return {
       data: {
         token,
-        user: loginData.id
-          ? {
-              id: loginData.id,
-              nome: loginData.nome ?? '',
-              sobrenome: loginData.sobrenome ?? '',
-              email: loginData.email ?? String(email).trim(),
-            }
-          : undefined,
+        user: normalizedUser,
       },
     };
   },

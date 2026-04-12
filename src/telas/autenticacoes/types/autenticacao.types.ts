@@ -10,7 +10,7 @@ export interface CredenciaisLogin {
 export interface RespostaLogin {
   data: {
     token: string;
-    user?: object;
+    user: object;
   };
 }
 

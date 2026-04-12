@@ -3,11 +3,12 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, Image, Pre
 import { Ionicons } from '@expo/vector-icons';
 import { getLogoByName } from './logosInstituicoes';
 import { COLORS } from '../../styles/colors';
+import { normalizarTipoInstituicaoDaEntidade } from '../../utils/normalizacao';
 
 const InstitutionSelectionModal = ({ visible, onClose, onSelectInstitution, onAddCustom, availableInstitutions = [] }) => {
   // Separa instituições por tipo
-  const bancos = availableInstitutions.filter(inst => inst.tipoInstituicao === 'banco');
-  const vales = availableInstitutions.filter(inst => inst.tipoInstituicao === 'vale');
+  const bancos = availableInstitutions.filter((inst) => normalizarTipoInstituicaoDaEntidade(inst) === 'BANCO');
+  const vales = availableInstitutions.filter((inst) => normalizarTipoInstituicaoDaEntidade(inst) === 'VALE');
 
   const handleSelect = (institution) => {
     onSelectInstitution(institution);

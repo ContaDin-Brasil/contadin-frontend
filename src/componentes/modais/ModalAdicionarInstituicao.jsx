@@ -31,7 +31,7 @@ const AddCustomInstitutionModal = ({ visible, onClose, onAdd, tipoInicial = 'ban
       const newInstitution = {
         id: Date.now(),
         nome: name.trim(),
-        tipoInstituicao: type === 'Banco' ? 'banco' : 'vale',
+        type: type === 'Banco' ? 'BANCO' : 'VALE',
         cor: selectedColor,
         icone: name.charAt(0).toUpperCase(),
         balance: 'R$ 0,00',
