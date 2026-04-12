@@ -497,7 +497,7 @@ const TelaEditarTransacao = ({ navigation, route }) => {
                       <View style={{ flex: 1 }}>
                         <Text style={styles.chipText}>{editState.selectedInstitution.nome}</Text>
                         <Text style={{ fontSize: 12, color: '#999', marginTop: 2, marginLeft: 2 }}>
-                          {editState.selectedInstitution.tipoInstituicao === 'vale' ? 'Vale' : 'Banco'}
+                          {editState.selectedInstitution.tipoInstituicao === 'VALE' ? 'Vale' : 'Banco'}
                         </Text>
                       </View>
                       <TouchableOpacity 
