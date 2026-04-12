@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { 
-  TransactionType, 
-  InstitutionType, 
-  FrequencyType, 
+import {
+  TransactionType,
+  InstitutionType,
+  FrequencyType,
   Institution,
-  AISuggestion 
+  Category,
+  AISuggestion
 } from '../types/transacao.types';
 import { instituicaoService, categoriaService, transacaoService } from '../../../api';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -33,7 +34,7 @@ export const useFormularioTransacao = () => {
   const [tipo, setTipo] = useState<TransactionType>('RECEITA');
   const [categorySearch, setCategorySearch] = useState('');
   const [debouncedCategorySearch, setDebouncedCategorySearch] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState(1); // ID da primeira categoria
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [isRecurring, setIsRecurring] = useState(false);
   const [frequency, setFrequency] = useState<FrequencyType>('MENSAL');
   const [hasRecurrenceEndDate, setHasRecurrenceEndDate] = useState(false);
@@ -44,7 +45,7 @@ export const useFormularioTransacao = () => {
   const [institutionType, setInstitutionType] = useState<InstitutionType>('banks');
   const [selectedInstitution, setSelectedInstitution] = useState<Institution | null>(null);
   const [modalCategoriaVisible, setModalCategoriaVisible] = useState(false);
-  
+
   // Estados para dados da API
   const [categorias, setCategorias] = useState<any[]>([]);
   const [transacoes, setTransacoes] = useState<any[]>([]);
@@ -75,46 +76,56 @@ export const useFormularioTransacao = () => {
   }, [usuarioId]);
 
   /**
-   * Carrega dados da API
+   * Carrega dados da API.
+   * Usa Promise.allSettled para que a falha de um serviço não bloqueie os demais.
    */
   const carregarDados = async () => {
     if (!usuarioId) return;
 
     setLoading(true);
     setError(null);
-    
-    try {
-      const [categoriasData, instituicoesData, transacoesData] = await Promise.all([
-        categoriaService.listarPorUsuario(usuarioId),
-        instituicaoService.listarPorUsuario(usuarioId),
-        transacaoService.listarPorUsuario(usuarioId)
-      ]);
-      
+
+    const [categoriasResult, instituicoesResult, transacoesResult] = await Promise.allSettled([
+      categoriaService.listarPorUsuario(usuarioId),
+      instituicaoService.listarPorUsuario(usuarioId),
+      transacaoService.listarPorUsuario(usuarioId),
+    ]);
+
+    // Categorias
+    if (categoriasResult.status === 'fulfilled') {
+      const categoriasData = categoriasResult.value ?? [];
       setCategorias(categoriasData);
-      setTransacoes(transacoesData || []);
-      
-      // Mapeia instituições para o formato esperado
-      // O campo do backend é 'type' com valores 'BANCO' ou 'VALE'
+      if (categoriasData.length > 0 && selectedCategory === null) {
+        setSelectedCategory(String(categoriasData[0].id));
+      }
+    } else {
+      console.error('Erro ao carregar categorias:', categoriasResult.reason);
+      setError('Erro ao carregar categorias');
+    }
+
+    // Instituições — mapeia campo 'type' do backend para 'tipoInstituicao'
+    if (instituicoesResult.status === 'fulfilled') {
+      const instituicoesData = instituicoesResult.value ?? [];
       const instituicoesFormatadas = instituicoesData.map((inst: any) => ({
         id: inst.id,
         nome: inst.nome,
         cor: inst.cor,
         icone: inst.icone,
-        tipoInstituicao: inst.type ?? inst.tipoInstituicao
+        tipoInstituicao: inst.type ?? inst.tipoInstituicao,
       }));
-      
       setInstituicoes(instituicoesFormatadas);
-      
-      // Define primeira categoria como padrão
-      if (categoriasData.length > 0) {
-        setSelectedCategory(categoriasData[0].id);
-      }
-    } catch (err: any) {
-      console.error('Erro ao carregar dados:', err);
-      setError(err.message || 'Erro ao carregar dados');
-    } finally {
-      setLoading(false);
+    } else {
+      console.error('Erro ao carregar instituições:', instituicoesResult.reason);
     }
+
+    // Transações (usadas apenas para calcular top-3 de categorias; falha não é crítica)
+    if (transacoesResult.status === 'fulfilled') {
+      setTransacoes(transacoesResult.value ?? []);
+    } else {
+      console.warn('Não foi possível carregar transações para top-3 de categorias:', transacoesResult.reason);
+    }
+
+    setLoading(false);
   };
 
   /**
@@ -123,7 +134,7 @@ export const useFormularioTransacao = () => {
    */
   const handleValorChange = (text: string) => {
     console.log('💵 [VALOR CHANGE] Input recebeu:', text);
-    
+
     // Se o texto já está formatado corretamente (tem vírgula), apenas valida
     if (text.includes(',')) {
       // Verifica se é um formato válido (números, pontos e uma vírgula)
@@ -135,7 +146,7 @@ export const useFormularioTransacao = () => {
         return;
       }
     }
-    
+
     // Caso contrário, aplica formatação normal
     const valorFormatado = formatarValorMonetario(text);
     console.log('💵 [VALOR CHANGE] Valor formatado:', valorFormatado);
@@ -147,13 +158,13 @@ export const useFormularioTransacao = () => {
    */
   const handleValorBlur = () => {
     if (!valor) return;
-    
+
     const valorNumerico = converterParaNumero(valor);
     const valorFormatado = valorNumerico.toLocaleString('pt-BR', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     });
-    
+
     console.log('💵 [VALOR BLUR] Formatando para 2 casas decimais:', valorFormatado);
     setValor(valorFormatado);
   };
@@ -164,7 +175,7 @@ export const useFormularioTransacao = () => {
   const handleDateChange = (text: string) => {
     // Remove tudo que não é número
     const cleaned = text.replace(/\D/g, '');
-    
+
     // Adiciona as barras automaticamente
     let formatted = cleaned;
     if (cleaned.length >= 2) {
@@ -173,7 +184,7 @@ export const useFormularioTransacao = () => {
     if (cleaned.length >= 4) {
       formatted = cleaned.slice(0, 2) + '/' + cleaned.slice(2, 4) + '/' + cleaned.slice(4, 8);
     }
-    
+
     setDate(formatted);
   };
 
@@ -184,10 +195,10 @@ export const useFormularioTransacao = () => {
   const handleCustomInstallmentChange = (text: string) => {
     // Remove tudo que não é número
     const cleaned = text.replace(/\D/g, '');
-    
+
     // Limita a 3 dígitos (máximo 720)
     const limited = cleaned.slice(0, 3);
-    
+
     setCustomInstallmentValue(limited);
   };
 
@@ -285,12 +296,12 @@ export const useFormularioTransacao = () => {
     }
 
     const valorNumerico = converterParaNumero(valor);
-    
+
     // Se for "Outro valor" (0), usa o customInstallmentValue
-    const qtdParcelas = installmentCount === 0 
-      ? parseInt(customInstallmentValue) || 0 
+    const qtdParcelas = installmentCount === 0
+      ? parseInt(customInstallmentValue) || 0
       : installmentCount;
-    
+
     if (qtdParcelas < 2) {
       return valorNumerico;
     }
@@ -311,16 +322,16 @@ export const useFormularioTransacao = () => {
       if (!customInstallmentValue || customInstallmentValue.trim() === '') {
         return 'Digite a quantidade de parcelas';
       }
-      
+
       const customValue = parseInt(customInstallmentValue);
       if (isNaN(customValue)) {
         return 'Quantidade de parcelas inválida';
       }
-      
+
       if (customValue < 2) {
         return 'Parcelamento deve ter no mínimo 2 parcelas';
       }
-      
+
       if (customValue > 720) {
         return 'Parcelamento não pode exceder 720 parcelas';
       }
@@ -375,8 +386,8 @@ export const useFormularioTransacao = () => {
     }
 
     // Se for "Outro valor" (0), usa o customInstallmentValue
-    const qtdParcelas = installmentCount === 0 
-      ? parseInt(customInstallmentValue) || 0 
+    const qtdParcelas = installmentCount === 0
+      ? parseInt(customInstallmentValue) || 0
       : installmentCount;
 
     if (qtdParcelas < 2) {
@@ -426,20 +437,20 @@ export const useFormularioTransacao = () => {
   const applyAISuggestion = (
     suggestion: AISuggestion,
     instituicaoSugerida?: Institution | null,
-    categoriaSugerida?: number | null
+    categoriaSugerida?: Category | null
   ) => {
     setDescricao(suggestion.descricao);
-    
+
     // A IA já retorna valores formatados (ex: "145,80" ou "5.000,00")
     // Apenas removemos espaços extras e setamos diretamente
     const valorFormatado = suggestion.valor.trim();
     setValor(valorFormatado);
-    
+
     if (suggestion.data) {
       setDate(suggestion.data);
     }
     setTipo(suggestion.tipo);
-    
+
     // Aplica instituição sugerida (com validação contra Mercado Pago)
     if (instituicaoSugerida && instituicaoSugerida.id !== 14) {
       setSelectedInstitution(instituicaoSugerida);
@@ -449,13 +460,13 @@ export const useFormularioTransacao = () => {
       setSelectedInstitution(null);
       console.log('⚠️ [AI SUGGESTION] Mercado Pago (id 14) foi bloqueado, selecione manualmente');
     }
-    
+
     // Aplica categoria sugerida (se houver e for válida)
-    if (categoriaSugerida && categoriaSugerida > 0) {
-      setSelectedCategory(categoriaSugerida);
+    if (categoriaSugerida) {
+      setSelectedCategory(String(categoriaSugerida));
       console.log('📂 [AI SUGGESTION] Categoria aplicada:', categoriaSugerida);
     }
-    
+
     console.log('📝 [AI SUGGESTION] Aplicando sugestão:');
     console.log('   • Descrição:', suggestion.descricao);
     console.log('   • Valor original:', suggestion.valor);
@@ -468,7 +479,7 @@ export const useFormularioTransacao = () => {
    */
   const getFormData = () => {
     const valorNumerico = converterParaNumero(valor);
-    
+
     const formData = {
       descricao,
       valor: valorNumerico,
@@ -480,13 +491,13 @@ export const useFormularioTransacao = () => {
       hasRecurrenceEndDate,
       recurrenceEndDate: hasRecurrenceEndDate && isRecurring ? recurrenceEndDate : null,
       parcelado: isInstallment,
-      qtdParcelas: isInstallment 
-        ? (installmentCount === 0 ? parseInt(customInstallmentValue) || 2 : installmentCount) 
+      qtdParcelas: isInstallment
+        ? (installmentCount === 0 ? parseInt(customInstallmentValue) || 2 : installmentCount)
         : 1,
       selectedInstitution,
       institutionType
     };
-    
+
     console.log('📋 [FORM DATA] Dados do formulário:');
     console.log('   • Valor formatado:', valor);
     console.log('   • Valor numérico:', valorNumerico);
@@ -503,9 +514,7 @@ export const useFormularioTransacao = () => {
     setDate(getTodayDate());
     setTipo('RECEITA');
     setCategorySearch('');
-    if (categorias.length > 0) {
-      setSelectedCategory(categorias[0].id);
-    }
+    setSelectedCategory(categorias.length > 0 ? String(categorias[0].id) : null);
     setIsRecurring(false);
     setFrequency('MENSAL');
     setHasRecurrenceEndDate(false);
@@ -528,7 +537,7 @@ export const useFormularioTransacao = () => {
 
     // Conta frequência de uso de cada categoria
     const frequencia: { [key: number]: number } = {};
-    
+
     transacoes.forEach((transacao: any) => {
       const catId = transacao.fkCategoria ?? transacao.fk_categoria;
       if (catId) {
@@ -571,7 +580,7 @@ export const useFormularioTransacao = () => {
 
     // Com busca, filtra pelo nome
     const searchLower = debouncedCategorySearch.toLowerCase().trim();
-    return categoriasFiltradas.filter(cat => 
+    return categoriasFiltradas.filter(cat =>
       cat.nome.toLowerCase().includes(searchLower)
     );
   };
@@ -639,7 +648,7 @@ export const useFormularioTransacao = () => {
     loading,
     error,
     modalCategoriaVisible,
-    
+
     // Modificadores
     setDescricao,
     setValor,
@@ -654,7 +663,7 @@ export const useFormularioTransacao = () => {
     setCustomInstallmentValue,
     setInstitutionType,
     setModalCategoriaVisible,
-    
+
     // Ações
     handleValorChange,
     handleValorBlur,

@@ -1,6 +1,27 @@
 import api from '../config';
 import type { CategoriaApi, CategoriaPayload } from '../types';
 
+type EnvelopeArray<T> = {
+  data?: T[];
+  content?: T[];
+  items?: T[];
+};
+
+const toArray = <T>(payload: unknown): T[] => {
+  if (Array.isArray(payload)) {
+    return payload as T[];
+  }
+
+  if (payload && typeof payload === 'object') {
+    const source = payload as EnvelopeArray<T>;
+    if (Array.isArray(source.data)) return source.data;
+    if (Array.isArray(source.content)) return source.content;
+    if (Array.isArray(source.items)) return source.items;
+  }
+
+  return [];
+};
+
 /**
  * Serviço de Categorias
  * Gerencia operações relacionadas às categorias de transações
@@ -10,25 +31,20 @@ const categoriaService = {
    * Busca todas as categorias
    */
   listar: async (): Promise<CategoriaApi[]> => {
-    const response = await api.get<CategoriaApi[]>('/categorias');
-    return response.data;
+    const response = await api.get<CategoriaApi[] | EnvelopeArray<CategoriaApi>>('/categorias');
+    return toArray<CategoriaApi>(response.data);
   },
 
   /**
-   * Busca categorias por usuário
-   * Retorna categorias padrão (fk_usuario: null) + categorias do usuário
+   * Busca categorias por usuário.
+   * Retorna categorias globais (fkUsuario: null) + categorias do usuário.
    * @param {string | number} usuarioId - ID do usuário (UUID)
    */
   listarPorUsuario: async (usuarioId: string | number): Promise<CategoriaApi[]> => {
-    try {
-      const response = await api.get<CategoriaApi[]>('/categorias', {
-        params: { fkUsuario: usuarioId },
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Erro ao buscar categorias:', error);
-      throw error;
-    }
+    const response = await api.get<CategoriaApi[] | EnvelopeArray<CategoriaApi>>('/categorias', {
+      params: { fkUsuario: usuarioId },
+    });
+    return toArray<CategoriaApi>(response.data);
   },
 
   /**

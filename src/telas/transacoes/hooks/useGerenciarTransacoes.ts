@@ -144,21 +144,21 @@ export const useGerenciarTransacoes = () => {
   /**
    * Busca categoria por ID
    */
-  const buscarCategoria = (categoriaId: number) => {
+  const buscarCategoria = (categoriaId: string) => {
     return categorias.find(cat => cat.id === categoriaId);
   };
 
   /**
    * Busca instituição por ID
    */
-  const buscarInstituicao = (instituicaoId: number) => {
+  const buscarInstituicao = (instituicaoId: string) => {
     return instituicoes.find(inst => inst.id === instituicaoId);
   };
 
   /**
    * Deleta uma transação
    */
-  const deletarTransacao = async (id: number) => {
+  const deletarTransacao = async (id: string) => {
     try {
       await transacaoService.deletar(id);
       setTransacoes(prev => ordenarPorDataDesc(prev.filter(t => t.id !== id)));
