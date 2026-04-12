@@ -1,5 +1,100 @@
 import api from '../config';
-import type { CategoriaApi, CategoriaPayload } from '../types';
+import type {
+  CategoriaApi,
+  CategoriaAtualizacaoPayload,
+  CategoriaPayload,
+} from '../types';
+import type { CategoryType } from '../../telas/categorias/types/categoria.types';
+
+type ApiEnvelope<T> = {
+  data?: T;
+};
+
+const extrairData = <T>(payload: T | ApiEnvelope<T>): T => {
+  const maybeEnvelope = payload as ApiEnvelope<T>;
+  return maybeEnvelope?.data !== undefined ? maybeEnvelope.data : (payload as T);
+};
+
+const paraChave = (value: unknown): string => String(value ?? '').trim();
+
+const categoriaPertenceAoUsuarioOuSistema = (
+  categoria: CategoriaApi,
+  usuarioId: string | number,
+): boolean => {
+  const fkCategoria = categoria.fkUsuario ?? categoria.fk_usuario ?? null;
+
+  if (fkCategoria === null || fkCategoria === undefined) {
+    return true;
+  }
+
+  return paraChave(fkCategoria) === paraChave(usuarioId);
+};
+
+const mapearCategoriaApi = (categoria: any): CategoriaApi => {
+  const fkUsuario = categoria?.fkUsuario ?? categoria?.fk_usuario ?? null;
+
+  return {
+    id: categoria.id,
+    nome: categoria.nome,
+    icone: categoria.icone,
+    cor: categoria.cor,
+    tipo: categoria.tipo,
+    fkUsuario,
+    fk_usuario: fkUsuario,
+    ativo: categoria.ativo,
+    criadoEm: categoria.criadoEm,
+    atualizadoEm: categoria.atualizadoEm,
+  };
+};
+
+const mapearListaCategorias = (payload: unknown): CategoriaApi[] => {
+  const data = extrairData(payload as CategoriaApi[] | ApiEnvelope<CategoriaApi[]>);
+  if (!Array.isArray(data)) {
+    return [];
+  }
+
+  return data.map(mapearCategoriaApi);
+};
+
+const normalizarFkUsuario = (payload: {
+  fkUsuario?: string | number;
+  fk_usuario?: string | number;
+}): string | number | undefined => {
+  const value = payload.fkUsuario ?? payload.fk_usuario;
+  const key = paraChave(value);
+  return key === '' ? undefined : (value as string | number);
+};
+
+const mapearPayloadCriacao = (categoria: CategoriaPayload): Record<string, unknown> => {
+  const fkUsuario = normalizarFkUsuario(categoria);
+  if (fkUsuario === undefined) {
+    throw new Error('Usuario invalido para criacao de categoria.');
+  }
+
+  return {
+    nome: categoria.nome,
+    icone: categoria.icone,
+    cor: categoria.cor,
+    tipo: categoria.tipo,
+    fkUsuario,
+  };
+};
+
+const mapearPayloadAtualizacao = (
+  categoria: CategoriaAtualizacaoPayload,
+): Record<string, unknown> => {
+  const payload: Record<string, unknown> = {};
+
+  if (categoria.nome !== undefined) payload.nome = categoria.nome;
+  if (categoria.icone !== undefined) payload.icone = categoria.icone;
+  if (categoria.cor !== undefined) payload.cor = categoria.cor;
+  if (categoria.tipo !== undefined) payload.tipo = categoria.tipo;
+
+  const fkUsuario = normalizarFkUsuario(categoria);
+  if (fkUsuario !== undefined) payload.fkUsuario = fkUsuario;
+
+  return payload;
+};
 
 /**
  * Serviço de Categorias
@@ -7,41 +102,67 @@ import type { CategoriaApi, CategoriaPayload } from '../types';
  */
 const categoriaService = {
   /**
-   * Busca todas as categorias
+   * Busca categorias com filtros opcionais
    */
-  listar: async (): Promise<CategoriaApi[]> => {
-    const response = await api.get<CategoriaApi[]>('/categoria');
-    return response.data;
+  listar: async (params?: {
+    fkUsuario?: string | number;
+    tipoCategoria?: CategoryType;
+  }): Promise<CategoriaApi[]> => {
+    const response = await api.get<CategoriaApi[] | ApiEnvelope<CategoriaApi[]>>('/categorias', {
+      params,
+    });
+    return mapearListaCategorias(response.data);
   },
 
   /**
    * Busca categorias por usuário
-   * Retorna categorias padrão (fk_usuario: null) + categorias do usuário
-   * @param {number} usuarioId - ID do usuário
+   * @param {string | number} usuarioId - ID do usuário
+   * @param {CategoryType} tipoCategoria - Tipo da categoria
    */
-  listarPorUsuario: async (usuarioId: number): Promise<CategoriaApi[]> => {
-    try {
-      const response = await api.get<CategoriaApi[]>('/categoria');
-      const todasCategorias = response.data;
+  listarPorUsuario: async (
+    usuarioId: string | number,
+    tipoCategoria?: CategoryType,
+  ): Promise<CategoriaApi[]> => {
+    const response = await api.get<CategoriaApi[] | ApiEnvelope<CategoriaApi[]>>('/categorias', {
+      params: {
+        fkUsuario: usuarioId,
+        ...(tipoCategoria ? { tipoCategoria } : {}),
+      },
+    });
 
-      const categorias = todasCategorias.filter((cat) =>
-        cat.fk_usuario === null || cat.fk_usuario === usuarioId
-      );
+    return mapearListaCategorias(response.data).filter((categoria) =>
+      categoriaPertenceAoUsuarioOuSistema(categoria, usuarioId),
+    );
+  },
 
-      return categorias;
-    } catch (error) {
-      console.error('Erro ao buscar categorias:', error);
-      throw error;
-    }
+  /**
+   * Busca categorias por nome filtrando por usuário
+   */
+  buscarPorNome: async (
+    nome: string,
+    usuarioId: string | number,
+    tipoCategoria?: CategoryType,
+  ): Promise<CategoriaApi[]> => {
+    const response = await api.get<CategoriaApi[] | ApiEnvelope<CategoriaApi[]>>('/categorias/nome', {
+      params: {
+        nome,
+        fkUsuario: usuarioId,
+        ...(tipoCategoria ? { tipoCategoria } : {}),
+      },
+    });
+
+    return mapearListaCategorias(response.data).filter((categoria) =>
+      categoriaPertenceAoUsuarioOuSistema(categoria, usuarioId),
+    );
   },
 
   /**
    * Busca uma categoria por ID
-   * @param {number} id - ID da categoria
+   * @param {string | number} id - ID da categoria
    */
-  buscarPorId: async (id: number): Promise<CategoriaApi> => {
-    const response = await api.get<CategoriaApi>(`/categoria/${id}`);
-    return response.data;
+  buscarPorId: async (id: string | number): Promise<CategoriaApi> => {
+    const response = await api.get<CategoriaApi | ApiEnvelope<CategoriaApi>>(`/categorias/${id}`);
+    return mapearCategoriaApi(extrairData(response.data));
   },
 
   /**
@@ -49,27 +170,42 @@ const categoriaService = {
    * @param {object} categoria - Dados da categoria
    */
   criar: async (categoria: CategoriaPayload): Promise<CategoriaApi> => {
-    const response = await api.post<CategoriaApi>('/categoria', categoria);
-    return response.data;
+    const response = await api.post<CategoriaApi | ApiEnvelope<CategoriaApi>>(
+      '/categorias',
+      mapearPayloadCriacao(categoria),
+    );
+    return mapearCategoriaApi(extrairData(response.data));
   },
 
   /**
-   * Atualiza uma categoria
-   * @param {number} id - ID da categoria
+   * Atualiza parcialmente uma categoria
+   * @param {string | number} id - ID da categoria
    * @param {object} categoria - Dados atualizados
    */
-  atualizar: async (id: number, categoria: CategoriaPayload): Promise<CategoriaApi> => {
-    const response = await api.put<CategoriaApi>(`/categoria/${id}`, categoria);
-    return response.data;
+  atualizar: async (
+    id: string | number,
+    categoria: CategoriaAtualizacaoPayload,
+  ): Promise<CategoriaApi> => {
+    const response = await api.patch<CategoriaApi | ApiEnvelope<CategoriaApi>>(
+      `/categorias/${id}`,
+      mapearPayloadAtualizacao(categoria),
+    );
+    return mapearCategoriaApi(extrairData(response.data));
   },
 
   /**
-   * Deleta uma categoria
-   * @param {number} id - ID da categoria
+   * Alterna status lógico de uma categoria
+   * @param {string | number} id - ID da categoria
    */
-  deletar: async (id: number): Promise<CategoriaApi> => {
-    const response = await api.delete<CategoriaApi>(`/categoria/${id}`);
-    return response.data;
+  alternarStatus: async (id: string | number): Promise<void> => {
+    await api.patch(`/categorias/${id}/alternar-status`);
+  },
+
+  /**
+   * Mantido por compatibilidade com chamadas antigas de UI.
+   */
+  deletar: async (id: string | number): Promise<void> => {
+    await categoriaService.alternarStatus(id);
   },
 };
 
