@@ -10,6 +10,7 @@ import {
 import { instituicaoService, categoriaService, transacaoService } from '../../../api';
 import { useAuth } from '../../../contexts/AuthContext';
 import { formatarValorMonetario, limparValorMonetario, converterParaNumero } from '../utils/formatacaoMoeda';
+import { extrairUsuarioId } from '../../../utils/normalizacao';
 
 /**
  * Obtém a data de hoje no formato DD/MM/YYYY
@@ -53,7 +54,64 @@ export const useFormularioTransacao = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const usuarioId = user?.id;
+  const usuarioId = extrairUsuarioId(user);
+
+  const carregarCategoriasParaTransacoes = async (usuarioIdAtual: string | number): Promise<any[]> => {
+    const service = categoriaService as any;
+
+    if (typeof service.listarParaTransacoes === 'function') {
+      return await service.listarParaTransacoes(usuarioIdAtual);
+    }
+
+    const resultados = await Promise.allSettled([
+      categoriaService.listarPorUsuario(usuarioIdAtual, 'GASTO'),
+      categoriaService.listarPorUsuario(usuarioIdAtual, 'RECEITA'),
+      categoriaService.listarPorUsuario(usuarioIdAtual, 'GLOBAL'),
+    ]);
+
+    const mapa = new Map<string, any>();
+
+    resultados.forEach((resultado) => {
+      if (resultado.status === 'fulfilled') {
+        (resultado.value ?? []).forEach((categoria: any) => {
+          mapa.set(String(categoria.id), categoria);
+        });
+      }
+    });
+
+    return Array.from(mapa.values());
+  };
+
+  const carregarTransacoesPorInstituicoes = async (instituicoesUsuario: any[]): Promise<any[]> => {
+    if (!Array.isArray(instituicoesUsuario) || instituicoesUsuario.length === 0) {
+      return [];
+    }
+
+    const resultados = await Promise.allSettled(
+      instituicoesUsuario.map((instituicao) =>
+        transacaoService.listar({ fkInstituicao: instituicao.id }),
+      ),
+    );
+
+    const mapaTransacoes = new Map<string, any>();
+
+    resultados.forEach((resultado, index) => {
+      if (resultado.status === 'fulfilled') {
+        const instituicaoId = instituicoesUsuario[index]?.id;
+        (resultado.value ?? []).forEach((transacao: any) => {
+          const transacaoId = String(transacao.id ?? '');
+          if (!transacaoId) return;
+
+          mapaTransacoes.set(transacaoId, {
+            ...transacao,
+            fkInstituicao: transacao.fkInstituicao ?? instituicaoId ?? null,
+          });
+        });
+      }
+    });
+
+    return Array.from(mapaTransacoes.values());
+  };
 
   /**
    * Debounce para busca de categorias (500ms)
@@ -85,28 +143,12 @@ export const useFormularioTransacao = () => {
     setLoading(true);
     setError(null);
 
-    const [categoriasResult, instituicoesResult, transacoesResult] = await Promise.allSettled([
-      categoriaService.listarPorUsuario(usuarioId),
-      instituicaoService.listarPorUsuario(usuarioId),
-      transacaoService.listarPorUsuario(usuarioId),
-    ]);
-
-    // Categorias
-    if (categoriasResult.status === 'fulfilled') {
-      const categoriasData = categoriasResult.value ?? [];
-      setCategorias(categoriasData);
-      if (categoriasData.length > 0 && selectedCategory === null) {
-        setSelectedCategory(String(categoriasData[0].id));
-      }
-    } else {
-      console.error('Erro ao carregar categorias:', categoriasResult.reason);
-      setError('Erro ao carregar categorias');
-    }
+    let instituicoesFormatadas: any[] = [];
 
     // Instituições — mapeia campo 'type' do backend para 'tipoInstituicao'
-    if (instituicoesResult.status === 'fulfilled') {
-      const instituicoesData = instituicoesResult.value ?? [];
-      const instituicoesFormatadas = instituicoesData.map((inst: any) => ({
+    try {
+      const instituicoesData = await instituicaoService.listarPorUsuario(usuarioId);
+      instituicoesFormatadas = instituicoesData.map((inst: any) => ({
         id: inst.id,
         nome: inst.nome,
         cor: inst.cor,
@@ -114,15 +156,33 @@ export const useFormularioTransacao = () => {
         tipoInstituicao: inst.type ?? inst.tipoInstituicao,
       }));
       setInstituicoes(instituicoesFormatadas);
+    } catch (errorInstituicoes) {
+      console.error('Erro ao carregar instituições:', errorInstituicoes);
+      setInstituicoes([]);
+    }
+
+    if (instituicoesFormatadas.length > 0) {
+      try {
+        const categoriasData = await carregarCategoriasParaTransacoes(usuarioId);
+        setCategorias(categoriasData ?? []);
+        if ((categoriasData?.length ?? 0) > 0 && selectedCategory === null) {
+          setSelectedCategory(String(categoriasData[0].id));
+        }
+      } catch (errorCategorias) {
+        console.error('Erro ao carregar categorias:', errorCategorias);
+        setCategorias([]);
+      }
     } else {
-      console.error('Erro ao carregar instituições:', instituicoesResult.reason);
+      setCategorias([]);
+      setSelectedCategory(null);
     }
 
     // Transações (usadas apenas para calcular top-3 de categorias; falha não é crítica)
-    if (transacoesResult.status === 'fulfilled') {
-      setTransacoes(transacoesResult.value ?? []);
-    } else {
-      console.warn('Não foi possível carregar transações para top-3 de categorias:', transacoesResult.reason);
+    try {
+      const transacoesDoUsuario = await carregarTransacoesPorInstituicoes(instituicoesFormatadas);
+      setTransacoes(transacoesDoUsuario);
+    } catch (errorTransacoes) {
+      console.warn('Não foi possível carregar transações para top-3 de categorias:', errorTransacoes);
     }
 
     setLoading(false);
@@ -463,7 +523,7 @@ export const useFormularioTransacao = () => {
 
     // Aplica categoria sugerida (se houver e for válida)
     if (categoriaSugerida) {
-      setSelectedCategory(String(categoriaSugerida));
+      setSelectedCategory(String(categoriaSugerida.id));
       console.log('📂 [AI SUGGESTION] Categoria aplicada:', categoriaSugerida);
     }
 
@@ -536,12 +596,13 @@ export const useFormularioTransacao = () => {
     }
 
     // Conta frequência de uso de cada categoria
-    const frequencia: { [key: number]: number } = {};
+    const frequencia: Record<string, number> = {};
 
     transacoes.forEach((transacao: any) => {
-      const catId = transacao.fkCategoria ?? transacao.fk_categoria;
+      const catId = transacao.fkCategoria;
       if (catId) {
-        frequencia[catId] = (frequencia[catId] || 0) + 1;
+        const key = String(catId);
+        frequencia[key] = (frequencia[key] || 0) + 1;
       }
     });
 
@@ -549,8 +610,8 @@ export const useFormularioTransacao = () => {
     const categoriasOrdenadas = categorias
       .filter(cat => podeUsarPara(cat, tipo))
       .sort((a, b) => {
-        const freqA = frequencia[a.id] || 0;
-        const freqB = frequencia[b.id] || 0;
+        const freqA = frequencia[String(a.id)] || 0;
+        const freqB = frequencia[String(b.id)] || 0;
         return freqB - freqA;
       })
       .slice(0, 3);
