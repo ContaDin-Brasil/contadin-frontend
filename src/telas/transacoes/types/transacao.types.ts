@@ -12,21 +12,21 @@ export type ProcessingType = 'photo' | 'audio';
 
 // Interface de Instituição (alinhado com DB: instituicao)
 export interface Institution {
-  id: number;
+  id: string | number;
   nome: string;
   icone: string;
   cor: string;
-  fk_usuario?: number;
+  fkUsuario?: string | number;
 }
 
 // Interface de Categoria (alinhado com DB: categoria)
 export interface Category {
-  id: string;
+  id: string | number;
   nome: string;
   tipo: 'RECEITA' | 'GASTO' | 'GLOBAL';
   cor: string;
   icone: string;
-  fk_usuario: number | null;
+  fkUsuario?: string | number | null;
 }
 
 // Interface de Frequência (para UI)
@@ -37,17 +37,55 @@ export interface Frequency {
 
 // Interface de Transação (alinhado com DB: transacao)
 export interface Transaction {
-  id: number;
+  id: string | number;
   descricao: string;
   valor: number;
   tipo: TransactionType;
-  data_transacao: Date;
+  dataTransacao: string | Date;
   parcelado: boolean;
-  qtdParcelas?: number;
-  recorrencia?: FrequencyType;
-  fim_recorrencia?: Date;
-  fk_instituicao: number;
-  fk_categoria: number;
+  qtdParcelas?: number | null;
+  recorrencia?: FrequencyType | null;
+  fimRecorrencia?: string | Date | null;
+  fkInstituicao?: string | number | null;
+  fkCategoria?: string | number | null;
+}
+
+export interface FiltrosTransacao {
+  tipo: 'TODOS' | 'RECEITA' | 'GASTO';
+  instituicoes: Array<string | number>;
+  categorias: Array<string | number>;
+  valorMin: string;
+  valorMax: string;
+  apenasParcelado: boolean;
+  apenasRecorrente: boolean;
+  dataInicio: string;
+  dataFim: string;
+}
+
+export interface ListarTransacoesParams {
+  _page?: number;
+  _limit?: number;
+  _sort?: string;
+  _order?: 'asc' | 'desc' | 'ASC' | 'DESC';
+  tipo?: 'GASTO' | 'RECEITA';
+  fkInstituicao?: string | number;
+  fkCategoria?: string | number;
+  valorGte?: number;
+  valorLte?: number;
+  parcelado?: boolean;
+  recorrente?: boolean;
+  dataTransacaoGte?: string;
+  dataTransacaoLte?: string;
+  search?: string;
+}
+
+export interface TransacoesPaginadas<T = Transaction> {
+  data: T[];
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasMore: boolean;
 }
 
 // Interface de Sugestão da IA (para UI)
