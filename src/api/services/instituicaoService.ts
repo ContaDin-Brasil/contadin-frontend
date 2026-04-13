@@ -40,6 +40,21 @@ const asId = (value: unknown): string | number | undefined => {
   return undefined;
 };
 
+const toKey = (value: unknown): string => String(value ?? '').trim();
+
+const instituicaoPertenceAoUsuario = (
+  instituicao: InstituicaoApi,
+  usuarioId: string | number,
+): boolean => {
+  const fkUsuario = instituicao.fkUsuario ?? instituicao.fk_usuario;
+
+  if (fkUsuario === null || fkUsuario === undefined) {
+    return true;
+  }
+
+  return toKey(fkUsuario) === toKey(usuarioId);
+};
+
 const toBackendTipo = (value: unknown): TipoInstituicaoBackend => {
   return asString(value)?.toUpperCase() === 'VALE' ? 'VALE' : 'BANCO';
 };
@@ -152,7 +167,9 @@ const instituicaoService = {
       });
       const data = unwrapData<InstituicaoApi[] | undefined>(response.data);
       const lista = Array.isArray(data) ? data : [];
-      return lista.map((item) => normalizeInstituicao(item));
+      return lista
+        .map((item) => normalizeInstituicao(item))
+        .filter((instituicao) => instituicaoPertenceAoUsuario(instituicao, usuarioId));
     } catch (error) {
       handleServiceError(error, 'Erro ao buscar instituicoes do usuario.');
     }
@@ -244,7 +261,7 @@ const instituicaoService = {
 
       // 3. Filtrar transações órfãs
       const transacoesOrfas = transacoes.filter(
-        (t) => !idsValidosNormalizados.has(String(t.fk_instituicao)),
+        (t) => !idsValidosNormalizados.has(String(t.fkInstituicao)),
       );
 
       // 4. Deletar transações órfãs
@@ -259,7 +276,7 @@ const instituicaoService = {
         transacoesOrfas: transacoesOrfas.map((t) => ({
           id: t.id,
           descricao: t.descricao,
-          fk_instituicao: t.fk_instituicao,
+          fkInstituicao: t.fkInstituicao ?? '',
         })),
       };
     } catch (error) {
@@ -279,7 +296,7 @@ const instituicaoService = {
 
     return instituicoes.map((instituicao) => ({
       ...instituicao,
-      transacao: transacoes.filter((transacao) => String(transacao.fk_instituicao) === String(instituicao.id)),
+      transacao: transacoes.filter((transacao) => String(transacao.fkInstituicao) === String(instituicao.id)),
     }));
   },
 };
