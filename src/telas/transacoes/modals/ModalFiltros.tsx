@@ -2,18 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet, ScrollView, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import COLORS from '../../../styles/colors';
+import type { FiltrosTransacao } from '../types/transacao.types';
 
-interface Filtros {
-  tipo: 'TODOS' | 'RECEITA' | 'GASTO';
-  instituicoes: number[];
-  categorias: number[];
-  valorMin: string;
-  valorMax: string;
-  apenasParcelado: boolean;
-  apenasRecorrente: boolean;
-  dataInicio: string;
-  dataFim: string;
-}
+type Filtros = FiltrosTransacao;
 
 interface ModalFiltrosProps {
   visible: boolean;
@@ -45,16 +36,16 @@ export const ModalFiltros: React.FC<ModalFiltrosProps> = ({
     setFiltrosTemp({ ...filtrosTemp, tipo });
   };
 
-  const toggleInstituicao = (id: number) => {
-    const instituicoesSelecionadas = filtrosTemp.instituicoes.includes(id)
-      ? filtrosTemp.instituicoes.filter(i => i !== id)
+  const toggleInstituicao = (id: string | number) => {
+    const instituicoesSelecionadas = filtrosTemp.instituicoes.some((i) => String(i) === String(id))
+      ? filtrosTemp.instituicoes.filter((i) => String(i) !== String(id))
       : [...filtrosTemp.instituicoes, id];
     setFiltrosTemp({ ...filtrosTemp, instituicoes: instituicoesSelecionadas });
   };
 
-  const toggleCategoria = (id: number) => {
-    const categoriasSelecionadas = filtrosTemp.categorias.includes(id)
-      ? filtrosTemp.categorias.filter(c => c !== id)
+  const toggleCategoria = (id: string | number) => {
+    const categoriasSelecionadas = filtrosTemp.categorias.some((c) => String(c) === String(id))
+      ? filtrosTemp.categorias.filter((c) => String(c) !== String(id))
       : [...filtrosTemp.categorias, id];
     setFiltrosTemp({ ...filtrosTemp, categorias: categoriasSelecionadas });
   };
@@ -171,10 +162,10 @@ export const ModalFiltros: React.FC<ModalFiltrosProps> = ({
                       <View
                         style={[
                           styles.checkbox,
-                          filtrosTemp.instituicoes.includes(instituicao.id) && styles.checkboxActive,
+                          filtrosTemp.instituicoes.some((id) => String(id) === String(instituicao.id)) && styles.checkboxActive,
                         ]}
                       >
-                        {filtrosTemp.instituicoes.includes(instituicao.id) && (
+                        {filtrosTemp.instituicoes.some((id) => String(id) === String(instituicao.id)) && (
                           <Ionicons name="checkmark" size={16} color={COLORS.white} />
                         )}
                       </View>
@@ -211,10 +202,10 @@ export const ModalFiltros: React.FC<ModalFiltrosProps> = ({
                       <View
                         style={[
                           styles.checkbox,
-                          filtrosTemp.categorias.includes(categoria.id) && styles.checkboxActive,
+                          filtrosTemp.categorias.some((id) => String(id) === String(categoria.id)) && styles.checkboxActive,
                         ]}
                       >
-                        {filtrosTemp.categorias.includes(categoria.id) && (
+                        {filtrosTemp.categorias.some((id) => String(id) === String(categoria.id)) && (
                           <Ionicons name="checkmark" size={16} color={COLORS.white} />
                         )}
                       </View>
@@ -268,7 +259,9 @@ export const ModalFiltros: React.FC<ModalFiltrosProps> = ({
               <Text style={styles.sectionTitle}>Características</Text>
               <TouchableOpacity
                 style={styles.switchItem}
-                onPress={() => setFiltrosTemp({ ...filtrosTemp, apenasParcelado: !filtrosTemp.apenasParcelado })}
+                onPress={() =>
+                  setFiltrosTemp({ ...filtrosTemp, apenasParcelado: !filtrosTemp.apenasParcelado })
+                }
               >
                 <View style={styles.switchLabel}>
                   <Ionicons name="card-outline" size={20} color={COLORS.textSecondary} />
@@ -290,7 +283,12 @@ export const ModalFiltros: React.FC<ModalFiltrosProps> = ({
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.switchItem}
-                onPress={() => setFiltrosTemp({ ...filtrosTemp, apenasRecorrente: !filtrosTemp.apenasRecorrente })}
+                onPress={() =>
+                  setFiltrosTemp({
+                    ...filtrosTemp,
+                    apenasRecorrente: !filtrosTemp.apenasRecorrente,
+                  })
+                }
               >
                 <View style={styles.switchLabel}>
                   <Ionicons name="repeat-outline" size={20} color={COLORS.textSecondary} />
