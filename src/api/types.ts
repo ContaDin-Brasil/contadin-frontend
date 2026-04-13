@@ -132,30 +132,32 @@ export interface InstituicaoComTransacoes extends InstituicaoApi {
 }
 
 export interface TransacaoApi {
-  id: number;
+  id: string;
   descricao: string;
   valor: number;
   tipo: TransactionType;
-  data_transacao: string;
+  dataTransacao: string;
   parcelado: boolean;
-  qtdParcelas?: number | null;
   recorrencia?: FrequencyType | null;
-  fim_recorrencia?: string | null;
-  fk_instituicao: string | number;
-  fk_categoria: number;
+  fimRecorrencia?: string | null;
+  ativo: boolean | null;
+  fkInstituicao?: string | null;
+  fkCategoria?: string | null;
+  criadoEm?: string;
+  atualizadoEm?: string;
 }
 
 export interface TransacaoPayload {
   descricao: string;
   valor: number;
   tipo: TransactionType;
-  data_transacao: string;
+  dataTransacao: string;
   parcelado: boolean;
-  qtdParcelas?: number | null;
   recorrencia?: FrequencyType | null;
-  fim_recorrencia?: string | null;
-  fk_instituicao: string | number;
-  fk_categoria: number;
+  fimRecorrencia?: string | null;
+  ativo?: boolean;
+  fkInstituicao: string;
+  fkCategoria: string;
 }
 
 export interface MetaGastoApi {

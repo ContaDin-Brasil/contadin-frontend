@@ -14,10 +14,12 @@ import { useEditarTransacao } from './hooks/useEditarTransacao';
 import { FREQUENCIES, INSTALLMENT_OPTIONS } from './constants/constantesTransacao';
 import { getCategoryIcon } from './utils/utilitariosTransacao';
 import { categoriaService } from '../../api';
+import { useAuth } from '../../contexts/AuthContext';
 import COLORS from '../../styles/colors';
 import { styles } from './styles/TelaAdicionarTransacao.styles';
 
 const TelaEditarTransacao = ({ navigation, route }) => {
+  const { user } = useAuth();
   const transacaoId = route.params?.transacaoId || null;
   
   const [selectionModalVisible, setSelectionModalVisible] = useState(false);
@@ -43,7 +45,7 @@ const TelaEditarTransacao = ({ navigation, route }) => {
     try {
       await categoriaService.criar({
         ...data,
-        fk_usuario: 1 // ID do usuário
+        fkUsuario: user?.id ?? null,
       });
       
       // Recarrega categorias
@@ -83,6 +85,8 @@ const TelaEditarTransacao = ({ navigation, route }) => {
       Alert.alert('Sucesso', 'Transação atualizada com sucesso!', [
         { text: 'OK', onPress: () => navigation.goBack() }
       ]);
+      // Fallback para web onde Alert pode não funcionar como esperado
+      setTimeout(() => navigation.goBack(), 100);
     } catch (error) {
       console.error('Erro ao atualizar transação:', error);
       Alert.alert('Erro', error.message || 'Não foi possível atualizar a transação');
@@ -493,7 +497,7 @@ const TelaEditarTransacao = ({ navigation, route }) => {
                       <View style={{ flex: 1 }}>
                         <Text style={styles.chipText}>{editState.selectedInstitution.nome}</Text>
                         <Text style={{ fontSize: 12, color: '#999', marginTop: 2, marginLeft: 2 }}>
-                          {editState.selectedInstitution.tipoInstituicao === 'vale' ? 'Vale' : 'Banco'}
+                          {editState.selectedInstitution.tipoInstituicao === 'VALE' ? 'Vale' : 'Banco'}
                         </Text>
                       </View>
                       <TouchableOpacity 

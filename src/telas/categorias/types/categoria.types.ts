@@ -20,6 +20,7 @@ export interface CategoryFormData {
   tipo: CategoryType;
   cor: string;
   icone: string;
+  fkUsuario?: CategoryId | null;
 }
 
 /**

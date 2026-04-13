@@ -45,9 +45,9 @@ const transacaoService = {
    * Busca transações por usuário
    * Nota: Como transações não têm fk_usuario diretamente, 
    * retorna todas as transações (que serão filtradas por instituições do usuário)
-   * @param {number} usuarioId - ID do usuário
+   * @param {string | number} usuarioId - ID do usuário
    */
-  listarPorUsuario: async (_usuarioId: number): Promise<TransacaoApi[]> => {
+  listarPorUsuario: async (_usuarioId: string | number): Promise<TransacaoApi[]> => {
     // Por enquanto, retorna todas as transações
     // Em produção, isso seria filtrado pelo backend
     const response = await api.get<TransacaoApi[] | EnvelopeArray<TransacaoApi>>('/transacao');
@@ -56,9 +56,9 @@ const transacaoService = {
 
   /**
    * Busca uma transação por ID
-   * @param {number} id - ID da transação
+   * @param {string} id - UUID da transação
    */
-  buscarPorId: async (id: number): Promise<TransacaoApi> => {
+  buscarPorId: async (id: string): Promise<TransacaoApi> => {
     const response = await api.get<TransacaoApi>(`/transacao/${id}`);
     return response.data;
   },
@@ -149,22 +149,21 @@ const transacaoService = {
   },
 
   /**
-   * Atualiza uma transação
-   * @param {number} id - ID da transação
+   * Atualiza uma transação parcialmente
+   * @param {string} id - UUID da transação
    * @param {object} transacao - Dados atualizados
    */
-  atualizar: async (id: number, transacao: TransacaoPayload): Promise<TransacaoApi> => {
-    const response = await api.put<TransacaoApi>(`/transacao/${id}`, transacao);
+  atualizar: async (id: string, transacao: TransacaoPayload): Promise<TransacaoApi> => {
+    const response = await api.patch<TransacaoApi>(`/transacao/${id}`, transacao);
     return response.data;
   },
 
   /**
    * Deleta uma transação
-   * @param {number} id - ID da transação
+   * @param {string} id - UUID da transação
    */
-  deletar: async (id: number): Promise<TransacaoApi> => {
-    const response = await api.delete<TransacaoApi>(`/transacao/${id}`);
-    return response.data;
+  deletar: async (id: string): Promise<void> => {
+    await api.delete(`/transacao/${id}`);
   },
 
   /**

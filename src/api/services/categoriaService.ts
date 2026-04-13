@@ -96,6 +96,27 @@ const mapearPayloadAtualizacao = (
   return payload;
 };
 
+type EnvelopeArray<T> = {
+  data?: T[];
+  content?: T[];
+  items?: T[];
+};
+
+const toArray = <T>(payload: unknown): T[] => {
+  if (Array.isArray(payload)) {
+    return payload as T[];
+  }
+
+  if (payload && typeof payload === 'object') {
+    const source = payload as EnvelopeArray<T>;
+    if (Array.isArray(source.data)) return source.data;
+    if (Array.isArray(source.content)) return source.content;
+    if (Array.isArray(source.items)) return source.items;
+  }
+
+  return [];
+};
+
 /**
  * Serviço de Categorias
  * Gerencia operações relacionadas às categorias de transações
@@ -108,10 +129,14 @@ const categoriaService = {
     fkUsuario?: string | number;
     tipoCategoria?: CategoryType;
   }): Promise<CategoriaApi[]> => {
-    const response = await api.get<CategoriaApi[] | ApiEnvelope<CategoriaApi[]>>('/categorias', {
+    const response = await api.get<CategoriaApi[] | ApiEnvelope<CategoriaApi[]> | EnvelopeArray<CategoriaApi>>('/categorias', {
       params,
     });
-    return mapearListaCategorias(response.data);
+    const categorias = Array.isArray(response.data)
+      ? mapearListaCategorias(response.data)
+      : toArray<CategoriaApi>(response.data).map(mapearCategoriaApi);
+
+    return categorias;
   },
 
   /**
@@ -123,14 +148,18 @@ const categoriaService = {
     usuarioId: string | number,
     tipoCategoria?: CategoryType,
   ): Promise<CategoriaApi[]> => {
-    const response = await api.get<CategoriaApi[] | ApiEnvelope<CategoriaApi[]>>('/categorias', {
+    const response = await api.get<CategoriaApi[] | ApiEnvelope<CategoriaApi[]> | EnvelopeArray<CategoriaApi>>('/categorias', {
       params: {
         fkUsuario: usuarioId,
         ...(tipoCategoria ? { tipoCategoria } : {}),
       },
     });
 
-    return mapearListaCategorias(response.data).filter((categoria) =>
+    const categorias = Array.isArray(response.data)
+      ? mapearListaCategorias(response.data)
+      : toArray<CategoriaApi>(response.data).map(mapearCategoriaApi);
+
+    return categorias.filter((categoria) =>
       categoriaPertenceAoUsuarioOuSistema(categoria, usuarioId),
     );
   },
@@ -143,7 +172,7 @@ const categoriaService = {
     usuarioId: string | number,
     tipoCategoria?: CategoryType,
   ): Promise<CategoriaApi[]> => {
-    const response = await api.get<CategoriaApi[] | ApiEnvelope<CategoriaApi[]>>('/categorias/nome', {
+    const response = await api.get<CategoriaApi[] | ApiEnvelope<CategoriaApi[]> | EnvelopeArray<CategoriaApi>>('/categorias/nome', {
       params: {
         nome,
         fkUsuario: usuarioId,
@@ -151,7 +180,11 @@ const categoriaService = {
       },
     });
 
-    return mapearListaCategorias(response.data).filter((categoria) =>
+    const categorias = Array.isArray(response.data)
+      ? mapearListaCategorias(response.data)
+      : toArray<CategoriaApi>(response.data).map(mapearCategoriaApi);
+
+    return categorias.filter((categoria) =>
       categoriaPertenceAoUsuarioOuSistema(categoria, usuarioId),
     );
   },
