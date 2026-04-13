@@ -32,6 +32,8 @@ const TelaAdicionarTransacao = ({ navigation }) => {
   // Hooks customizados
   const formState = useFormularioTransacao();
   const aiState = useProcessamentoIA();
+  const semInstituicoesDisponiveis = !formState.loading && formState.instituicoes.length === 0;
+  const semCategoriasDisponiveis = !formState.loading && formState.categorias.length === 0;
 
   // Efeito para abrir modal quando sugestão de IA aparece
   React.useEffect(() => {
@@ -116,6 +118,32 @@ const TelaAdicionarTransacao = ({ navigation }) => {
   };
 
   const handleSaveTransaction = async () => {
+    if (semInstituicoesDisponiveis) {
+      Toast.show({
+        type: 'error',
+        position: 'top',
+        text1: 'Nenhuma instituição cadastrada',
+        text2: 'Adicione uma instituição antes de salvar a transação.',
+        visibilityTime: 3500,
+        autoHide: true,
+        topOffset: 80,
+      });
+      return;
+    }
+
+    if (semCategoriasDisponiveis) {
+      Toast.show({
+        type: 'error',
+        position: 'top',
+        text1: 'Nenhuma categoria cadastrada',
+        text2: 'Crie uma categoria antes de salvar a transação.',
+        visibilityTime: 3500,
+        autoHide: true,
+        topOffset: 80,
+      });
+      return;
+    }
+
     // Validar os 5 campos obrigatórios
     const validation = formState.validateOnSubmit();
     
@@ -423,18 +451,18 @@ const TelaAdicionarTransacao = ({ navigation }) => {
               key={category.id}
               style={[
                 styles.categoryButton,
-                formState.selectedCategory === category.id && styles.categoryButtonActive
+                String(formState.selectedCategory) === String(category.id) && styles.categoryButtonActive
               ]}
-              onPress={() => formState.setSelectedCategory(category.id)}
+              onPress={() => formState.setSelectedCategory(String(category.id))}
             >
               <MaterialIcons
                 name={category.icone || getCategoryIcon(category.nome)}
                 size={20}
-                color={formState.selectedCategory === category.id ? '#FFF' : '#333'}
+                color={String(formState.selectedCategory) === String(category.id) ? '#FFF' : '#333'}
               />
               <Text style={[
                 styles.categoryButtonText,
-                formState.selectedCategory === category.id && styles.categoryButtonTextActive
+                String(formState.selectedCategory) === String(category.id) && styles.categoryButtonTextActive
               ]}>
                 {category.nome}
               </Text>
@@ -452,6 +480,13 @@ const TelaAdicionarTransacao = ({ navigation }) => {
             </Text>
           </TouchableOpacity>
         </View>
+        {semCategoriasDisponiveis && (
+          <View style={{ marginTop: 8 }}>
+            <Text style={{ color: COLORS.warning, fontSize: 13 }}>
+              Nenhuma categoria encontrada. Crie uma categoria para continuar.
+            </Text>
+          </View>
+        )}
       </View>
 
       {/* Recorrência e Parcelamento */}
@@ -663,6 +698,19 @@ const TelaAdicionarTransacao = ({ navigation }) => {
           )}
           <Ionicons name="chevron-forward" size={20} color="#999" />
         </TouchableOpacity>
+        {semInstituicoesDisponiveis && (
+          <View style={{ marginTop: 8 }}>
+            <Text style={{ color: COLORS.warning, fontSize: 13 }}>
+              Nenhuma instituição encontrada. Adicione uma instituição para continuar.
+            </Text>
+            <TouchableOpacity
+              onPress={() => setCustomModalVisible(true)}
+              style={{ marginTop: 6 }}
+            >
+              <Text style={{ color: COLORS.primary, fontWeight: '600' }}>Adicionar instituição</Text>
+            </TouchableOpacity>
+          </View>
+        )}
         <ErrorMessage message={validationErrors.instituicao} />
       </View>
 
@@ -679,7 +727,7 @@ const TelaAdicionarTransacao = ({ navigation }) => {
           primaryLabel="Salvar Transação"
           primaryLoadingLabel="Salvando..."
           onPrimaryPress={handleSaveTransaction}
-          primaryDisabled={salvando || formState.loading}
+          primaryDisabled={salvando || formState.loading || semInstituicoesDisponiveis || semCategoriasDisponiveis}
           primaryLoading={salvando}
         />
       </View>
