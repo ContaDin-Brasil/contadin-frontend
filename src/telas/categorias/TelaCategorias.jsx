@@ -5,14 +5,12 @@ import {
   FlatList,
   TouchableOpacity,
   TextInput,
-  Alert,
   ActivityIndicator,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { COLORS } from "../../styles/colors";
 import { styles } from "./style/TelaCategorias.styles";
 import { useGerenciarCategorias } from "../categorias/hooks/useGerenciarCategorias";
-import { isPadrao } from "../categorias/types/categoria.types";
 import ModalCategoria from "../categorias/modals/ModalCategoria";
 import ModalConfirmDelete from "../../componentes/modais/ModalConfirmDelete";
 import ModalAviso from "../../componentes/modais/ModalAviso";
@@ -31,6 +29,7 @@ const TelaCategorias = () => {
     criarCategoria,
     atualizarCategoria,
     deletarCategoria,
+    isCategoriaProtegida,
   } = useGerenciarCategorias();
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -48,8 +47,8 @@ const TelaCategorias = () => {
   };
 
   const handleEditCategoria = (categoria) => {
-    if (isPadrao(categoria)) {
-      setAvisoMensagem("Categorias padrão não podem ser editadas");
+    if (isCategoriaProtegida(categoria)) {
+      setAvisoMensagem("Categorias do sistema não podem ser editadas");
       setAvisoModalVisible(true);
       return;
     }
@@ -59,8 +58,8 @@ const TelaCategorias = () => {
 
   const handleDeleteCategoria = (categoria) => {
     console.log('handleDeleteCategoria chamado:', categoria);
-    if (isPadrao(categoria)) {
-      setAvisoMensagem("Categorias padrão não podem ser deletadas");
+    if (isCategoriaProtegida(categoria)) {
+      setAvisoMensagem("Categorias do sistema não podem ser deletadas");
       setAvisoModalVisible(true);
       return;
     }
@@ -103,7 +102,7 @@ const TelaCategorias = () => {
   };
 
   const renderCategoriaItem = ({ item }) => {
-    const ehPadrao = isPadrao(item);
+    const ehPadrao = isCategoriaProtegida(item);
 
     return (
       <View style={styles.categoriaItem}>
@@ -113,7 +112,7 @@ const TelaCategorias = () => {
           </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.categoriaNome}>{item.nome}</Text>
-            {ehPadrao && <Text style={styles.categoriaBadge}>Padrão</Text>}
+            {ehPadrao && <Text style={styles.categoriaBadge}>Sistema</Text>}
           </View>
         </View>
         {!ehPadrao && (

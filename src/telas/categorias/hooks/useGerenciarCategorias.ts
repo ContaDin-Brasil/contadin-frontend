@@ -1,18 +1,21 @@
 import { useState, useEffect } from 'react';
 import { categoriaService } from '../../../api';
-import { Category, CategoryType, CategoryFormData, isPadrao } from '../types/categoria.types';
+import { Category, CategoryType, CategoryFormData } from '../types/categoria.types';
+import { useAuth } from '../../../contexts/AuthContext';
+import { extrairUsuarioId, idsIguais, obterUsuarioIdOuErro } from '../../../utils/normalizacao';
 
 /**
  * Hook para gerenciar categorias
  */
 export const useGerenciarCategorias = () => {
+  const { user } = useAuth();
+  const usuarioIdLogado = extrairUsuarioId(user);
   const [categorias, setCategorias] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState<CategoryType>('GASTO');
-
-  const usuarioId = 1; // TODO: Pegar do contexto de autenticação
 
   /**
    * Carrega categorias do usuário (padrão + personalizadas)
@@ -20,37 +23,100 @@ export const useGerenciarCategorias = () => {
   const carregarCategorias = async () => {
     setLoading(true);
     setError(null);
+
+    const usuarioId = obterUsuarioIdOuErro(usuarioIdLogado, (message) =>
+      setError(message),
+    );
+
+    if (!usuarioId) {
+      setCategorias([]);
+      setLoading(false);
+      return;
+    }
     
     try {
-      const data = await categoriaService.listarPorUsuario(usuarioId);
-      setCategorias(data);
-    } catch (err: any) {
+      const termoBusca = debouncedSearchQuery.trim();
+
+      const [categoriasTipo, categoriasGlobais] = await Promise.all([
+        termoBusca
+          ? categoriaService.buscarPorNome(termoBusca, usuarioId, selectedType)
+          : categoriaService.listarPorUsuario(usuarioId, selectedType),
+        termoBusca
+          ? categoriaService.buscarPorNome(termoBusca, usuarioId, 'GLOBAL')
+          : categoriaService.listarPorUsuario(usuarioId, 'GLOBAL'),
+      ]);
+
+      const mapaCategorias = new Map<string, Category>();
+      [...categoriasTipo, ...categoriasGlobais].forEach((categoria) => {
+        mapaCategorias.set(String(categoria.id), categoria);
+      });
+
+      setCategorias(Array.from(mapaCategorias.values()));
+    } catch (err: unknown) {
+      const message =
+        (err as { response?: { data?: { message?: string; mensagem?: string } } })
+          ?.response?.data?.message ||
+        (err as { response?: { data?: { message?: string; mensagem?: string } } })
+          ?.response?.data?.mensagem ||
+        (err as { message?: string })?.message ||
+        'Erro ao carregar categorias';
+
       console.error('Erro ao carregar categorias:', err);
-      setError(err.message || 'Erro ao carregar categorias');
+      setError(message);
     } finally {
       setLoading(false);
     }
+  };
+
+  const isCategoriaProtegida = (categoria: Category): boolean => {
+    const categoriaUsuarioId = categoria.fkUsuario ?? categoria.fk_usuario ?? null;
+
+    if (categoriaUsuarioId === null || categoriaUsuarioId === undefined) {
+      return true;
+    }
+
+    if (!usuarioIdLogado) {
+      return true;
+    }
+
+    return !idsIguais(categoriaUsuarioId, usuarioIdLogado);
   };
 
   /**
    * Cria uma nova categoria
    */
   const criarCategoria = async (formData: CategoryFormData) => {
+    const usuarioId = obterUsuarioIdOuErro(usuarioIdLogado, (message) =>
+      setError(message),
+    );
+
+    if (!usuarioId) {
+      return false;
+    }
+
     try {
       const novaCategoria = {
         nome: formData.nome,
         tipo: formData.tipo,
         cor: formData.cor,
         icone: formData.icone,
-        fk_usuario: usuarioId,
+        fkUsuario: usuarioId,
       };
 
       await categoriaService.criar(novaCategoria);
       await carregarCategorias();
       return true;
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message =
+        (err as { response?: { data?: { message?: string; mensagem?: string } } })
+          ?.response?.data?.message ||
+        (err as { response?: { data?: { message?: string; mensagem?: string } } })
+          ?.response?.data?.mensagem ||
+        (err as { message?: string })?.message ||
+        'Erro ao criar categoria';
+
       console.error('Erro ao criar categoria:', err);
-      setError(err.message || 'Erro ao criar categoria');
+      setError(message);
       return false;
     }
   };
@@ -58,12 +124,22 @@ export const useGerenciarCategorias = () => {
   /**
    * Atualiza uma categoria existente
    */
-  const atualizarCategoria = async (id: number, formData: CategoryFormData) => {
+  const atualizarCategoria = async (
+    id: string | number,
+    formData: CategoryFormData,
+  ) => {
+    const usuarioId = obterUsuarioIdOuErro(usuarioIdLogado, (message) =>
+      setError(message),
+    );
+
+    if (!usuarioId) {
+      return false;
+    }
+
     try {
-      // Verifica se é categoria padrão
-      const categoria = categorias.find(c => c.id === id);
-      if (categoria && isPadrao(categoria)) {
-        setError('Categorias padrão não podem ser editadas');
+      const categoria = categorias.find((c) => String(c.id) === String(id));
+      if (categoria && isCategoriaProtegida(categoria)) {
+        setError('Categorias do sistema não podem ser editadas');
         return false;
       }
 
@@ -72,15 +148,23 @@ export const useGerenciarCategorias = () => {
         tipo: formData.tipo,
         cor: formData.cor,
         icone: formData.icone,
-        fk_usuario: categoria?.fk_usuario || usuarioId, // Mantém o fk_usuario original
+        fkUsuario: categoria?.fkUsuario ?? categoria?.fk_usuario ?? usuarioId,
       };
 
       await categoriaService.atualizar(id, categoriaAtualizada);
       await carregarCategorias();
       return true;
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message =
+        (err as { response?: { data?: { message?: string; mensagem?: string } } })
+          ?.response?.data?.message ||
+        (err as { response?: { data?: { message?: string; mensagem?: string } } })
+          ?.response?.data?.mensagem ||
+        (err as { message?: string })?.message ||
+        'Erro ao atualizar categoria';
+
       console.error('Erro ao atualizar categoria:', err);
-      setError(err.message || 'Erro ao atualizar categoria');
+      setError(message);
       return false;
     }
   };
@@ -88,20 +172,28 @@ export const useGerenciarCategorias = () => {
   /**
    * Deleta uma categoria
    */
-  const deletarCategoria = async (id: number) => {
+  const deletarCategoria = async (id: string | number) => {
     try {
-      const categoria = categorias.find(c => c.id === id);
-      if (categoria && isPadrao(categoria)) {
-        setError('Categorias padrão não podem ser deletadas');
+      const categoria = categorias.find((c) => String(c.id) === String(id));
+      if (categoria && isCategoriaProtegida(categoria)) {
+        setError('Categorias do sistema não podem ser deletadas');
         return false;
       }
 
       await categoriaService.deletar(id);
       await carregarCategorias();
       return true;
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message =
+        (err as { response?: { data?: { message?: string; mensagem?: string } } })
+          ?.response?.data?.message ||
+        (err as { response?: { data?: { message?: string; mensagem?: string } } })
+          ?.response?.data?.mensagem ||
+        (err as { message?: string })?.message ||
+        'Erro ao alterar status da categoria';
+
       console.error('Erro ao deletar categoria:', err);
-      setError(err.message || 'Erro ao deletar categoria');
+      setError(message);
       return false;
     }
   };
@@ -118,14 +210,19 @@ export const useGerenciarCategorias = () => {
   };
 
   useEffect(() => {
+    const timeout = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 300);
+
+    return () => clearTimeout(timeout);
+  }, [searchQuery]);
+
+  useEffect(() => {
     carregarCategorias();
-  }, []);
+  }, [selectedType, user, debouncedSearchQuery]);
 
   return {
     categorias: getFilteredCategories(),
-    categoriasTodasTipos: categorias, // Todas sem filtro de tipo
-    categoriasPadrao: categorias.filter(c => isPadrao(c)),
-    categoriasPersonalizadas: categorias.filter(c => !isPadrao(c)),
     loading,
     error,
     searchQuery,
@@ -135,6 +232,7 @@ export const useGerenciarCategorias = () => {
     criarCategoria,
     atualizarCategoria,
     deletarCategoria,
+    isCategoriaProtegida,
     carregarCategorias,
   };
 };
