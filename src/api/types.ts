@@ -132,17 +132,18 @@ export interface InstituicaoComTransacoes extends InstituicaoApi {
 }
 
 export interface TransacaoApi {
-  id: string;
+  id: string | number;
   descricao: string;
   valor: number;
   tipo: TransactionType;
   dataTransacao: string;
   parcelado: boolean;
+  qtdParcelas?: number | null;
   recorrencia?: FrequencyType | null;
   fimRecorrencia?: string | null;
   ativo: boolean | null;
-  fkInstituicao?: string | null;
-  fkCategoria?: string | null;
+  fkInstituicao?: string | number | null;
+  fkCategoria?: string | number | null;
   criadoEm?: string;
   atualizadoEm?: string;
 }
@@ -156,8 +157,8 @@ export interface TransacaoPayload {
   recorrencia?: FrequencyType | null;
   fimRecorrencia?: string | null;
   ativo?: boolean;
-  fkInstituicao: string;
-  fkCategoria: string;
+  fkInstituicao: string | number;
+  fkCategoria: string | number;
 }
 
 export interface MetaGastoApi {
@@ -178,9 +179,9 @@ export interface MetaGastoPayload {
 }
 
 export interface TransacaoOrfa {
-  id: number;
+  id: string | number;
   descricao: string;
-  fk_instituicao: string | number;
+  fkInstituicao: string | number;
 }
 
 export interface ResultadoLimpezaOrfaos {

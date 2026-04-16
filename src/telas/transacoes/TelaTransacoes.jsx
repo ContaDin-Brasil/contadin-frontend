@@ -15,8 +15,6 @@ import {
   formatDateLabel, 
   groupTransactionsByDate,
   getCategoryIcon,
-  ordenarTransacoes,
-  aplicarFiltros,
   parseTransacaoDate
 } from './utils/utilitariosTransacao';
 import { styles } from './styles/TelaTransacoes.styles';
@@ -49,6 +47,16 @@ const TelaTransacoes = ({ navigation, route }) => {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
+  React.useEffect(() => {
+    gerenciador.carregarDados({
+      search: debouncedSearchQuery,
+      instituicaoFixaId: instituicaoSelecionada?.id,
+      silencioso: true,
+    }).catch((err) => {
+      console.error('❌ Erro ao buscar transações por texto:', err);
+    });
+  }, [debouncedSearchQuery, instituicaoSelecionada?.id]);
+
   /**
    * Limpa o campo de busca
    */
@@ -78,7 +86,10 @@ const TelaTransacoes = ({ navigation, route }) => {
       console.log('='.repeat(60));
       console.log('📊 Recarregando dados do banco...');
       
-      gerenciador.carregarDados().then(() => {
+      gerenciador.carregarDados({
+        search: debouncedSearchQuery,
+        instituicaoFixaId: instituicaoSelecionada?.id,
+      }).then(() => {
         setLastUpdate(new Date());
         console.log('✅ Dados atualizados com sucesso!');
         console.log('⏰ Última atualização:', new Date().toLocaleTimeString('pt-BR'));
@@ -87,7 +98,7 @@ const TelaTransacoes = ({ navigation, route }) => {
         console.error('❌ Erro ao atualizar dados:', err);
         console.log('='.repeat(60) + '\n');
       });
-    }, [])
+    }, [instituicaoSelecionada?.id])
   );
 
   /**
@@ -100,7 +111,10 @@ const TelaTransacoes = ({ navigation, route }) => {
     
     setRefreshing(true);
     try {
-      await gerenciador.carregarDados();
+      await gerenciador.carregarDados({
+        search: debouncedSearchQuery,
+        instituicaoFixaId: instituicaoSelecionada?.id,
+      });
       setLastUpdate(new Date());
       console.log('✅ Dados atualizados manualmente com sucesso!');
       console.log('⏰ Última atualização:', new Date().toLocaleTimeString('pt-BR'));
@@ -110,7 +124,7 @@ const TelaTransacoes = ({ navigation, route }) => {
       setRefreshing(false);
       console.log('='.repeat(60) + '\n');
     }
-  }, []);
+  }, [instituicaoSelecionada?.id]);
 
   // Mostra loading
   if (gerenciador.loading) {
@@ -130,7 +144,12 @@ const TelaTransacoes = ({ navigation, route }) => {
         <Text style={{ marginTop: 16, color: '#E31C23', textAlign: 'center' }}>{gerenciador.error}</Text>
         <TouchableOpacity 
           style={[styles.filterButton, { marginTop: 20, paddingHorizontal: 20 }]}
-          onPress={gerenciador.carregarDados}
+          onPress={() =>
+            gerenciador.carregarDados({
+              search: debouncedSearchQuery,
+              instituicaoFixaId: instituicaoSelecionada?.id,
+            })
+          }
         >
           <Ionicons name="refresh" size={20} color="#666" />
           <Text style={styles.filterButtonText}>Tentar Novamente</Text>
@@ -139,69 +158,7 @@ const TelaTransacoes = ({ navigation, route }) => {
     );
   }
 
-  // Filtra transações pela instituição selecionada (se houver)
-  let transacoesExibidas = gerenciador.transacoes;
-  if (instituicaoSelecionada) {
-    transacoesExibidas = gerenciador.transacoes.filter(
-      transacao => transacao.fk_instituicao === instituicaoSelecionada.id
-    );
-  }
-
-  /**
-   * Aplica filtro de busca dinâmica
-   * Busca em: descrição, categoria, instituição e valor
-   * Case-insensitive e remove acentos para melhor experiência
-   */
-  if (debouncedSearchQuery) {
-    const queryNormalizada = debouncedSearchQuery
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, ''); // Remove acentos
-    
-    transacoesExibidas = transacoesExibidas.filter(transacao => {
-      // Busca na descrição
-      const descricaoNormalizada = transacao.descricao
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '');
-      
-      if (descricaoNormalizada.includes(queryNormalizada)) return true;
-      
-      // Busca na categoria
-      const categoria = gerenciador.buscarCategoria(transacao.fk_categoria);
-      if (categoria) {
-        const categoriaNormalizada = categoria.nome
-          .toLowerCase()
-          .normalize('NFD')
-          .replace(/[\u0300-\u036f]/g, '');
-        if (categoriaNormalizada.includes(queryNormalizada)) return true;
-      }
-      
-      // Busca na instituição
-      const instituicao = gerenciador.buscarInstituicao(transacao.fk_instituicao);
-      if (instituicao) {
-        const instituicaoNormalizada = instituicao.nome
-          .toLowerCase()
-          .normalize('NFD')
-          .replace(/[\u0300-\u036f]/g, '');
-        if (instituicaoNormalizada.includes(queryNormalizada)) return true;
-      }
-      
-      // Busca no valor (formato: "150", "150,50", "1.500")
-      const valorString = transacao.valor.toString().replace('.', ',');
-      if (valorString.includes(queryNormalizada)) return true;
-      
-      return false;
-    });
-
-    console.log(`🔍 [SEARCH RESULT] ${transacoesExibidas.length} transações encontradas para "${debouncedSearchQuery}"`);
-  }
-
-  // Aplica filtros personalizados
-  transacoesExibidas = aplicarFiltros(transacoesExibidas, gerenciador.filtros);
-
-  // Aplica ordenação antes de agrupar
-  const transacoesOrdenadas = ordenarTransacoes(transacoesExibidas, gerenciador.ordenacao);
+  const transacoesOrdenadas = gerenciador.transacoes;
 
   const groupedTransactions = groupTransactionsByDate(transacoesOrdenadas);
 
@@ -261,14 +218,18 @@ const TelaTransacoes = ({ navigation, route }) => {
   };
 
   const renderTransactionItem = (item) => {
-    const category = gerenciador.buscarCategoria(item.fk_categoria);
-    const institution = gerenciador.buscarInstituicao(item.fk_instituicao);
-    const categoryName = category?.nome || 'Sem categoria';
+    const category = gerenciador.buscarCategoria(item.fkCategoria);
+    const institution = gerenciador.buscarInstituicao(item.fkInstituicao);
+    const possuiVinculoCategoria =
+      item.fkCategoria !== null &&
+      item.fkCategoria !== undefined &&
+      String(item.fkCategoria) !== 'SEM_CATEGORIA';
+    const categoryName = category?.nome || (possuiVinculoCategoria ? 'Categoria vinculada' : 'Categoria não informada');
     const institutionName = institution?.nome || 'Sem instituição';
     const institutionColor = institution?.cor || '#666';
     const institutionIcon = institution?.icone || '📱';
     const institutionLogo = getLogoByName(institutionName);
-    const transactionDate = parseTransacaoDate(item.data_transacao).toLocaleDateString('pt-BR');
+    const transactionDate = parseTransacaoDate(item.dataTransacao).toLocaleDateString('pt-BR');
     
     // Mapeia frequência para texto amigável
     const getFrequencyLabel = (freq) => {
@@ -386,16 +347,6 @@ const TelaTransacoes = ({ navigation, route }) => {
           </View>
         );
       })()}
-
-      {/* Alerta de Modo Offline */}
-      {gerenciador.usandoDadosMockados && (
-        <View style={styles.offlineBanner}>
-          <Ionicons name="cloud-offline-outline" size={20} color="#FF9800" />
-          <Text style={styles.offlineBannerText}>
-            Modo offline - usando dados de exemplo
-          </Text>
-        </View>
-      )}
 
       {/* Filtro de Período */}
       <TouchableOpacity 
@@ -518,7 +469,15 @@ const TelaTransacoes = ({ navigation, route }) => {
         visible={modalOrdenacaoVisible}
         onClose={() => setModalOrdenacaoVisible(false)}
         ordenacaoAtual={gerenciador.ordenacao}
-        onSelectOrdenacao={gerenciador.setOrdenacao}
+        onSelectOrdenacao={(novaOrdenacao) => {
+          gerenciador.aplicarOrdenacao(novaOrdenacao, {
+            search: debouncedSearchQuery,
+            instituicaoFixaId: instituicaoSelecionada?.id,
+            silencioso: true,
+          }).catch((err) => {
+            console.error('❌ Erro ao aplicar ordenação:', err);
+          });
+        }}
       />
 
       {/* Modal de Filtros */}
@@ -526,7 +485,15 @@ const TelaTransacoes = ({ navigation, route }) => {
         visible={modalFiltrosVisible}
         onClose={() => setModalFiltrosVisible(false)}
         filtrosAtuais={gerenciador.filtros}
-        onAplicarFiltros={gerenciador.setFiltros}
+        onAplicarFiltros={(novosFiltros) => {
+          gerenciador.aplicarFiltros(novosFiltros, {
+            search: debouncedSearchQuery,
+            instituicaoFixaId: instituicaoSelecionada?.id,
+            silencioso: true,
+          }).catch((err) => {
+            console.error('❌ Erro ao aplicar filtros:', err);
+          });
+        }}
         instituicoes={gerenciador.instituicoes}
         categorias={gerenciador.categorias}
       />
@@ -540,10 +507,16 @@ const TelaTransacoes = ({ navigation, route }) => {
         dataFim={gerenciador.filtros.dataFim}
         onAplicarPeriodo={(periodo, dataInicio, dataFim) => {
           gerenciador.setPeriodo(periodo);
-          gerenciador.setFiltros({
+          gerenciador.aplicarFiltros({
             ...gerenciador.filtros,
             dataInicio,
             dataFim
+          }, {
+            search: debouncedSearchQuery,
+            instituicaoFixaId: instituicaoSelecionada?.id,
+            silencioso: true,
+          }).catch((err) => {
+            console.error('❌ Erro ao aplicar período:', err);
           });
         }}
       />

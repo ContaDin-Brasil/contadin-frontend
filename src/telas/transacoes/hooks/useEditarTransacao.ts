@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useFormularioTransacao } from './useFormularioTransacao';
 import { transacaoService } from '../../../api';
-import { limparValorMonetario } from '../utils/formatacaoMoeda';
 import { parseTransacaoDate } from '../utils/utilitariosTransacao';
 
 /**
@@ -15,12 +14,9 @@ export const useEditarTransacao = (transacaoId: string | null) => {
 
   /**
    * Aplica a instituição correta sempre que a transação ou a lista de instituições estiver disponível.
-   * Trata tanto fkInstituicao (camelCase) quanto fk_instituicao (snake_case) para compatibilidade com a API.
    */
   useEffect(() => {
-    const fkInstId =
-      transacaoOriginal?.fkInstituicao ??
-      (transacaoOriginal as any)?.fk_instituicao;
+    const fkInstId = transacaoOriginal?.fkInstituicao;
 
     if (!fkInstId || formState.instituicoes.length === 0) return;
 
@@ -41,12 +37,9 @@ export const useEditarTransacao = (transacaoId: string | null) => {
 
   /**
    * Aplica a categoria correta sempre que a transação ou a lista de categorias estiver disponível.
-   * Trata tanto fkCategoria (camelCase) quanto fk_categoria (snake_case) para compatibilidade com a API.
    */
   useEffect(() => {
-    const fkCatId =
-      transacaoOriginal?.fkCategoria ??
-      (transacaoOriginal as any)?.fk_categoria;
+    const fkCatId = transacaoOriginal?.fkCategoria;
 
     if (!fkCatId || formState.categorias.length === 0) return;
 
@@ -139,7 +132,7 @@ export const useEditarTransacao = (transacaoId: string | null) => {
     formState.setValor(valorFormatado);
     
     // Data - converte de ISO para DD/MM/YYYY
-    const dataTransacao = parseTransacaoDate(transacao.data_transacao);
+    const dataTransacao = parseTransacaoDate(transacao.dataTransacao);
     const dia = String(dataTransacao.getDate()).padStart(2, '0');
     const mes = String(dataTransacao.getMonth() + 1).padStart(2, '0');
     const ano = dataTransacao.getFullYear();
@@ -147,8 +140,8 @@ export const useEditarTransacao = (transacaoId: string | null) => {
     formState.handleDateChange(dataFormatada);
     
     // Categoria
-    if (transacao.fk_categoria) {
-      formState.setSelectedCategory(transacao.fk_categoria);
+    if (transacao.fkCategoria) {
+      formState.setSelectedCategory(String(transacao.fkCategoria));
     }
 
     // Categoria e instituição são aplicadas via useEffect que observa transacaoOriginal
@@ -177,13 +170,13 @@ export const useEditarTransacao = (transacaoId: string | null) => {
     }
     
     // Instituição - agora as instituições já estão carregadas no formState
-    if (transacao.fk_instituicao) {
-      console.log('🏦 [INSTITUTION] Buscando instituição com ID:', transacao.fk_instituicao);
+    if (transacao.fkInstituicao) {
+      console.log('🏦 [INSTITUTION] Buscando instituição com ID:', transacao.fkInstituicao);
       console.log('   Instituições disponíveis no formState:', formState.instituicoes.length);
       console.log('   IDs:', formState.instituicoes.map((i: any) => i.id).join(', '));
       
       const instituicao = formState.instituicoes.find(
-        (inst: any) => inst.id === transacao.fk_instituicao
+        (inst: any) => String(inst.id) === String(transacao.fkInstituicao)
       );
       
       if (instituicao) {
@@ -191,13 +184,13 @@ export const useEditarTransacao = (transacaoId: string | null) => {
         formState.handleSelectInstitution(instituicao);
         
         // Define o tipo de instituição correto
-        if (instituicao.tipoInstituicao === 'vale') {
+        if (instituicao.tipoInstituicao === 'VALE') {
           formState.setInstitutionType('vouchers');
         } else {
           formState.setInstitutionType('banks');
         }
       } else {
-        console.warn('⚠️ [INSTITUTION] Instituição não encontrada no array:', transacao.fk_instituicao);
+        console.warn('⚠️ [INSTITUTION] Instituição não encontrada no array:', transacao.fkInstituicao);
         console.warn('   Instituições disponíveis:', formState.instituicoes.map((i: any) => `${i.id}:${i.nome}`).join(', '));
       }
     } else {
