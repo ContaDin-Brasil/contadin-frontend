@@ -1,6 +1,6 @@
 import type {
   Category,
-  CategoryFormData,
+  CategoryType,
 } from '../telas/categorias/types/categoria.types';
 import type {
   DadosDashboard,
@@ -14,7 +14,17 @@ import type { FrequencyType, TransactionType } from '../telas/transacoes/types/t
 export type TipoInstituicao = 'BANCO' | 'VALE';
 
 export type CategoriaApi = Category;
-export type CategoriaPayload = CategoryFormData;
+
+export interface CategoriaPayload {
+  nome: string;
+  icone: string;
+  cor: string;
+  tipo: CategoryType;
+  fkUsuario: string | number;
+  fk_usuario?: string | number;
+}
+
+export type CategoriaAtualizacaoPayload = Partial<CategoriaPayload>;
 
 export interface CredenciaisLogin {
   email: string;
