@@ -13,6 +13,7 @@ import TelaSolicitarEmail from '../telas/autenticacoes/esqueceu-sua-senha/TelaSo
 import TelaValidarToken from '../telas/autenticacoes/esqueceu-sua-senha/TelaValidarToken';
 import TelaNovaSenha from '../telas/autenticacoes/esqueceu-sua-senha/TelaNovaSenha';
 import TelaSenhaAtualizadaSucesso from '../telas/autenticacoes/esqueceu-sua-senha/TelaSenhaAtualizadaSucesso';
+import TelaImportarPlanilha from '../telas/importacao/TelaImportarPlanilha';
 
 const Stack = createStackNavigator();
 
@@ -37,6 +38,7 @@ function NavegadorAutenticacao() {
       <Stack.Screen name="ValidarToken" component={TelaValidarToken} />
       <Stack.Screen name="NovaSenha" component={TelaNovaSenha} />
       <Stack.Screen name="SenhaAtualizadaSucesso" component={TelaSenhaAtualizadaSucesso} />
+      <Stack.Screen name="ImportarPlanilha" component={TelaImportarPlanilha} />
     </Stack.Navigator>
   );
 }

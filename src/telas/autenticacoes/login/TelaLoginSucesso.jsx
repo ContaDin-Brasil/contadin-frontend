@@ -29,6 +29,20 @@ function TelaLoginSucesso({ route, navigation }) {
       >
         <Text style={styles.botaoContinuarText}>Começar a contar</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.botaoImportar}
+        onPress={() =>
+          navigation.navigate('ImportarPlanilha', {
+            token,
+            user,
+            fromLoginSuccess: true,
+          })
+        }
+        activeOpacity={0.8}
+      >
+        <Text style={styles.botaoImportarText}>Importar planilha (opcional)</Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }

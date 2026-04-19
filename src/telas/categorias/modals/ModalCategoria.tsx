@@ -20,6 +20,7 @@ interface ModalCategoriaProps {
   onSave: (data: { nome: string; tipo: CategoryType; cor: string; icone: string }) => Promise<boolean>;
   categoria?: Category | null;
   tipoInicial?: CategoryType;
+  nomeInicial?: string;
 }
 
 const ModalCategoria: React.FC<ModalCategoriaProps> = ({
@@ -28,6 +29,7 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
   onSave,
   categoria,
   tipoInicial,
+  nomeInicial,
 }) => {
   const [nome, setNome] = useState('');
   const [tipo, setTipo] = useState<CategoryType>('GASTO');
@@ -42,10 +44,16 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
       setTipo(categoria.tipo || 'GASTO');
       setCor(categoria.cor || CATEGORY_COLORS[0]);
       setIcone(categoria.icone || 'shopping-cart');
+    } else if (nomeInicial) {
+      // Pré-preencher com nome inicial para criação
+      setNome(nomeInicial);
+      setTipo(tipoInicial || 'GASTO');
+      setCor(CATEGORY_COLORS[0]);
+      setIcone('shopping-cart');
     } else {
       resetForm();
     }
-  }, [categoria, visible]);
+  }, [categoria, visible, nomeInicial, tipoInicial]);
 
   const resetForm = () => {
     setNome('');
@@ -66,7 +74,10 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
 
     if (success) {
       resetForm();
-      onClose();
+      // Usar setTimeout para garantir que o estado foi atualizado antes de fechar
+      setTimeout(() => {
+        onClose();
+      }, 100);
     }
   };
 
