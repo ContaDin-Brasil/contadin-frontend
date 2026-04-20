@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Banco, Vale, Instituicao } from '../types/carteira.types';
 import { instituicaoService } from '../../../api';
 import transacaoService from '../../../api/services/transacaoService';
+import type { InstituicaoApi, TransacaoApi } from '../../../api/types';
 import { useCache } from '../../../contexts/CacheContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import { getInstituicoesPadrao } from '../constants/instituicoesPadrao';
@@ -38,8 +39,9 @@ export const useGerenciarCarteira = () => {
 
   const usuarioId = extrairUsuarioId(user);
 
-  const getTransacaoInstituicaoId = (transacao: any): string | number | null => {
-    const raw = transacao?.fkInstituicao ?? transacao?.fk_instituicao;
+  const getTransacaoInstituicaoId = (transacao: TransacaoApi): string | number | null => {
+    const source = transacao as unknown as Record<string, unknown>;
+    const raw = transacao?.fkInstituicao ?? source.fk_instituicao;
     return normalizarId(raw);
   };
 
@@ -69,7 +71,7 @@ export const useGerenciarCarteira = () => {
       
       // Tenta buscar do cache primeiro (a menos que force refresh)
       if (!forceRefresh) {
-        const cached = await getCache<any[]>(cacheKey);
+        const cached = await getCache<InstituicaoApi[]>(cacheKey);
         if (cached) {
           // Cache só guarda instituições; busca transações sempre (sem cache)
           const transacoes = await transacaoService.listar();
@@ -108,7 +110,7 @@ export const useGerenciarCarteira = () => {
    * Calcula saldo de uma instituição a partir das transações
    * Saldo = soma de RECEITAs - soma de GASTOs
    */
-  const calcularSaldo = (instituicaoId: string | number, transacoes: any[]): number => {
+  const calcularSaldo = (instituicaoId: string | number, transacoes: TransacaoApi[]): number => {
     return transacoes
       .filter((t) => idsIguais(getTransacaoInstituicaoId(t), normalizarId(instituicaoId)))
       .reduce((acc, t) => t.tipo === 'RECEITA' ? acc + t.valor : acc - t.valor, 0);
@@ -117,12 +119,15 @@ export const useGerenciarCarteira = () => {
   /**
    * Processa a lista de instituições e separa em bancos e vales
    */
-  const processarInstituicoes = (instituicoes: any[], transacoes: any[] = []) => {
+  const processarInstituicoes = (
+    instituicoes: InstituicaoApi[],
+    transacoes: TransacaoApi[] = [],
+  ) => {
     const transacoesLista = Array.isArray(transacoes) ? transacoes : [];
     const bancosList: Banco[] = [];
     const valesList: Vale[] = [];
     
-    instituicoes.forEach((inst: any) => {
+    instituicoes.forEach((inst) => {
       const type = normalizarTipoInstituicaoDaEntidade(inst);
 
       // Validação: ignorar instituições sem dados obrigatórios

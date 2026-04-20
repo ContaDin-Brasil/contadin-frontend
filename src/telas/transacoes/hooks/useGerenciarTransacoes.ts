@@ -3,7 +3,13 @@ import { transacaoService, categoriaService, instituicaoService } from '../../..
 import { useAuth } from '../../../contexts/AuthContext';
 import { parseTransacaoDate } from '../utils/utilitariosTransacao';
 import { extrairUsuarioId, normalizarId } from '../../../utils/normalizacao';
-import type { FiltrosTransacao } from '../types/transacao.types';
+import type {
+  Category,
+  FiltrosTransacao,
+  Institution,
+  Transaction,
+} from '../types/transacao.types';
+import type { TransacaoPayload } from '../../../api/types';
 
 export type Filtros = FiltrosTransacao;
 
@@ -16,6 +22,13 @@ interface CarregarDadosOpcoes {
 }
 
 const CATEGORIA_GENERICA_ID = 'SEM_CATEGORIA';
+
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+  return fallback;
+};
 
 const ORDENACAO_API_MAP: Record<string, { _sort: string; _order: 'asc' | 'desc' }> = {
   'Mais recentes': { _sort: 'dataTransacao', _order: 'desc' },
@@ -32,9 +45,9 @@ const ORDENACAO_API_MAP: Record<string, { _sort: string; _order: 'asc' | 'desc' 
  */
 export const useGerenciarTransacoes = () => {
   const { user } = useAuth();
-  const [transacoes, setTransacoes] = useState<any[]>([]);
-  const [categorias, setCategorias] = useState<any[]>([]);
-  const [instituicoes, setInstituicoes] = useState<any[]>([]);
+  const [transacoes, setTransacoes] = useState<Transaction[]>([]);
+  const [categorias, setCategorias] = useState<Category[]>([]);
+  const [instituicoes, setInstituicoes] = useState<Institution[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [periodo, setPeriodo] = useState('Período Completo');
@@ -119,7 +132,7 @@ export const useGerenciarTransacoes = () => {
     };
   };
 
-  const ordenarTransacoesPorCriterio = (items: any[], criterio: string) => {
+  const ordenarTransacoesPorCriterio = (items: Transaction[], criterio: string): Transaction[] => {
     const copia = [...items];
 
     switch (criterio) {
@@ -145,8 +158,12 @@ export const useGerenciarTransacoes = () => {
     }
   };
 
-  const carregarCategoriasParaTransacoes = async (usuarioIdAtual: string | number): Promise<any[]> => {
-    const service = categoriaService as any;
+  const carregarCategoriasParaTransacoes = async (
+    usuarioIdAtual: string | number,
+  ): Promise<Category[]> => {
+    const service = categoriaService as typeof categoriaService & {
+      listarParaTransacoes?: (id: string | number) => Promise<Category[]>;
+    };
 
     if (typeof service.listarParaTransacoes === 'function') {
       return await service.listarParaTransacoes(usuarioIdAtual);
@@ -158,11 +175,11 @@ export const useGerenciarTransacoes = () => {
       categoriaService.listarPorUsuario(usuarioIdAtual, 'GLOBAL'),
     ]);
 
-    const mapa = new Map<string, any>();
+    const mapa = new Map<string, Category>();
 
     resultados.forEach((resultado) => {
       if (resultado.status === 'fulfilled') {
-        (resultado.value ?? []).forEach((categoria: any) => {
+        (resultado.value ?? []).forEach((categoria: Category) => {
           mapa.set(String(categoria.id), categoria);
         });
       }
@@ -172,11 +189,11 @@ export const useGerenciarTransacoes = () => {
   };
 
   const carregarTransacoesPorInstituicoes = async (
-    instituicoesUsuario: any[],
+    instituicoesUsuario: Institution[],
     filtrosAtivos: Filtros,
     paramsBase: Record<string, unknown>,
     instituicaoFixaId?: string | number | null,
-  ): Promise<any[]> => {
+  ): Promise<Transaction[]> => {
     if (!Array.isArray(instituicoesUsuario) || instituicoesUsuario.length === 0) {
       return [];
     }
@@ -202,7 +219,7 @@ export const useGerenciarTransacoes = () => {
     const categoriasSelecionadas =
       filtrosAtivos.categorias.length > 0 ? filtrosAtivos.categorias : [undefined];
 
-    const requisicoes: Array<Promise<any[]>> = [];
+    const requisicoes: Array<Promise<Transaction[]>> = [];
     const contextoRequisicoes: Array<{ instituicaoId: string | number; categoriaId?: string | number }> = [];
 
     instituicoesAlvo.forEach((instituicao) => {
@@ -224,7 +241,7 @@ export const useGerenciarTransacoes = () => {
 
     const resultados = await Promise.allSettled(requisicoes);
 
-    const mapaTransacoes = new Map<string, any>();
+    const mapaTransacoes = new Map<string, Transaction>();
 
     resultados.forEach((resultado, index) => {
       if (resultado.status === 'fulfilled') {
@@ -232,15 +249,17 @@ export const useGerenciarTransacoes = () => {
         const instituicaoId = contexto?.instituicaoId;
         const categoriaId = contexto?.categoriaId;
 
-        (resultado.value ?? []).forEach((transacao: any) => {
+        (resultado.value ?? []).forEach((transacao: Transaction) => {
           const transacaoId = String(transacao.id ?? '');
           if (!transacaoId) return;
 
-          mapaTransacoes.set(transacaoId, {
+          const transacaoComRelacionamentos: Transaction = {
             ...transacao,
             fkInstituicao: transacao.fkInstituicao ?? instituicaoId ?? null,
             fkCategoria: transacao.fkCategoria ?? categoriaId ?? CATEGORIA_GENERICA_ID,
-          });
+          };
+
+          mapaTransacoes.set(transacaoId, transacaoComRelacionamentos);
         });
       }
     });
@@ -249,10 +268,10 @@ export const useGerenciarTransacoes = () => {
   };
 
   const garantirCategoriasDasTransacoes = async (
-    transacoesCarregadas: any[],
-    categoriasCarregadas: any[],
-  ): Promise<{ categoriasConsolidadas: any[]; transacoesConsolidadas: any[] }> => {
-    const categoriasPorId = new Map<string, any>();
+    transacoesCarregadas: Transaction[],
+    categoriasCarregadas: Category[],
+  ): Promise<{ categoriasConsolidadas: Category[]; transacoesConsolidadas: Transaction[] }> => {
+    const categoriasPorId = new Map<string, Category>();
     let transacoesConsolidadas = [...(transacoesCarregadas ?? [])];
 
     (categoriasCarregadas ?? []).forEach((categoria) => {
@@ -335,8 +354,8 @@ export const useGerenciarTransacoes = () => {
     try {
       console.log('🔄 [LOAD] Carregando dados da API...');
       
-      let instituicoesCarregadas: any[] = [];
-      let categoriasCarregadas: any[] = [];
+      let instituicoesCarregadas: Institution[] = [];
+      let categoriasCarregadas: Category[] = [];
       let totalTransacoesCarregadas = 0;
 
       try {
@@ -390,12 +409,12 @@ export const useGerenciarTransacoes = () => {
       console.log(`   • ${totalTransacoesCarregadas} transações`);
       console.log(`   • ${categoriasCarregadas.length} categorias`);
       console.log(`   • ${instituicoesCarregadas.length} instituições`);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Erro ao carregar transações:', err);
       setTransacoes([]);
       setCategorias([]);
       setInstituicoes([]);
-      setError(err.message || 'Erro ao carregar transações');
+      setError(getErrorMessage(err, 'Erro ao carregar transações'));
     } finally {
       if (!opcoes.silencioso) {
         setLoading(false);
@@ -466,9 +485,9 @@ export const useGerenciarTransacoes = () => {
           ordenacao,
         ),
       );
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Erro ao deletar transação:', err);
-      setError(err.message || 'Erro ao deletar transação');
+      setError(getErrorMessage(err, 'Erro ao deletar transação'));
       throw err;
     }
   };
@@ -476,14 +495,14 @@ export const useGerenciarTransacoes = () => {
   /**
    * Cria uma nova transação
    */
-  const criarTransacao = async (transacao: any) => {
+  const criarTransacao = async (transacao: TransacaoPayload) => {
     try {
       const novaTransacao = await transacaoService.criar(transacao);
       setTransacoes((prev) => ordenarTransacoesPorCriterio([novaTransacao, ...prev], ordenacao));
       return novaTransacao;
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Erro ao criar transação:', err);
-      setError(err.message || 'Erro ao criar transação');
+      setError(getErrorMessage(err, 'Erro ao criar transação'));
       throw err;
     }
   };
@@ -491,7 +510,7 @@ export const useGerenciarTransacoes = () => {
   /**
    * Atualiza uma transação
    */
-  const atualizarTransacao = async (id: string | number, transacao: any) => {
+  const atualizarTransacao = async (id: string | number, transacao: TransacaoPayload) => {
     try {
       const transacaoAtualizada = await transacaoService.atualizar(id, transacao);
       setTransacoes((prev) =>
@@ -501,9 +520,9 @@ export const useGerenciarTransacoes = () => {
         )
       );
       return transacaoAtualizada;
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Erro ao atualizar transação:', err);
-      setError(err.message || 'Erro ao atualizar transação');
+      setError(getErrorMessage(err, 'Erro ao atualizar transação'));
       throw err;
     }
   };

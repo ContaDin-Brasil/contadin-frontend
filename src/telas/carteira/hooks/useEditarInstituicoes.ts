@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Banco, Vale, Instituicao } from '../types/carteira.types';
 import { instituicaoService } from '../../../api';
+import type { InstituicaoApi } from '../../../api/types';
 import { useCache } from '../../../contexts/CacheContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import { getInstituicoesPadrao } from '../constants/instituicoesPadrao';
@@ -10,6 +11,13 @@ import {
   obterUsuarioIdOuErro,
   normalizarTipoInstituicaoDaEntidade,
 } from '../../../utils/normalizacao';
+
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+  return fallback;
+};
 
 /**
  * Hook para gerenciar edição de bancos (COM CACHE)
@@ -61,8 +69,8 @@ export const useEditarBancos = () => {
       
       // Filtra apenas bancos usando type
       const bancosList: Banco[] = instituicoes
-        .filter((inst: any) => normalizarTipoInstituicaoDaEntidade(inst) === 'BANCO' && inst.ativo !== false)
-        .map((inst: any) => ({
+        .filter((inst: InstituicaoApi) => normalizarTipoInstituicaoDaEntidade(inst) === 'BANCO' && inst.ativo !== false)
+        .map((inst: InstituicaoApi) => ({
           id: inst.id,
           nome: inst.nome,
           balance: 'R$ 0,00',
@@ -76,9 +84,9 @@ export const useEditarBancos = () => {
       await setCache(cacheKey, bancosList);
       
       setBanks(bancosList);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Erro ao carregar bancos:', err);
-      setError(err.message || 'Erro ao carregar dados');
+      setError(getErrorMessage(err, 'Erro ao carregar dados'));
     } finally {
       setLoading(false);
     }
@@ -290,8 +298,8 @@ export const useEditarVales = () => {
       
       // Filtra apenas vales usando type
       const valesList: Vale[] = instituicoes
-        .filter((inst: any) => normalizarTipoInstituicaoDaEntidade(inst) === 'VALE' && inst.ativo !== false)
-        .map((inst: any) => ({
+        .filter((inst: InstituicaoApi) => normalizarTipoInstituicaoDaEntidade(inst) === 'VALE' && inst.ativo !== false)
+        .map((inst: InstituicaoApi) => ({
           id: inst.id,
           nome: inst.nome,
           balance: 'R$ 0,00',
@@ -304,9 +312,9 @@ export const useEditarVales = () => {
       await setCache(cacheKey, valesList);
       
       setVouchers(valesList);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Erro ao carregar vales:', err);
-      setError(err.message || 'Erro ao carregar dados');
+      setError(getErrorMessage(err, 'Erro ao carregar dados'));
     } finally {
       setLoading(false);
     }
