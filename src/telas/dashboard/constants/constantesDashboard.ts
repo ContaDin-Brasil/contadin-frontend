@@ -33,3 +33,7 @@ export const CACHE_TTL = {
   SALDOS: 3 * 60 * 1000, // 3 minutos
   GRAFICO: 10 * 60 * 1000, // 10 minutos
 };
+
+// Enquanto endpoint dedicado do dashboard nao estiver disponivel,
+// mantemos a tela funcionando com dados mock.
+export const USAR_MOCK_DASHBOARD = true;

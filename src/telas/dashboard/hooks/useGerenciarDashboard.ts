@@ -1,8 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useCache } from '../../../contexts/CacheContext';
 import { buscarDadosDashboard } from '../../../api/services/dashboardService';
-import { CACHE_KEYS, CACHE_TTL, SAUDACOES } from '../constants/constantesDashboard';
+import {
+  CACHE_KEYS,
+  CACHE_TTL,
+  SAUDACOES,
+  USAR_MOCK_DASHBOARD,
+} from '../constants/constantesDashboard';
 import type { DadosDashboard } from '../types/dashboard.types';
+import { buildMockDashboardData } from '../mocks/mockDashboardData';
 
 export const useGerenciarDashboard = (usuarioId: number = 1) => {
   const { getCache, setCache, invalidateCache } = useCache();
@@ -17,6 +23,14 @@ export const useGerenciarDashboard = (usuarioId: number = 1) => {
     try {
       setLoading(true);
       setErro(null);
+
+      if (USAR_MOCK_DASHBOARD) {
+        const dadosMock = buildMockDashboardData();
+        setDados(dadosMock);
+        await setCache(`${CACHE_KEYS.RESUMO}:${usuarioId}`, dadosMock, CACHE_TTL.RESUMO);
+        setLoading(false);
+        return;
+      }
 
       // Tentar buscar do cache primeiro (se não for atualização forçada)
       if (!forcarAtualizacao) {
@@ -40,7 +54,13 @@ export const useGerenciarDashboard = (usuarioId: number = 1) => {
       console.log('[Dashboard] Dados carregados com sucesso');
     } catch (error) {
       console.error('[Dashboard] Erro ao carregar dados:', error);
-      setErro('Erro ao carregar dados do dashboard');
+
+      // Fallback para mock enquanto endpoint dedicado de dashboard não existe.
+      const dadosMock = buildMockDashboardData();
+      setDados(dadosMock);
+      await setCache(`${CACHE_KEYS.RESUMO}:${usuarioId}`, dadosMock, CACHE_TTL.RESUMO);
+      setErro(null);
+      console.warn('[Dashboard] Exibindo dados mock por indisponibilidade da API.');
     } finally {
       setLoading(false);
     }
