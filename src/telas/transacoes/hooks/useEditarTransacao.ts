@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react';
 import { useFormularioTransacao } from './useFormularioTransacao';
 import { transacaoService } from '../../../api';
 import { parseTransacaoDate } from '../utils/utilitariosTransacao';
+import type { TransacaoApi } from '../../../api/types';
+
+type InstituicaoFormulario = ReturnType<typeof useFormularioTransacao>['instituicoes'][number];
 
 /**
  * Hook customizado para gerenciar a edição de uma transação existente
@@ -10,7 +13,7 @@ import { parseTransacaoDate } from '../utils/utilitariosTransacao';
 export const useEditarTransacao = (transacaoId: string | null) => {
   const formState = useFormularioTransacao();
   const [loadingTransacao, setLoadingTransacao] = useState(true);
-  const [transacaoOriginal, setTransacaoOriginal] = useState<any>(null);
+  const [transacaoOriginal, setTransacaoOriginal] = useState<TransacaoApi | null>(null);
 
   /**
    * Aplica a instituição correta sempre que a transação ou a lista de instituições estiver disponível.
@@ -21,7 +24,7 @@ export const useEditarTransacao = (transacaoId: string | null) => {
     if (!fkInstId || formState.instituicoes.length === 0) return;
 
     const instituicao = formState.instituicoes.find(
-      (inst: any) => String(inst.id) === String(fkInstId)
+      (inst: InstituicaoFormulario) => String(inst.id) === String(fkInstId)
     );
 
     if (instituicao) {
@@ -104,7 +107,7 @@ export const useEditarTransacao = (transacaoId: string | null) => {
   /**
    * Preenche o formulário com os dados da transação
    */
-  const preencherFormulario = async (transacao: any) => {
+  const preencherFormulario = async (transacao: TransacaoApi) => {
     // ⏳ Aguarda até que as instituições estejam carregadas (formState.loading === false)
     // Isso evita race condition quando carregarDados() ainda está em progresso
     const maxWaitTime = 5000; // 5 segundos máximo
@@ -127,7 +130,7 @@ export const useEditarTransacao = (transacaoId: string | null) => {
     formState.setTipo(transacao.tipo);
     
     // Valor - formata para exibição com duas casas decimais
-    const valorNumerico = parseFloat(transacao.valor);
+    const valorNumerico = Number(transacao.valor);
     const valorFormatado = valorNumerico.toFixed(2).replace('.', ',');
     formState.setValor(valorFormatado);
     
@@ -159,7 +162,7 @@ export const useEditarTransacao = (transacaoId: string | null) => {
       // Data fim de recorrência - backend retorna "dd/MM/yyyy"
       if (transacao.fimRecorrencia) {
         formState.setHasRecurrenceEndDate(true);
-        const fimRaw = transacao.fimRecorrencia;
+        const fimRaw = String(transacao.fimRecorrencia);
         const fimPart = fimRaw.includes(' ') ? fimRaw.split(' ')[0] : fimRaw;
         const fimPartes = fimPart.split('/');
         const fimFormatado = fimPartes.length === 3 && fimPartes[0].length === 2
@@ -173,10 +176,10 @@ export const useEditarTransacao = (transacaoId: string | null) => {
     if (transacao.fkInstituicao) {
       console.log('🏦 [INSTITUTION] Buscando instituição com ID:', transacao.fkInstituicao);
       console.log('   Instituições disponíveis no formState:', formState.instituicoes.length);
-      console.log('   IDs:', formState.instituicoes.map((i: any) => i.id).join(', '));
+      console.log('   IDs:', formState.instituicoes.map((i: InstituicaoFormulario) => i.id).join(', '));
       
       const instituicao = formState.instituicoes.find(
-        (inst: any) => String(inst.id) === String(transacao.fkInstituicao)
+        (inst: InstituicaoFormulario) => String(inst.id) === String(transacao.fkInstituicao)
       );
       
       if (instituicao) {
@@ -191,7 +194,10 @@ export const useEditarTransacao = (transacaoId: string | null) => {
         }
       } else {
         console.warn('⚠️ [INSTITUTION] Instituição não encontrada no array:', transacao.fkInstituicao);
-        console.warn('   Instituições disponíveis:', formState.instituicoes.map((i: any) => `${i.id}:${i.nome}`).join(', '));
+        console.warn(
+          '   Instituições disponíveis:',
+          formState.instituicoes.map((i: InstituicaoFormulario) => `${i.id}:${i.nome}`).join(', '),
+        );
       }
     } else {
       console.log('ℹ️ [INSTITUTION] Transação não tem instituição associada');

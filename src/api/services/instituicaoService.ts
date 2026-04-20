@@ -171,7 +171,7 @@ const instituicaoService = {
         .map((item) => normalizeInstituicao(item))
         .filter((instituicao) => instituicaoPertenceAoUsuario(instituicao, usuarioId));
     } catch (error) {
-      handleServiceError(error, 'Erro ao buscar instituicoes do usuario.');
+      return handleServiceError(error, 'Erro ao buscar instituicoes do usuario.');
     }
   },
 
@@ -185,7 +185,7 @@ const instituicaoService = {
       const data = unwrapData<InstituicaoApi>(response.data);
       return normalizeInstituicao(data);
     } catch (error) {
-      handleServiceError(error, 'Erro ao buscar instituicao por id.');
+      return handleServiceError(error, 'Erro ao buscar instituicao por id.');
     }
   },
 
@@ -203,7 +203,7 @@ const instituicaoService = {
       const data = unwrapData<InstituicaoApi>(response.data);
       return normalizeInstituicao(data);
     } catch (error) {
-      handleServiceError(error, 'Erro ao criar instituicao.');
+      return handleServiceError(error, 'Erro ao criar instituicao.');
     }
   },
 
@@ -222,7 +222,7 @@ const instituicaoService = {
       const data = unwrapData<InstituicaoApi>(response.data);
       return normalizeInstituicao(data);
     } catch (error) {
-      handleServiceError(error, 'Erro ao atualizar instituicao.');
+      return handleServiceError(error, 'Erro ao atualizar instituicao.');
     }
   },
 
@@ -280,7 +280,7 @@ const instituicaoService = {
         })),
       };
     } catch (error) {
-      handleServiceError(error, 'Erro ao limpar transacoes orfas.');
+      return handleServiceError(error, 'Erro ao limpar transacoes orfas.');
     }
   },
 
