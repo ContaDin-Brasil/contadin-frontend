@@ -15,7 +15,7 @@ const WalletScreen = ({ navigation }) => {
   // Recarrega dados quando a tela recebe foco
   useFocusEffect(
     React.useCallback(() => {
-      carteira.carregarInstituicoes();
+      carteira.carregarInstituicoes(true); // forceRefresh=true para sempre buscar dados frescos
     }, [])
   );
 

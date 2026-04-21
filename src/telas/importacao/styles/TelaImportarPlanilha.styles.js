@@ -76,6 +76,35 @@ export const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     fontSize: 13,
   },
+  importLoadingCard: {
+    backgroundColor: '#EEF5FF',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#D6E6FF',
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    gap: 6,
+  },
+  importLoadingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  importLoadingTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: COLORS.textPrimary,
+  },
+  importLoadingStep: {
+    fontSize: 13,
+    color: '#1F4F8B',
+    fontWeight: '600',
+    minHeight: 18,
+  },
+  importLoadingHint: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+  },
   reviewSection: {
     backgroundColor: COLORS.white,
     borderRadius: 14,
@@ -110,6 +139,24 @@ export const styles = StyleSheet.create({
     borderColor: '#E9EEF6',
     padding: 14,
     gap: 10,
+  },
+  pendingActionGroup: {
+    gap: 8,
+  },
+  pendingActionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    backgroundColor: '#E31C23',
+    borderRadius: 8,
+  },
+  pendingActionButtonText: {
+    color: COLORS.white,
+    fontSize: 12,
+    fontWeight: '700',
   },
   transactionHeader: {
     flexDirection: 'row',
@@ -241,6 +288,22 @@ export const styles = StyleSheet.create({
     fontSize: 13,
     color: '#C62828',
     lineHeight: 18,
+  },
+  refreshPendingButton: {
+    marginTop: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#C62828',
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+  },
+  refreshPendingButtonText: {
+    color: COLORS.white,
+    fontSize: 13,
+    fontWeight: '700',
   },
   validationActionButtons: {
     marginTop: 12,

@@ -1,5 +1,6 @@
 import api from '../config';
 import type { TransactionType } from '../../telas/transacoes/types/transacao.types';
+import { normalizarId } from '../../utils/normalizacao';
 
 type AnyRecord = Record<string, unknown>;
 
@@ -26,6 +27,8 @@ export interface TransacaoImportada {
   dataTransacao: string;
   fkInstituicao: string | number | null;
   fkCategoria: string | number | null;
+  instituicaoNome?: string;
+  categoriaNome?: string;
   selecionada: boolean;
   linhaOrigem?: number | null;
   observacao?: string;
@@ -59,6 +62,19 @@ const normalizePath = (value: string | undefined): string => {
 const importPath = normalizePath(process.env.EXPO_PUBLIC_ETL_IMPORT_PATH);
 const etlBaseUrl = normalizeEnvUrl(process.env.EXPO_PUBLIC_ETL_BASE_URL);
 const sendAuthToEtl = process.env.EXPO_PUBLIC_ETL_SEND_AUTH === 'true';
+
+const trimTrailingSlash = (value: string): string => value.replace(/\/+$/, '');
+
+const buildImportUrl = (): string => {
+  const baseUrl = etlBaseUrl ?? api.defaults.baseURL;
+  if (!baseUrl) {
+    throw new Error('Base URL do ETL/API nao configurada');
+  }
+
+  const normalizedBase = trimTrailingSlash(baseUrl);
+  const normalizedPath = importPath.startsWith('/') ? importPath : `/${importPath}`;
+  return `${normalizedBase}${normalizedPath}`;
+};
 
 const getString = (value: unknown, fallback = ''): string => {
   if (typeof value === 'string') {
@@ -99,6 +115,16 @@ const getId = (value: unknown): string | number | null => {
   }
 
   return null;
+};
+
+const cleanPayload = (payload: Record<string, unknown>): Record<string, unknown> => {
+  const entries = Object.entries(payload).filter(([, value]) => {
+    if (value === undefined || value === null) return false;
+    if (typeof value === 'string') return value.trim().length > 0;
+    return true;
+  });
+
+  return Object.fromEntries(entries);
 };
 
 const normalizeTipo = (value: unknown): TransactionType => {
@@ -179,9 +205,11 @@ const normalizeItem = (item: unknown, index: number): TransacaoImportada => {
     descricao: getString(source.descricao ?? source.historico ?? source.memo),
     valor: getNumber(source.valor ?? source.amount, 0),
     tipo: normalizeTipo(source.tipo ?? source.type),
-    dataTransacao: normalizeData(source.dataTransacao ?? source.data ?? source.date),
+    dataTransacao: normalizeData(source.dataTransacao ?? source.data_transacao ?? source.data ?? source.date),
     fkInstituicao: getId(source.fkInstituicao ?? source.instituicaoId ?? source.fk_instituicao),
     fkCategoria: getId(source.fkCategoria ?? source.categoriaId ?? source.fk_categoria),
+    instituicaoNome: getString(source.instituicao ?? source.institution, ''),
+    categoriaNome: getString(source.categoria ?? source.category, ''),
     selecionada: true,
     linhaOrigem: getNumber(source.linhaOrigem ?? source.row, 0) || null,
     observacao: getString(source.observacao ?? source.note),
@@ -189,8 +217,8 @@ const normalizeItem = (item: unknown, index: number): TransacaoImportada => {
 };
 
 const toBackendPayload = (item: TransacaoImportada): Record<string, unknown> => {
-  // Garante que apenas os campos esperados pelo backend são enviados
-  return {
+  // Segue o mesmo padrão do serviço de transações: ids normalizados e campos nulos removidos
+  return cleanPayload({
     descricao: item.descricao?.trim() || '',
     valor: getNumber(item.valor, 0),
     tipo: item.tipo,
@@ -199,13 +227,9 @@ const toBackendPayload = (item: TransacaoImportada): Record<string, unknown> => 
     recorrencia: null,
     fimRecorrencia: null,
     ativo: true,
-    fkInstituicao: typeof item.fkInstituicao === 'string' 
-      ? (item.fkInstituicao.trim() ? parseInt(item.fkInstituicao, 10) : null)
-      : item.fkInstituicao,
-    fkCategoria: typeof item.fkCategoria === 'string'
-      ? (item.fkCategoria.trim() ? parseInt(item.fkCategoria, 10) : null)
-      : item.fkCategoria,
-  };
+    fkInstituicao: normalizarId(item.fkInstituicao),
+    fkCategoria: normalizarId(item.fkCategoria),
+  });
 };
 
 const getAuthHeaders = (token?: string): Record<string, string> => {
@@ -236,15 +260,34 @@ const importacaoPlanilhaService = {
     }
 
     const etlAuthHeaders = sendAuthToEtl ? getAuthHeaders(token) : {};
+    const uploadUrl = buildImportUrl();
 
-    const response = await api.post<unknown>(importPath, formData, {
-      baseURL: etlBaseUrl ?? api.defaults.baseURL,
+    const response = await fetch(uploadUrl, {
+      method: 'POST',
+      body: formData,
       headers: {
         ...etlAuthHeaders,
       },
     });
 
-    const list = toArray<unknown>(response.data);
+    if (!response.ok) {
+      let detail: unknown = null;
+      try {
+        detail = await response.json();
+      } catch {
+        detail = await response.text();
+      }
+
+      console.error('Erro no upload da planilha:', {
+        status: response.status,
+        detail,
+      });
+
+      throw new Error(`Falha ao importar planilha (status ${response.status})`);
+    }
+
+    const payload = await response.json();
+    const list = toArray<unknown>(payload);
     return list.map((item, index) => normalizeItem(item, index));
   },
 

@@ -20,7 +20,7 @@ const EditBanksScreen = ({ navigation }) => {
   // Recarrega bancos quando a tela recebe foco
   useFocusEffect(
     React.useCallback(() => {
-      editor.carregarBancos();
+      editor.carregarBancos(true); // forceRefresh=true para sempre buscar dados frescos
     }, [])
   );
 

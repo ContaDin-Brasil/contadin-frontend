@@ -1,6 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Animated,
   Alert,
   SafeAreaView,
   ScrollView,
@@ -30,7 +31,14 @@ const ALLOWED_MIMES = [
   'text/csv',
 ];
 
-const SIMULAR_SUCESSO_SWAGGER = true;
+const IMPORT_LOADING_STEPS = [
+  'Procurando transações na planilha...',
+  'Organizando categorias detectadas...',
+  'Mapeando instituições conhecidas...',
+  'Preparando os itens para revisão...',
+];
+
+const SIMULAR_SUCESSO_SWAGGER = false;
 
 const SWAGGER_SUCCESS_MOCK = {
   instituicoes: [
@@ -147,6 +155,13 @@ const toNumber = (value, fallback = 0) => {
   return fallback;
 };
 
+const normalizeText = (value) =>
+  String(value ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toLowerCase();
+
 const mapSwaggerTransacao = (item, index) => ({
   localId: `swagger-${index}`,
   descricao: String(item?.descricao ?? ''),
@@ -187,6 +202,8 @@ const ETLImportScreen = ({ navigation, route }) => {
   const [modalAdicionarCategoria, setModalAdicionarCategoria] = useState(false);
   const [nomeFaltanteInstituicao, setNomeFaltanteInstituicao] = useState(null);
   const [nomeCategoriaFaltante, setNomeCategoriaFaltante] = useState(null);
+  const [loadingMensagemIndex, setLoadingMensagemIndex] = useState(0);
+  const loadingMensagemOpacity = useRef(new Animated.Value(1)).current;
 
   const totalSelecionadas = useMemo(
     () => transacoes.filter((item) => item.selecionada).length,
@@ -200,6 +217,11 @@ const ETLImportScreen = ({ navigation, route }) => {
     !!item.dataTransacao?.trim() &&
     !!item.fkInstituicao &&
     !!item.fkCategoria;
+
+  const totalPendentesAjuste = useMemo(
+    () => transacoes.filter((item) => !transacaoEstaCompleta(item)).length,
+    [transacoes],
+  );
 
   useEffect(() => {
     let active = true;
@@ -242,6 +264,33 @@ const ETLImportScreen = ({ navigation, route }) => {
       active = false;
     };
   }, [effectiveUser?.id]);
+
+  useEffect(() => {
+    if (!loadingImport) {
+      setLoadingMensagemIndex(0);
+      loadingMensagemOpacity.setValue(1);
+      return;
+    }
+
+    const interval = setInterval(() => {
+      Animated.sequence([
+        Animated.timing(loadingMensagemOpacity, {
+          toValue: 0,
+          duration: 180,
+          useNativeDriver: true,
+        }),
+        Animated.timing(loadingMensagemOpacity, {
+          toValue: 1,
+          duration: 220,
+          useNativeDriver: true,
+        }),
+      ]).start();
+
+      setLoadingMensagemIndex((prev) => (prev + 1) % IMPORT_LOADING_STEPS.length);
+    }, 1700);
+
+    return () => clearInterval(interval);
+  }, [loadingImport, loadingMensagemOpacity]);
 
   const selecionarArquivo = async () => {
     try {
@@ -306,14 +355,32 @@ const ETLImportScreen = ({ navigation, route }) => {
         importadas = await importacaoPlanilhaService.importarArquivo(arquivo, routeToken);
       }
 
-      const fallbackInstituicao = instituicoes[0]?.id ?? null;
-      const fallbackCategoria = categorias[0]?.id ?? null;
+      const instituicaoByNome = new Map(
+        instituicoes.map((inst) => [normalizeText(inst.nome), inst.id]),
+      );
+      const categoriaByNome = new Map(
+        categorias.map((cat) => [normalizeText(cat.nome), cat.id]),
+      );
 
-      const ajustadas = importadas.map((item) => ({
-        ...item,
-        fkInstituicao: item.fkInstituicao ?? fallbackInstituicao,
-        fkCategoria: item.fkCategoria ?? fallbackCategoria,
-      }));
+      const ajustadas = importadas.map((item) => {
+        const instituicaoNome = item?.instituicaoNome ?? item?.instituicao ?? '';
+        const categoriaNome = item?.categoriaNome ?? item?.categoria ?? '';
+
+        const fkInstituicaoPorNome = instituicaoNome
+          ? instituicaoByNome.get(normalizeText(instituicaoNome)) ?? null
+          : null;
+        const fkCategoriaPorNome = categoriaNome
+          ? categoriaByNome.get(normalizeText(categoriaNome)) ?? null
+          : null;
+
+        return {
+          ...item,
+          fkInstituicao: item.fkInstituicao ?? fkInstituicaoPorNome,
+          fkCategoria: item.fkCategoria ?? fkCategoriaPorNome,
+          instituicaoNome,
+          categoriaNome,
+        };
+      });
 
       const comEstadoInicial = ajustadas.map((item) => {
         const completa = transacaoEstaCompleta(item);
@@ -347,6 +414,75 @@ const ETLImportScreen = ({ navigation, route }) => {
     );
   };
 
+  const resolverPendenciasComDePara = (listaInstituicoes = instituicoes, listaCategorias = categorias) => {
+    const instituicaoByNome = new Map(
+      listaInstituicoes.map((inst) => [normalizeText(inst.nome), inst.id]),
+    );
+    const categoriaByNome = new Map(
+      listaCategorias.map((cat) => [normalizeText(cat.nome), cat.id]),
+    );
+
+    setTransacoes((prev) =>
+      prev.map((item) => {
+        const fkInstituicaoResolvida =
+          !item.fkInstituicao && item.instituicaoNome
+            ? instituicaoByNome.get(normalizeText(item.instituicaoNome)) ?? null
+            : item.fkInstituicao;
+
+        const fkCategoriaResolvida =
+          !item.fkCategoria && item.categoriaNome
+            ? categoriaByNome.get(normalizeText(item.categoriaNome)) ?? null
+            : item.fkCategoria;
+
+        const atualizado = {
+          ...item,
+          fkInstituicao: fkInstituicaoResolvida,
+          fkCategoria: fkCategoriaResolvida,
+        };
+
+        const completaAntes = transacaoEstaCompleta(item);
+        const completaDepois = transacaoEstaCompleta(atualizado);
+
+        if (!completaAntes && completaDepois) {
+          return { ...atualizado, selecionada: true };
+        }
+
+        return atualizado;
+      }),
+    );
+
+    setAccordionAbertos((prev) => {
+      const next = { ...prev };
+      transacoes.forEach((item) => {
+        const fkInstituicaoResolvida =
+          !item.fkInstituicao && item.instituicaoNome
+            ? instituicaoByNome.get(normalizeText(item.instituicaoNome)) ?? null
+            : item.fkInstituicao;
+
+        const fkCategoriaResolvida =
+          !item.fkCategoria && item.categoriaNome
+            ? categoriaByNome.get(normalizeText(item.categoriaNome)) ?? null
+            : item.fkCategoria;
+
+        const completaDepois = transacaoEstaCompleta({
+          ...item,
+          fkInstituicao: fkInstituicaoResolvida,
+          fkCategoria: fkCategoriaResolvida,
+        });
+
+        if (completaDepois) {
+          next[item.localId] = false;
+        }
+      });
+      return next;
+    });
+  };
+
+  const atualizarPendencias = () => {
+    resolverPendenciasComDePara(instituicoes, categorias);
+    toast.show('Pendências atualizadas', 'Tentamos vincular instituições e categorias por nome', 'success');
+  };
+
   const alternarAccordion = (localId) => {
     setAccordionAbertos((prev) => ({
       ...prev,
@@ -369,23 +505,53 @@ const ETLImportScreen = ({ navigation, route }) => {
     return cat?.nome || `Categoria #${id}`;
   };
 
+  const obterInstituicaoFaltante = (transacao) => {
+    if (transacao.fkInstituicao) return null;
+    const nome = transacao.instituicaoNome?.trim();
+    if (!nome) return null;
+
+    const existe = instituicoes.some((i) => normalizeText(i.nome) === normalizeText(nome));
+    return existe ? null : nome;
+  };
+
+  const obterCategoriaFaltante = (transacao) => {
+    if (transacao.fkCategoria) return null;
+    const nome = transacao.categoriaNome?.trim();
+    if (!nome) return null;
+
+    const existe = categorias.some((c) => normalizeText(c.nome) === normalizeText(nome));
+    return existe ? null : nome;
+  };
+
   const validarInstituicoesECategorias = useMemo(() => {
-    const selecionadas = transacoes.filter((item) => item.selecionada);
-    
-    if (selecionadas.length === 0) {
+    const candidatas = transacoes.filter((item) => {
+      const instituicaoDetectadaSemVinculo = !item.fkInstituicao && !!item.instituicaoNome?.trim();
+      const categoriaDetectadaSemVinculo = !item.fkCategoria && !!item.categoriaNome?.trim();
+      return item.selecionada || instituicaoDetectadaSemVinculo || categoriaDetectadaSemVinculo;
+    });
+
+    if (candidatas.length === 0) {
       return { validas: true, mensagem: null, faltantes: { instituicoes: [], categorias: [] } };
     }
 
     const instituicoesFaltantes = new Map(); // nome → id
     const categoriasFaltantes = new Map(); // nome → id
 
-    selecionadas.forEach((transacao) => {
+    candidatas.forEach((transacao) => {
       if (transacao.fkInstituicao) {
         const nomeInstituicao = obterNomeInstituicao(transacao.fkInstituicao);
         // Validar pelo NOME em vez do ID
         const existeInstituicao = instituicoes.some((i) => i.nome === nomeInstituicao);
         if (!existeInstituicao) {
           instituicoesFaltantes.set(nomeInstituicao, transacao.fkInstituicao);
+        }
+      } else if (transacao.instituicaoNome?.trim()) {
+        const nomeInstituicao = transacao.instituicaoNome.trim();
+        const existeInstituicao = instituicoes.some(
+          (i) => normalizeText(i.nome) === normalizeText(nomeInstituicao),
+        );
+        if (!existeInstituicao) {
+          instituicoesFaltantes.set(nomeInstituicao, `nome:${nomeInstituicao}`);
         }
       }
       
@@ -396,22 +562,24 @@ const ETLImportScreen = ({ navigation, route }) => {
         if (!existeCategoria) {
           categoriasFaltantes.set(nomeCategoria, transacao.fkCategoria);
         }
+      } else if (transacao.categoriaNome?.trim()) {
+        const nomeCategoria = transacao.categoriaNome.trim();
+        const existeCategoria = categorias.some(
+          (c) => normalizeText(c.nome) === normalizeText(nomeCategoria),
+        );
+        if (!existeCategoria) {
+          categoriasFaltantes.set(nomeCategoria, `nome:${nomeCategoria}`);
+        }
       }
     });
 
     if (instituicoesFaltantes.size > 0 || categoriasFaltantes.size > 0) {
-      let mensagem = 'Faltam os seguintes cadastros:';
-      
-      if (instituicoesFaltantes.size > 0) {
-        const nomes = Array.from(instituicoesFaltantes.keys()).join(', ');
-        mensagem += `\n🏦 Instituições: ${nomes}`;
-      }
-      
-      if (categoriasFaltantes.size > 0) {
-        const nomes = Array.from(categoriasFaltantes.keys()).join(', ');
-        mensagem += `\n📊 Categorias: ${nomes}`;
-      }
-      
+      const totalInstituicoes = instituicoesFaltantes.size;
+      const totalCategorias = categoriasFaltantes.size;
+      const mensagem =
+        `Pendências detectadas: ${totalInstituicoes} instituição(ões) e ${totalCategorias} categoria(s).` +
+        '\nUse os botões dentro de cada transação pendente para cadastrar e vincular automaticamente.';
+
       return { 
         validas: false, 
         mensagem,
@@ -428,35 +596,15 @@ const ETLImportScreen = ({ navigation, route }) => {
   const salvarImportacao = async () => {
     // Validar instituições e categorias
     if (!validarInstituicoesECategorias.validas) {
-      const temInstituicoes = validarInstituicoesECategorias.faltantes.instituicoes.length > 0;
-      const temCategorias = validarInstituicoesECategorias.faltantes.categorias.length > 0;
-
-      const buttons = [
-        {
-          text: 'Cancelar',
-          onPress: () => {},
-          style: 'cancel',
-        },
-      ];
-
-      if (temInstituicoes) {
-        buttons.push({
-          text: 'Cadastrar instituição',
-          onPress: () => setModalAdicionarInstituicao(true),
-        });
-      }
-
-      if (temCategorias) {
-        buttons.push({
-          text: 'Cadastrar categoria',
-          onPress: () => setModalAdicionarCategoria(true),
-        });
-      }
-
       Alert.alert(
         'Validação necessária',
-        validarInstituicoesECategorias.mensagem,
-        buttons,
+        `${validarInstituicoesECategorias.mensagem}\n\nAbra os cards pendentes para cadastrar os itens faltantes.`,
+        [
+          {
+            text: 'OK',
+            onPress: () => {},
+          },
+        ],
       );
       return;
     }
@@ -565,6 +713,7 @@ const ETLImportScreen = ({ navigation, route }) => {
       setInstituicoes((insts) => {
         const updated = [...insts, instituicaoSalva];
         console.log('Instituições atualizadas:', updated);
+        resolverPendenciasComDePara(updated, categorias);
         return updated;
       });
       
@@ -601,6 +750,7 @@ const ETLImportScreen = ({ navigation, route }) => {
       setCategorias((cats) => {
         const updated = [...cats, categoriaSalva];
         console.log('Categorias atualizadas:', updated);
+        resolverPendenciasComDePara(instituicoes, updated);
         return updated;
       });
       
@@ -666,6 +816,24 @@ const ETLImportScreen = ({ navigation, route }) => {
           </View>
         ) : null}
 
+        {loadingImport ? (
+          <View style={styles.importLoadingCard}>
+            <View style={styles.importLoadingRow}>
+              <ActivityIndicator size="small" color={COLORS.primary} />
+              <Text style={styles.importLoadingTitle}>Processando planilha</Text>
+            </View>
+            <Animated.Text
+              style={[
+                styles.importLoadingStep,
+                { opacity: loadingMensagemOpacity },
+              ]}
+            >
+              {IMPORT_LOADING_STEPS[loadingMensagemIndex]}
+            </Animated.Text>
+            <Text style={styles.importLoadingHint}>Isso pode levar alguns segundos.</Text>
+          </View>
+        ) : null}
+
         {!loadingOptions && transacoes.length > 0 && !validarInstituicoesECategorias.validas ? (
           <View style={styles.validationErrorCard}>
             <View style={styles.validationErrorHeader}>
@@ -676,53 +844,14 @@ const ETLImportScreen = ({ navigation, route }) => {
               {validarInstituicoesECategorias.mensagem}
             </Text>
 
-            {/* Botões para adicionar instituições faltantes */}
-            {validarInstituicoesECategorias.faltantes.instituicoes.length > 0 ? (
-              <View style={styles.validationActionButtons}>
-                <Text style={styles.validationActionLabel}>Cadastrar instituições:</Text>
-                <View style={styles.buttonGroup}>
-                  {validarInstituicoesECategorias.faltantes.instituicoes.map(([nome, id]) => (
-                    <TouchableOpacity
-                      key={`inst-${id}`}
-                      style={styles.validationActionButton}
-                      onPress={() => {
-                        console.log('Clicou em adicionar instituição:', nome);
-                        setNomeFaltanteInstituicao(nome);
-                        setModalAdicionarInstituicao(true);
-                        console.log('Modal de instituição deve abrir agora');
-                      }}
-                    >
-                      <Ionicons name="add-circle-outline" size={18} color={COLORS.white} />
-                      <Text style={styles.validationActionButtonText}>{nome}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
-            ) : null}
-
-            {/* Botões para adicionar categorias faltantes */}
-            {validarInstituicoesECategorias.faltantes.categorias.length > 0 ? (
-              <View style={styles.validationActionButtons}>
-                <Text style={styles.validationActionLabel}>Cadastrar categorias:</Text>
-                <View style={styles.buttonGroup}>
-                  {validarInstituicoesECategorias.faltantes.categorias.map(([nome, id]) => (
-                    <TouchableOpacity
-                      key={`cat-${id}`}
-                      style={styles.validationActionButton}
-                      onPress={() => {
-                        console.log('Clicou em adicionar categoria:', nome);
-                        setNomeCategoriaFaltante(nome);
-                        setModalAdicionarCategoria(true);
-                        console.log('Modal deve abrir agora');
-                      }}
-                    >
-                      <Ionicons name="add-circle-outline" size={18} color={COLORS.white} />
-                      <Text style={styles.validationActionButtonText}>{nome}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
-            ) : null}
+            <TouchableOpacity
+              style={styles.refreshPendingButton}
+              onPress={atualizarPendencias}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="refresh-outline" size={18} color={COLORS.white} />
+              <Text style={styles.refreshPendingButtonText}>Atualizar pendências</Text>
+            </TouchableOpacity>
           </View>
         ) : null}
 
@@ -730,7 +859,9 @@ const ETLImportScreen = ({ navigation, route }) => {
           <View style={styles.reviewSection}>
             <View style={styles.reviewHeader}>
               <Text style={styles.reviewTitle}>Revisar transacoes ({transacoes.length})</Text>
-              <Text style={styles.reviewSubtitle}>Selecionadas para salvar: {totalSelecionadas}</Text>
+              <Text style={styles.reviewSubtitle}>
+                Selecionadas para salvar: {totalSelecionadas} | Pendentes de ajuste: {totalPendentesAjuste}
+              </Text>
             </View>
 
             <ScrollView
@@ -741,6 +872,51 @@ const ETLImportScreen = ({ navigation, route }) => {
             >
               {transacoes.map((item, index) => (
                 <View key={item.localId} style={styles.transactionCard}>
+                  {(() => {
+                    const instituicaoFaltante = obterInstituicaoFaltante(item);
+                    const categoriaFaltante = obterCategoriaFaltante(item);
+
+                    if (!instituicaoFaltante && !categoriaFaltante) {
+                      return null;
+                    }
+
+                    return (
+                      <View style={styles.pendingActionGroup}>
+                        {instituicaoFaltante ? (
+                          <TouchableOpacity
+                            style={styles.pendingActionButton}
+                            onPress={() => {
+                              setNomeFaltanteInstituicao(instituicaoFaltante);
+                              setModalAdicionarInstituicao(true);
+                            }}
+                            activeOpacity={0.85}
+                          >
+                            <Ionicons name="add-circle-outline" size={16} color={COLORS.white} />
+                            <Text style={styles.pendingActionButtonText}>
+                              Cadastrar instituição: {instituicaoFaltante}
+                            </Text>
+                          </TouchableOpacity>
+                        ) : null}
+
+                        {categoriaFaltante ? (
+                          <TouchableOpacity
+                            style={styles.pendingActionButton}
+                            onPress={() => {
+                              setNomeCategoriaFaltante(categoriaFaltante);
+                              setModalAdicionarCategoria(true);
+                            }}
+                            activeOpacity={0.85}
+                          >
+                            <Ionicons name="add-circle-outline" size={16} color={COLORS.white} />
+                            <Text style={styles.pendingActionButtonText}>
+                              Cadastrar categoria: {categoriaFaltante}
+                            </Text>
+                          </TouchableOpacity>
+                        ) : null}
+                      </View>
+                    );
+                  })()}
+
                   <View style={styles.transactionHeader}>
                     <TouchableOpacity
                       style={styles.transactionHeaderLeft}
@@ -785,6 +961,16 @@ const ETLImportScreen = ({ navigation, route }) => {
                   ) : (
                     <>
                       {!!item.observacao && <Text style={styles.noteText}>{item.observacao}</Text>}
+                      {!item.fkInstituicao && item.instituicaoNome ? (
+                        <Text style={styles.noteText}>
+                          Instituição detectada na planilha: {item.instituicaoNome} (não cadastrada)
+                        </Text>
+                      ) : null}
+                      {!item.fkCategoria && item.categoriaNome ? (
+                        <Text style={styles.noteText}>
+                          Categoria detectada na planilha: {item.categoriaNome} (não cadastrada)
+                        </Text>
+                      ) : null}
 
                       <TextInput
                         style={styles.input}
@@ -825,9 +1011,14 @@ const ETLImportScreen = ({ navigation, route }) => {
 
                       <View style={styles.pickerContainer}>
                         <Picker
-                          selectedValue={item.fkInstituicao}
-                          onValueChange={(value) => atualizarTransacao(item.localId, { fkInstituicao: value })}
+                          selectedValue={item.fkInstituicao ?? ''}
+                          onValueChange={(value) =>
+                            atualizarTransacao(item.localId, {
+                              fkInstituicao: value === '' ? null : value,
+                            })
+                          }
                         >
+                          <Picker.Item label="Selecione uma instituicao" value="" />
                           {instituicoes.map((inst) => (
                             <Picker.Item key={String(inst.id)} label={inst.nome} value={inst.id} />
                           ))}
@@ -836,9 +1027,14 @@ const ETLImportScreen = ({ navigation, route }) => {
 
                       <View style={styles.pickerContainer}>
                         <Picker
-                          selectedValue={item.fkCategoria}
-                          onValueChange={(value) => atualizarTransacao(item.localId, { fkCategoria: value })}
+                          selectedValue={item.fkCategoria ?? ''}
+                          onValueChange={(value) =>
+                            atualizarTransacao(item.localId, {
+                              fkCategoria: value === '' ? null : value,
+                            })
+                          }
                         >
+                          <Picker.Item label="Selecione uma categoria" value="" />
                           {categorias.map((cat) => (
                             <Picker.Item key={String(cat.id)} label={`${cat.nome} (${cat.tipo})`} value={cat.id} />
                           ))}
