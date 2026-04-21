@@ -86,24 +86,88 @@ export const OUTROS_CONTATOS = [
 export const FAQ_ITENS = [
   {
     id: 'faq-01',
-    pergunta: 'Como cadastrar uma transacao?',
-    resposta: 'Resposta a definir.'
+    pergunta: 'Como cadastrar minha primeira transação?',
+    resposta:
+      'Vá em Transações, toque no botão +, preencha descrição, valor, tipo, instituição e categoria. Depois toque em Salvar. Se não houver instituição ou categoria, crie antes na Carteira ou em Categorias.'
   },
   {
     id: 'faq-02',
     pergunta: 'Como editar ou excluir um gasto?',
-    resposta: 'Resposta a definir.'
+    resposta:
+      'Abra Transações, toque no item desejado para entrar na edição. Na tela de edição você pode atualizar os campos e salvar, ou excluir a transação.'
   },
   {
     id: 'faq-03',
-    pergunta: 'Como criar e organizar categorias?',
-    resposta: 'Resposta a definir.'
+    pergunta: 'Como filtrar transações para achar um lançamento rápido?',
+    resposta:
+      'Use a busca por texto no topo da tela de transações e combine com filtros por tipo, instituição, categoria, valor e período. Você também pode ordenar por data, valor e ordem alfabética.'
   },
   {
     id: 'faq-04',
+    pergunta: 'Qual a diferença entre transação recorrente e parcelada?',
+    resposta:
+      'Recorrente repete automaticamente em uma frequência (diária, semanal, mensal ou anual). Parcelada divide uma compra em várias parcelas. No formulário, as duas opções são exclusivas para evitar conflito.'
+  },
+  {
+    id: 'faq-05',
+    pergunta: 'Por que não consigo salvar uma transação?',
+    resposta:
+      'Os campos obrigatórios são descrição, valor, instituição e categoria. Também valide se o valor é maior que zero e se a data está completa no formato dd/mm/aaaa.'
+  },
+  {
+    id: 'faq-06',
+    pergunta: 'Como adicionar bancos e vales na carteira?',
+    resposta:
+      'Abra Carteira e use Adicionar em Contas Bancárias ou Vales. Você pode escolher instituições padrão ou cadastrar uma instituição customizada com nome, cor e ícone.'
+  },
+  {
+    id: 'faq-07',
+    pergunta: 'Como criar e organizar categorias?',
+    resposta:
+      'Acesse Categorias para criar, editar e excluir. Use categorias de GASTO para despesas, de RECEITA para entradas e GLOBAL para categorias que podem aparecer nos dois tipos.'
+  },
+  {
+    id: 'faq-08',
+    pergunta: 'Como usar foto para preencher transação com IA?',
+    resposta:
+      'Na tela Adicionar Transação, toque em Foto, escolha câmera ou galeria e aguarde a sugestão. Você pode aceitar os dados sugeridos ou descartar e preencher manualmente.'
+  },
+  {
+    id: 'faq-09',
+    pergunta: 'Como funciona o saldo na carteira?',
+    resposta:
+      'O saldo de cada instituição é calculado automaticamente: soma de receitas menos soma de gastos vinculados àquela instituição.'
+  },
+  {
+    id: 'faq-10',
+    pergunta: 'Quais arquivos são aceitos na importação?',
+    resposta:
+      'A importação aceita arquivos .xlsx, .xls e .csv. Se o arquivo estiver fora desses formatos, o app mostra um alerta de arquivo inválido.'
+  },
+  {
+    id: 'faq-11',
+    pergunta: 'Preciso ter instituições e categorias cadastradas antes?',
+    resposta:
+      'Sim, é recomendado. O app tenta vincular automaticamente com o que já existe. Se faltar instituição ou categoria detectada na planilha, você pode cadastrar direto na tela de revisão.'
+  },
+  {
+    id: 'faq-12',
+    pergunta: 'O que significa transação pendente na importação?',
+    resposta:
+      'Pendente significa que falta algum campo obrigatório (descrição, valor, data, instituição ou categoria). Abra o card da transação, ajuste os campos e marque para salvar.'
+  },
+  {
+    id: 'faq-13',
+    pergunta: 'Posso salvar apenas parte das transações importadas?',
+    resposta:
+      'Sim. Você revisa item por item e escolhe quais enviar. No final, o app mostra quantas transações foram criadas e quantas falharam na confirmação.'
+  },
+  {
+    id: 'faq-14',
     pergunta: 'Como recuperar minha senha?',
-    resposta: 'Resposta a definir.'
-  }
+    resposta:
+      'Na tela de login, use Esqueci minha senha. Informe seu e-mail, valide o código recebido e defina uma nova senha seguindo os requisitos de segurança do app.'
+  },
 ];
 
 /**
