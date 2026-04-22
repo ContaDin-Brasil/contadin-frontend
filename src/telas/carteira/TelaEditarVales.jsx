@@ -20,7 +20,7 @@ const EditVouchersScreen = ({ navigation }) => {
   // Recarrega vales quando a tela recebe foco
   useFocusEffect(
     React.useCallback(() => {
-      editor.carregarVales();
+      editor.carregarVales(true); // forceRefresh=true para sempre buscar dados frescos
     }, [])
   );
 

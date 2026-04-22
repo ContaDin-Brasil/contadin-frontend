@@ -165,6 +165,26 @@ const categoriaService = {
   },
 
   /**
+   * Busca todas as categorias por usuário para fluxo de importação ETL.
+   * Backend esperado: GET /categorias/all/{usuarioId}
+   */
+  listarTodasPorUsuarioImportacao: async (
+    usuarioId: string | number,
+  ): Promise<CategoriaApi[]> => {
+    const response = await api.get<
+      CategoriaApi[] | ApiEnvelope<CategoriaApi[]> | EnvelopeArray<CategoriaApi>
+    >(`/categorias/all?fkUsuario=${usuarioId}`);
+
+    const categorias = Array.isArray(response.data)
+      ? mapearListaCategorias(response.data)
+      : toArray<CategoriaApi>(response.data).map(mapearCategoriaApi);
+
+    return categorias.filter((categoria) =>
+      categoriaPertenceAoUsuarioOuSistema(categoria, usuarioId),
+    );
+  },
+
+  /**
    * Busca categorias por nome filtrando por usuário
    */
   buscarPorNome: async (

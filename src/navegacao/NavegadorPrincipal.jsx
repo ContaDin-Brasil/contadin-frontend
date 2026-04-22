@@ -22,6 +22,7 @@ import TelaAjuda from '../telas/configuracoes/TelaAjuda';
 import TelaMetas from '../telas/configuracoes/TelaMetas';
 import TelaAdicionarMeta from '../telas/configuracoes/TelaAdicionarMeta';
 import TelaEditarMeta from '../telas/configuracoes/TelaEditarMeta';
+import TelaImportarPlanilha from '../telas/importacao/TelaImportarPlanilha';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -42,6 +43,7 @@ function NavegadorConfiguracoes() {
       <Stack.Screen name="Goals" component={TelaMetas} />
       <Stack.Screen name="GoalsAdd" component={TelaAdicionarMeta} />
       <Stack.Screen name="GoalsEdit" component={TelaEditarMeta} />
+      <Stack.Screen name="ImportarPlanilha" component={TelaImportarPlanilha} />
     </Stack.Navigator>
   );
 }

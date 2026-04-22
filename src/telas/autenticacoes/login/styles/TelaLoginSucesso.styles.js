@@ -33,4 +33,21 @@ export const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "600",
   },
+  botaoImportar: {
+    marginTop: 14,
+    borderWidth: 1.5,
+    borderColor: COLORS.primary,
+    backgroundColor: '#EDF4FF',
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    minWidth: 240,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  botaoImportarText: {
+    color: COLORS.primary,
+    fontSize: 15,
+    fontWeight: '600',
+  },
 });

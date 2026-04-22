@@ -34,12 +34,18 @@ const getBaseURL = (): string => {
   }
 
   let baseURL: string;
+  const androidEmulatorHost = "http://10.0.2.2:8080";
 
   if (__DEV__) {
+    console.warn(
+      "⚠️ EXPO_PUBLIC_API_BASE_URL não definida. Usando fallback local; para celular físico configure o IP do PC no .env.",
+    );
+
     if (Platform.OS === "web") {
       baseURL = "http://localhost:8080";
     } else if (Platform.OS === "android") {
-      baseURL = "http://192.168.15.23:8080";
+      // Android emulator acessa localhost da máquina host por 10.0.2.2
+      baseURL = androidEmulatorHost;
     } else {
       baseURL = "http://localhost:8080";
     }

@@ -3,18 +3,22 @@ import { View, Text, StyleSheet, TouchableOpacity, TextInput, Modal, ScrollView,
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../../styles/colors';
 
-const AddCustomInstitutionModal = ({ visible, onClose, onAdd, tipoInicial = 'banco' }) => {
+const AddCustomInstitutionModal = ({ visible, onClose, onAdd, tipoInicial = 'banco', nomeInicial = null }) => {
   const [name, setName] = useState('');
   const [type, setType] = useState('Banco');
   const [selectedColor, setSelectedColor] = useState('#E31C23');
   const [showColorWheel, setShowColorWheel] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  // Atualiza o tipo quando o modal abre com um tipo inicial diferente
+  // Atualiza o tipo e nome quando o modal abre
   React.useEffect(() => {
     if (visible) {
-      setType(tipoInicial === 'banco' ? 'Banco' : 'Vale');
+      setType(tipoInicial === 'banco' || tipoInicial === 'BANCO' ? 'Banco' : 'Vale');
+      setName(nomeInicial || '');
+      setSelectedColor('#E31C23');
+      setShowColorWheel(false);
     }
-  }, [visible, tipoInicial]);
+  }, [visible, tipoInicial, nomeInicial]);
 
   // Cores predefinidas (mesmas do modal de edição)
   const predefinedColors = [
@@ -26,24 +30,31 @@ const AddCustomInstitutionModal = ({ visible, onClose, onAdd, tipoInicial = 'ban
     '#000000', '#4A9EFF',
   ];
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (name.trim()) {
-      const newInstitution = {
-        id: Date.now(),
-        nome: name.trim(),
-        type: type === 'Banco' ? 'BANCO' : 'VALE',
-        cor: selectedColor,
-        icone: name.charAt(0).toUpperCase(),
-        balance: 'R$ 0,00',
-        expenses: 'R$ 0,00',
-      };
-      onAdd(newInstitution);
-      // Reset form
-      setName('');
-      setType('Banco');
-      setSelectedColor('#E31C23');
-      setShowColorWheel(false);
-      onClose();
+      setLoading(true);
+      try {
+        const newInstitution = {
+          nome: name.trim(),
+          tipo: type === 'Banco' ? 'BANCO' : 'VALE',
+          cor: selectedColor,
+          icone: 'bank', // ícone padrão
+        };
+        
+        // Chama o callback onAdd que pode ser async
+        const success = await onAdd(newInstitution);
+        
+        if (success) {
+          // Reset form
+          setName('');
+          setType('Banco');
+          setSelectedColor('#E31C23');
+          setShowColorWheel(false);
+          onClose();
+        }
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -184,11 +195,11 @@ const AddCustomInstitutionModal = ({ visible, onClose, onAdd, tipoInicial = 'ban
                 <Text style={styles.cancelButtonText}>Cancelar</Text>
               </TouchableOpacity>
               <TouchableOpacity 
-                style={[styles.addButton, !name.trim() && styles.addButtonDisabled]}
+                style={[styles.addButton, (!name.trim() || loading) && styles.addButtonDisabled]}
                 onPress={handleAdd}
-                disabled={!name.trim()}
+                disabled={!name.trim() || loading}
               >
-                <Text style={styles.addButtonText}>Adicionar Instituição</Text>
+                <Text style={styles.addButtonText}>{loading ? 'Adicionando...' : 'Adicionar Instituição'}</Text>
               </TouchableOpacity>
             </View>
           </ScrollView>

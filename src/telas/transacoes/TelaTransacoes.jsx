@@ -224,7 +224,7 @@ const TelaTransacoes = ({ navigation, route }) => {
       item.fkCategoria !== null &&
       item.fkCategoria !== undefined &&
       String(item.fkCategoria) !== 'SEM_CATEGORIA';
-    const categoryName = category?.nome || (possuiVinculoCategoria ? 'Categoria vinculada' : 'Categoria não informada');
+    const categoryName = category?.nome || (possuiVinculoCategoria ? 'Categoria Inativa' : 'Categoria não informada');
     const institutionName = institution?.nome || 'Sem instituição';
     const institutionColor = institution?.cor || '#666';
     const institutionIcon = institution?.icone || '📱';

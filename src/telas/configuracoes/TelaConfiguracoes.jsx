@@ -74,6 +74,13 @@ const SettingsScreen = ({ navigation }) => {
               subtitle="Gerencie suas metas de gastos"
               onPress={() => navigation.navigate('Goals')}
             />
+            <View style={styles.divider} />
+            <SettingItem
+              icon={<Ionicons name="document-text-outline" size={24} color="#5BA3FF" />}
+              title="Importar Planilha"
+              subtitle="Importe transacoes de Excel e revise antes de salvar"
+              onPress={() => navigation.navigate('ImportarPlanilha')}
+            />
           </View>
         </View>
 
