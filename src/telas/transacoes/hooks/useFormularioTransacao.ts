@@ -5,12 +5,18 @@ import {
   FrequencyType,
   Institution,
   Category,
+  Transaction,
   AISuggestion
 } from '../types/transacao.types';
 import { instituicaoService, categoriaService, transacaoService } from '../../../api';
+import type { InstituicaoApi, TransacaoApi } from '../../../api/types';
 import { useAuth } from '../../../contexts/AuthContext';
 import { formatarValorMonetario, limparValorMonetario, converterParaNumero } from '../utils/formatacaoMoeda';
 import { extrairUsuarioId } from '../../../utils/normalizacao';
+
+type InstituicaoComTipo = Institution & {
+  tipoInstituicao: 'BANCO' | 'VALE';
+};
 
 /**
  * Obtém a data de hoje no formato DD/MM/YYYY
@@ -48,16 +54,20 @@ export const useFormularioTransacao = () => {
   const [modalCategoriaVisible, setModalCategoriaVisible] = useState(false);
 
   // Estados para dados da API
-  const [categorias, setCategorias] = useState<any[]>([]);
-  const [transacoes, setTransacoes] = useState<any[]>([]);
-  const [instituicoes, setInstituicoes] = useState<any[]>([]);
+  const [categorias, setCategorias] = useState<Category[]>([]);
+  const [transacoes, setTransacoes] = useState<Transaction[]>([]);
+  const [instituicoes, setInstituicoes] = useState<InstituicaoComTipo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const usuarioId = extrairUsuarioId(user);
 
-  const carregarCategoriasParaTransacoes = async (usuarioIdAtual: string | number): Promise<any[]> => {
-    const service = categoriaService as any;
+  const carregarCategoriasParaTransacoes = async (
+    usuarioIdAtual: string | number,
+  ): Promise<Category[]> => {
+    const service = categoriaService as typeof categoriaService & {
+      listarParaTransacoes?: (id: string | number) => Promise<Category[]>;
+    };
 
     if (typeof service.listarParaTransacoes === 'function') {
       return await service.listarParaTransacoes(usuarioIdAtual);
@@ -69,11 +79,11 @@ export const useFormularioTransacao = () => {
       categoriaService.listarPorUsuario(usuarioIdAtual, 'GLOBAL'),
     ]);
 
-    const mapa = new Map<string, any>();
+    const mapa = new Map<string, Category>();
 
     resultados.forEach((resultado) => {
       if (resultado.status === 'fulfilled') {
-        (resultado.value ?? []).forEach((categoria: any) => {
+        (resultado.value ?? []).forEach((categoria: Category) => {
           mapa.set(String(categoria.id), categoria);
         });
       }
@@ -82,7 +92,9 @@ export const useFormularioTransacao = () => {
     return Array.from(mapa.values());
   };
 
-  const carregarTransacoesPorInstituicoes = async (instituicoesUsuario: any[]): Promise<any[]> => {
+  const carregarTransacoesPorInstituicoes = async (
+    instituicoesUsuario: InstituicaoComTipo[],
+  ): Promise<Transaction[]> => {
     if (!Array.isArray(instituicoesUsuario) || instituicoesUsuario.length === 0) {
       return [];
     }
@@ -93,19 +105,21 @@ export const useFormularioTransacao = () => {
       ),
     );
 
-    const mapaTransacoes = new Map<string, any>();
+    const mapaTransacoes = new Map<string, Transaction>();
 
     resultados.forEach((resultado, index) => {
       if (resultado.status === 'fulfilled') {
         const instituicaoId = instituicoesUsuario[index]?.id;
-        (resultado.value ?? []).forEach((transacao: any) => {
+        (resultado.value ?? []).forEach((transacao: TransacaoApi) => {
           const transacaoId = String(transacao.id ?? '');
           if (!transacaoId) return;
 
-          mapaTransacoes.set(transacaoId, {
+          const transacaoComInstituicao: Transaction = {
             ...transacao,
             fkInstituicao: transacao.fkInstituicao ?? instituicaoId ?? null,
-          });
+          };
+
+          mapaTransacoes.set(transacaoId, transacaoComInstituicao);
         });
       }
     });
@@ -143,17 +157,17 @@ export const useFormularioTransacao = () => {
     setLoading(true);
     setError(null);
 
-    let instituicoesFormatadas: any[] = [];
+    let instituicoesFormatadas: InstituicaoComTipo[] = [];
 
     // Instituições — mapeia campo 'type' do backend para 'tipoInstituicao'
     try {
       const instituicoesData = await instituicaoService.listarPorUsuario(usuarioId);
-      instituicoesFormatadas = instituicoesData.map((inst: any) => ({
+      instituicoesFormatadas = instituicoesData.map((inst: InstituicaoApi) => ({
         id: inst.id,
         nome: inst.nome,
         cor: inst.cor,
         icone: inst.icone,
-        tipoInstituicao: inst.type ?? inst.tipoInstituicao,
+        tipoInstituicao: inst.type === 'VALE' ? 'VALE' : 'BANCO',
       }));
       setInstituicoes(instituicoesFormatadas);
     } catch (errorInstituicoes) {
@@ -266,7 +280,7 @@ export const useFormularioTransacao = () => {
    * Retorna instituições filtradas pelo tipo selecionado
    */
   const getFilteredInstitutions = () => {
-    return instituicoes.filter((inst: any) => {
+    return instituicoes.filter((inst) => {
       if (institutionType === 'banks') {
         return inst.tipoInstituicao === 'BANCO';
       } else {
@@ -286,9 +300,12 @@ export const useFormularioTransacao = () => {
    * Adiciona uma instituição customizada
    */
   const handleAddCustomInstitution = (institution: Institution) => {
-    const novaInstituicao = {
+    const tipoInstituicao: InstituicaoComTipo['tipoInstituicao'] =
+      institutionType === 'banks' ? 'BANCO' : 'VALE';
+
+    const novaInstituicao: InstituicaoComTipo = {
       ...institution,
-      tipoInstituicao: institutionType === 'banks' ? 'BANCO' : 'VALE'
+      tipoInstituicao,
     };
     setInstituicoes([...instituicoes, novaInstituicao]);
     setSelectedInstitution(novaInstituicao);
@@ -589,7 +606,7 @@ export const useFormularioTransacao = () => {
   /**
    * Calcula as 3 categorias mais usadas baseado nas transações
    */
-  const getTop3Categorias = (): any[] => {
+  const getTop3Categorias = (): Category[] => {
     if (transacoes.length === 0) {
       // Se não houver transações, retorna as 3 primeiras categorias filtradas por tipo
       return getCategoriasFiltradasPorTipo().slice(0, 3);
@@ -598,7 +615,7 @@ export const useFormularioTransacao = () => {
     // Conta frequência de uso de cada categoria
     const frequencia: Record<string, number> = {};
 
-    transacoes.forEach((transacao: any) => {
+    transacoes.forEach((transacao) => {
       const catId = transacao.fkCategoria;
       if (catId) {
         const key = String(catId);
@@ -622,7 +639,7 @@ export const useFormularioTransacao = () => {
   /**
    * Filtra categorias pelo tipo de transação atual
    */
-  const getCategoriasFiltradasPorTipo = (): any[] => {
+  const getCategoriasFiltradasPorTipo = (): Category[] => {
     return categorias.filter(cat => podeUsarPara(cat, tipo));
   };
 
@@ -631,7 +648,7 @@ export const useFormularioTransacao = () => {
    * - Se não houver busca: retorna apenas top 3
    * - Se houver busca (após debounce): retorna todas filtradas pela busca
    */
-  const getCategoriasExibidas = (): any[] => {
+  const getCategoriasExibidas = (): Category[] => {
     const categoriasFiltradas = getCategoriasFiltradasPorTipo();
 
     // Se não houver busca, mostra apenas top 3
@@ -649,7 +666,7 @@ export const useFormularioTransacao = () => {
   /**
    * Função auxiliar que verifica se categoria pode ser usada para o tipo
    */
-  const podeUsarPara = (categoria: any, tipoTransacao: TransactionType): boolean => {
+  const podeUsarPara = (categoria: Category, tipoTransacao: TransactionType): boolean => {
     return categoria.tipo === 'GLOBAL' || categoria.tipo === tipoTransacao;
   };
 

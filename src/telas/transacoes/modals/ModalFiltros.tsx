@@ -2,17 +2,25 @@ import React, { useState, useEffect } from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet, ScrollView, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import COLORS from '../../../styles/colors';
-import type { FiltrosTransacao } from '../types/transacao.types';
+import type { Category, FiltrosTransacao, Institution } from '../types/transacao.types';
 
 type Filtros = FiltrosTransacao;
+type TipoFiltroTransacao = Filtros['tipo'];
+type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
+
+const TIPOS_TRANSACAO: Array<{ value: TipoFiltroTransacao; label: string; icon: IoniconName }> = [
+  { value: 'TODOS', label: 'Todos', icon: 'list-outline' },
+  { value: 'RECEITA', label: 'Receitas', icon: 'arrow-up-circle' },
+  { value: 'GASTO', label: 'Despesas', icon: 'arrow-down-circle' },
+];
 
 interface ModalFiltrosProps {
   visible: boolean;
   onClose: () => void;
   filtrosAtuais: Filtros;
   onAplicarFiltros: (filtros: Filtros) => void;
-  instituicoes: any[];
-  categorias: any[];
+  instituicoes: Institution[];
+  categorias: Category[];
 }
 
 export const ModalFiltros: React.FC<ModalFiltrosProps> = ({
@@ -113,21 +121,17 @@ export const ModalFiltros: React.FC<ModalFiltrosProps> = ({
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Tipo de Transação</Text>
               <View style={styles.typeButtons}>
-                {[
-                  { value: 'TODOS', label: 'Todos', icon: 'list-outline' },
-                  { value: 'RECEITA', label: 'Receitas', icon: 'arrow-up-circle' },
-                  { value: 'GASTO', label: 'Despesas', icon: 'arrow-down-circle' },
-                ].map((tipo) => (
+                {TIPOS_TRANSACAO.map((tipo) => (
                   <TouchableOpacity
                     key={tipo.value}
                     style={[
                       styles.typeButton,
                       filtrosTemp.tipo === tipo.value && styles.typeButtonActive,
                     ]}
-                    onPress={() => handleTipoChange(tipo.value as any)}
+                    onPress={() => handleTipoChange(tipo.value)}
                   >
                     <Ionicons
-                      name={tipo.icon as any}
+                      name={tipo.icon}
                       size={20}
                       color={filtrosTemp.tipo === tipo.value ? COLORS.white : COLORS.textSecondary}
                     />
