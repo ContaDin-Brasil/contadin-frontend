@@ -34,7 +34,7 @@ const getBaseURL = (): string => {
   }
 
   let baseURL: string;
-  const androidEmulatorHost = "http://10.0.2.2:8080";
+  const androidEmulatorHost = "http://192.168.15.23:8080";
 
   if (__DEV__) {
     console.warn(
@@ -47,7 +47,7 @@ const getBaseURL = (): string => {
       // Android emulator acessa localhost da máquina host por 10.0.2.2
       baseURL = androidEmulatorHost;
     } else {
-      baseURL = "http://localhost:8080";
+      baseURL = "http://192.168.15.23:8080";
     }
   } else {
     baseURL = "https://api.seudominio.com";
@@ -72,6 +72,10 @@ const api: AxiosInstance = axios.create({
 // O interceptor do axios é síncrono, então não podemos ler AsyncStorage aqui.
 let authTokenInMemory: string | null = null;
 
+type OnUnauthorizedHandler = () => void | Promise<void>;
+let onUnauthorized: OnUnauthorizedHandler | null = null;
+let isHandlingUnauthorized = false;
+
 const AUTH_PUBLIC_ROUTES = [
   "/auth/cadastro",
   "/auth/login",
@@ -88,6 +92,25 @@ const isPublicAuthRoute = (url?: string): boolean => {
 
 export const setAuthToken = (token: string | null): void => {
   authTokenInMemory = token;
+};
+
+export const setOnUnauthorized = (handler: OnUnauthorizedHandler | null): void => {
+  onUnauthorized = handler;
+};
+
+const triggerUnauthorized = (): void => {
+  if (isHandlingUnauthorized) return;
+  isHandlingUnauthorized = true;
+
+  const handler = onUnauthorized;
+  if (!handler) {
+    isHandlingUnauthorized = false;
+    return;
+  }
+
+  Promise.resolve(handler()).finally(() => {
+    isHandlingUnauthorized = false;
+  });
 };
 
 api.interceptors.request.use(
@@ -119,12 +142,18 @@ api.interceptors.response.use(
   (error: AxiosError<any>) => {
     const requestUrl = error.config?.url ?? "";
     const isLogoutRequest = requestUrl.includes("/auth/logout");
+    const isPublicRoute = isPublicAuthRoute(requestUrl);
+    const status = error.response?.status;
 
     // Tratamento de erros globais
     if (error.response) {
       // Erro da API (status code fora de 2xx)
       console.error("❌ Erro da API:", error.response.data);
       console.error("❌ Status:", error.response.status);
+
+      if (status === 401 && !isLogoutRequest && !isPublicRoute) {
+        triggerUnauthorized();
+      }
     } else if (error.request) {
       if (isLogoutRequest) {
         return Promise.reject(error);
@@ -132,7 +161,9 @@ api.interceptors.response.use(
 
       // Erro de rede (sem resposta)
       console.error("❌ Erro de rede - Sem resposta do servidor");
-      console.error("❌ URL tentada:", error.config?.baseURL + error.config?.url);
+      const baseUrl = error.config?.baseURL ?? "";
+      const url = error.config?.url ?? "";
+      console.error("❌ URL tentada:", `${baseUrl}${url}`);
       console.error("❌ Método:", error.config?.method);
       console.error("❌ Mensagem:", error.message);
     } else {
