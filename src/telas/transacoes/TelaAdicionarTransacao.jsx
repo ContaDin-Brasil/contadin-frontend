@@ -7,6 +7,7 @@ import TituloPagina from '../../componentes/TituloPagina';
 import BotoesAcaoFixo from '../../componentes/BotoesAcaoFixo';
 import { DatePickerInput } from '../../componentes/DatePickerInput';
 import { ImagePreview } from '../../componentes/ImagePreview';
+import ModalConfirmarAudio from '../../componentes/ModalConfirmarAudio';
 import { ErrorMessage } from './componentes/ErrorMessage';
 import { getLogoByName } from '../../componentes/modais/logosInstituicoes';
 import ModalSelecaoInstituicao from '../../componentes/modais/ModalSelecaoInstituicao';
@@ -306,12 +307,18 @@ const TelaAdicionarTransacao = ({ navigation }) => {
             <Text style={styles.aiButtonText}>Galeria</Text>
           </TouchableOpacity>
           <TouchableOpacity 
-            style={styles.aiButton}
+            style={[styles.aiButton, aiState.isRecording && { borderColor: COLORS.error }]}
             onPress={aiState.handleAudioInput}
             disabled={aiState.isProcessing}
           >
-            <Ionicons name="mic" size={24} color={COLORS.primaryLight} />
-            <Text style={styles.aiButtonText}>Áudio</Text>
+            <Ionicons
+              name={aiState.isRecording ? 'stop-circle' : 'mic'}
+              size={24}
+              color={aiState.isRecording ? COLORS.error : COLORS.primaryLight}
+            />
+            <Text style={[styles.aiButtonText, aiState.isRecording && { color: COLORS.error }]}>
+              {aiState.isRecording ? 'Parar' : 'Áudio'}
+            </Text>
           </TouchableOpacity>
         </View>
 
@@ -733,6 +740,13 @@ const TelaAdicionarTransacao = ({ navigation }) => {
       </View>
 
       {/* Modais */}
+      <ModalConfirmarAudio
+        visible={aiState.audioConfirmModalVisible}
+        audioUri={aiState.pendingAudioUri}
+        onConfirm={aiState.confirmAudioSend}
+        onCancel={aiState.cancelAudioSend}
+      />
+
       <ModalSelecaoInstituicao
         visible={selectionModalVisible}
         onClose={() => setSelectionModalVisible(false)}

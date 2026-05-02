@@ -17,7 +17,8 @@
       "infoPlist": {
         "NSCameraUsageDescription": "Precisamos de acesso à câmera para capturar fotos para OCR",
         "NSPhotoLibraryUsageDescription": "Precisamos de acesso à galeria para selecionar imagens para OCR",
-        "NSPhotoLibraryAddOnlyUsageDescription": "Precisamos de permissão para salvar fotos"
+        "NSPhotoLibraryAddOnlyUsageDescription": "Precisamos de permissão para salvar fotos",
+        "NSMicrophoneUsageDescription": "Precisamos de acesso ao microfone para gravar áudio e extrair informações de transações"
       }
     },
     "android": {
@@ -29,7 +30,8 @@
       "permissions": [
         "CAMERA",
         "READ_EXTERNAL_STORAGE",
-        "WRITE_EXTERNAL_STORAGE"
+        "WRITE_EXTERNAL_STORAGE",
+        "RECORD_AUDIO"
       ]
     },
     "web": {
@@ -41,6 +43,12 @@
         {
           "photosPermission": "Precisamos de acesso à galeria para selecionar imagens",
           "cameraPermission": "Precisamos de acesso à câmera para capturar fotos"
+        }
+      ],
+      [
+        "expo-av",
+        {
+          "microphonePermission": "Precisamos de acesso ao microfone para gravar áudio e extrair informações de transações"
         }
       ]
     ]

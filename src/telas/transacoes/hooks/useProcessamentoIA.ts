@@ -1,9 +1,17 @@
 import { useState, useEffect, useRef } from 'react';
 import { Animated } from 'react-native';
+import { Audio } from 'expo-av';
 import { AISuggestion, ProcessingType } from '../types/transacao.types';
 import { useCaptureImage, CapturedImage } from './useCaptureImage';
 import { useToastFeedback } from './useToastFeedback';
 import ocrService from '../../../api/services/ocrService';
+import audioService from '../../../api/services/audioService';
+import type { OCRResponse200 } from '../../../api/types';
+import {
+  requestAudioPermission,
+  configureAudioSession,
+  resetAudioSession,
+} from '../../../utils/audioUtils';
 import {
   mapOCRToAISuggestion,
   type MappedOCRResult,
@@ -42,6 +50,14 @@ export const useProcessamentoIA = () => {
   // Mensagem de status detalhada
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   
+  // Estado e ref para gravação de áudio
+  const [isRecording, setIsRecording] = useState(false);
+  const recordingRef = useRef<Audio.Recording | null>(null);
+
+  // URI do áudio gravado aguardando confirmação do usuário
+  const [pendingAudioUri, setPendingAudioUri] = useState<string | null>(null);
+  const [audioConfirmModalVisible, setAudioConfirmModalVisible] = useState(false);
+
   // Hook para capturar imagens
   const captureImage = useCaptureImage();
   
@@ -99,24 +115,132 @@ export const useProcessamentoIA = () => {
   };
 
   /**
-   * Gera sugestão mock a partir de áudio
+   * Inicia a gravação de áudio.
+   * Solicita permissão, configura sessão e cria o Recording.
    */
-  const handleAudioInput = () => {
-    setProcessingType('audio');
-    setIsProcessing(true);
-    
-    // Simular processamento de áudio
-    setTimeout(() => {
-      setAiSuggestion({
-        descricao: 'Salário mensal',
-        valor: '5.000,00',  // Valor já formatado sem R$ (será processado pelo input)
-        categoria: 'Salário',
-        tipo: 'RECEITA',
-        instituicao: 'Santander',
-        data: getTodayDate()
+  const _startRecording = async (): Promise<void> => {
+    try {
+      const hasPermission = await requestAudioPermission();
+      if (!hasPermission) return;
+
+      await configureAudioSession();
+
+      const { recording } = await Audio.Recording.createAsync(
+        Audio.RecordingOptionsPresets.HIGH_QUALITY
+      );
+
+      recordingRef.current = recording;
+      setIsRecording(true);
+      setProcessingType('audio');
+      console.log('🎙️ Gravação iniciada');
+    } catch (error) {
+      console.error('Erro ao iniciar gravação:', error);
+      const msg = error instanceof Error ? error.message : 'Erro ao iniciar gravação';
+      showError(msg, 'Erro na Gravação');
+    }
+  };
+
+  /**
+   * Para a gravação e abre o modal de confirmação.
+   * O envio só ocorre quando o usuário confirmar em confirmAudioSend().
+   */
+  const _stopAndSendAudio = async (): Promise<void> => {
+    if (!recordingRef.current) return;
+
+    try {
+      setIsRecording(false);
+      await recordingRef.current.stopAndUnloadAsync();
+      await resetAudioSession();
+
+      const uri = recordingRef.current.getURI();
+      recordingRef.current = null;
+
+      if (!uri) {
+        showError('Não foi possível obter o arquivo de áudio.', 'Erro na Gravação');
+        return;
+      }
+
+      console.log('🎙️ Gravação finalizada. URI:', uri);
+
+      // Abre modal para o usuário ouvir e confirmar antes de enviar
+      setPendingAudioUri(uri);
+      setAudioConfirmModalVisible(true);
+
+    } catch (error) {
+      console.error('Erro ao finalizar gravação:', error);
+      const msg = error instanceof Error ? error.message : 'Erro ao processar áudio';
+      showError(msg, 'Erro na Gravação');
+    }
+  };
+
+  /**
+   * Confirmação do usuário: envia o áudio pendente para /ai/audio e processa
+   * a resposta exatamente como o fluxo de imagem (_processImageWithOCR).
+   */
+  const confirmAudioSend = async (): Promise<void> => {
+    setAudioConfirmModalVisible(false);
+
+    if (!pendingAudioUri) return;
+
+    const uri = pendingAudioUri;
+    setPendingAudioUri(null);
+
+    try {
+      setIsProcessing(true);
+      setStatusMessage('Enviando áudio...');
+
+      const result = await audioService.sendAudioForTranscription(uri);
+
+      if (!result.success || !result.data) {
+        const errorMsg = result.error || 'Erro ao processar áudio. Tente novamente.';
+        showError(errorMsg, 'Erro no Áudio');
+        setProcessingError(errorMsg);
+        return;
+      }
+
+      // Mesmo mapeamento usado pelo fluxo de imagem
+      const mappedResult = mapOCRToAISuggestion(result.data as OCRResponse200);
+
+      setOcrMetadata({
+        fkInstituicao: mappedResult.fkInstituicao,
+        fkCategoria: mappedResult.fkCategoria,
+        idInstituicaoExistente: mappedResult.idInstituicaoExistente,
       });
+
+      setAiSuggestion(mappedResult.aiSuggestion);
+      showSuccess('Transação extraída com sucesso!', '✅ Áudio processado');
+
+    } catch (error) {
+      console.error('Erro ao enviar áudio:', error);
+      const msg = error instanceof Error ? error.message : 'Erro ao enviar áudio';
+      showError(msg, 'Erro no Áudio');
+      setProcessingError(msg);
+    } finally {
       setIsProcessing(false);
-    }, 3000);
+      setStatusMessage(null);
+    }
+  };
+
+  /**
+   * Cancelamento do usuário: descarta o áudio sem enviar.
+   */
+  const cancelAudioSend = (): void => {
+    setAudioConfirmModalVisible(false);
+    setPendingAudioUri(null);
+    setProcessingType(null);
+  };
+
+  /**
+   * Toggle de gravação de áudio.
+   * Primeiro toque: inicia gravação.
+   * Segundo toque: para gravação e envia para /ai/audio.
+   */
+  const handleAudioInput = async (): Promise<void> => {
+    if (isRecording) {
+      await _stopAndSendAudio();
+    } else {
+      await _startRecording();
+    }
   };
 
   /**
@@ -309,11 +433,16 @@ export const useProcessamentoIA = () => {
     ocrMetadata,
     uploadProgress,
     statusMessage,
+    isRecording,
+    pendingAudioUri,
+    audioConfirmModalVisible,
     handlePhotoCapture,
     handleAudioInput,
     dismissAISuggestion,
     captureFromCamera,
     captureFromGallery,
     retryOCRProcessing,
+    confirmAudioSend,
+    cancelAudioSend,
   };
 };
