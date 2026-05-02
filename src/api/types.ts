@@ -203,7 +203,7 @@ export interface OCRTransacao {
   valor: number;
   tipo: TransactionType;
   descricao: string;
-  data_transacao: string; // ISO 8601 format
+  data_transacao: string | null; // ISO 8601 format, null quando não identificada
   parcelado: boolean;
   recorrencia?: string;
   fim_transacao?: string;

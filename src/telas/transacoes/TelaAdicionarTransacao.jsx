@@ -78,13 +78,27 @@ const TelaAdicionarTransacao = ({ navigation }) => {
       let instituicaoSugerida = null;
       
       if (aiState.ocrMetadata?.idInstituicaoExistente) {
-        // Prioriza instituição existente encontrada pela IA
+        // Prioriza instituição existente encontrada pela IA via ID
         instituicaoSugerida = formState.instituicoes?.find(
           inst => inst.id === aiState.ocrMetadata.idInstituicaoExistente
         ) || null;
         
         if (instituicaoSugerida) {
-          console.log('✅ [SUGGESTION] Instituição encontrada pela IA:', instituicaoSugerida.nome);
+          console.log('✅ [SUGGESTION] Instituição encontrada por ID:', instituicaoSugerida.nome);
+        }
+      }
+
+      // Fallback: busca por nome (usado no fluxo de áudio, que não retorna id_existente)
+      if (!instituicaoSugerida) {
+        const nomeIA = aiState.aiSuggestion.instituicao;
+        if (nomeIA && nomeIA !== 'Sem instituição') {
+          instituicaoSugerida = formState.instituicoes?.find(
+            inst => inst.nome.toLowerCase() === nomeIA.toLowerCase()
+          ) || null;
+
+          if (instituicaoSugerida) {
+            console.log('✅ [SUGGESTION] Instituição encontrada por nome:', instituicaoSugerida.nome);
+          }
         }
       }
       

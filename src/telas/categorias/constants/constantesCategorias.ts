@@ -39,6 +39,14 @@ export const CATEGORY_ICONS = [
   'credit-card',
   'cake',
   'card-giftcard',
+  'category',
+  'palette',
+  'bolt',
+  'widgets',
+  'explore',
+  'event',
+  'cases',
+  'accessible',
 ];
 
 /**

@@ -37,19 +37,19 @@ export const useProcessamentoIA = () => {
   const [processingType, setProcessingType] = useState<ProcessingType | null>(null);
   const [aiSuggestion, setAiSuggestion] = useState<AISuggestion | null>(null);
   const [capturedImage, setCapturedImage] = useState<CapturedImage | null>(null);
-  
+
   // Metadados do OCR (FK's e ID's para referência posterior)
   const [ocrMetadata, setOcrMetadata] = useState<Partial<MappedOCRResult>>({});
-  
+
   // Erro durante processamento OCR (para permitir retry)
   const [processingError, setProcessingError] = useState<string | null>(null);
-  
+
   // Progresso de upload (0-100%)
   const [uploadProgress, setUploadProgress] = useState(0);
-  
+
   // Mensagem de status detalhada
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
-  
+
   // Estado e ref para gravação de áudio
   const [isRecording, setIsRecording] = useState(false);
   const recordingRef = useRef<Audio.Recording | null>(null);
@@ -60,10 +60,10 @@ export const useProcessamentoIA = () => {
 
   // Hook para capturar imagens
   const captureImage = useCaptureImage();
-  
+
   // Hook para feedback visual
   const { showError, showSuccess } = useToastFeedback();
-  
+
   // Animação do loading
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
@@ -92,25 +92,26 @@ export const useProcessamentoIA = () => {
    * Captura foto para gerar sugestão via OCR
    */
   const handlePhotoCapture = async () => {
-    setProcessingType('photo');
-    setIsProcessing(true);
     setProcessingError(null);
 
     try {
-      // Chama o hook para capturar imagem (abre modal de escolha câmera/galeria)
-      const imageData = await captureImage.pickImage(true); // true = incluir base64
+      // Abre o picker SEM loading ativo — evita loading preso se o picker for cancelado
+      const imageData = await captureImage.pickImage(true);
 
-      if (imageData) {
-        setCapturedImage(imageData);
-        await _processImageWithOCR(imageData);
-      } else {
-        setIsProcessing(false);
-      }
+      if (!imageData) return; // cancelou — nenhum loading foi exibido, nada a resetar
+
+      // Só mostra loading depois que o usuário confirmou a imagem
+      setProcessingType('photo');
+      setIsProcessing(true);
+      setCapturedImage(imageData);
+      await _processImageWithOCR(imageData);
     } catch (error) {
       console.error('Erro ao capturar foto:', error);
       const errorMsg = error instanceof Error ? error.message : 'Erro ao capturar foto';
       setProcessingError(errorMsg);
+    } finally {
       setIsProcessing(false);
+      setProcessingType(null);
     }
   };
 
@@ -308,7 +309,7 @@ export const useProcessamentoIA = () => {
         showError(errorMessage, 'OCR Falhou');
         setProcessingError(errorMessage);
         setUploadProgress(0);
-        
+
         // Exibir timing mesmo em erro
         if (ocrResult.totalTimeMs) {
           console.log(
@@ -339,7 +340,7 @@ export const useProcessamentoIA = () => {
 
       // Exibe a sugestão
       setAiSuggestion(mappedResult.aiSuggestion);
-      
+
       // Feedback detalhado com timing
       const timingMsg = ocrResult.totalTimeMs
         ? `em ${ocrResult.totalTimeMs}ms (upload: ${ocrResult.uploadTimeMs}ms, processamento: ${ocrResult.processingTimeMs}ms)`
@@ -348,14 +349,14 @@ export const useProcessamentoIA = () => {
         `Transação extraída com sucesso!\n${timingMsg}`,
         '✅ OCR Completo'
       );
-      
+
       console.log(
         `✨ OCR sucesso: ${mappedResult.aiSuggestion.descricao}`
       );
       console.log(
         `⏱️ Timing: Upload=${ocrResult.uploadTimeMs}ms, Processamento=${ocrResult.processingTimeMs}ms, Total=${ocrResult.totalTimeMs}ms`
       );
-      
+
       setUploadProgress(0);
       setStatusMessage(null);
       setIsProcessing(false);
@@ -377,24 +378,25 @@ export const useProcessamentoIA = () => {
    * Captura foto da câmera e processa com OCR
    */
   const captureFromCamera = async () => {
-    setProcessingType('photo');
-    setIsProcessing(true);
     setProcessingError(null);
 
     try {
-      const imageData = await captureImage.captureFromCamera(true); // true = incluir base64
+      // Abre a câmera SEM loading ativo — evita loading preso se o picker for cancelado
+      const imageData = await captureImage.captureFromCamera(true);
 
-      if (imageData) {
-        setCapturedImage(imageData);
-        await _processImageWithOCR(imageData);
-      } else {
-        setIsProcessing(false);
-      }
+      if (!imageData) return; // cancelou — nenhum loading foi exibido, nada a resetar
+
+      setProcessingType('photo');
+      setIsProcessing(true);
+      setCapturedImage(imageData);
+      await _processImageWithOCR(imageData);
     } catch (error) {
       console.error('Erro ao capturar foto:', error);
       const errorMsg = error instanceof Error ? error.message : 'Erro ao capturar foto';
       setProcessingError(errorMsg);
+    } finally {
       setIsProcessing(false);
+      setProcessingType(null);
     }
   };
 
@@ -402,24 +404,25 @@ export const useProcessamentoIA = () => {
    * Seleciona foto da galeria e processa com OCR
    */
   const captureFromGallery = async () => {
-    setProcessingType('photo');
-    setIsProcessing(true);
     setProcessingError(null);
 
     try {
-      const imageData = await captureImage.selectFromGallery(true); // true = incluir base64
+      // Abre a galeria SEM loading ativo — evita loading preso se o picker for cancelado
+      const imageData = await captureImage.selectFromGallery(true);
 
-      if (imageData) {
-        setCapturedImage(imageData);
-        await _processImageWithOCR(imageData);
-      } else {
-        setIsProcessing(false);
-      }
+      if (!imageData) return; // cancelou — nenhum loading foi exibido, nada a resetar
+
+      setProcessingType('photo');
+      setIsProcessing(true);
+      setCapturedImage(imageData);
+      await _processImageWithOCR(imageData);
     } catch (error) {
       console.error('Erro ao selecionar foto:', error);
       const errorMsg = error instanceof Error ? error.message : 'Erro ao selecionar foto';
       setProcessingError(errorMsg);
+    } finally {
       setIsProcessing(false);
+      setProcessingType(null);
     }
   };
 
