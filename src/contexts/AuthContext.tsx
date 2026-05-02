@@ -1,8 +1,9 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authService } from '../api';
-import { setAuthToken } from '../api/config';
+import { setAuthToken, setOnUnauthorized } from '../api/config';
 import type { UsuarioAutenticado } from '../api/types';
+import ModalSessaoExpirada from '../componentes/modais/ModalSessaoExpirada';
 
 const TOKEN_KEY = '@contadin:token';
 const USER_KEY = '@contadin:user';
@@ -24,6 +25,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<UsuarioAutenticado | null>(null);
   const [token, setTokenState] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [sessaoExpiradaVisivel, setSessaoExpiradaVisivel] = useState(false);
+  const sessaoExpiradaResolveRef = useRef<(() => void) | null>(null);
 
   const persistUser = useCallback(async (userData: UsuarioAutenticado | null) => {
     setUser(userData);
@@ -67,6 +70,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
     setAuthToken(null);
     await AsyncStorage.multiRemove([TOKEN_KEY, USER_KEY]);
+  }, []);
+
+  const handleFecharSessaoExpirada = useCallback(() => {
+    setSessaoExpiradaVisivel(false);
+    const resolver = sessaoExpiradaResolveRef.current;
+    sessaoExpiradaResolveRef.current = null;
+    void logout().finally(() => resolver?.());
+  }, [logout]);
+
+  useEffect(() => {
+    setOnUnauthorized(
+      () =>
+        new Promise<void>((resolve) => {
+          sessaoExpiradaResolveRef.current = resolve;
+          setSessaoExpiradaVisivel(true);
+        }),
+    );
+    return () => setOnUnauthorized(null);
   }, []);
 
   useEffect(() => {
@@ -118,6 +139,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }}
     >
       {children}
+      <ModalSessaoExpirada
+        visible={sessaoExpiradaVisivel}
+        onClose={handleFecharSessaoExpirada}
+      />
     </AuthContext.Provider>
   );
 };
