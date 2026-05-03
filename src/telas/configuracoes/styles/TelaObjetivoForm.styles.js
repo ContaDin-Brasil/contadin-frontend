@@ -41,6 +41,44 @@ export const styles = StyleSheet.create({
     color: COLORS.textPrimary,
     backgroundColor: COLORS.white,
   },
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 12,
+    backgroundColor: COLORS.white,
+    overflow: 'hidden',
+  },
+  picker: {
+    height: 48,
+    color: COLORS.textPrimary,
+  },
+  datePickerInput: {
+    marginBottom: 0,
+  },
+  priorityBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 999,
+    alignSelf: 'flex-start',
+  },
+  priorityDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 999,
+  },
+  priorityBadgeText: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  priorityHelper: {
+    marginTop: 6,
+    fontSize: 12,
+    color: COLORS.textTertiary,
+  },
   inputMultiline: {
     minHeight: 90,
     textAlignVertical: 'top',

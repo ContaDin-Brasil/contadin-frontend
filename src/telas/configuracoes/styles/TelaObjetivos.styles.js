@@ -11,93 +11,101 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 120,
   },
-  heroCard: {
+  recomendacaoCard: {
     backgroundColor: COLORS.secondaryLighter,
     borderRadius: 20,
     padding: 20,
-    marginBottom: 20,
+    marginBottom: 18,
     borderWidth: 1,
     borderColor: COLORS.secondaryBorder,
   },
-  heroTop: {
+  recomendacaoHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 16,
-    alignItems: 'flex-start',
+    alignItems: 'center',
+    marginBottom: 8,
   },
-  heroContent: {
-    flex: 1,
-  },
-  heroEyebrow: {
+  recomendacaoEyebrow: {
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: '700',
     color: COLORS.primaryDark,
     textTransform: 'uppercase',
     letterSpacing: 1.2,
-    marginBottom: 6,
   },
-  heroTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: COLORS.textDark,
-    marginBottom: 6,
-    flexShrink: 1,
-  },
-  heroSubtitle: {
-    fontSize: 14,
-    color: COLORS.textSecondary,
-    lineHeight: 20,
-    flexShrink: 1,
-  },
-  heroIconWrapper: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
+  recomendacaoIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
     backgroundColor: COLORS.white,
     alignItems: 'center',
     justifyContent: 'center',
-    alignSelf: 'flex-start',
   },
-  primaryButton: {
-    marginTop: 18,
-    backgroundColor: COLORS.primary,
-    borderRadius: 14,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-  },
-  primaryButtonText: {
-    color: COLORS.white,
+  recomendacaoText: {
     fontSize: 15,
-    fontWeight: '600',
+    color: COLORS.textPrimary,
+    lineHeight: 22,
   },
-  resumoContainer: {
-    flexDirection: 'row',
+  kpiContainer: {
     gap: 12,
     marginBottom: 20,
-    flexWrap: 'wrap',
   },
-  resumoCard: {
-    flexBasis: '31%',
-    minWidth: 98,
+  kpiRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  kpiCard: {
     backgroundColor: COLORS.white,
     borderRadius: 16,
-    padding: 14,
+    padding: 16,
     borderWidth: 1,
     borderColor: COLORS.borderLight,
+    shadowColor: COLORS.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 2,
   },
-  resumoLabel: {
-    fontSize: 12,
+  kpiCardHalf: {
+    flex: 1,
+  },
+  kpiCardWide: {
+    paddingVertical: 18,
+  },
+  kpiHeader: {
+    position: 'relative',
+    paddingRight: 28,
+    marginBottom: 8,
+    minHeight: 24,
+  },
+  kpiIcon: {
+    width: 24,
+    height: 24,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    right: 0,
+    top: 0,
+  },
+  kpiLabel: {
+    fontSize: 10,
     color: COLORS.textSecondary,
-    marginBottom: 6,
+    textTransform: 'none',
+    letterSpacing: 0.3,
+    lineHeight: 14,
+    flexShrink: 1,
+    minWidth: 0,
   },
-  resumoValue: {
+  kpiValue: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: COLORS.textPrimary,
+  },
+  kpiValueWide: {
     fontSize: 16,
     fontWeight: '700',
     color: COLORS.textPrimary,
+    lineHeight: 22,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -115,67 +123,78 @@ export const styles = StyleSheet.create({
     fontWeight: '600',
     color: COLORS.textSecondary,
   },
-  linkButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  linkButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: COLORS.primaryDark,
-  },
-  listaMetas: {
+  objetivosList: {
     gap: 14,
     marginBottom: 22,
   },
-  metaCard: {
+  objetivoCard: {
     backgroundColor: COLORS.white,
     borderRadius: 18,
     padding: 16,
     borderWidth: 1,
     borderColor: COLORS.borderLight,
   },
-  metaHeader: {
+  objetivoHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 8,
     flexWrap: 'wrap',
     gap: 8,
   },
-  metaTag: {
+  tipoBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    backgroundColor: '#F4F7FF',
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 999,
-    maxWidth: '100%',
   },
-  metaTagText: {
+  tipoBadgeText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#324166',
-    flexShrink: 1,
   },
-  metaPrazo: {
+  statusBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 999,
+  },
+  statusBadgeText: {
     fontSize: 12,
-    color: COLORS.textTertiary,
-    marginTop: 2,
+    fontWeight: '600',
   },
-  metaTitulo: {
+  objetivoTitulo: {
     fontSize: 16,
     fontWeight: '700',
     color: COLORS.textPrimary,
-    flexShrink: 1,
   },
-  metaCategoria: {
+  objetivoCategoria: {
     fontSize: 13,
     color: COLORS.textSecondary,
     marginTop: 4,
-    flexShrink: 1,
+  },
+  objetivoPrazo: {
+    fontSize: 12,
+    color: COLORS.textTertiary,
+    marginTop: 6,
+  },
+  valoresRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 12,
+    gap: 12,
+  },
+  valorItem: {
+    flex: 1,
+  },
+  valorLabel: {
+    fontSize: 11,
+    color: COLORS.textTertiary,
+  },
+  valorValue: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: COLORS.textPrimary,
+    marginTop: 4,
   },
   progressoLinha: {
     marginTop: 14,
@@ -202,24 +221,35 @@ export const styles = StyleSheet.create({
   },
   progressoFill: {
     height: '100%',
-    backgroundColor: COLORS.primaryLight,
     borderRadius: 999,
   },
-  metaFooter: {
+  insightContainer: {
+    marginTop: 14,
+    backgroundColor: COLORS.cardBg,
+    borderRadius: 12,
+    padding: 12,
+  },
+  insightLabel: {
+    fontSize: 11,
+    color: COLORS.textSecondary,
+    marginBottom: 6,
+    fontWeight: '600',
+  },
+  insightText: {
+    fontSize: 13,
+    color: COLORS.textPrimary,
+    lineHeight: 18,
+  },
+  objetivoFooter: {
     marginTop: 14,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     gap: 8,
   },
-  metaFooterLabel: {
-    fontSize: 11,
-    color: COLORS.textTertiary,
-  },
-  metaFooterValue: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: COLORS.textPrimary,
+  objetivoFooterText: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
   },
   secondaryButton: {
     backgroundColor: '#F0F4FF',
@@ -231,29 +261,5 @@ export const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
     color: COLORS.primaryDark,
-  },
-  sugestoesContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-    marginBottom: 20,
-  },
-  sugestaoChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: COLORS.white,
-    borderRadius: 999,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderWidth: 1,
-    borderColor: COLORS.borderLight,
-    maxWidth: '100%',
-  },
-  sugestaoText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: COLORS.textSecondary,
-    flexShrink: 1,
   },
 });
