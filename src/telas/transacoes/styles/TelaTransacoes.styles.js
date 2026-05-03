@@ -365,4 +365,379 @@ export const styles = StyleSheet.create({
     color: '#999',
     textAlign: 'center',
   },
+  // Título com Seletor de Visualização
+  tituloSeletorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    marginBottom: 10,
+  },
+  tituloSeletor: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: COLORS.textPrimary,
+    marginRight: 8,
+  },
+  // Modal de Visualização
+  modalVisualizacao: {
+    backgroundColor: '#FFF',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingTop: 20,
+    paddingHorizontal: 20,
+    paddingBottom: 40,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: COLORS.textPrimary,
+  },
+  modalOpcoes: {
+    gap: 12,
+  },
+  modalOpcao: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    backgroundColor: COLORS.background,
+    gap: 12,
+  },
+  modalOpcaoSelecionada: {
+    backgroundColor: COLORS.primary + '15',
+    borderWidth: 2,
+    borderColor: COLORS.primary,
+  },
+  modalOpcaoTexto: {
+    flex: 1,
+    fontSize: 17,
+    color: '#666',
+    fontWeight: '500',
+  },
+  modalOpcaoTextoSelecionado: {
+    color: COLORS.primary,
+    fontWeight: 'bold',
+  },
+  // Estilos para Recorrências
+  recorrenciaItem: {
+    marginHorizontal: 20,
+    marginBottom: 12,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    backgroundColor: '#FFF',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  recorrenciaItemInativa: {
+    opacity: 0.75,
+    borderColor: COLORS.error + '40',
+  },
+  recorrenciaHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  recorrenciaDescricao: {
+    flex: 1,
+    marginRight: 12,
+  },
+  recorrenciaTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: COLORS.textPrimary,
+  },
+  recorrenciaValor: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'right',
+  },
+  recorrenciaStatusInline: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 6,
+    marginBottom: 12,
+    gap: 6,
+  },
+  recorrenciaStatusInlineText: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  recorrenciaSecondaryRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 12,
+  },
+  recorrenciaCategoryBadge: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    backgroundColor: '#F5F5F5',
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    gap: 8,
+  },
+  recorrenciaCategoryText: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#666',
+  },
+  institutionBadgeSmall: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#DDD',
+    backgroundColor: '#FAFAFA',
+    gap: 8,
+  },
+  institutionBadgeLogoSmall: {
+    width: 16,
+    height: 16,
+    objectFit: 'cover',
+    borderRadius: 3,
+  },
+  institutionBadgeTextSmall: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#666',
+  },
+  recorrenciaThirdRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 12,
+  },
+  recorrenciaFrequencia: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.primary + '15',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    gap: 6,
+  },
+  recorrenciaFrequenciaText: {
+    fontSize: 13,
+    color: COLORS.primary,
+    fontWeight: '600',
+  },
+  recorrenciaProximaData: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F5F5F5',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    gap: 6,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  recorrenciaProximaDataText: {
+    fontSize: 13,
+    color: '#666',
+    fontWeight: '500',
+  },
+  recorrenciaFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F5F5F5',
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    gap: 8,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  recorrenciaDataFimFooter: {
+    fontSize: 13,
+    fontWeight: '500',
+  },
+
+  /* ================ ESTILOS PARCELADOS ================ */
+
+  parceladoItem: {
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    borderRadius: 12,
+    padding: 16,
+    marginHorizontal: 20,
+    marginVertical: 12,
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+
+  parceladoItemConcluido: {
+    backgroundColor: '#F8FFF8',
+    borderColor: '#C8E6C9',
+  },
+
+  parceladoHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 12,
+  },
+
+  parceladoDescricao: {
+    flex: 1,
+    paddingRight: 12,
+  },
+
+  parceladoTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: COLORS.textPrimary,
+  },
+
+  parceladoValor: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: COLORS.textPrimary,
+  },
+
+  incomeAmount: {
+    color: COLORS.success || '#4CAF50',
+  },
+
+  expenseAmount: {
+    color: COLORS.danger || '#F44336',
+  },
+
+  parceladoProgressContainer: {
+    marginBottom: 12,
+    gap: 8,
+  },
+
+  parceladoProgressBar: {
+    height: 8,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+
+  parceladoProgressFill: {
+    height: '100%',
+    backgroundColor: '#2196F3',
+    borderRadius: 4,
+  },
+
+  parceladoProgressText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#1976D2',
+    textAlign: 'right',
+  },
+
+  parceladoSecondaryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 12,
+    flexWrap: 'wrap',
+  },
+
+  parceladoCategoryBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F5F5F5',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    gap: 6,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+
+  parceladoCategoryText: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#666',
+  },
+
+  institutionBadgeSmall: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    gap: 6,
+    borderWidth: 1.5,
+    flex: 1,
+    minWidth: 100,
+  },
+
+  institutionBadgeLogoSmall: {
+    width: 16,
+    height: 16,
+  },
+
+  institutionBadgeIcon: {
+    fontSize: 14,
+  },
+
+  institutionBadgeTextSmall: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#666',
+  },
+
+  parceladoFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F5F5F5',
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    gap: 8,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+
+  parceladoFooterConcluido: {
+    backgroundColor: '#F1F8E9',
+    borderColor: '#AED581',
+  },
+
+  parceladoFooterText: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#666',
+    flex: 1,
+  },
 });
