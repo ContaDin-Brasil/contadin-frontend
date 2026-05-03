@@ -161,7 +161,7 @@ export interface TransacaoPayload {
   fkCategoria: string | number;
 }
 
-export interface MetaGastoApi {
+export interface ObjetivoGastoApi {
   id: number;
   valor_meta: number;
   data_inicio_meta: string;
@@ -170,7 +170,7 @@ export interface MetaGastoApi {
   fk_usuario: number;
 }
 
-export interface MetaGastoPayload {
+export interface ObjetivoGastoPayload {
   valor_meta: number;
   data_inicio_meta: string;
   data_fim_meta: string;
