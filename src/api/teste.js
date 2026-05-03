@@ -11,7 +11,7 @@ import {
   transacaoService,
   instituicaoService,
   categoriaService,
-  metaGastoService,
+  objetivoGastoService,
   usuarioService,
 } from './index';
 
@@ -101,12 +101,12 @@ export const testarAPI = async () => {
     console.log(`✅ ${transacoesMes.length} transações no mês atual`);
     console.log('');
 
-    // Teste 9: Buscar metas
-    console.log('🎯 Teste 9: Listar metas de gasto');
-    const metas = await metaGastoService.listar();
-    console.log(`✅ ${metas.length} metas encontradas`);
-    if (metas.length > 0) {
-      console.log('Primeira meta:', metas[0]);
+    // Teste 9: Buscar objetivos
+    console.log('🎯 Teste 9: Listar objetivos de gasto');
+    const objetivos = await objetivoGastoService.listar();
+    console.log(`✅ ${objetivos.length} objetivos encontrados`);
+    if (objetivos.length > 0) {
+      console.log('Primeiro objetivo:', objetivos[0]);
     }
     console.log('');
 
