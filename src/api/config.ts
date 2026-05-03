@@ -47,7 +47,7 @@ const getBaseURL = (): string => {
       // Android emulator acessa localhost da máquina host por 10.0.2.2
       baseURL = androidEmulatorHost;
     } else {
-      baseURL = "http://localhost:8080"
+      baseURL = "http://localhost:8080";
     }
   } else {
     baseURL = "https://api.seudominio.com";
