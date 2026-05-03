@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Platform, StyleSheet } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { Ionicons } from '@expo/vector-icons';
 import COLORS from '../styles/colors';
 
@@ -16,8 +16,9 @@ interface DatePickerInputProps {
 }
 
 /**
- * Componente de input de data com seletor nativo
- * Suporta entrada manual (DD/MM/YYYY) e seleção via DatePicker nativo
+ * Componente de input de data com seletor adequado para cada plataforma
+ * Web: input type="date" nativo
+ * iOS/Android: Modal com calendário
  */
 export const DatePickerInput: React.FC<DatePickerInputProps> = ({
   value,
@@ -29,7 +30,8 @@ export const DatePickerInput: React.FC<DatePickerInputProps> = ({
   errorMessage,
   style,
 }) => {
-  const [showPicker, setShowPicker] = useState(false);
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const isWeb = Platform.OS === 'web';
 
   /**
    * Converte string DD/MM/YYYY para objeto Date
@@ -54,28 +56,34 @@ export const DatePickerInput: React.FC<DatePickerInputProps> = ({
   };
 
   /**
-   * Handler do DatePicker nativo
+   * Converte DD/MM/YYYY para YYYY-MM-DD (formato HTML input)
    */
-  const handlePickerChange = (event: any, selectedDate?: Date) => {
-    // Fecha o picker no Android após selecionar
-    // No iOS mantém aberto (comportamento padrão do iOS)
-    if (Platform.OS === 'android') {
-      setShowPicker(false);
-    }
-    
-    if (event.type === 'dismissed') {
-      setShowPicker(false);
-      return;
-    }
-    
-    if (selectedDate) {
-      const formatted = formatDate(selectedDate);
-      onChangeDate(formatted);
-    }
+  const convertToHtmlFormat = (dateStr: string): string => {
+    if (!dateStr || dateStr.length < 10) return '';
+    const [day, month, year] = dateStr.split('/');
+    return `${year}-${month}-${day}`;
   };
 
   /**
-   * Formata a data enquanto o usuário digita
+   * Converte YYYY-MM-DD para DD/MM/YYYY
+   */
+  const convertFromHtmlFormat = (htmlDate: string): string => {
+    if (!htmlDate) return '';
+    const [year, month, day] = htmlDate.split('-');
+    return `${day}/${month}/${year}`;
+  };
+
+  /**
+   * Handler do DatePicker modal (mobile)
+   */
+  const handleConfirm = (date: Date) => {
+    const formatted = formatDate(date);
+    onChangeDate(formatted);
+    setDatePickerVisibility(false);
+  };
+
+  /**
+   * Formata a data enquanto o usuário digita (mobile)
    */
   const handleTextChange = (text: string) => {
     // Remove tudo que não é número
@@ -94,14 +102,63 @@ export const DatePickerInput: React.FC<DatePickerInputProps> = ({
   };
 
   /**
-   * Abre o DatePicker
+   * Abre o DatePicker modal (mobile)
    */
   const openPicker = () => {
-    setShowPicker(true);
+    setDatePickerVisibility(true);
+  };
+
+  /**
+   * Handler para input HTML (web)
+   */
+  const handleWebDateChange = (e: any) => {
+    const htmlDate = e.target.value;
+    if (htmlDate) {
+      const formatted = convertFromHtmlFormat(htmlDate);
+      onChangeDate(formatted);
+    }
   };
 
   const currentDate = parseDate(value);
+  const htmlDateValue = convertToHtmlFormat(value);
 
+  // Renderização específica para web
+  if (isWeb) {
+    return (
+      <View style={[styles.container, style]}>
+        {label && <Text style={styles.label}>{label}</Text>}
+        
+        <View style={[styles.inputContainer, errorMessage && styles.inputContainerError]}>
+          <Ionicons name="calendar-outline" size={20} color={errorMessage ? COLORS.error : '#666'} />
+          
+          <input
+            type="date"
+            value={htmlDateValue}
+            onChange={handleWebDateChange}
+            style={{
+              flex: 1,
+              fontSize: 16,
+              color: '#333',
+              marginLeft: 12,
+              border: 'none',
+              background: 'transparent',
+              cursor: 'pointer',
+              fontFamily: 'System',
+            } as any}
+          />
+        </View>
+
+        {errorMessage && (
+          <View style={styles.errorContainer}>
+            <Ionicons name="alert-circle" size={14} color={COLORS.error} />
+            <Text style={styles.errorText}>{errorMessage}</Text>
+          </View>
+        )}
+      </View>
+    );
+  }
+
+  // Renderização para mobile (iOS/Android)
   return (
     <View style={[styles.container, style]}>
       {label && <Text style={styles.label}>{label}</Text>}
@@ -131,17 +188,20 @@ export const DatePickerInput: React.FC<DatePickerInputProps> = ({
         </View>
       )}
 
-      {showPicker && (
-        <DateTimePicker
-          value={currentDate}
-          mode="date"
-          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-          onChange={handlePickerChange}
-          minimumDate={minDate}
-          maximumDate={maxDate}
-          locale="pt-BR"
-        />
-      )}
+      <DateTimePickerModal
+        isVisible={isDatePickerVisible}
+        mode="date"
+        onConfirm={handleConfirm}
+        onCancel={() => setDatePickerVisibility(false)}
+        date={currentDate}
+        minimumDate={minDate}
+        maximumDate={maxDate}
+        locale="pt_BR"
+        headerTextIOS="Selecione a data"
+        confirmTextIOS="Confirmar"
+        cancelTextIOS="Cancelar"
+        isDarkModeEnabled={false}
+      />
     </View>
   );
 };

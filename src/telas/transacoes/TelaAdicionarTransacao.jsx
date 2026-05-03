@@ -402,19 +402,12 @@ const TelaAdicionarTransacao = ({ navigation }) => {
 
       {/* Data da transação */}
       <View style={styles.section}>
-        <Text style={styles.label}>Data:</Text>
-        <View style={styles.dateInputContainer}>
-          <Ionicons name="calendar-outline" size={20} color={COLORS.primaryLight} />
-          <TextInput
-            style={styles.dateInput}
-            placeholder="DD/MM/AAAA"
-            placeholderTextColor="#999"
-            value={formState.date}
-            onChangeText={formState.handleDateChange}
-            keyboardType="numeric"
-            maxLength={10}
-          />
-        </View>
+        <DatePickerInput
+          label="Data:"
+          value={formState.date}
+          onChangeDate={formState.handleDateChange}
+          placeholder="DD/MM/AAAA"
+        />
       </View>
 
       {/* Tipo da transação */}
