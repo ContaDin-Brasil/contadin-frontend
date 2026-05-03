@@ -4,7 +4,61 @@
  */
 
 import * as ImagePicker from 'expo-image-picker';
+import * as ImageManipulator from 'expo-image-manipulator';
 import { Alert } from 'react-native';
+
+/**
+ * Dimensão máxima (largura ou altura) permitida antes de enviar para OCR.
+ * Fotos de celular moderno (12MP+) são reduzidas para ~200-400KB,
+ * evitando travamento no upload via React Native FormData.
+ */
+const MAX_IMAGE_DIMENSION = 1280;
+
+/**
+ * Redimensiona a imagem para no máximo MAX_IMAGE_DIMENSION px no lado maior,
+ * mantendo o aspect ratio. Retorna a URI do arquivo redimensionado e,
+ * opcionalmente, o base64 correspondente.
+ */
+const resizeImageIfNeeded = async (
+  uri: string,
+  width: number,
+  height: number,
+  includeBase64: boolean
+): Promise<{ uri: string; base64?: string; width: number; height: number }> => {
+  const needsResize = width > MAX_IMAGE_DIMENSION || height > MAX_IMAGE_DIMENSION;
+
+  const actions: ImageManipulator.Action[] = [];
+
+  if (needsResize) {
+    if (width >= height) {
+      actions.push({ resize: { width: MAX_IMAGE_DIMENSION } });
+    } else {
+      actions.push({ resize: { height: MAX_IMAGE_DIMENSION } });
+    }
+  }
+
+  // Sempre passa pelo manipulator quando base64 é necessário,
+  // garantindo que uri e base64 correspondam ao mesmo arquivo
+  if (needsResize || includeBase64) {
+    const result = await ImageManipulator.manipulateAsync(
+      uri,
+      actions,
+      {
+        compress: 0.8,
+        format: ImageManipulator.SaveFormat.JPEG,
+        base64: includeBase64,
+      }
+    );
+    return {
+      uri: result.uri,
+      base64: result.base64 ?? undefined,
+      width: result.width,
+      height: result.height,
+    };
+  }
+
+  return { uri, width, height };
+};
 
 export interface ImageData {
   uri: string;
@@ -67,11 +121,17 @@ export const openCamera = async (includeBase64: boolean = false): Promise<ImageD
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
       const asset = result.assets[0];
+      const resized = await resizeImageIfNeeded(
+        asset.uri,
+        asset.width ?? MAX_IMAGE_DIMENSION,
+        asset.height ?? MAX_IMAGE_DIMENSION,
+        includeBase64
+      );
       return {
-        uri: asset.uri,
-        base64: asset.base64,
-        width: asset.width,
-        height: asset.height,
+        uri: resized.uri,
+        base64: resized.base64,
+        width: resized.width,
+        height: resized.height,
         fileName: `photo_${Date.now()}.jpg`,
       };
     }
@@ -109,11 +169,17 @@ export const openGallery = async (includeBase64: boolean = false): Promise<Image
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
       const asset = result.assets[0];
+      const resized = await resizeImageIfNeeded(
+        asset.uri,
+        asset.width ?? MAX_IMAGE_DIMENSION,
+        asset.height ?? MAX_IMAGE_DIMENSION,
+        includeBase64
+      );
       return {
-        uri: asset.uri,
-        base64: asset.base64,
-        width: asset.width,
-        height: asset.height,
+        uri: resized.uri,
+        base64: resized.base64,
+        width: resized.width,
+        height: resized.height,
         fileName: `gallery_${Date.now()}.jpg`,
       };
     }

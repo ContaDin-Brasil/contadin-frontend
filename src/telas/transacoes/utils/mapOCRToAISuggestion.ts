@@ -17,22 +17,20 @@ export interface MappedOCRResult {
 }
 
 /**
- * Converte ISO date (YYYY-MM-DD ou YYYY-MM-DDTHH:mm:ss) para DD/MM/YYYY
+ * Converte ISO date (YYYY-MM-DD ou YYYY-MM-DDTHH:mm:ss) para DD/MM/YYYY.
+ * Retorna undefined quando a data não foi identificada (null/undefined/vazia).
  */
-const formatISODateToBR = (isoDate: string): string => {
+const formatISODateToBR = (isoDate: string | null | undefined): string | undefined => {
+  if (!isoDate) return undefined;
+
   try {
-    // Extrai apenas a parte da data (YYYY-MM-DD)
     const datePart = isoDate.split('T')[0];
     const [year, month, day] = datePart.split('-');
+    if (!year || !month || !day) return undefined;
     return `${day}/${month}/${year}`;
   } catch (error) {
     console.warn('❌ Erro ao formatar data OCR:', isoDate, error);
-    // Fallback: retorna data de hoje
-    const today = new Date();
-    const day = String(today.getDate()).padStart(2, '0');
-    const monthNum = String(today.getMonth() + 1).padStart(2, '0');
-    const year = today.getFullYear();
-    return `${day}/${monthNum}/${year}`;
+    return undefined;
   }
 };
 
@@ -161,7 +159,7 @@ export const mapOCRToAISuggestion = (
       tipo: normalizarTipo(transacao.tipo),
       categoria: transacao.categoria || 'Sem categoria',
       instituicao: instituicao?.nome || transacao.instituicao || 'Sem instituição',
-      data: formatISODateToBR(transacao.data_transacao),
+      data: formatISODateToBR(transacao.data_transacao) ?? undefined,
     };
 
     const result: MappedOCRResult = {
@@ -184,13 +182,7 @@ export const mapOCRToAISuggestion = (
         tipo: 'GASTO',
         categoria: 'Sem categoria',
         instituicao: 'Sem instituição',
-        data: (() => {
-          const today = new Date();
-          const day = String(today.getDate()).padStart(2, '0');
-          const month = String(today.getMonth() + 1).padStart(2, '0');
-          const year = today.getFullYear();
-          return `${day}/${month}/${year}`;
-        })(),
+        data: undefined,
       },
     };
 

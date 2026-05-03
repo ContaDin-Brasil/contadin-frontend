@@ -169,16 +169,20 @@ const ocrService = {
       const mimeType = getMimeType(fileName);
       imageSizeBytes = Math.round((base64Data.length * 3) / 4);
 
-      // React Native FormData: adiciona arquivo com uri nativo
-      // Campo deve se chamar 'file' (conforme router Python)
-      const uploadField = {
-        uri: imageData.uri,
-        type: mimeType,
-        name: fileName,
-      };
-
-      console.log(`   FormData file object:`, uploadField);
-      formData.append('file', uploadField as any);
+      // Adiciona o arquivo ao FormData com tratamento diferente para web e nativo (mobile)
+      if (Platform.OS === 'web') {
+        // No web, { uri, type, name } não funciona — precisa de um File/Blob real
+        const dataUrl = `data:${mimeType};base64,${base64Data}`;
+        const blobRes = await fetch(dataUrl);
+        const blob = await blobRes.blob();
+        formData.append('file', new File([blob], fileName, { type: mimeType }));
+        console.log(`   FormData (web): File via base64 → Blob`);
+      } else {
+        // No nativo (Android/iOS), { uri, type, name } funciona diretamente
+        const uploadField = { uri: imageData.uri, type: mimeType, name: fileName };
+        console.log(`   FormData (native):`, uploadField);
+        formData.append('file', uploadField as any);
+      }
 
       console.log(`   Tamanho (estimado): ~${Math.round(imageSizeBytes / 1024)}KB`);
       console.log(`   MIME Type: ${mimeType}`);
