@@ -19,9 +19,9 @@ import TelaEditarPerfil from '../telas/configuracoes/TelaEditarPerfil';
 import TelaConta from '../telas/configuracoes/TelaConta';
 import TelaAlterarSenha from '../telas/configuracoes/TelaAlterarSenha';
 import TelaAjuda from '../telas/configuracoes/TelaAjuda';
-import TelaMetas from '../telas/configuracoes/TelaMetas';
-import TelaAdicionarMeta from '../telas/configuracoes/TelaAdicionarMeta';
-import TelaEditarMeta from '../telas/configuracoes/TelaEditarMeta';
+import TelaObjetivos from '../telas/configuracoes/TelaObjetivos';
+import TelaAdicionarObjetivo from '../telas/configuracoes/TelaAdicionarObjetivo';
+import TelaEditarObjetivo from '../telas/configuracoes/TelaEditarObjetivo';
 import TelaImportarPlanilha from '../telas/importacao/TelaImportarPlanilha';
 
 const Tab = createBottomTabNavigator();
@@ -40,9 +40,9 @@ function NavegadorConfiguracoes() {
       <Stack.Screen name="Account" component={TelaConta} />
       <Stack.Screen name="ChangePassword" component={TelaAlterarSenha} />
       <Stack.Screen name="Help" component={TelaAjuda} />
-      <Stack.Screen name="Goals" component={TelaMetas} />
-      <Stack.Screen name="GoalsAdd" component={TelaAdicionarMeta} />
-      <Stack.Screen name="GoalsEdit" component={TelaEditarMeta} />
+      <Stack.Screen name="Objectives" component={TelaObjetivos} />
+      <Stack.Screen name="ObjectivesAdd" component={TelaAdicionarObjetivo} />
+      <Stack.Screen name="ObjectivesEdit" component={TelaEditarObjetivo} />
       <Stack.Screen name="ImportarPlanilha" component={TelaImportarPlanilha} />
     </Stack.Navigator>
   );

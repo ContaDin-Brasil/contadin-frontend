@@ -70,9 +70,9 @@ const SettingsScreen = ({ navigation }) => {
           <View style={styles.sectionContent}>
             <SettingItem 
               icon={<Ionicons name="flag-outline" size={24} color="#5BA3FF" />}
-              title="Metas" 
-              subtitle="Gerencie suas metas de gastos"
-              onPress={() => navigation.navigate('Goals')}
+              title="Objetivos" 
+              subtitle="Planeje limites e aumento de receita"
+              onPress={() => navigation.navigate('Objectives')}
             />
             <View style={styles.divider} />
             <SettingItem
