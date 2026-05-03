@@ -48,8 +48,6 @@ const getBaseURL = (): string => {
       baseURL = androidEmulatorHost;
     } else {
       baseURL = "http://localhost:8080"
-      // "http://192.168.0.11:8080";
-      // "http://localhost:8080";
     }
   } else {
     baseURL = "https://api.seudominio.com";
