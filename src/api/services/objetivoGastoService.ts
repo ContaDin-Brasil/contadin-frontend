@@ -1,62 +1,62 @@
 import api from '../config';
 import type { ObjetivoGastoApi, ObjetivoGastoPayload } from '../types';
 
+type ObjetivosQuery = {
+  fkUsuario?: string | number;
+  concluido?: boolean;
+};
+
 /**
- * Serviço de Objetivos de Gasto
- * Gerencia operações relacionadas aos objetivos de gastos por categoria
+ * Serviço de Objetivos
+ * Gerencia operações relacionadas aos objetivos
  */
 const objetivoGastoService = {
   /**
    * Busca todos os objetivos
    */
-  listar: async (): Promise<ObjetivoGastoApi[]> => {
-    const response = await api.get<ObjetivoGastoApi[]>('/meta_gasto');
+  listar: async (params?: ObjetivosQuery): Promise<ObjetivoGastoApi[]> => {
+    const response = await api.get<ObjetivoGastoApi[]>('/objetivos', { params });
     return response.data;
   },
 
   /**
    * Busca objetivos por usuário
-   * @param {number} usuarioId - ID do usuário
+   * @param {string | number} usuarioId - ID do usuário
+   * @param {boolean} concluido - Filtro por concluídos
    */
-  listarPorUsuario: async (usuarioId: number): Promise<ObjetivoGastoApi[]> => {
-    const response = await api.get<ObjetivoGastoApi[]>('/meta_gasto', {
-      params: { fk_usuario: usuarioId },
+  listarPorUsuario: async (
+    usuarioId: string | number,
+    concluido?: boolean,
+  ): Promise<ObjetivoGastoApi[]> => {
+    const response = await api.get<ObjetivoGastoApi[]>('/objetivos', {
+      params: { fkUsuario: usuarioId, ...(concluido !== undefined ? { concluido } : {}) },
+    });
+    return response.data;
+  },
+
+  /**
+   * Busca objetivos por nome
+   * @param {string} nome - Nome para busca
+   * @param {string | number} usuarioId - ID do usuário
+   * @param {boolean} concluido - Filtro por concluídos
+   */
+  buscarPorNome: async (
+    nome: string,
+    usuarioId: string | number,
+    concluido?: boolean,
+  ): Promise<ObjetivoGastoApi[]> => {
+    const response = await api.get<ObjetivoGastoApi[]>('/objetivos/nome', {
+      params: { nome, fkUsuario: usuarioId, ...(concluido !== undefined ? { concluido } : {}) },
     });
     return response.data;
   },
 
   /**
    * Busca um objetivo por ID
-   * @param {number} id - ID do objetivo
+   * @param {string | number} id - ID do objetivo
    */
-  buscarPorId: async (id: number): Promise<ObjetivoGastoApi> => {
-    const response = await api.get<ObjetivoGastoApi>(`/meta_gasto/${id}`);
-    return response.data;
-  },
-
-  /**
-   * Busca objetivo por categoria
-   * @param {number} categoriaId - ID da categoria
-   */
-  buscarPorCategoria: async (categoriaId: number): Promise<ObjetivoGastoApi[]> => {
-    const response = await api.get<ObjetivoGastoApi[]>('/meta_gasto', {
-      params: { fk_categoria: categoriaId },
-    });
-    return response.data;
-  },
-
-  /**
-   * Busca objetivos ativos (que ainda não expiraram)
-   * @param {number} usuarioId - ID do usuário
-   * @param {string} dataAtual - Data atual (formato ISO)
-   */
-  listarAtivas: async (usuarioId: number, dataAtual: string): Promise<ObjetivoGastoApi[]> => {
-    const response = await api.get<ObjetivoGastoApi[]>('/meta_gasto', {
-      params: {
-        fk_usuario: usuarioId,
-        data_fim_meta_gte: dataAtual,
-      },
-    });
+  buscarPorId: async (id: string | number): Promise<ObjetivoGastoApi> => {
+    const response = await api.get<ObjetivoGastoApi>(`/objetivos/${id}`);
     return response.data;
   },
 
@@ -65,27 +65,29 @@ const objetivoGastoService = {
    * @param {object} objetivo - Dados do objetivo
    */
   criar: async (objetivo: ObjetivoGastoPayload): Promise<ObjetivoGastoApi> => {
-    const response = await api.post<ObjetivoGastoApi>('/meta_gasto', objetivo);
+    const response = await api.post<ObjetivoGastoApi>('/objetivos', objetivo);
     return response.data;
   },
 
   /**
-   * Atualiza um objetivo
-   * @param {number} id - ID do objetivo
+   * Atualiza parcialmente um objetivo
+   * @param {string | number} id - ID do objetivo
    * @param {object} objetivo - Dados atualizados
    */
-  atualizar: async (id: number, objetivo: ObjetivoGastoPayload): Promise<ObjetivoGastoApi> => {
-    const response = await api.put<ObjetivoGastoApi>(`/meta_gasto/${id}`, objetivo);
+  atualizar: async (
+    id: string | number,
+    objetivo: Partial<ObjetivoGastoPayload>,
+  ): Promise<ObjetivoGastoApi> => {
+    const response = await api.patch<ObjetivoGastoApi>(`/objetivos/${id}`, objetivo);
     return response.data;
   },
 
   /**
    * Deleta um objetivo
-   * @param {number} id - ID do objetivo
+   * @param {string | number} id - ID do objetivo
    */
-  deletar: async (id: number): Promise<ObjetivoGastoApi> => {
-    const response = await api.delete<ObjetivoGastoApi>(`/meta_gasto/${id}`);
-    return response.data;
+  deletar: async (id: string | number): Promise<void> => {
+    await api.delete(`/objetivos/${id}`);
   },
 };
 
