@@ -1,101 +1,64 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, SafeAreaView, TextInput, TouchableOpacity } from 'react-native';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
+import Toast from 'react-native-toast-message';
 import TituloPagina from '../../componentes/TituloPagina';
 import BotoesAcaoFixo from '../../componentes/BotoesAcaoFixo';
 import { DatePickerInput } from '../../componentes/DatePickerInput';
 import ModalAviso from '../../componentes/modais/ModalAviso';
+import ModalCategoria from '../categorias/modals/ModalCategoria';
+import { categoriaService, objetivoGastoService } from '../../api';
+import { useAuth } from '../../contexts/AuthContext';
 import { COLORS } from '../../styles/colors';
+import { extrairUsuarioId, obterUsuarioIdOuErro } from '../../utils/normalizacao';
+import { getCategoryIcon } from '../transacoes/utils/utilitariosTransacao';
+import { converterParaNumero, formatarValorMonetario } from '../transacoes/utils/formatacaoMoeda';
+import {
+  PRIORIDADES,
+  PRIORIDADE_VISUAL,
+  TIPOS_OBJETIVO,
+} from '@/telas/configuracoes/objetivos/constants/constantesObjetivo';
+import {
+  formatarDataISO,
+  getDataHojeLocal,
+  getFimDoMesLocal,
+  normalizarDataExibicao,
+  parseDataEntrada,
+} from '@/telas/configuracoes/objetivos/utils/objetivoDatas';
+import { useCategoriasObjetivo } from '@/telas/configuracoes/objetivos/hooks/useCategoriasObjetivo';
 import { styles } from './styles/TelaObjetivoForm.styles';
 
-const TIPOS_OBJETIVO = [
-  { id: 'LIMITE_GASTO', label: 'Diminuir gasto' },
-  { id: 'AUMENTO_RECEITA', label: 'Aumentar receita' },
-];
-
-const PRIORIDADES = [
-  { id: 'ALTA', label: 'Alta' },
-  { id: 'MEDIA', label: 'Média' },
-  { id: 'BAIXA', label: 'Baixa' },
-];
-
-const PRIORIDADE_VISUAL = {
-  ALTA: { label: 'Alta', color: COLORS.error, background: '#FFECEC' },
-  MEDIA: { label: 'Média', color: COLORS.warning, background: '#FFF4E5' },
-  BAIXA: { label: 'Baixa', color: COLORS.success, background: '#E9F8EF' },
-};
-
-const formatarDataLocal = (data) => {
-  const dia = String(data.getDate()).padStart(2, '0');
-  const mes = String(data.getMonth() + 1).padStart(2, '0');
-  const ano = data.getFullYear();
-  return `${dia}/${mes}/${ano}`;
-};
-
-const getDataHojeLocal = () => formatarDataLocal(new Date());
-
-const getFimDoMesLocal = (referencia = new Date()) => {
-  const ultimoDia = new Date(referencia.getFullYear(), referencia.getMonth() + 1, 0);
-  return formatarDataLocal(ultimoDia);
-};
-
-const normalizarDataExibicao = (valor, fallback) => {
-  if (!valor || typeof valor !== 'string') return fallback;
-  const isoMatch = valor.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  if (isoMatch) {
-    const [, ano, mes, dia] = isoMatch;
-    return `${dia}/${mes}/${ano}`;
-  }
-
-  const brMatch = valor.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-  if (brMatch) return valor;
-
-  return fallback;
-};
-
-const parseDataEntrada = (valor) => {
-  if (!valor || typeof valor !== 'string') return null;
-  const isoMatch = valor.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  const brMatch = valor.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-
-  let dia;
-  let mes;
-  let ano;
-
-  if (isoMatch) {
-    [, ano, mes, dia] = isoMatch;
-  } else if (brMatch) {
-    [, dia, mes, ano] = brMatch;
-  } else {
-    return null;
-  }
-
-  const diaNum = Number(dia);
-  const mesNum = Number(mes);
-  const anoNum = Number(ano);
-
-  if (!diaNum || !mesNum || !anoNum) return null;
-
-  const data = new Date(anoNum, mesNum - 1, diaNum);
-  if (data.getFullYear() !== anoNum || data.getMonth() !== mesNum - 1 || data.getDate() !== diaNum) {
-    return null;
-  }
-
-  return data;
-};
-
 const TelaAdicionarObjetivo = ({ navigation }) => {
+  const { user } = useAuth();
+  const usuarioId = extrairUsuarioId(user);
   const [tipo, setTipo] = useState('LIMITE_GASTO');
   const [nome, setNome] = useState('');
-  const [categoria, setCategoria] = useState('');
+  const [descricao, setDescricao] = useState('');
   const [valorAlvo, setValorAlvo] = useState('');
   const [dataInicio, setDataInicio] = useState(normalizarDataExibicao(getDataHojeLocal(), getDataHojeLocal()));
   const [dataFim, setDataFim] = useState(normalizarDataExibicao(getFimDoMesLocal(), getFimDoMesLocal()));
   const [prioridade, setPrioridade] = useState('');
+  const [modalCategoriaVisible, setModalCategoriaVisible] = useState(false);
   const [avisoVisivel, setAvisoVisivel] = useState(false);
   const [avisoTitulo, setAvisoTitulo] = useState('Aviso');
   const [avisoMensagem, setAvisoMensagem] = useState('');
   const [avisoOnClose, setAvisoOnClose] = useState(null);
+  const [isSalvando, setIsSalvando] = useState(false);
+  const {
+    categoriasExibidas,
+    categoriaSearch,
+    setCategoriaSearch,
+    categoriaSelecionadaId,
+    setCategoriaSelecionadaId,
+    carregandoCategorias,
+    categoriasErro,
+    tipoCategoria,
+    recarregarCategorias,
+  } = useCategoriasObjetivo({
+    usuarioId,
+    tipoObjetivo: tipo,
+  });
 
   const abrirAviso = (titulo, mensagem, onClose) => {
     setAvisoTitulo(titulo);
@@ -104,12 +67,68 @@ const TelaAdicionarObjetivo = ({ navigation }) => {
     setAvisoVisivel(true);
   };
 
-  const handleSalvar = () => {
+  const handleCreateCategoria = async (data) => {
+    const usuarioIdLocal = obterUsuarioIdOuErro(extrairUsuarioId(user), (mensagem) => {
+      abrirAviso('Sessao invalida', mensagem);
+    });
+
+    if (!usuarioIdLocal) return false;
+
+    try {
+      const categoriaCriada = await categoriaService.criar({
+        ...data,
+        fkUsuario: usuarioIdLocal,
+      });
+
+      await recarregarCategorias();
+      if (categoriaCriada?.id !== undefined && categoriaCriada?.id !== null) {
+        setCategoriaSelecionadaId(String(categoriaCriada.id));
+      }
+      setCategoriaSearch('');
+      abrirAviso('Sucesso', 'Categoria criada com sucesso.');
+      return true;
+    } catch (error) {
+      console.error('Erro ao criar categoria:', error);
+      abrirAviso('Erro', 'Nao foi possivel criar a categoria.');
+      return false;
+    }
+  };
+
+  const handleSalvar = async () => {
+    if (isSalvando) return;
     const dataInicioDate = parseDataEntrada(dataInicio);
     const dataFimDate = parseDataEntrada(dataFim);
+    const usuarioId = obterUsuarioIdOuErro(extrairUsuarioId(user), (mensagem) => {
+      abrirAviso('Sessao invalida', mensagem);
+    });
+
+    if (!usuarioId) return;
+
+    if (!nome.trim()) {
+      abrirAviso('Nome obrigatorio', 'Informe um nome para o objetivo.');
+      return;
+    }
+
+    if (!categoriaSelecionadaId) {
+      abrirAviso('Categoria obrigatoria', 'Selecione uma categoria para o objetivo.');
+      return;
+    }
+
+    const valorNumerico = converterParaNumero(valorAlvo);
+    if (!Number.isFinite(valorNumerico) || valorNumerico <= 0) {
+      abrirAviso('Valor invalido', 'Informe um valor alvo valido.');
+      return;
+    }
 
     if (!dataInicioDate || !dataFimDate) {
       abrirAviso('Datas inválidas', 'Informe datas válidas no formato DD/MM/AAAA.');
+      return;
+    }
+
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+    if (dataInicioDate < hoje) {
+      abrirAviso('Data inicial inválida', 'A data inicial não pode ser no passado.');
       return;
     }
 
@@ -118,7 +137,60 @@ const TelaAdicionarObjetivo = ({ navigation }) => {
       return;
     }
 
-    abrirAviso('Objetivo criado', 'Seu objetivo foi adicionado com sucesso.', () => navigation.goBack());
+    const dataInicioIso = formatarDataISO(dataInicioDate);
+    const dataFimIso = formatarDataISO(dataFimDate);
+
+    if (!dataInicioIso || !dataFimIso) {
+      abrirAviso('Datas inválidas', 'Não foi possível preparar as datas do objetivo.');
+      return;
+    }
+
+    try {
+      setIsSalvando(true);
+      await objetivoGastoService.criar({
+        tipoObjetivo: tipo,
+        nome: nome.trim(),
+        descricao: descricao.trim() || null,
+        valor: valorNumerico,
+        dataInicio: dataInicioIso,
+        dataFim: dataFimIso,
+        prioridade: prioridade || null,
+        fkCategoria: categoriaSelecionadaId,
+        fkUsuario: usuarioId,
+      });
+
+      Toast.show({
+        type: 'success',
+        position: 'top',
+        text1: 'Objetivo criado com sucesso!',
+        text2: nome.trim(),
+        visibilityTime: 3000,
+        autoHide: true,
+        topOffset: 80,
+      });
+
+      setTimeout(() => navigation.goBack(), 500);
+    } catch (error) {
+      abrirAviso('Erro', error.message || 'Não foi possível criar o objetivo.');
+    } finally {
+      setIsSalvando(false);
+    }
+  };
+
+  const handleValorChange = (text) => {
+    const valorFormatado = formatarValorMonetario(text);
+    setValorAlvo(valorFormatado);
+  };
+
+  const handleValorBlur = () => {
+    if (!valorAlvo) return;
+
+    const valorNumerico = converterParaNumero(valorAlvo);
+    const valorFormatado = valorNumerico.toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+    setValorAlvo(valorFormatado);
   };
 
   const prioridadeVisual = PRIORIDADE_VISUAL[prioridade] || null;
@@ -169,14 +241,75 @@ const TelaAdicionarObjetivo = ({ navigation }) => {
           </View>
 
           <View style={styles.section}>
-            <Text style={styles.label}>Categoria</Text>
+            <Text style={styles.label}>Descrição (opcional)</Text>
             <TextInput
-              style={styles.input}
-              placeholder="Ex: Alimentação"
+              style={[styles.input, styles.inputMultiline]}
+              placeholder="Ex: Reduzir pedidos no fim de semana."
               placeholderTextColor="#999"
-              value={categoria}
-              onChangeText={setCategoria}
+              value={descricao}
+              onChangeText={setDescricao}
+              multiline
+              numberOfLines={3}
             />
+          </View>
+
+          <View style={styles.section}>
+            <Text style={styles.label}>Categoria</Text>
+            <View style={styles.searchContainer}>
+              <Ionicons name="search" size={18} color={COLORS.textTertiary} />
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Pesquisar categorias"
+                placeholderTextColor={COLORS.textTertiary}
+                value={categoriaSearch}
+                onChangeText={setCategoriaSearch}
+              />
+            </View>
+            {carregandoCategorias ? (
+              <Text style={styles.helperText}>Carregando categorias...</Text>
+            ) : (
+              <>
+                {categoriasErro ? (
+                  <Text style={styles.categoryEmptyText}>{categoriasErro}</Text>
+                ) : categoriasExibidas.length === 0 ? (
+                  <Text style={styles.categoryEmptyText}>Nenhuma categoria encontrada.</Text>
+                ) : null}
+                <View style={styles.categoryButtons}>
+                  {categoriasExibidas.map((category) => {
+                    const selecionada = String(categoriaSelecionadaId) === String(category.id);
+                    const iconName = category.icone || getCategoryIcon(category.nome);
+
+                    return (
+                      <TouchableOpacity
+                        key={category.id}
+                        style={[styles.categoryButton, selecionada && styles.categoryButtonActive]}
+                        onPress={() => setCategoriaSelecionadaId(String(category.id))}
+                      >
+                        <MaterialIcons
+                          name={iconName}
+                          size={18}
+                          color={selecionada ? COLORS.white : COLORS.textPrimary}
+                        />
+                        <Text
+                          style={[styles.categoryButtonText, selecionada && styles.categoryButtonTextActive]}
+                        >
+                          {category.nome}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                  <TouchableOpacity
+                    style={[styles.categoryButton, styles.addCategoryButton]}
+                    onPress={() => setModalCategoriaVisible(true)}
+                  >
+                    <Ionicons name="add-circle-outline" size={18} color={COLORS.primary} />
+                    <Text style={[styles.categoryButtonText, styles.addCategoryButtonText]}>
+                      Adicionar categoria
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </>
+            )}
           </View>
 
           <View style={styles.section}>
@@ -189,7 +322,8 @@ const TelaAdicionarObjetivo = ({ navigation }) => {
                 placeholderTextColor="#999"
                 keyboardType="numeric"
                 value={valorAlvo}
-                onChangeText={setValorAlvo}
+                onChangeText={handleValorChange}
+                onBlur={handleValorBlur}
               />
             </View>
             <Text style={styles.helperText}>Valor total do objetivo no período.</Text>
@@ -243,7 +377,10 @@ const TelaAdicionarObjetivo = ({ navigation }) => {
           </View>
         </ScrollView>
 
-        <BotoesAcaoFixo primaryLabel="Salvar objetivo" onPrimaryPress={handleSalvar} />
+        <BotoesAcaoFixo
+          primaryLabel={isSalvando ? 'Salvando...' : 'Salvar objetivo'}
+          onPrimaryPress={handleSalvar}
+        />
       </View>
       <ModalAviso
         visible={avisoVisivel}
@@ -256,6 +393,12 @@ const TelaAdicionarObjetivo = ({ navigation }) => {
         }}
         titulo={avisoTitulo}
         mensagem={avisoMensagem}
+      />
+      <ModalCategoria
+        visible={modalCategoriaVisible}
+        onClose={() => setModalCategoriaVisible(false)}
+        onSave={handleCreateCategoria}
+        tipoInicial={tipoCategoria}
       />
     </SafeAreaView>
   );
