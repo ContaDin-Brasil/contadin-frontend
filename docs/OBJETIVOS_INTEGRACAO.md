@@ -17,21 +17,23 @@ Este documento orienta a integracao da tela de Objetivos com API real, removendo
 ## Modelo de dados (base)
 
 Campos persistidos (minimo):
-- `id`: number
+- `id`: string (uuid)
 - `nome`: string
-- `tipo_objetivo`: "LIMITE_GASTO" | "AUMENTO_RECEITA"
-- `valor_alvo`: number
-- `data_inicio`: "YYYY-MM-DD"
-- `data_fim`: "YYYY-MM-DD"
+- `descricao`: string | null
+- `tipoObjetivo`: "LIMITE_GASTO" | "AUMENTO_RECEITA"
+- `valor`: number
+- `dataInicio`: "YYYY-MM-DD"
+- `dataFim`: "YYYY-MM-DD"
 - `prioridade`: "ALTA" | "MEDIA" | "BAIXA" | null
-- `fk_usuario`: number
-- `fk_categoria`: number
+- `fkUsuario`: string (uuid)
+- `fkCategoria`: string (uuid)
+- `criadoEm`: "YYYY-MM-DDTHH:mm:ss.sssZ"
+- `atualizadoEm`: "YYYY-MM-DDTHH:mm:ss.sssZ"
 
-Campos derivados (podem vir da API ou ser calculados no front):
-- `valor_realizado`: number
-- `percentual_realizado`: number (0-1)
-- `status`: "no_ritmo" | "atencao" | "estourado" | "concluido" | "abaixo_do_ritmo"
-- `insight`: string
+Campos derivados (retornados pela API):
+- `realizado`: number
+- `percentual`: number (0-1)
+- `status`: "TRANQUILO" | "ATENCAO" | "ESTOURADO" | "CONCLUIDO" | "ABAIXO_RITMO" (ver mapeamento abaixo)
 
 ## Regras de negocio (status)
 
@@ -51,68 +53,53 @@ Para AUMENTO_RECEITA:
 
 ## KPIs (topo)
 
-- `impacto_previsto_mes`: soma de `max(0, valor_alvo - valor_realizado)` para objetivos ativos.
-- `objetivos_no_ritmo`: count onde `status in ("no_ritmo", "concluido")`.
-- `maior_alerta`: objetivo com maior desvio:
-  - gasto: `percentual_realizado - percentual_periodo`
-  - receita: `percentual_periodo - percentual_realizado`
-- `acao_recomendada`: texto pronto para o card.
+Como o backend ainda nao expõe um endpoint de KPIs, calcular no front:
 
-## Endpoints sugeridos
+- `impactoPrevistoMes`: soma de `max(0, valor - realizado)` para objetivos ativos.
+- `objetivosNoRitmo`: count onde `status in ("TRANQUILO", "CONCLUIDO")`.
+- `maiorAlerta`: objetivo com maior desvio:
+  - gasto: `percentual - percentual_periodo`
+  - receita: `percentual_periodo - percentual`
+- `acaoRecomendada`: texto gerado com base no `maiorAlerta`.
+
+## Endpoints (atuais)
 
 ### GET /objetivos
-Lista objetivos com campos derivados (preferencial).
+Lista objetivos.
 
 Query:
-- `fk_usuario`: number (obrigatorio)
-- `data_inicio`: YYYY-MM-DD (opcional)
-- `data_fim`: YYYY-MM-DD (opcional)
+- `fkUsuario`: string (uuid, obrigatorio)
+- `concluido`: boolean (opcional)
+- `tipo`: string (opcional)
 
 Response (200):
 ```json
 [
   {
-    "id": 1,
+    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
     "nome": "Gastar no maximo R$ 450 com delivery este mes",
-    "tipo_objetivo": "LIMITE_GASTO",
-    "valor_alvo": 450,
-    "valor_realizado": 350,
-    "percentual_realizado": 0.78,
-    "status": "atencao",
-    "insight": "Gastos sobem no fim de semana; planeje 2 refeicoes caseiras.",
-    "data_inicio": "2026-05-01",
-    "data_fim": "2026-05-31",
+    "descricao": "Limite mensal para delivery.",
+    "tipoObjetivo": "LIMITE_GASTO",
+    "valor": 450,
+    "realizado": 350,
+    "percentual": 0.78,
+    "status": "TRANQUILO",
+    "dataInicio": "2026-05-01",
+    "dataFim": "2026-05-31",
     "prioridade": "ALTA",
-    "fk_usuario": 1,
-    "fk_categoria": 10
+    "fkCategoria": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "criadoEm": "2026-05-08T00:16:58.149Z",
+    "atualizadoEm": "2026-05-08T00:16:58.149Z"
   }
 ]
 ```
 
-### GET /objetivos/kpis
-Retorna KPIs e acao recomendada.
+### GET /objetivos/nome
+Busca por nome.
 
 Query:
-- `fk_usuario`: number (obrigatorio)
-- `data_inicio`: YYYY-MM-DD (opcional)
-- `data_fim`: YYYY-MM-DD (opcional)
-
-Response (200):
-```json
-{
-  "impacto_previsto_mes": 800,
-  "objetivos_no_ritmo": 2,
-  "total_objetivos": 5,
-  "maior_alerta": {
-    "id": 5,
-    "nome": "Manter compras no cartao abaixo de R$ 600",
-    "categoria": "Compras",
-    "percentual": 1.08,
-    "label": "Compras 108% usado"
-  },
-  "acao_recomendada": "Voce ja consumiu 108% do limite de Compras. Ajustar pequenos habitos pode manter o objetivo viavel."
-}
-```
+- `nome`: string (obrigatorio)
+- `fkUsuario`: string (uuid, obrigatorio)
 
 ### POST /objetivos
 Cria um novo objetivo.
@@ -120,37 +107,39 @@ Cria um novo objetivo.
 Request:
 ```json
 {
+  "tipoObjetivo": "LIMITE_GASTO",
   "nome": "Gastar no maximo R$ 450 com delivery este mes",
-  "tipo_objetivo": "LIMITE_GASTO",
-  "valor_alvo": 450,
-  "data_inicio": "2026-05-01",
-  "data_fim": "2026-05-31",
+  "descricao": "Limite mensal para delivery.",
+  "valor": 450,
+  "dataInicio": "2026-05-01",
+  "dataFim": "2026-05-31",
   "prioridade": "ALTA",
-  "fk_usuario": 1,
-  "fk_categoria": 10
+  "fkCategoria": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "fkUsuario": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
 }
 ```
 
-Response (201): retorna o objetivo criado.
+Response (200): retorna o objetivo criado.
 
-### PUT /objetivos/{id}
+### GET /objetivos/{id}
+Busca um objetivo.
+
+### PATCH /objetivos/{id}
 Atualiza objetivo.
 
 ### DELETE /objetivos/{id}
 Remove objetivo.
 
-## Observacao sobre endpoint atual
-
-Se o backend ainda usar `/meta_gasto`, manter a rota e adaptar o payload, mas preservar os campos novos (`tipo_objetivo`, `prioridade`, `data_inicio`, `data_fim`, `valor_alvo`).
+### DELETE /objetivos/{id}
+Remove objetivo.
 
 ## Integracao no front (passos)
 
 1) **TelaObjetivos**
-   - Remover `OBJETIVOS_MOCK`.
-   - Criar hook `useObjetivos` que chama:
-     - `GET /objetivos`
-     - `GET /objetivos/kpis`
-   - Usar loading/erro (pode reutilizar padrao de telas ja existentes).
+  - Remover `OBJETIVOS_MOCK`.
+  - Criar hook `useObjetivos` que chama `GET /objetivos`.
+  - Aplicar filtros de `concluido` e `tipo` quando necessario.
+  - Calcular KPIs no front a partir da lista.
 
 2) **TelaAdicionarObjetivo**
    - No `handleSalvar`, converter datas `DD/MM/AAAA` -> `YYYY-MM-DD` (local, sem UTC):
@@ -158,18 +147,22 @@ Se o backend ainda usar `/meta_gasto`, manter a rota e adaptar o payload, mas pr
    - Chamar `POST /objetivos` e mostrar `ModalAviso` de sucesso.
 
 3) **TelaEditarObjetivo**
-   - No `handleSalvar`, chamar `PUT /objetivos/{id}`.
-   - No `handleConfirmDelete`, chamar `DELETE /objetivos/{id}`.
+  - No `handleSalvar`, chamar `PATCH /objetivos/{id}`.
+  - No `handleConfirmDelete`, chamar `DELETE /objetivos/{id}`.
 
 4) **Conversao de datas**
    - Evitar `toISOString()` para nao deslocar o dia por fuso.
    - Preferir string local `YYYY-MM-DD`.
 
-## Fallbacks (se API nao retornar derivados)
+## Mapeamento de status
 
-Se a API nao enviar `valor_realizado`, `status` ou `insight`:
-- calcular no front usando as regras acima;
-- manter o texto de `acao_recomendada` com base no `maior_alerta`.
+Sugestao para mapear o `status` da API para o texto da UI:
+
+- `TRANQUILO` -> "no ritmo"
+- `ATENCAO` -> "atenção"
+- `ESTOURADO` -> "estourado"
+- `CONCLUIDO` -> "concluído"
+- `ABAIXO_RITMO` -> "abaixo do ritmo"
 
 ## Remover mocks
 
