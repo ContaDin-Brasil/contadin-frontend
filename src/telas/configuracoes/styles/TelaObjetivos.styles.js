@@ -113,6 +113,53 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 12,
   },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.backgroundDark,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    borderRadius: 12,
+    marginBottom: 12,
+  },
+  searchIcon: {
+    marginRight: 10,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 14,
+    color: COLORS.textPrimary,
+  },
+  clearSearchButton: {
+    padding: 4,
+    marginLeft: 8,
+  },
+  filtrosContainer: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 16,
+  },
+  filtroBotao: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: COLORS.borderLight,
+    backgroundColor: COLORS.white,
+    alignItems: 'center',
+  },
+  filtroBotaoAtivo: {
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
+  },
+  filtroTexto: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: COLORS.textSecondary,
+  },
+  filtroTextoAtivo: {
+    color: COLORS.white,
+  },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
@@ -126,6 +173,27 @@ export const styles = StyleSheet.create({
   objetivosList: {
     gap: 14,
     marginBottom: 22,
+  },
+  emptyState: {
+    paddingVertical: 24,
+    alignItems: 'center',
+    gap: 8,
+  },
+  emptyStateText: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+  },
+  retryButton: {
+    marginTop: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 12,
+    backgroundColor: COLORS.primary,
+  },
+  retryButtonText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: COLORS.white,
   },
   objetivoCard: {
     backgroundColor: COLORS.white,
