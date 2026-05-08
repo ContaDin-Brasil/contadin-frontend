@@ -102,8 +102,8 @@ export const testarAPI = async () => {
     console.log('');
 
     // Teste 9: Buscar objetivos
-    console.log('🎯 Teste 9: Listar objetivos de gasto');
-    const objetivos = await objetivoGastoService.listar();
+    console.log('🎯 Teste 9: Listar objetivos');
+    const objetivos = await objetivoGastoService.listarPorUsuario(1, false);
     console.log(`✅ ${objetivos.length} objetivos encontrados`);
     if (objetivos.length > 0) {
       console.log('Primeiro objetivo:', objetivos[0]);
