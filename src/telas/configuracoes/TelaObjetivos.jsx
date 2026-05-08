@@ -16,12 +16,9 @@ import { COLORS } from '../../styles/colors';
 import { styles } from './styles/TelaObjetivos.styles';
 import { useGerenciarObjetivos } from './hooks/useGerenciarObjetivos';
 import { STATUS_VISUAL, TIPO_VISUAL } from '@/telas/configuracoes/objetivos/constants/constantesObjetivo';
-import {
-  formatarData,
-  formatarMoeda,
-  formatarMoedaDetalhada,
-  formatarPrioridade,
-} from '@/telas/configuracoes/objetivos/utils/objetivoFormatters';
+import { formatarData } from '@/utils/dateUtils';
+import { formatarMoeda, formatarMoedaDetalhada } from '@/utils/moedaUtils';
+import { formatarPrioridade } from '@/telas/configuracoes/objetivos/utils/objetivoFormatters';
 
 const TelaObjetivos = ({ navigation }) => {
   const {

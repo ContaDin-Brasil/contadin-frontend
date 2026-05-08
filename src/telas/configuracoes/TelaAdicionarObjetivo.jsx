@@ -25,7 +25,7 @@ import {
   getFimDoMesLocal,
   normalizarDataExibicao,
   parseDataEntrada,
-} from '@/telas/configuracoes/objetivos/utils/objetivoDatas';
+} from '@/utils/dateUtils';
 import { useCategoriasObjetivo } from '@/telas/configuracoes/objetivos/hooks/useCategoriasObjetivo';
 import { styles } from './styles/TelaObjetivoForm.styles';
 
