@@ -53,14 +53,84 @@ Para AUMENTO_RECEITA:
 
 ## KPIs (topo)
 
-Como o backend ainda nao expõe um endpoint de KPIs, calcular no front:
+Os KPIs deixam de ser calculados no front e passam a vir da API.
+**Um endpoint por KPI (4).**
 
-- `impactoPrevistoMes`: soma de `max(0, valor - realizado)` para objetivos ativos.
-- `objetivosNoRitmo`: count onde `status in ("TRANQUILO", "CONCLUIDO")`.
-- `maiorAlerta`: objetivo com maior desvio:
-  - gasto: `percentual - percentual_periodo`
-  - receita: `percentual_periodo - percentual`
-- `acaoRecomendada`: texto gerado com base no `maiorAlerta`.
+### 1) Impacto previsto no mes
+GET /objetivos/kpis/impacto-previsto
+
+Query:
+- `fkUsuario`: string (uuid, obrigatorio)
+- `dataInicio`: "YYYY-MM-DD" (opcional, default: 1o dia do mes atual)
+- `dataFim`: "YYYY-MM-DD" (opcional, default: ultimo dia do mes atual)
+- `tipoObjetivo`: "LIMITE_GASTO" | "AUMENTO_RECEITA" (opcional)
+
+Response (200):
+```json
+{
+  "impactoPrevistoMes": 0
+}
+```
+
+### 2) Objetivos no ritmo
+GET /objetivos/kpis/no-ritmo
+
+Query:
+- `fkUsuario`: string (uuid, obrigatorio)
+- `dataInicio`: "YYYY-MM-DD" (opcional)
+- `dataFim`: "YYYY-MM-DD" (opcional)
+- `tipoObjetivo`: "LIMITE_GASTO" | "AUMENTO_RECEITA" (opcional)
+
+Response (200):
+```json
+{
+  "objetivosNoRitmo": 0,
+  "totalObjetivos": 0
+}
+```
+
+### 3) Maior alerta
+GET /objetivos/kpis/maior-alerta
+
+Query:
+- `fkUsuario`: string (uuid, obrigatorio)
+- `dataInicio`: "YYYY-MM-DD" (opcional)
+- `dataFim`: "YYYY-MM-DD" (opcional)
+- `tipoObjetivo`: "LIMITE_GASTO" | "AUMENTO_RECEITA" (opcional)
+
+Response (200):
+```json
+{
+  "maiorAlerta": "Salario 55% atingido",
+  "objetivoId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "status": "ATENCAO",
+  "tipoObjetivo": "AUMENTO_RECEITA"
+}
+```
+
+### 4) Acao recomendada
+GET /objetivos/kpis/acao-recomendada
+
+Query:
+- `fkUsuario`: string (uuid, obrigatorio)
+- `dataInicio`: "YYYY-MM-DD" (opcional)
+- `dataFim`: "YYYY-MM-DD" (opcional)
+- `tipoObjetivo`: "LIMITE_GASTO" | "AUMENTO_RECEITA" (opcional)
+
+Response (200):
+```json
+{
+  "acaoRecomendada": "Reforce as acoes que trazem mais retorno.",
+  "objetivoId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+}
+```
+
+### Respostas sem objetivos
+Se nao houver objetivos no periodo, retornar valores padrao:
+- `impactoPrevistoMes = 0`
+- `objetivosNoRitmo = 0` e `totalObjetivos = 0`
+- `maiorAlerta = "--"`
+- `acaoRecomendada = "Sem recomendacoes para esta semana."`
 
 ## Endpoints (atuais)
 
@@ -139,7 +209,8 @@ Remove objetivo.
   - Remover `OBJETIVOS_MOCK`.
   - Criar hook `useObjetivos` que chama `GET /objetivos`.
   - Aplicar filtros de `concluido` e `tipo` quando necessario.
-  - Calcular KPIs no front a partir da lista.
+  - Criar chamadas para os 4 endpoints de KPI e usar os valores retornados.
+  - Nao calcular KPIs a partir da lista de objetivos.
 
 2) **TelaAdicionarObjetivo**
    - No `handleSalvar`, converter datas `DD/MM/AAAA` -> `YYYY-MM-DD` (local, sem UTC):
@@ -168,3 +239,79 @@ Sugestao para mapear o `status` da API para o texto da UI:
 
 - Remover `OBJETIVOS_MOCK` e logicas de mock na tela.
 - Remover dados mockados se existirem em outras telas relacionadas a objetivos.
+- Remover calculos locais de KPI (impacto, no ritmo, maior alerta, acao recomendada).
+- Parar de usar a listagem de objetivos para montar KPI (usar apenas os endpoints de KPI).
+
+## Arquivos Afetados pela Integracao
+
+### Serao Mantidos (com refactoring)
+
+#### 📄 `src/telas/configuracoes/hooks/useGerenciarObjetivos.ts`
+**Hoje**: Carrega objetivos e passa para `calcularResumoObjetivos` para computar KPIs.
+**Depois**: 
+- Continua carregando objetivos (listagem nao muda).
+- Remove chamada para `calcularResumoObjetivos`.
+- Adiciona 4 novas chamadas HTTP para os endpoint de KPI.
+- Retorna os KPIs vindo da API em vez da computacao local.
+
+#### 📄 `src/telas/configuracoes/TelaObjetivos.jsx`
+**Hoje**: Chama `useGerenciarObjetivos` e acessa `resumo` (contendo impacto, noRitmo, maiorAlerta, recomendacao).
+**Depois**: Mesma estrutura, mesma renderizacao. Nao muda pois os dados vem do hook.
+
+#### 📄 `src/api/services/objetivoGastoService.ts`
+**Hoje**: Fornece `listarPorUsuario` e `buscarPorNome` para a listagem.
+**Depois**: Adiciona 4 novos metodos para os endpoints de KPI (um por KPI).
+```typescript
+// Novos metodos
+async obterImpatoPrevistoMes(usuarioId, dataInicio?, dataFim?, tipoObjetivo?)
+async obterObjetivosNoRitmo(usuarioId, dataInicio?, dataFim?, tipoObjetivo?)
+async obterMaiorAlerta(usuarioId, dataInicio?, dataFim?, tipoObjetivo?)
+async obterAcaoRecomendada(usuarioId, dataInicio?, dataFim?, tipoObjetivo?)
+```
+
+### Serao Removidos (em breve)
+
+#### 🗑️ `src/telas/configuracoes/objetivos/utils/objetivoResumo.ts`
+**Por que**: `calcularResumoObjetivos` sera substituida por respostas HTTP.
+**Quando**: Apos integrar os 4 endpoints de KPI.
+
+#### 🗑️ `src/telas/configuracoes/objetivos/utils/objetivoInsights.ts`
+**Por que**: `gerarRecomendacao` era mock local; recomendacao virara da API.
+**Quando**: Apos integrar `GET /objetivos/kpis/acao-recomendada`.
+
+#### 🗑️ `src/telas/configuracoes/objetivos/constants/constantesObjetivo.ts` (parcialmente)
+**Por que**: `INSIGHTS_MOCK` sera removido (insights vem da API).
+**Mantém**: `TIPOS_OBJETIVO`, `PRIORIDADES`, `STATUS_VISUAL`, `TIPO_VISUAL`, `PRIORIDADE_LABELS` (usados para mapear e exibir dados).
+
+### Pode ser refatorado (opcional)
+
+#### 📝 `src/telas/configuracoes/objetivos/utils/objetivoCalculos.ts`
+**Hoje**: Helper para calcular percentuais, status, periodo.
+**Depois**: Pode ser removido se o backend ja retornar `status` e `percentual` calculados.
+**Manter se**: O frontend precisar de calculos locais adicionais (ex: para UI adaptativa ou debug).
+
+#### 📝 `src/telas/configuracoes/objetivos/utils/objetivoMapper.ts`
+**Hoje**: Converte objetivo API em `ObjetivoUi` com campos derivados.
+**Depois**: Simplificar se a API ja retornar status, percentual e outros derivados.
+**Manter se**: A API nao retornar todos os campos e o front precisar computar alguns.
+
+## Timeline de Remocao
+
+1. **Fase 1**: Adicionar 4 endpoints de KPI ao backend.
+2. **Fase 2**: Integrar no `useGerenciarObjetivos` e testar em `TelaObjetivos`.
+3. **Fase 3**: Remover `objetivoResumo.ts` e `objetivoInsights.ts`.
+4. **Fase 4**: Limpar `INSIGHTS_MOCK` de constantes.
+5. **Fase 5**: Opcionalmente refatorar mapeador e calculadora se backend enriquecer respostas.
+
+## Checklist de Integracao
+
+- [ ] Backend implementa 4 endpoints de KPI.
+- [ ] `objetivoGastoService.ts` adiciona 4 novos metodos.
+- [ ] `useGerenciarObjetivos.ts` chama endpoints de KPI.
+- [ ] `TelaObjetivos.jsx` recebe e exibe KPIs da API.
+- [ ] Testes passam; KPIs exibem corretamente.
+- [ ] Remover `objetivoResumo.ts`.
+- [ ] Remover `objetivoInsights.ts`.
+- [ ] Remover `INSIGHTS_MOCK` de constantes.
+- [ ] Testar novamente (smoke test objetivo listagem e KPIs).
+- [ ] Documentacao atualizada (este arquivo).
