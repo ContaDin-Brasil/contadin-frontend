@@ -60,7 +60,7 @@ const normalizePath = (value: string | undefined): string => {
 };
 
 const importPath = normalizePath(process.env.EXPO_PUBLIC_ETL_IMPORT_PATH);
-const etlBaseUrl = normalizeEnvUrl(process.env.EXPO_PUBLIC_ETL_BASE_URL);
+const etlBaseUrl = normalizeEnvUrl(process.env.EXPO_PUBLIC_PYTHON_BASE_URL);
 const sendAuthToEtl = process.env.EXPO_PUBLIC_ETL_SEND_AUTH === 'true';
 
 const trimTrailingSlash = (value: string): string => value.replace(/\/+$/, '');
