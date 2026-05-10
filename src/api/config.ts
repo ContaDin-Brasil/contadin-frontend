@@ -19,10 +19,11 @@ const normalizeEnvUrl = (value?: string): string | null => {
 /**
  * Configuração da URL base da API
  *
- * Lê EXPO_PUBLIC_API_BASE_URL do .env (Ex.: http://192.168.15.13:8080).
- * Se não estiver definida, usa fallback por plataforma em __DEV__.
+ * Lê EXPO_PUBLIC_API_BASE_URL do .env (Ex.: http://192.168.X.X:8080).
+ * Em desenvolvimento no browser, aceita http://localhost:8080 como fallback.
+ * Em dispositivo físico ou emulador, a variável de ambiente é obrigatória.
  *
- * Para produção: defina EXPO_PUBLIC_API_BASE_URL ou a URL será https://api.seudominio.com
+ * Para produção: defina EXPO_PUBLIC_API_BASE_URL com a URL do servidor.
  */
 const getBaseURL = (): string => {
   const fromEnv = normalizeEnvUrl(process.env.EXPO_PUBLIC_API_BASE_URL);
@@ -33,30 +34,27 @@ const getBaseURL = (): string => {
     return fromEnv;
   }
 
-  let baseURL: string;
-  const androidEmulatorHost = "http://192.168.15.23:8080";
-
   if (__DEV__) {
-    console.warn(
-      "⚠️ EXPO_PUBLIC_API_BASE_URL não definida. Usando fallback local; para celular físico configure o IP do PC no .env.",
-    );
-
     if (Platform.OS === "web") {
-      baseURL = "http://localhost:8080";
-    } else if (Platform.OS === "android") {
-      // Android emulator acessa localhost da máquina host por 10.0.2.2
-      baseURL = androidEmulatorHost;
-    } else {
-      baseURL = "http://192.168.15.23:8080";
+      const fallback = "http://localhost:8080";
+      console.warn(
+        "⚠️ EXPO_PUBLIC_API_BASE_URL não definida. Usando fallback para browser:",
+        fallback,
+      );
+      return fallback;
     }
-  } else {
-    baseURL = "https://api.seudominio.com";
+
+    // Em dispositivo físico ou emulador, localhost não funciona —
+    // o celular não consegue alcançar a máquina de desenvolvimento por esse endereço.
+    // Configure o IP da sua máquina no .env (use ipconfig para descobrir).
+    console.error(
+      "❌ EXPO_PUBLIC_API_BASE_URL não definida. " +
+        "Em dispositivo físico/emulador é necessário definir o IP da máquina no .env. " +
+        "Execute ipconfig e adicione: EXPO_PUBLIC_API_BASE_URL=http://<SEU_IP>:8080",
+    );
   }
 
-  console.log("🌐 API Base URL:", baseURL);
-  console.log("📱 Plataforma:", Platform.OS);
-
-  return baseURL;
+  return "https://api.seudominio.com";
 };
 
 // Instância do axios configurada

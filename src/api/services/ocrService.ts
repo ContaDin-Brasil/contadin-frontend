@@ -47,33 +47,34 @@ export interface OCRServiceResponse {
 }
 
 /**
- * Determina a URL base do endpoint OCR
- * Lê EXPO_PUBLIC_OCR_ENDPOINT ou usa fallback localhost:8000
+ * Determina a URL base do endpoint OCR.
+ * Lê EXPO_PUBLIC_OCR_ENDPOINT do .env (Ex.: http://192.168.X.X:8000).
+ * Em desenvolvimento no browser, aceita http://localhost:8000 como fallback.
+ * Em dispositivo físico ou emulador, a variável de ambiente é obrigatória.
  */
 const getOCRBaseURL = (): string => {
-  const fromEnv = process.env.EXPO_PUBLIC_OCR_ENDPOINT?.trim();
+  const fromEnv = process.env.EXPO_PUBLIC_PYTHON_BASE_URL?.trim();
 
   if (fromEnv) {
     console.log('🤖 OCR Base URL (env):', fromEnv);
     return fromEnv;
   }
 
-  let baseURL: string;
-
   if (__DEV__) {
     if (Platform.OS === 'web') {
-      baseURL = 'http://localhost:8000';
-    } else {
-      // Assumindo que o backend OCR Python está no mesmo host que API principal
-      baseURL = 'http://192.168.15.35:8000';
+      const fallback = 'http://localhost:8000';
+      console.warn('⚠️ EXPO_PUBLIC_PYTHON_BASE_URL não definida. Usando fallback para browser:', fallback);
+      return fallback;
     }
-  } else {
-    baseURL = 'https://ocr.seudominio.com'; // Produção
+
+    console.error(
+        '❌ EXPO_PUBLIC_PYTHON_BASE_URL não definida. ' +
+        'Em dispositivo físico/emulador configure o IP da máquina no .env. ' +
+        'Execute ipconfig e adicione: EXPO_PUBLIC_PYTHON_BASE_URL=http://<SEU_IP>:8000',
+    );
   }
 
-  console.log('🤖 OCR Base URL:', baseURL);
-
-  return baseURL;
+  return 'https://ocr.seudominio.com';
 };
 
 /**
