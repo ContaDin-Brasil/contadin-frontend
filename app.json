@@ -50,7 +50,8 @@
         {
           "microphonePermission": "Precisamos de acesso ao microfone para gravar áudio e extrair informações de transações"
         }
-      ]
+      ],
+      "@react-native-community/datetimepicker"
     ]
   }
 }
