@@ -225,6 +225,7 @@ const TelaAdicionarTransacao = ({ navigation }) => {
         tipo: data.tipo,
         dataTransacao,
         parcelado: data.parcelado,
+        qtdParcelas: data.qtdParcelas ?? 1,
         recorrencia: data.frequency ?? null,
         fimRecorrencia,
         ativo: true,

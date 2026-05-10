@@ -152,6 +152,19 @@ export const useEditarTransacao = (transacaoId: string | null) => {
     // Parcelamento
     if (transacao.parcelado) {
       formState.setIsInstallment(true);
+      
+      // Restaura a quantidade de parcelas
+      if (transacao.qtdParcelas) {
+        const qtd = Number(transacao.qtdParcelas);
+        if (qtd > 0 && qtd <= 12) {
+          // Valores pré-definidos: 2 a 12
+          formState.setInstallmentCount(qtd);
+        } else if (qtd > 12) {
+          // Valores customizados: > 12
+          formState.setInstallmentCount(0);
+          formState.setCustomInstallmentValue(String(qtd));
+        }
+      }
     }
     
     // Recorrência
@@ -243,6 +256,7 @@ export const useEditarTransacao = (transacaoId: string | null) => {
       tipo: data.tipo,
       dataTransacao,
       parcelado: data.parcelado,
+      qtdParcelas: data.qtdParcelas ?? 1,
       recorrencia: data.frequency ?? null,
       fimRecorrencia,
       ativo: true,

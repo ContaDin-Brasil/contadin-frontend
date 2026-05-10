@@ -472,12 +472,20 @@ const TelaTransacoes = ({ navigation, route }) => {
           <View style={styles.parceladoDescricao}>
             <Text style={styles.parceladoTitle}>{item.descricao}</Text>
           </View>
-          <Text style={[
-            styles.parceladoValor,
-            item.tipo === 'RECEITA' ? styles.incomeAmount : styles.expenseAmount
-          ]}>
-            {formatCurrency(item.tipo === 'RECEITA' ? item.valor : -item.valor)}
-          </Text>
+          <View style={styles.parceladoValorContainer}>
+            <Text style={[
+              styles.parceladoValor,
+              item.tipo === 'RECEITA' ? styles.incomeAmount : styles.expenseAmount
+            ]}>
+              {formatCurrency(item.tipo === 'RECEITA' ? item.valor : -item.valor)}
+            </Text>
+            <Text style={[
+              styles.parceladoValorParcela,
+              item.tipo === 'RECEITA' ? styles.incomeAmount : styles.expenseAmount
+            ]}>
+              {formatCurrency((item.tipo === 'RECEITA' ? item.valor : -item.valor) / qtdParcelas)} / parcela
+            </Text>
+          </View>
         </View>
 
         {/* Barra de Progresso */}

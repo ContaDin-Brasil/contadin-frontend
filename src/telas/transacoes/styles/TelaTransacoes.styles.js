@@ -113,7 +113,9 @@ export const styles = StyleSheet.create({
   transactionItem: {
     backgroundColor: '#FFF',
     borderColor: '#E0E0E0',
-    padding: 15,
+    paddingVertical: 15,
+    paddingHorizontal: 35,
+    marginHorizontal: -20,
     borderRadius: 12,
     marginBottom: 10,
     borderWidth: 1,
@@ -434,10 +436,10 @@ export const styles = StyleSheet.create({
   },
   // Estilos para Recorrências
   recorrenciaItem: {
-    marginHorizontal: 20,
+    marginHorizontal: -20,
     marginBottom: 12,
     paddingVertical: 16,
-    paddingHorizontal: 16,
+    paddingHorizontal: 36,
     backgroundColor: '#FFF',
     borderRadius: 12,
     borderWidth: 1,
@@ -591,7 +593,8 @@ export const styles = StyleSheet.create({
     borderColor: '#E0E0E0',
     borderRadius: 12,
     padding: 16,
-    marginHorizontal: 20,
+    paddingHorizontal: 36,
+    marginHorizontal: -20,
     marginVertical: 12,
     backgroundColor: '#FFFFFF',
     shadowColor: '#000',
@@ -628,6 +631,17 @@ export const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '700',
     color: COLORS.textPrimary,
+  },
+
+  parceladoValorContainer: {
+    alignItems: 'flex-end',
+  },
+
+  parceladoValorParcela: {
+    fontSize: 12,
+    fontWeight: '500',
+    marginTop: 4,
+    opacity: 0.8,
   },
 
   incomeAmount: {
