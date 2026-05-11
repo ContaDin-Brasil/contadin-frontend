@@ -527,7 +527,7 @@ const TelaTransacoes = ({ navigation, route }) => {
           </View>
         </View>
 
-        {/* Footer: Información das parcelas restantes */}
+        {/* Footer: Informação das parcelas restantes */}
         {parcelasRestantes > 0 ? (
           <View style={styles.parceladoFooter}>
             <Ionicons 
