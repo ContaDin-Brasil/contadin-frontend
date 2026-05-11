@@ -454,11 +454,6 @@ const TelaTransacoes = ({ navigation, route }) => {
     
     // Verifica se é concluído: quando vencidas >= total, mas deixa margem de 1 dia para coincidência de datas
     const concluido = parcelasVencidas >= qtdParcelas;
-    
-    console.log(`📊 [PARCELADO DEBUG] ${item.descricao}:
-      • Hoje: ${hoje.toLocaleDateString('pt-BR')}
-      • Parcelas: ${parcelasVencidas}/${qtdParcelas}
-      • Concluído: ${concluido}`);
 
     return (
       <TouchableOpacity 
