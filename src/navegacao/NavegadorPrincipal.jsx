@@ -35,14 +35,14 @@ function NavegadorConfiguracoes() {
         headerShown: false,
       }}
     >
-      <Stack.Screen name="SettingsMain" component={TelaConfiguracoes} />
-      <Stack.Screen name="EditProfile" component={TelaEditarPerfil} />
-      <Stack.Screen name="Account" component={TelaConta} />
-      <Stack.Screen name="ChangePassword" component={TelaAlterarSenha} />
-      <Stack.Screen name="Help" component={TelaAjuda} />
-      <Stack.Screen name="Objectives" component={TelaObjetivos} />
-      <Stack.Screen name="ObjectivesAdd" component={TelaAdicionarObjetivo} />
-      <Stack.Screen name="ObjectivesEdit" component={TelaEditarObjetivo} />
+      <Stack.Screen name="Configuracoes" component={TelaConfiguracoes} />
+      <Stack.Screen name="EditarPerfil" component={TelaEditarPerfil} />
+      <Stack.Screen name="Conta" component={TelaConta} />
+      <Stack.Screen name="AlterarSenha" component={TelaAlterarSenha} />
+      <Stack.Screen name="Ajuda" component={TelaAjuda} />
+      <Stack.Screen name="Objetivos" component={TelaObjetivos} />
+      <Stack.Screen name="AdicionarObjetivos" component={TelaAdicionarObjetivo} />
+      <Stack.Screen name="EditarObjetivos" component={TelaEditarObjetivo} />
       <Stack.Screen name="ImportarPlanilha" component={TelaImportarPlanilha} />
     </Stack.Navigator>
   );
@@ -56,9 +56,9 @@ function NavegadorCarteira() {
         headerShown: false,
       }}
     >
-      <Stack.Screen name="WalletMain" component={TelaCarteira} />
-      <Stack.Screen name="EditBanks" component={TelaEditarBancos} />
-      <Stack.Screen name="EditVouchers" component={TelaEditarVales} />
+      <Stack.Screen name="Carteira" component={TelaCarteira} />
+      <Stack.Screen name="EditarBanco" component={TelaEditarBancos} />
+      <Stack.Screen name="EditarVouchers" component={TelaEditarVales} />
     </Stack.Navigator>
   );
 }
@@ -71,7 +71,7 @@ function NavegadorTransacoes() {
         headerShown: false,
       }}
     >
-      <Stack.Screen name="TransactionsMain" component={TelaTransacoes} />
+      <Stack.Screen name="Transacao" component={TelaTransacoes} />
       <Stack.Screen name="AdicionarTransacao" component={TelaAdicionarTransacao} />
       <Stack.Screen name="EditarTransacao" component={TelaEditarTransacao} />
     </Stack.Navigator>
@@ -107,7 +107,7 @@ function NavegadorPrincipal() {
         }}
       />
       <Tab.Screen 
-        name="Wallet" 
+        name="Carteira" 
         component={NavegadorCarteira}
         options={{
           tabBarIcon: ({ focused, color, size }) => (
@@ -116,7 +116,7 @@ function NavegadorPrincipal() {
         }}
       />
       <Tab.Screen 
-        name="Transactions" 
+        name="Transacoes" 
         component={NavegadorTransacoes}
         options={{
           tabBarIcon: ({ focused, color, size }) => (
@@ -125,7 +125,7 @@ function NavegadorPrincipal() {
         }}
       />
       <Tab.Screen 
-        name="Categories" 
+        name="Categorias" 
         component={TelaCategorias}
         options={{
           tabBarIcon: ({ focused, color, size }) => (
@@ -134,7 +134,7 @@ function NavegadorPrincipal() {
         }}
       />
       <Tab.Screen 
-        name="Settings" 
+        name="Configuracoes" 
         component={NavegadorConfiguracoes}
         options={{
           tabBarIcon: ({ focused, color, size }) => (

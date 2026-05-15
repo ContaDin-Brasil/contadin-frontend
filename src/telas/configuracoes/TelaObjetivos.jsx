@@ -268,7 +268,7 @@ const TelaObjetivos = ({ navigation }) => {
                     </Text>
                     <TouchableOpacity
                       style={styles.secondaryButton}
-                      onPress={() => navigation.navigate('ObjectivesEdit', { objetivo })}
+                      onPress={() => navigation.navigate('EditarObjetivos', { objetivo })}
                     >
                       <Text style={styles.secondaryButtonText}>Detalhes</Text>
                     </TouchableOpacity>
@@ -279,7 +279,7 @@ const TelaObjetivos = ({ navigation }) => {
           </View>
         )}
       </ScrollView>
-      <BotaoFlutuanteAdicionar onPress={() => navigation.navigate('ObjectivesAdd')} />
+      <BotaoFlutuanteAdicionar onPress={() => navigation.navigate('AdicionarObjetivos')} />
     </SafeAreaView>
   );
 };
