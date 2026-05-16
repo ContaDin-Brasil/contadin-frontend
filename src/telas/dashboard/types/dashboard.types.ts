@@ -47,3 +47,11 @@ export interface DadosPrevisaoSaldo {
   saldoFinal: number;
   diasFuturos: number;
 }
+
+export interface SaldoDiario {
+  data: string;
+  saldoInicial: number;
+  totalReceitas: number;
+  totalGastos: number;
+  saldoFinal: number;
+}
