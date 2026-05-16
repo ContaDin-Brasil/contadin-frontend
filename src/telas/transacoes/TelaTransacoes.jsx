@@ -32,6 +32,18 @@ const TelaTransacoes = ({ navigation, route }) => {
   // Recebe os dados da instituição clicada (se houver)
   const instituicaoSelecionada = route.params?.instituicao || null;
 
+  // Ref para sempre ter a versão mais recente de carregarDados no useFocusEffect
+  // sem re-registrar o listener a cada render (evita stale closure sobre usuarioId)
+  const carregarDadosRef = React.useRef(gerenciador.carregarDados);
+  React.useEffect(() => {
+    carregarDadosRef.current = gerenciador.carregarDados;
+  });
+
+  const debouncedSearchQueryRef = React.useRef(debouncedSearchQuery);
+  React.useEffect(() => {
+    debouncedSearchQueryRef.current = debouncedSearchQuery;
+  }, [debouncedSearchQuery]);
+
   /**
    * Debounce para a busca (300ms)
    * Evita múltiplas re-renderizações enquanto o usuário digita
@@ -85,9 +97,9 @@ const TelaTransacoes = ({ navigation, route }) => {
       console.log('🔄 [AUTO-REFRESH] Tela de transações recebeu foco');
       console.log('='.repeat(60));
       console.log('📊 Recarregando dados do banco...');
-      
-      gerenciador.carregarDados({
-        search: debouncedSearchQuery,
+
+      carregarDadosRef.current({
+        search: debouncedSearchQueryRef.current,
         instituicaoFixaId: instituicaoSelecionada?.id,
       }).then(() => {
         setLastUpdate(new Date());
@@ -108,11 +120,11 @@ const TelaTransacoes = ({ navigation, route }) => {
     console.log('\n' + '='.repeat(60));
     console.log('🔄 [MANUAL-REFRESH] Usuário solicitou atualização');
     console.log('='.repeat(60));
-    
+
     setRefreshing(true);
     try {
-      await gerenciador.carregarDados({
-        search: debouncedSearchQuery,
+      await carregarDadosRef.current({
+        search: debouncedSearchQueryRef.current,
         instituicaoFixaId: instituicaoSelecionada?.id,
       });
       setLastUpdate(new Date());
