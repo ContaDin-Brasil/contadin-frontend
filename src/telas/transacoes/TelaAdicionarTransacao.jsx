@@ -129,7 +129,7 @@ const TelaAdicionarTransacao = ({ navigation }) => {
       return;
     }
 
-    navigation.navigate('TransactionsMain');
+    navigation.navigate('Transacao');
   };
 
   const handleSaveTransaction = async () => {
