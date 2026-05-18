@@ -1,27 +1,36 @@
-import React, { useState } from 'react';
-import { View, Text, FlatList, TextInput, TouchableOpacity, ActivityIndicator, Image, SafeAreaView } from 'react-native';
-import { Ionicons, MaterialIcons } from '@expo/vector-icons';
-import { useFocusEffect } from '@react-navigation/native';
-import TituloPagina from '../../componentes/TituloPagina';
-import { getLogoByName } from '../../componentes/modais/logosInstituicoes';
-import { useGerenciarTransacoes } from './hooks/useGerenciarTransacoes';
-import { ModalOrdenacao } from './modals/ModalOrdenacao';
-import { ModalFiltros } from './modals/ModalFiltros';
-import { ModalPeriodo } from './modals/ModalPeriodo';
-import COLORS from '../../styles/colors';
-import BotaoFlutuanteAdicionar from '../../componentes/BotaoFlutuanteAdicionar';
-import { 
-  formatCurrency, 
-  formatDateLabel, 
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  TextInput,
+  TouchableOpacity,
+  ActivityIndicator,
+  Image,
+  SafeAreaView,
+} from "react-native";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
+import TituloPagina from "../../componentes/TituloPagina";
+import { getLogoByName } from "../../componentes/modais/logosInstituicoes";
+import { useGerenciarTransacoes } from "./hooks/useGerenciarTransacoes";
+import { ModalOrdenacao } from "./modals/ModalOrdenacao";
+import { ModalFiltros } from "./modals/ModalFiltros";
+import { ModalPeriodo } from "./modals/ModalPeriodo";
+import COLORS from "../../styles/colors";
+import BotaoFlutuanteAdicionar from "../../componentes/BotaoFlutuanteAdicionar";
+import {
+  formatCurrency,
+  formatDateLabel,
   groupTransactionsByDate,
   getCategoryIcon,
-  parseTransacaoDate
-} from './utils/utilitariosTransacao';
-import { styles } from './styles/TelaTransacoes.styles';
+  parseTransacaoDate,
+} from "./utils/utilitariosTransacao";
+import { styles } from "./styles/TelaTransacoes.styles";
 
 const TelaTransacoes = ({ navigation, route }) => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [refreshing, setRefreshing] = useState(false);
   const [lastUpdate, setLastUpdate] = useState(new Date());
   const [modalOrdenacaoVisible, setModalOrdenacaoVisible] = useState(false);
@@ -34,6 +43,16 @@ const TelaTransacoes = ({ navigation, route }) => {
   // Recebe os dados da instituição clicada (se houver)
   const instituicaoSelecionada = route.params?.instituicao || null;
 
+  const carregarDadosRef = React.useRef(gerenciador.carregarDados);
+  React.useEffect(() => {
+    carregarDadosRef.current = gerenciador.carregarDados;
+  });
+
+  const debouncedSearchQueryRef = React.useRef(debouncedSearchQuery);
+  React.useEffect(() => {
+    debouncedSearchQueryRef.current = debouncedSearchQuery;
+  }, [debouncedSearchQuery]);
+
   /**
    * Debounce para a busca (300ms)
    * Evita múltiplas re-renderizações enquanto o usuário digita
@@ -42,7 +61,7 @@ const TelaTransacoes = ({ navigation, route }) => {
     const timer = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
       if (searchQuery) {
-        console.log('🔍 [SEARCH] Buscando por:', searchQuery);
+        console.log("🔍 [SEARCH] Buscando por:", searchQuery);
       }
     }, 300);
 
@@ -75,6 +94,9 @@ const TelaTransacoes = ({ navigation, route }) => {
     });
   }, [modoVisualizacao]);
 
+  /**
+   * Efeito para aplicar filtro automático quando muda o modo de visualização
+   */
   React.useEffect(() => {
     gerenciador.carregarDados({
       search: debouncedSearchQuery,
@@ -89,17 +111,17 @@ const TelaTransacoes = ({ navigation, route }) => {
    * Limpa o campo de busca
    */
   const handleClearSearch = () => {
-    setSearchQuery('');
-    setDebouncedSearchQuery('');
+    setSearchQuery("");
+    setDebouncedSearchQuery("");
   };
 
   // Log para debug (pode remover depois)
   React.useEffect(() => {
     if (instituicaoSelecionada) {
-      console.log('📍 Instituição selecionada:', instituicaoSelecionada);
-      console.log('   - Nome:', instituicaoSelecionada.nome);
-      console.log('   - Tipo:', instituicaoSelecionada.tipo);
-      console.log('   - ID:', instituicaoSelecionada.id);
+      console.log("📍 Instituição selecionada:", instituicaoSelecionada);
+      console.log("   - Nome:", instituicaoSelecionada.nome);
+      console.log("   - Tipo:", instituicaoSelecionada.tipo);
+      console.log("   - ID:", instituicaoSelecionada.id);
     }
   }, [instituicaoSelecionada]);
 
@@ -148,10 +170,10 @@ const TelaTransacoes = ({ navigation, route }) => {
    * Handler para pull-to-refresh manual
    */
   const onRefresh = React.useCallback(async () => {
-    console.log('\n' + '='.repeat(60));
-    console.log('🔄 [MANUAL-REFRESH] Usuário solicitou atualização');
-    console.log('='.repeat(60));
-    
+    console.log("\n" + "=".repeat(60));
+    console.log("🔄 [MANUAL-REFRESH] Usuário solicitou atualização");
+    console.log("=".repeat(60));
+
     setRefreshing(true);
     try {
       let filtrosAaplicar = { ...gerenciador.filtros };
@@ -173,22 +195,32 @@ const TelaTransacoes = ({ navigation, route }) => {
         filtrosOverride: filtrosAaplicar,
       });
       setLastUpdate(new Date());
-      console.log('✅ Dados atualizados manualmente com sucesso!');
-      console.log('⏰ Última atualização:', new Date().toLocaleTimeString('pt-BR'));
+      console.log("✅ Dados atualizados manualmente com sucesso!");
+      console.log(
+        "⏰ Última atualização:",
+        new Date().toLocaleTimeString("pt-BR"),
+      );
     } catch (err) {
-      console.error('❌ Erro ao atualizar:', err);
+      console.error("❌ Erro ao atualizar:", err);
     } finally {
       setRefreshing(false);
-      console.log('='.repeat(60) + '\n');
+      console.log("=".repeat(60) + "\n");
     }
   }, [instituicaoSelecionada?.id, modoVisualizacao, debouncedSearchQuery]);
 
   // Mostra loading
   if (gerenciador.loading) {
     return (
-      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+      <View
+        style={[
+          styles.container,
+          { justifyContent: "center", alignItems: "center" },
+        ]}
+      >
         <ActivityIndicator size="large" color={COLORS.primary} />
-        <Text style={{ marginTop: 16, color: '#666' }}>Carregando transações...</Text>
+        <Text style={{ marginTop: 16, color: "#666" }}>
+          Carregando transações...
+        </Text>
       </View>
     );
   }
@@ -196,11 +228,21 @@ const TelaTransacoes = ({ navigation, route }) => {
   // Mostra erro
   if (gerenciador.error) {
     return (
-      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center', padding: 20 }]}>
+      <View
+        style={[
+          styles.container,
+          { justifyContent: "center", alignItems: "center", padding: 20 },
+        ]}
+      >
         <Ionicons name="alert-circle-outline" size={64} color="#E31C23" />
-        <Text style={{ marginTop: 16, color: '#E31C23', textAlign: 'center' }}>{gerenciador.error}</Text>
-        <TouchableOpacity 
-          style={[styles.filterButton, { marginTop: 20, paddingHorizontal: 20 }]}
+        <Text style={{ marginTop: 16, color: "#E31C23", textAlign: "center" }}>
+          {gerenciador.error}
+        </Text>
+        <TouchableOpacity
+          style={[
+            styles.filterButton,
+            { marginTop: 20, paddingHorizontal: 20 },
+          ]}
           onPress={() =>
             gerenciador.carregarDados({
               search: debouncedSearchQuery,
@@ -225,27 +267,30 @@ const TelaTransacoes = ({ navigation, route }) => {
    */
   const prepararListaPlana = () => {
     const listaPlana = [];
-    
+
     Object.entries(groupedTransactions).forEach(([date, transactions]) => {
       // Adiciona header da data
-      listaPlana.push({ type: 'header', date, id: `header-${date}` });
-      
+      listaPlana.push({ type: "header", date, id: `header-${date}` });
+
       // Adiciona transações
-      transactions.forEach(transaction => {
-        listaPlana.push({ type: 'transaction', data: transaction, id: `transaction-${transaction.id}` });
+      transactions.forEach((transaction) => {
+        listaPlana.push({
+          type: "transaction",
+          data: transaction,
+          id: `transaction-${transaction.id}`,
+        });
       });
     });
-    
+
     return listaPlana;
   };
 
   const flatListData = prepararListaPlana();
 
-
   // Conta filtros ativos
   const countFiltrosAtivos = () => {
     let count = 0;
-    if (gerenciador.filtros.tipo !== 'TODOS') count++;
+    if (gerenciador.filtros.tipo !== "TODOS") count++;
     if (gerenciador.filtros.instituicoes.length > 0) count++;
     if (gerenciador.filtros.categorias.length > 0) count++;
     if (gerenciador.filtros.valorMin || gerenciador.filtros.valorMax) count++;
@@ -570,7 +615,7 @@ const TelaTransacoes = ({ navigation, route }) => {
         ? renderTransactionItemParcelado(item.data)
         : renderTransactionItem(item.data);
     }
-    
+
     return null;
   };
 
@@ -580,54 +625,83 @@ const TelaTransacoes = ({ navigation, route }) => {
     const possuiVinculoCategoria =
       item.fkCategoria !== null &&
       item.fkCategoria !== undefined &&
-      String(item.fkCategoria) !== 'SEM_CATEGORIA';
-    const categoryName = category?.nome || (possuiVinculoCategoria ? 'Categoria Inativa' : 'Categoria não informada');
-    const institutionName = institution?.nome || 'Sem instituição';
-    const institutionColor = institution?.cor || '#666';
-    const institutionIcon = institution?.icone || '📱';
+      String(item.fkCategoria) !== "SEM_CATEGORIA";
+    const categoryName =
+      category?.nome ||
+      (possuiVinculoCategoria
+        ? "Categoria Inativa"
+        : "Categoria não informada");
+    const institutionName = institution?.nome || "Sem instituição";
+    const institutionColor = institution?.cor || "#666";
+    const institutionIcon = institution?.icone || "📱";
     const institutionLogo = getLogoByName(institutionName);
-    const transactionDate = parseTransacaoDate(item.dataTransacao).toLocaleDateString('pt-BR');
-    
+    const transactionDate = parseTransacaoDate(
+      item.dataTransacao,
+    ).toLocaleDateString("pt-BR");
+
     // Mapeia frequência para texto amigável
     const getFrequencyLabel = (freq) => {
       const map = {
-        'DIARIO': 'Diária',
-        'SEMANAL': 'Semanal',
-        'MENSAL': 'Mensal',
-        'ANUAL': 'Anual'
+        DIARIO: "Diária",
+        SEMANAL: "Semanal",
+        MENSAL: "Mensal",
+        ANUAL: "Anual",
       };
       return map[freq] || freq;
     };
-    
+
     return (
-      <TouchableOpacity 
-        key={item.id} 
+      <TouchableOpacity
+        key={item.id}
         style={styles.transactionItem}
-        onPress={() => navigation.navigate('EditarTransacao', { transacaoId: item.id })}
+        onPress={() =>
+          navigation.navigate("EditarTransacao", { transacaoId: item.id })
+        }
         activeOpacity={0.7}
       >
         <View style={styles.transactionHeader}>
           <View style={styles.transactionIcon}>
-            <MaterialIcons name={category?.icone || getCategoryIcon(categoryName)} size={24} color="#333" />
+            <MaterialIcons
+              name={category?.icone || getCategoryIcon(categoryName)}
+              size={24}
+              color="#333"
+            />
           </View>
           <Text style={styles.transactionCategory}>{categoryName}</Text>
-          
+
           <View style={styles.transactionHeaderRight}>
             <Text style={styles.transactionDate}>{transactionDate}</Text>
-            
+
             {/* Badges de Parcelamento e Recorrência abaixo da data */}
             {(item.parcelado || item.recorrencia) && (
               <View style={styles.transactionBadgesRow}>
                 {item.parcelado && item.qtdParcelas && (
                   <View style={styles.transactionBadge}>
-                    <Ionicons name="card-outline" size={12} color={COLORS.primary} />
-                    <Text style={styles.transactionBadgeText}>{item.qtdParcelas}x</Text>
+                    <Ionicons
+                      name="card-outline"
+                      size={12}
+                      color={COLORS.primary}
+                    />
+                    <Text style={styles.transactionBadgeText}>
+                      {item.qtdParcelas}x
+                    </Text>
                   </View>
                 )}
                 {item.recorrencia && (
-                  <View style={[styles.transactionBadge, styles.recurrenceBadge]}>
-                    <Ionicons name="repeat-outline" size={12} color={COLORS.success} />
-                    <Text style={[styles.transactionBadgeText, styles.recurrenceBadgeText]}>
+                  <View
+                    style={[styles.transactionBadge, styles.recurrenceBadge]}
+                  >
+                    <Ionicons
+                      name="repeat-outline"
+                      size={12}
+                      color={COLORS.success}
+                    />
+                    <Text
+                      style={[
+                        styles.transactionBadgeText,
+                        styles.recurrenceBadgeText,
+                      ]}
+                    >
                       {getFrequencyLabel(item.recorrencia)}
                     </Text>
                   </View>
@@ -636,18 +710,30 @@ const TelaTransacoes = ({ navigation, route }) => {
             )}
           </View>
         </View>
-        
+
         <View style={styles.transactionBody}>
           <View style={styles.transactionLeft}>
-            <View style={[styles.institutionBadge, { backgroundColor: institutionLogo ? '#FFF' : institutionColor + '20', borderColor: institutionColor }]}>
+            <View
+              style={[
+                styles.institutionBadge,
+                {
+                  backgroundColor: institutionLogo
+                    ? "#FFF"
+                    : institutionColor + "20",
+                  borderColor: institutionColor,
+                },
+              ]}
+            >
               {institutionLogo ? (
-                <Image 
-                  source={institutionLogo} 
+                <Image
+                  source={institutionLogo}
                   style={styles.institutionBadgeLogo}
                   resizeMode="contain"
                 />
               ) : (
-                <Text style={styles.institutionBadgeIcon}>{institutionIcon}</Text>
+                <Text style={styles.institutionBadgeIcon}>
+                  {institutionIcon}
+                </Text>
               )}
               <Text style={[styles.institutionBadgeText]}>
                 {institutionName}
@@ -655,12 +741,16 @@ const TelaTransacoes = ({ navigation, route }) => {
             </View>
             <Text style={styles.transactionDescription}>{item.descricao}</Text>
           </View>
-          
-          <Text style={[
-            styles.transactionAmount,
-            item.tipo === 'RECEITA' ? styles.incomeAmount : styles.expenseAmount
-          ]}>
-            {formatCurrency(item.tipo === 'RECEITA' ? item.valor : -item.valor)}
+
+          <Text
+            style={[
+              styles.transactionAmount,
+              item.tipo === "RECEITA"
+                ? styles.incomeAmount
+                : styles.expenseAmount,
+            ]}
+          >
+            {formatCurrency(item.tipo === "RECEITA" ? item.valor : -item.valor)}
           </Text>
         </View>
       </TouchableOpacity>
@@ -681,38 +771,67 @@ const TelaTransacoes = ({ navigation, route }) => {
       </TouchableOpacity>
 
       {/* Banner de Instituição Selecionada */}
-      {instituicaoSelecionada && (() => {
-        const bannerLogo = getLogoByName(instituicaoSelecionada.nome);
-        return (
-          <View style={[styles.selectedInstitutionBanner, { backgroundColor: instituicaoSelecionada.cor + '20', borderColor: instituicaoSelecionada.cor }]}>
-            <View style={styles.bannerContent}>
-              <View style={[styles.bannerIcon, { backgroundColor: bannerLogo ? '#FFF' : instituicaoSelecionada.cor }]}>
-                {bannerLogo ? (
-                  <Image 
-                    source={bannerLogo} 
-                    style={styles.bannerLogoImage}
-                    resizeMode="contain"
-                  />
-                ) : (
-                  <Text style={styles.bannerIconText}>{instituicaoSelecionada.icone}</Text>
-                )}
-              </View>
-              <View style={styles.bannerInfo}>
-                <Text style={styles.bannerTitle}>{instituicaoSelecionada.nome}</Text>
-                <Text style={styles.bannerSubtitle}>
-                  {instituicaoSelecionada.tipo === 'banco' ? '🏦 Banco' : '🎫 Vale'} • {instituicaoSelecionada.balance}
-                </Text>
-              </View>
-            </View>
-            <TouchableOpacity 
-              style={styles.bannerClose}
-              onPress={() => navigation.setParams({ instituicao: null })}
+      {instituicaoSelecionada &&
+        (() => {
+          const bannerLogo = getLogoByName(instituicaoSelecionada.nome);
+          return (
+            <View
+              style={[
+                styles.selectedInstitutionBanner,
+                {
+                  backgroundColor: instituicaoSelecionada.cor + "20",
+                  borderColor: instituicaoSelecionada.cor,
+                },
+              ]}
             >
-              <Ionicons name="close-circle" size={24} color={instituicaoSelecionada.cor} />
-            </TouchableOpacity>
-          </View>
-        );
-      })()}
+              <View style={styles.bannerContent}>
+                <View
+                  style={[
+                    styles.bannerIcon,
+                    {
+                      backgroundColor: bannerLogo
+                        ? "#FFF"
+                        : instituicaoSelecionada.cor,
+                    },
+                  ]}
+                >
+                  {bannerLogo ? (
+                    <Image
+                      source={bannerLogo}
+                      style={styles.bannerLogoImage}
+                      resizeMode="contain"
+                    />
+                  ) : (
+                    <Text style={styles.bannerIconText}>
+                      {instituicaoSelecionada.icone}
+                    </Text>
+                  )}
+                </View>
+                <View style={styles.bannerInfo}>
+                  <Text style={styles.bannerTitle}>
+                    {instituicaoSelecionada.nome}
+                  </Text>
+                  <Text style={styles.bannerSubtitle}>
+                    {instituicaoSelecionada.tipo === "banco"
+                      ? "🏦 Banco"
+                      : "🎫 Vale"}{" "}
+                    • {instituicaoSelecionada.balance}
+                  </Text>
+                </View>
+              </View>
+              <TouchableOpacity
+                style={styles.bannerClose}
+                onPress={() => navigation.setParams({ instituicao: null })}
+              >
+                <Ionicons
+                  name="close-circle"
+                  size={24}
+                  color={instituicaoSelecionada.cor}
+                />
+              </TouchableOpacity>
+            </View>
+          );
+        })()}
 
       {/* Filtro de Período - Visível apenas em modo Transações */}
       {modoVisualizacao === 'TRANSACOES' && (
@@ -789,11 +908,17 @@ const TelaTransacoes = ({ navigation, route }) => {
       <View style={styles.lastUpdateContainer}>
         <Ionicons name="time-outline" size={12} color="#999" />
         <Text style={styles.lastUpdateText}>
-          Atualizado às {lastUpdate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+          Atualizado às{" "}
+          {lastUpdate.toLocaleTimeString("pt-BR", {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
         </Text>
         {transacoesOrdenadas.length > 0 && (
           <>
-            <Text style={[styles.lastUpdateText, { marginHorizontal: 8 }]}>•</Text>
+            <Text style={[styles.lastUpdateText, { marginHorizontal: 8 }]}>
+              •
+            </Text>
             <Text style={styles.lastUpdateText}>
               {transacoesOrdenadas.length} transações
             </Text>
@@ -802,37 +927,35 @@ const TelaTransacoes = ({ navigation, route }) => {
       </View>
 
       {/* Lista de Transações */}
-      <FlatList 
+      <FlatList
         data={flatListData}
         keyExtractor={(item) => item.id}
         renderItem={renderListItem}
         style={styles.transactionsList}
         showsVerticalScrollIndicator={false}
-        
         // Pull to refresh
         refreshing={refreshing}
         onRefresh={onRefresh}
-        
         // Empty state
         ListEmptyComponent={() => (
           <View style={styles.emptyState}>
-            <Ionicons 
-              name={debouncedSearchQuery ? "search-outline" : "receipt-outline"} 
-              size={64} 
-              color="#CCC" 
+            <Ionicons
+              name={debouncedSearchQuery ? "search-outline" : "receipt-outline"}
+              size={64}
+              color="#CCC"
             />
             <Text style={styles.emptyStateTitle}>
-              {debouncedSearchQuery 
-                ? "Nenhum resultado encontrado" 
+              {debouncedSearchQuery
+                ? "Nenhum resultado encontrado"
                 : "Nenhuma transação"}
             </Text>
             <Text style={styles.emptyStateSubtitle}>
-              {debouncedSearchQuery 
+              {debouncedSearchQuery
                 ? `Não encontramos transações para "${debouncedSearchQuery}"`
                 : "Adicione sua primeira transação tocando no botão +"}
             </Text>
             {debouncedSearchQuery && (
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.emptyStateButton}
                 onPress={handleClearSearch}
               >
@@ -845,7 +968,7 @@ const TelaTransacoes = ({ navigation, route }) => {
 
       {/* Botão Flutuante */}
       <BotaoFlutuanteAdicionar
-        onPress={() => navigation.navigate('AdicionarTransacao')}
+        onPress={() => navigation.navigate("AdicionarTransacao")}
       />
 
       {/* Modal de Ordenação */}
@@ -854,13 +977,15 @@ const TelaTransacoes = ({ navigation, route }) => {
         onClose={() => setModalOrdenacaoVisible(false)}
         ordenacaoAtual={gerenciador.ordenacao}
         onSelectOrdenacao={(novaOrdenacao) => {
-          gerenciador.aplicarOrdenacao(novaOrdenacao, {
-            search: debouncedSearchQuery,
-            instituicaoFixaId: instituicaoSelecionada?.id,
-            silencioso: true,
-          }).catch((err) => {
-            console.error('❌ Erro ao aplicar ordenação:', err);
-          });
+          gerenciador
+            .aplicarOrdenacao(novaOrdenacao, {
+              search: debouncedSearchQuery,
+              instituicaoFixaId: instituicaoSelecionada?.id,
+              silencioso: true,
+            })
+            .catch((err) => {
+              console.error("❌ Erro ao aplicar ordenação:", err);
+            });
         }}
       />
 
@@ -870,13 +995,15 @@ const TelaTransacoes = ({ navigation, route }) => {
         onClose={() => setModalFiltrosVisible(false)}
         filtrosAtuais={gerenciador.filtros}
         onAplicarFiltros={(novosFiltros) => {
-          gerenciador.aplicarFiltros(novosFiltros, {
-            search: debouncedSearchQuery,
-            instituicaoFixaId: instituicaoSelecionada?.id,
-            silencioso: true,
-          }).catch((err) => {
-            console.error('❌ Erro ao aplicar filtros:', err);
-          });
+          gerenciador
+            .aplicarFiltros(novosFiltros, {
+              search: debouncedSearchQuery,
+              instituicaoFixaId: instituicaoSelecionada?.id,
+              silencioso: true,
+            })
+            .catch((err) => {
+              console.error("❌ Erro ao aplicar filtros:", err);
+            });
         }}
         instituicoes={gerenciador.instituicoes}
         categorias={gerenciador.categorias}
@@ -891,17 +1018,22 @@ const TelaTransacoes = ({ navigation, route }) => {
         dataFim={gerenciador.filtros.dataFim}
         onAplicarPeriodo={(periodo, dataInicio, dataFim) => {
           gerenciador.setPeriodo(periodo);
-          gerenciador.aplicarFiltros({
-            ...gerenciador.filtros,
-            dataInicio,
-            dataFim
-          }, {
-            search: debouncedSearchQuery,
-            instituicaoFixaId: instituicaoSelecionada?.id,
-            silencioso: true,
-          }).catch((err) => {
-            console.error('❌ Erro ao aplicar período:', err);
-          });
+          gerenciador
+            .aplicarFiltros(
+              {
+                ...gerenciador.filtros,
+                dataInicio,
+                dataFim,
+              },
+              {
+                search: debouncedSearchQuery,
+                instituicaoFixaId: instituicaoSelecionada?.id,
+                silencioso: true,
+              },
+            )
+            .catch((err) => {
+              console.error("❌ Erro ao aplicar período:", err);
+            });
         }}
       />
 
