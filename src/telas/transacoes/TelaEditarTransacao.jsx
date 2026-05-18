@@ -210,19 +210,12 @@ const TelaEditarTransacao = ({ navigation, route }) => {
 
       {/* Data da transação */}
       <View style={styles.section}>
-        <Text style={styles.label}>Data:</Text>
-        <View style={styles.dateInputContainer}>
-          <Ionicons name="calendar-outline" size={20} color={COLORS.primaryLight} />
-          <TextInput
-            style={styles.dateInput}
-            placeholder="DD/MM/AAAA"
-            placeholderTextColor="#999"
-            value={editState.date}
-            onChangeText={editState.handleDateChange}
-            keyboardType="numeric"
-            maxLength={10}
-          />
-        </View>
+        <DatePickerInput
+          label="Data:"
+          value={editState.date}
+          onChangeDate={editState.handleDateChange}
+          placeholder="DD/MM/AAAA"
+        />
       </View>
 
       {/* Tipo da transação */}
