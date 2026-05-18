@@ -36,27 +36,14 @@ function NavegadorConfiguracoes() {
       }}
     >
       <Stack.Screen name="Configuracoes" component={TelaConfiguracoes} />
-      <Stack.Screen name="Categorias" component={TelaCategorias} />
       <Stack.Screen name="EditarPerfil" component={TelaEditarPerfil} />
       <Stack.Screen name="Conta" component={TelaConta} />
       <Stack.Screen name="AlterarSenha" component={TelaAlterarSenha} />
       <Stack.Screen name="Ajuda" component={TelaAjuda} />
-      <Stack.Screen name="ImportarPlanilha" component={TelaImportarPlanilha} />
-    </Stack.Navigator>
-  );
-}
-
-// Navegador de Objetivos (aba fixa)
-function NavegadorObjetivos() {
-  return (
-    <Stack.Navigator
-      screenOptions={{
-        headerShown: false,
-      }}
-    >
-      <Stack.Screen name="ObjetivosMain" component={TelaObjetivos} />
+      <Stack.Screen name="Objetivos" component={TelaObjetivos} />
       <Stack.Screen name="AdicionarObjetivos" component={TelaAdicionarObjetivo} />
       <Stack.Screen name="EditarObjetivos" component={TelaEditarObjetivo} />
+      <Stack.Screen name="ImportarPlanilha" component={TelaImportarPlanilha} />
     </Stack.Navigator>
   );
 }
@@ -138,11 +125,11 @@ function NavegadorPrincipal() {
         }}
       />
       <Tab.Screen 
-        name="Objetivos" 
-        component={NavegadorObjetivos}
+        name="Categorias" 
+        component={TelaCategorias}
         options={{
           tabBarIcon: ({ focused, color, size }) => (
-            <Ionicons name={focused ? 'trophy' : 'trophy-outline'} size={28} color={color} />
+            <Ionicons name={focused ? 'grid' : 'grid-outline'} size={28} color={color} />
           ),
         }}
       />

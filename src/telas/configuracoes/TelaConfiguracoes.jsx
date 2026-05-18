@@ -69,10 +69,10 @@ const SettingsScreen = ({ navigation }) => {
           <Text style={styles.sectionTitle}>Financeiro</Text>
           <View style={styles.sectionContent}>
             <SettingItem 
-              icon={<Ionicons name="grid-outline" size={24} color="#5BA3FF" />}
-              title="Categorias" 
-              subtitle="Gerencie categorias de gastos e receitas"
-              onPress={() => navigation.navigate('Categorias')}
+              icon={<Ionicons name="flag-outline" size={24} color="#5BA3FF" />}
+              title="Objetivos" 
+              subtitle="Planeje limites e aumento de receita"
+              onPress={() => navigation.navigate('Objetivos')}
             />
             <View style={styles.divider} />
             <SettingItem
