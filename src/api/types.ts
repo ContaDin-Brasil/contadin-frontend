@@ -195,6 +195,45 @@ export interface ObjetivoGastoPayload {
   fkUsuario: string | number;
 }
 
+export type ObjetivoKpiQuery = {
+  dataInicio?: string;
+  dataFim?: string;
+  tipoObjetivo?: ObjetivoTipoApi;
+};
+
+export type ObjetivoKpiImpactoResponse = {
+  impactoPrevistoMes: number;
+};
+
+export type ObjetivoKpiMaiorAlertaResponse = {
+  maiorAlerta: string;
+  objetivoId?: string | number | null;
+  status?: ObjetivoStatusApi | null;
+  tipoObjetivo?: ObjetivoTipoApi | null;
+};
+
+export type ObjetivoKpiNoRitmoResponse = {
+  objetivosNoRitmo: number;
+  totalObjetivos: number;
+  objetivos?: Array<{
+    id: string | number;
+    nome: string;
+    tipoObjetivo: ObjetivoTipoApi;
+    status: ObjetivoStatusApi;
+    percentual: number;
+  }>;
+};
+
+export type ObjetivoKpiAcaoRecomendadaResponse = {
+  acao_recomendada: string;
+  objetivo_id?: string | number | null;
+};
+
+export type ObjetivoKpiInsightResponse = {
+  objetivo_id: string | number;
+  insight: string;
+};
+
 export interface TransacaoOrfa {
   id: string | number;
   descricao: string;
