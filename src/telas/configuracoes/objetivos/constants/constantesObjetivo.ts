@@ -40,12 +40,3 @@ export const PRIORIDADE_LABELS = {
   MEDIA: 'média',
   BAIXA: 'baixa',
 };
-
-export const INSIGHTS_MOCK = [
-  'Revise gastos em {categoria} no fim de semana para manter o ritmo.',
-  'O objetivo de {categoria} esta bem encaminhado. Mantenha consistencia.',
-  'Se reduzir pequenas despesas de {categoria}, voce ganha folga no limite.',
-  'Acompanhe {categoria} duas vezes por semana para evitar desvios.',
-  'Seu foco em {categoria} esta ajudando. Continue com o plano.',
-  'Reforce as acoes que mais impactam {categoria} nos proximos dias.',
-];

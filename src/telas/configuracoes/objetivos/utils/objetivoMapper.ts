@@ -1,11 +1,11 @@
 import type { ObjetivoGastoApi } from '../../../../api/types';
 import type { ObjetivoUi } from '../types/objetivo.types';
 import { calcularPeriodo, calcularStatusPorPercentual, clamp, normalizarPercentual } from './objetivoCalculos';
-import { gerarInsightMock } from './objetivoInsights';
 
 export const mapearObjetivo = (
   objetivo: ObjetivoGastoApi,
   categoriaMap: Map<string, string>,
+  insightsMap?: Map<string, string>,
 ): ObjetivoUi => {
   const valorAlvo = Number(objetivo.valor) || 0;
   const valorRealizado = Number(objetivo.realizado) || 0;
@@ -16,7 +16,7 @@ export const mapearObjetivo = (
   }
   const percentualRealizadoClamp = clamp(percentualRealizado, 0, 1);
   const status = calcularStatusPorPercentual(objetivo.tipoObjetivo, percentualRealizado);
-  const categoria = categoriaMap.get(String(objetivo.fkCategoria)) || 'Categoria nao informada';
+  const categoria = categoriaMap.get(String(objetivo.fkCategoria)) || 'Categoria não informada';
   const { percentualPeriodo, diasTotais, diasPassados } = calcularPeriodo(
     objetivo.dataInicio,
     objetivo.dataFim,
@@ -29,6 +29,7 @@ export const mapearObjetivo = (
   const alertaLabel = `${categoria} ${Math.round(percentualRealizado * 100)}% ${
     isGasto ? 'usado' : 'atingido'
   }`;
+  const insight = insightsMap?.get(String(objetivo.id)) || '';
 
   return {
     id: objetivo.id,
@@ -46,7 +47,7 @@ export const mapearObjetivo = (
     dataInicio: objetivo.dataInicio,
     dataFim: objetivo.dataFim,
     prioridade: objetivo.prioridade ?? null,
-    insight: gerarInsightMock(objetivo.id, categoria),
+    insight,
     alertaScore,
     alertaLabel,
     diasTotais,
