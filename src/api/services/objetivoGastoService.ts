@@ -6,6 +6,7 @@ type ObjetivosQuery = {
   concluido?: boolean;
 };
 
+
 /**
  * Serviço de Objetivos
  * Gerencia operações relacionadas aos objetivos
