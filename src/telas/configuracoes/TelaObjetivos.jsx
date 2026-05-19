@@ -31,6 +31,8 @@ const TelaObjetivos = ({ navigation }) => {
     setSearchQuery,
     filtroStatus,
     setFiltroStatus,
+    tipoKpi,
+    setTipoKpi,
     recarregar,
   } = useGerenciarObjetivos();
 
@@ -57,12 +59,15 @@ const TelaObjetivos = ({ navigation }) => {
 
   const objetivosAtivosCount = contagem.ativos;
   const objetivosConcluidosCount = contagem.concluidos;
+  const filtrosKpi = [
+    { id: 'todos', label: 'Todos' },
+    { id: 'gasto', label: 'Gastos' },
+    { id: 'receita', label: 'Receitas' },
+  ];
 
   return (
     <SafeAreaView style={styles.container}>
-      <TituloPagina mostrarBotaoVoltar={true} onVoltar={() => navigation.goBack()}>
-        Objetivos
-      </TituloPagina>
+      <TituloPagina>Objetivos</TituloPagina>
 
       <ScrollView contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
         <View style={styles.recomendacaoCard}>
@@ -73,6 +78,23 @@ const TelaObjetivos = ({ navigation }) => {
             </View>
           </View>
           <Text style={styles.recomendacaoText}>{resumo.recomendacao}</Text>
+        </View>
+
+        <View style={styles.kpiFiltroContainer}>
+          {filtrosKpi.map((opcao) => {
+            const ativo = tipoKpi === opcao.id;
+            return (
+              <TouchableOpacity
+                key={opcao.id}
+                style={[styles.kpiFiltroBotao, ativo && styles.kpiFiltroBotaoAtivo]}
+                onPress={() => setTipoKpi(opcao.id)}
+              >
+                <Text style={[styles.kpiFiltroTexto, ativo && styles.kpiFiltroTextoAtivo]}>
+                  {opcao.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
         </View>
 
         <View style={styles.kpiContainer}>
@@ -257,10 +279,12 @@ const TelaObjetivos = ({ navigation }) => {
                     </View>
                   </View>
 
-                  <View style={styles.insightContainer}>
-                    <Text style={styles.insightLabel}>Insight IA</Text>
-                    <Text style={styles.insightText}>{objetivo.insight}</Text>
-                  </View>
+                  {objetivo.insight ? (
+                    <View style={styles.insightContainer}>
+                      <Text style={styles.insightLabel}>Insight IA</Text>
+                      <Text style={styles.insightText}>{objetivo.insight}</Text>
+                    </View>
+                  ) : null}
 
                   <View style={styles.objetivoFooter}>
                     <Text style={styles.objetivoFooterText}>

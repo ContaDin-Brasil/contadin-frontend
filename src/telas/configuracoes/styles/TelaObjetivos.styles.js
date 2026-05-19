@@ -45,6 +45,32 @@ export const styles = StyleSheet.create({
     color: COLORS.textPrimary,
     lineHeight: 22,
   },
+  kpiFiltroContainer: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 12,
+  },
+  kpiFiltroBotao: {
+    flex: 1,
+    paddingVertical: 8,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: COLORS.borderLight,
+    backgroundColor: COLORS.white,
+    alignItems: 'center',
+  },
+  kpiFiltroBotaoAtivo: {
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
+  },
+  kpiFiltroTexto: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: COLORS.textSecondary,
+  },
+  kpiFiltroTextoAtivo: {
+    color: COLORS.white,
+  },
   kpiContainer: {
     gap: 12,
     marginBottom: 20,

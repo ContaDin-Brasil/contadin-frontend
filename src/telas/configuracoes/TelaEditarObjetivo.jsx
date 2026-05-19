@@ -81,7 +81,6 @@ const TelaEditarObjetivo = ({ navigation, route }) => {
     setCategoriaSelecionadaId,
     carregandoCategorias,
     categoriasErro,
-    tipoCategoria,
     recarregarCategorias,
   } = useCategoriasObjetivo({
     usuarioId,
@@ -118,7 +117,7 @@ const TelaEditarObjetivo = ({ navigation, route }) => {
       return true;
     } catch (error) {
       console.error('Erro ao criar categoria:', error);
-      abrirAviso('Erro', 'Nao foi possivel criar a categoria.');
+      abrirAviso('Erro', 'Não foi possivel criar a categoria.');
       return false;
     }
   };
