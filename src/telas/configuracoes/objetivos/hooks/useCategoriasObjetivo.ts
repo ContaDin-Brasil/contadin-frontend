@@ -56,7 +56,7 @@ export const useCategoriasObjetivo = ({
     } catch (error) {
       console.error('Erro ao carregar categorias:', error);
       setCategorias([]);
-      setCategoriasErro('Nao foi possivel carregar as categorias.');
+      setCategoriasErro('Não foi possivel carregar as categorias.');
     } finally {
       setCarregandoCategorias(false);
     }

@@ -121,7 +121,7 @@ const getErrorMessage = (error: unknown, fallback: string): string => {
   const backendMessage = data?.message ?? data?.mensagem ?? data?.error;
 
   if (status === 401) {
-    return backendMessage || 'Nao autenticado. Faça login novamente.';
+    return backendMessage || 'Não autenticado. Faça login novamente.';
   }
 
   if (status === 400) {
