@@ -17,7 +17,7 @@ import ModalAviso from "../../componentes/modais/ModalAviso";
 import TituloPagina from "../../componentes/TituloPagina";
 import BotaoFlutuanteAdicionar from "../../componentes/BotaoFlutuanteAdicionar";
 
-const TelaCategorias = () => {
+const TelaCategorias = ({ navigation }) => {
   const {
     categorias,
     loading,
@@ -150,7 +150,9 @@ const TelaCategorias = () => {
         {!searchExpanded ? (
           <>
             <View style={styles.header}>
-              <TituloPagina>Categorias</TituloPagina>
+              <TituloPagina mostrarBotaoVoltar={true} onVoltar={() => navigation.goBack()}>
+                Categorias
+              </TituloPagina>
               <TouchableOpacity
                 style={styles.searchButton}
                 onPress={handleSearchToggle}

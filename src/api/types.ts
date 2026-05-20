@@ -162,22 +162,78 @@ export interface TransacaoPayload {
   fkCategoria: string | number;
 }
 
-export interface MetaGastoApi {
-  id: number;
-  valor_meta: number;
-  data_inicio_meta: string;
-  data_fim_meta: string;
-  fk_categoria: number;
-  fk_usuario: number;
+export type ObjetivoTipoApi = 'LIMITE_GASTO' | 'AUMENTO_RECEITA';
+export type ObjetivoStatusApi = 'TRANQUILO' | 'ATENCAO' | 'ESTOURADO' | 'CONCLUIDO' | 'ABAIXO_RITMO';
+export type ObjetivoPrioridadeApi = 'ALTA' | 'MEDIA' | 'BAIXA';
+
+export interface ObjetivoGastoApi {
+  id: string | number;
+  nome: string;
+  descricao?: string | null;
+  tipoObjetivo: ObjetivoTipoApi;
+  valor: number;
+  realizado: number;
+  percentual: number;
+  status: ObjetivoStatusApi;
+  dataInicio: string;
+  dataFim: string;
+  prioridade?: ObjetivoPrioridadeApi | null;
+  fkCategoria: string | number;
+  fkUsuario?: string | number;
+  criadoEm?: string;
+  atualizadoEm?: string;
 }
 
-export interface MetaGastoPayload {
-  valor_meta: number;
-  data_inicio_meta: string;
-  data_fim_meta: string;
-  fk_categoria: number;
-  fk_usuario: number;
+export interface ObjetivoGastoPayload {
+  tipoObjetivo: ObjetivoTipoApi;
+  nome: string;
+  descricao?: string | null;
+  valor: number;
+  dataInicio: string;
+  dataFim: string;
+  prioridade?: ObjetivoPrioridadeApi | null;
+  fkCategoria: string | number;
+  fkUsuario: string | number;
 }
+
+export type ObjetivoKpiQuery = {
+  dataInicio?: string;
+  dataFim?: string;
+  tipoObjetivo?: ObjetivoTipoApi;
+};
+
+export type ObjetivoKpiImpactoResponse = {
+  impactoPrevistoMes: number;
+};
+
+export type ObjetivoKpiMaiorAlertaResponse = {
+  maiorAlerta: string;
+  objetivoId?: string | number | null;
+  status?: ObjetivoStatusApi | null;
+  tipoObjetivo?: ObjetivoTipoApi | null;
+};
+
+export type ObjetivoKpiNoRitmoResponse = {
+  objetivosNoRitmo: number;
+  totalObjetivos: number;
+  objetivos?: Array<{
+    id: string | number;
+    nome: string;
+    tipoObjetivo: ObjetivoTipoApi;
+    status: ObjetivoStatusApi;
+    percentual: number;
+  }>;
+};
+
+export type ObjetivoKpiAcaoRecomendadaResponse = {
+  acao_recomendada: string;
+  objetivo_id?: string | number | null;
+};
+
+export type ObjetivoKpiInsightResponse = {
+  objetivo_id: string | number;
+  insight: string;
+};
 
 export interface TransacaoOrfa {
   id: string | number;

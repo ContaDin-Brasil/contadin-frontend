@@ -45,14 +45,14 @@ const SettingsScreen = ({ navigation }) => {
               icon={<Ionicons name="person-outline" size={24} color="#5BA3FF" />}
               title="Editar Perfil" 
               subtitle="Atualize suas informações pessoais"
-              onPress={() => navigation.navigate('EditProfile')}
+              onPress={() => navigation.navigate('EditarPerfil')}
             />
             <View style={styles.divider} />
             <SettingItem 
               icon={<Ionicons name="key-outline" size={24} color="#5BA3FF" />}
               title="Alterar Senha" 
               subtitle="Atualize sua senha de segurança"
-              onPress={() => navigation.navigate('ChangePassword')}
+              onPress={() => navigation.navigate('AlterarSenha')}
             />
             <View style={styles.divider} />
             <SettingItem 
@@ -69,10 +69,10 @@ const SettingsScreen = ({ navigation }) => {
           <Text style={styles.sectionTitle}>Financeiro</Text>
           <View style={styles.sectionContent}>
             <SettingItem 
-              icon={<Ionicons name="flag-outline" size={24} color="#5BA3FF" />}
-              title="Metas" 
-              subtitle="Gerencie suas metas de gastos"
-              onPress={() => navigation.navigate('Goals')}
+              icon={<Ionicons name="grid-outline" size={24} color="#5BA3FF" />}
+              title="Categorias" 
+              subtitle="Gerencie categorias de gastos e receitas"
+              onPress={() => navigation.navigate('Categorias')}
             />
             <View style={styles.divider} />
             <SettingItem
@@ -92,7 +92,7 @@ const SettingsScreen = ({ navigation }) => {
               icon={<Ionicons name="help-circle-outline" size={24} color="#5BA3FF" />}
               title="Ajuda e Suporte" 
               subtitle="Dúvidas e informações úteis"
-              onPress={() => navigation.navigate('Help')}
+              onPress={() => navigation.navigate('Ajuda')}
             />
           </View>
         </View>
