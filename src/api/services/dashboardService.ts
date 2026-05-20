@@ -3,6 +3,7 @@ import type {
   CategoriaApi,
   DadosDashboardApi,
   DadosPrevisaoSaldoApi,
+  DashReceitaGastoResponse,
   GastoCategoriaApi,
   InstituicaoApi,
   ResumoFinanceiroApi,
@@ -14,6 +15,102 @@ import type { SaldoDiario } from '../../telas/dashboard/types/dashboard.types';
 type ProjecaoFutura = {
   data: Date;
   delta: number;
+};
+
+/**
+ * Busca indicadores de gastos e receitas por período
+ * Utiliza o endpoint GET /dashboard/indicadores-transacoes do backend
+ * 
+ * @param usuarioId - UUID do usuário
+ * @param tipo - Tipo de transação ('GASTO' ou 'RECEITA')
+ * @param periodo - Período no formato YearMonth (ex: "2026-05" para Maio/2026)
+ * @returns Dados agregados de gastos/receitas do período
+ * 
+ * @example
+ * const dados = await buscarIndicadoresTransacoes(
+ *   'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+ *   'GASTO',
+ *   '2026-05'
+ * );
+ * // Retorna: { mes: 5, tipo: 'GASTO', valorTotal: 350 }
+ */
+export const buscarIndicadoresTransacoes = async (
+  usuarioId: string,
+  tipo: 'GASTO' | 'RECEITA',
+  periodo?: string, // Formato: "YYYY-MM" (ex: "2026-05")
+): Promise<DashReceitaGastoResponse> => {
+  try {
+    // Se não informar período, usa o mês atual
+    const periodoFinal = periodo || (() => {
+      const dataAtual = new Date();
+      const ano = dataAtual.getFullYear();
+      const mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
+      return `${ano}-${mes}`;
+    })();
+
+    const urlFinal = `/dashboard/indicadores-transacoes?periodo=${periodoFinal}&tipo=${tipo}&usuarioId=${usuarioId}`;
+    console.log('[API] Chamando endpoint:', urlFinal);
+    console.log('[API] usuarioId tipo:', typeof usuarioId, '| valor:', usuarioId);
+
+    const response = await api.get<DashReceitaGastoResponse>(urlFinal);
+
+    console.log('[API] Resposta recebida:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('[API] Erro ao buscar indicadores de transações:', error);
+    if (error instanceof Error) {
+      console.error('[API] Mensagem:', error.message);
+    }
+    throw error;
+  }
+};
+
+/**
+ * Busca resumo financeiro utilizando os novos endpoints de indicadores
+ * Realiza duas chamadas paralelas: uma para GASTO e outra para RECEITA
+ * 
+ * @param usuarioId - Identificador do usuário
+ * @returns Resumo com saldo total, receitas e gastos do mês atual
+ */
+export const buscarResumoFinanceiroComIndicadores = async (
+  usuarioId: string,
+): Promise<ResumoFinanceiroApi> => {
+  try {
+    // Buscar gastos e receitas em paralelo
+    const [respostaGastos, respostaReceitas] = await Promise.all([
+      buscarIndicadoresTransacoes(usuarioId, 'GASTO'),
+      buscarIndicadoresTransacoes(usuarioId, 'RECEITA'),
+    ]);
+
+    const gastoTotal = respostaGastos.valorTotal || 0;
+    const receitaTotal = respostaReceitas.valorTotal || 0;
+    const saldoTotal = receitaTotal - gastoTotal;
+
+    console.log('[API] Construindo resumo financeiro:');
+    console.log('[API] - Gasto total:', gastoTotal);
+    console.log('[API] - Receita total:', receitaTotal);
+    console.log('[API] - Saldo total:', saldoTotal);
+
+    // Formatar mês
+    const NOMES_MESES = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'] as const;
+    const dataAtual = new Date();
+    const mesAtual = dataAtual.getMonth();
+    const anoAtual = dataAtual.getFullYear();
+    const nomeMes = NOMES_MESES[mesAtual];
+
+    const resumoFinal = {
+      saldoTotal,
+      receitaTotal,
+      gastoTotal,
+      mesAtual: `${nomeMes}/${anoAtual}`,
+    };
+    
+    console.log('[API] ✅ Resumo financeiro final:', resumoFinal);
+    return resumoFinal;
+  } catch (error) {
+    console.error('[Dashboard] Erro ao buscar resumo financeiro com indicadores:', error);
+    throw error;
+  }
 };
 
 /**
@@ -65,7 +162,7 @@ export const buscarResumoFinanceiro = async (usuarioId: number): Promise<ResumoF
     
     // Filtrar apenas transações das instituições do usuário
     const transacoesUsuario = todasTransacoes.filter((t) =>
-      idsInstituicoes.includes(t.fk_instituicao)
+      idsInstituicoes.includes(t.fkInstituicao)
     );
 
     const dataAtual = new Date();
@@ -75,7 +172,7 @@ export const buscarResumoFinanceiro = async (usuarioId: number): Promise<ResumoF
     // Filtrar transações do mês atual
     //(fuso UTC-3 Brasil)
     const transacoesMesAtual = transacoesUsuario.filter((t) => {
-      const [ano, mes] = t.data_transacao.split('T')[0].split('-').map(Number);
+      const [ano, mes] = t.dataTransacao.split('T')[0].split('-').map(Number);
       return (mes - 1) === mesAtual && ano === anoAtual;
     });
 
@@ -156,7 +253,7 @@ export const buscarGastosPorCategoria = async (
     const idsInstituicoes = instituicoesUsuario.map((i) => i.id);
     
     const transacoesUsuario = todasTransacoes.filter((t) =>
-      idsInstituicoes.includes(t.fk_instituicao) && t.tipo === 'GASTO'
+      idsInstituicoes.includes(t.fkInstituicao) && t.tipo === 'GASTO'
     );
 
     const dataAtual = new Date();
@@ -165,7 +262,7 @@ export const buscarGastosPorCategoria = async (
 
     // Filtrar transações do mês atual
     const transacoesMesAtual = transacoesUsuario.filter((t) => {
-      const dataTransacao = new Date(t.data_transacao);
+      const dataTransacao = new Date(t.dataTransacao);
       return dataTransacao.getMonth() === mesAtual && 
              dataTransacao.getFullYear() === anoAtual;
     });
@@ -173,7 +270,7 @@ export const buscarGastosPorCategoria = async (
     // Agrupar por categoria
     const gastosPorCategoria: Record<number, number> = {};
     transacoesMesAtual.forEach((t) => {
-      const categoriaId = t.fk_categoria;
+      const categoriaId = t.fkCategoria;
       gastosPorCategoria[categoriaId] = (gastosPorCategoria[categoriaId] || 0) + t.valor;
     });
 
@@ -249,7 +346,7 @@ export const buscarSaldosPorInstituicao = async (
 
     // Calcular saldo por instituição
     const saldosPorInstituicao: SaldoInstituicaoApi[] = instituicoes.map((inst) => {
-      const transacoesInst = todasTransacoes.filter((t) => t.fk_instituicao === inst.id);
+      const transacoesInst = todasTransacoes.filter((t) => t.fkInstituicao === inst.id);
       
       const receitas = transacoesInst
         .filter((t) => t.tipo === 'RECEITA')
@@ -358,7 +455,7 @@ export const buscarPrevisaoSaldo = async (
     const instituicoesUsuario = responseInstituicoes.data;
     const idsInstituicoes = instituicoesUsuario.map((i) => i.id);
     const transacoesUsuario = todasTransacoes.filter((t) =>
-      idsInstituicoes.includes(t.fk_instituicao)
+      idsInstituicoes.includes(t.fkInstituicao)
     );
 
     // Hoje às 23:59:59 — inclui tudo que aconteceu hoje
@@ -376,7 +473,7 @@ export const buscarPrevisaoSaldo = async (
 
     // 1. Saldo atual = tudo que aconteceu até hoje
     const saldoAtual = transacoesUsuario
-      .filter((t) => new Date(t.data_transacao) <= hoje)
+      .filter((t) => new Date(t.dataTransacao) <= hoje)
       .reduce((acc, t) => acc + (t.tipo === 'RECEITA' ? t.valor : -t.valor), 0);
 
     // 2. Projetar transações futuras
@@ -385,7 +482,7 @@ export const buscarPrevisaoSaldo = async (
     transacoesUsuario.forEach((t) => {
       // Extrair ano/mês/dia diretamente da string ISO para evitar conversão UTC→local
       // que causaria shift de -1 dia em fusos negativos (ex: UTC-3 Brasil)
-      const [anoOrig, mesOrig, diaOrig] = t.data_transacao.split('T')[0].split('-').map(Number);
+      const [anoOrig, mesOrig, diaOrig] = t.dataTransacao.split('T')[0].split('-').map(Number);
       const dataOrigem = new Date(anoOrig, mesOrig - 1, diaOrig); // local midnight, sem shift
       const sinal = t.tipo === 'RECEITA' ? 1 : -1;
 

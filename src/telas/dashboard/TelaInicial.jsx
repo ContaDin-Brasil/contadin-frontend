@@ -34,7 +34,13 @@ const TelaInicial = () => {
     gastosPorCategoria,
     saldosPorInstituicao,
     previsaoSaldo,
-  } = useGerenciarDashboard(1); // TODO: Pegar ID do usuário logado
+  } = useGerenciarDashboard(); // ✅ Sem parâmetro - usa user.id do contexto
+
+  console.log('[TelaInicial] Estado atual:');
+  console.log('[TelaInicial] - loading:', loading);
+  console.log('[TelaInicial] - dados:', dados);
+  console.log('[TelaInicial] - resumo:', resumo);
+  console.log('[TelaInicial] - erro:', erro);
 
   // Loading inicial
   if (loading && !dados) {
@@ -48,6 +54,7 @@ const TelaInicial = () => {
 
   // Estado de erro
   if (erro && !dados) {
+    console.log('[TelaInicial] ❌ Mostrando tela de erro');
     return (
       <View style={styles.erroContainer}>
         <Ionicons name="alert-circle-outline" size={64} color="#E31C23" />
@@ -61,6 +68,8 @@ const TelaInicial = () => {
       </View>
     );
   }
+
+  console.log('[TelaInicial] ✅ Renderizando dashboard com resumo:', resumo);
 
   return (
     <View style={styles.container}>
