@@ -179,61 +179,6 @@ export const styles = StyleSheet.create({
     borderRadius: 3,
   },
 
-  itemInstituicao: {
-    backgroundColor: COLORS.white,
-    borderRadius: 12,
-    padding: 15,
-    marginBottom: 12,
-    elevation: 1,
-    shadowColor: COLORS.black,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-  },
-  itemInstituicaoHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  itemInstituicaoIcone: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-    overflow: 'hidden',
-  },
-  itemInstituicaoTextoIcone: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: COLORS.white,
-  },
-  itemInstituicaoLogo: {
-    width: 36,
-    height: 36,
-    borderRadius: 8,
-  },
-  itemInstituicaoInfo: {
-    flex: 1,
-  },
-  itemInstituicaoNome: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: COLORS.textPrimary,
-    marginBottom: 2,
-  },
-  itemInstituicaoValor: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: COLORS.textPrimary,
-  },
-  itemInstituicaoPorcentagem: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: COLORS.textSecondary,
-  },
-
   graficoContainer: {
     backgroundColor: COLORS.white,
     borderRadius: 12,

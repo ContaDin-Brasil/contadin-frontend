@@ -253,6 +253,16 @@ export type DadosPrevisaoSaldoApi = DadosPrevisaoSaldo;
 export type DadosDashboardApi = DadosDashboard;
 
 /**
+ * Tipos para o endpoint de indicadores de transações
+ * GET /indicadores-transacoes
+ */
+export interface DashReceitaGastoResponse {
+  mes: number;
+  tipo: 'GASTO' | 'RECEITA';
+  valorTotal: number;
+}
+
+/**
  * Tipos para o serviço OCR (AI/Scan - Python endpoint)
  */
 
