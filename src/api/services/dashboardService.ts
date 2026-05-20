@@ -114,6 +114,65 @@ export const buscarResumoFinanceiroComIndicadores = async (
 };
 
 /**
+ * Busca gastos agrupados por categoria do endpoint real
+ * GET /categorias/gastos?fkUsuario=UUID&mes=M&ano=YYYY
+ * 
+ * @param usuarioId - UUID do usuário
+ * @param mes - Mês (1-12)
+ * @param ano - Ano
+ * @returns Array de categorias com gastos totais
+ */
+export const buscarGastosPorCategoriaEndpoint = async (
+  usuarioId: string,
+  mes?: number,
+  ano?: number,
+): Promise<GastoCategoriaApi[]> => {
+  try {
+    // Se não informar mês/ano, usa o atual
+    const dataAtual = new Date();
+    const mesParam = mes ?? (dataAtual.getMonth() + 1);
+    const anoParam = ano ?? dataAtual.getFullYear();
+
+    const url = `/categorias/gastos?fkUsuario=${usuarioId}&mes=${mesParam}&ano=${anoParam}`;
+    console.log('[API] Chamando endpoint de gastos por categoria:', url);
+
+    const response = await api.get<GastoCategoriaApi[]>(url);
+
+    console.log('[API] ✅ Gastos por categoria recebidos (RAW):', response.data);
+    console.log('[API] Tipo de resposta:', typeof response.data);
+    console.log('[API] É array?:', Array.isArray(response.data));
+    
+    // Mapear resposta para garantir estrutura correta
+    if (!Array.isArray(response.data)) {
+      console.error('[API] ❌ Resposta não é um array:', response.data);
+      return [];
+    }
+
+    const gastosMapeados = response.data.map((item: any) => ({
+      id: item.id || item.categoriaId || item.fkCategoria || 0,
+      nome: item.nome || item.categoriaNome || 'Sem categoria',
+      icone: item.icone || item.icon || item.categoriaMcone || 'category',
+      cor: item.cor || item.categoriaCor || '#999999',
+      valor: Number(item.valor || item.valorTotal || item.total || 0),
+      porcentagem: Number(item.porcentagem || item.percentual || 0),
+    }));
+
+    console.log('[API] ✅ Gastos por categoria MAPEADOS:', gastosMapeados);
+    return gastosMapeados;
+  } catch (error) {
+    console.error('[API] Erro ao buscar gastos por categoria:', error);
+    if (error instanceof Error) {
+      console.error('[API] Mensagem:', error.message);
+      if ((error as any).response) {
+        console.error('[API] Status HTTP:', (error as any).response.status);
+        console.error('[API] Response data:', (error as any).response.data);
+      }
+    }
+    throw error;
+  }
+};
+
+/**
  * Busca o resumo financeiro do usuário
  * Calcula saldo total, receitas e gastos do mês atual
  */

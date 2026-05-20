@@ -5,6 +5,7 @@ import {
   buscarDadosDashboard,
   buscarResumoFinanceiroComIndicadores,
   buscarGastosPorCategoria,
+  buscarGastosPorCategoriaEndpoint,
   buscarSaldosPorInstituicao,
   buscarPrevisaoSaldo,
 } from '../../../api/services/dashboardService';
@@ -33,15 +34,19 @@ export const useGerenciarDashboard = (usuarioIdProp?: number) => {
     return '1'; // Fallback apenas se nenhum ID estiver disponível
   })();
   
-  // Para compatibilidade com funções que ainda usam number
-  const usuarioId = usuarioIdProp || (user?.id ? Number(user.id) : 1);
+  // Não converter UUID para Number - gera NaN
+  // Usar sempre string para cache e parâmetros
+  const usuarioId = usuarioIdString;
+  
+  // Para funções legadas que ainda esperam number, usar hash simples da string ou fallback
+  const usuarioIdNumero = usuarioIdProp || 1; // Se houver prop number, usar; senão fallback
   
   console.log('[Dashboard] ══════════════════════════════════════════');
   console.log('[Dashboard] Hook inicializado');
   console.log('[Dashboard] user:', user);
   console.log('[Dashboard] user?.id:', user?.id, '| tipo:', typeof user?.id);
-  console.log('[Dashboard] usuarioIdProp:', usuarioIdProp);
   console.log('[Dashboard] usuarioIdString (USADO NO ENDPOINT):', usuarioIdString);
+  console.log('[Dashboard] usuarioIdNumero (para funções legadas):', usuarioIdNumero);
   console.log('[Dashboard] ══════════════════════════════════════════');
   
   const [dados, setDados] = useState<DadosDashboard | null>(null);
@@ -99,29 +104,61 @@ export const useGerenciarDashboard = (usuarioIdProp?: number) => {
       
       // Para os outros dados, usar mock ou real baseado em USAR_MOCK_DASHBOARD
       if (USAR_MOCK_DASHBOARD) {
-        // Usar mock para dados auxiliares (gráficos, categorias, etc)
-        // E usar saldoTotal do mock (mas KPIs de receita/gasto são reais)
-        console.log('[Dashboard] Usando dados MOCK para gráficos/categorias/saldoTotal');
+        // Usar mock para dados auxiliares (gráficos, saldos, etc)
+        // MAS SEMPRE busca gastos por categoria do endpoint real
+        console.log('[Dashboard] Usando dados MOCK para gráficos/saldos/saldoTotal');
         const dadosMock = buildMockDashboardData();
-        gastosPorCategoria = dadosMock.gastosPorCategoria;
         saldosPorInstituicao = dadosMock.saldosPorInstituicao;
         previsaoSaldo = dadosMock.previsaoSaldo;
         
-        // Manter saldoTotal do mock, mas usar receita/gasto reais
+        // Manter saldoTotal do mock
         resumoMelhorado.saldoTotal = dadosMock.resumo.saldoTotal;
+        
+        // MAS buscar gastos por categoria do endpoint real
+        try {
+          console.log('[Dashboard] Buscando gastos por categoria do endpoint real...');
+          const dataAtual = new Date();
+          console.log('[Dashboard] Parâmetros: usuarioIdString=', usuarioIdString, 'mês=', dataAtual.getMonth() + 1, 'ano=', dataAtual.getFullYear());
+          
+          gastosPorCategoria = await buscarGastosPorCategoriaEndpoint(
+            usuarioIdString,
+            dataAtual.getMonth() + 1,
+            dataAtual.getFullYear()
+          );
+          
+          console.log('[Dashboard] ✅ Gastos por categoria reais carregados - tipo:', typeof gastosPorCategoria);
+          console.log('[Dashboard] ✅ Array length:', (gastosPorCategoria || []).length);
+          console.log('[Dashboard] ✅ Raw array:', gastosPorCategoria);
+        } catch (err) {
+          console.warn('[Dashboard] ⚠️  Erro ao buscar gastos por categoria (usando mock como fallback):', err);
+          console.warn('[Dashboard] Error details:', (err as any)?.response?.data || (err as any)?.message);
+          gastosPorCategoria = dadosMock.gastosPorCategoria; // Fallback para mock
+          console.log('[Dashboard] Usando mock - tamanho:', gastosPorCategoria.length);
+        }
       } else {
         // Buscar dados reais em paralelo (com tratamento individual de erros)
         try {
-          console.log('[Dashboard] Buscando gastos por categoria...');
-          gastosPorCategoria = await buscarGastosPorCategoria(usuarioId);
-          console.log('[Dashboard] ✅ Gastos por categoria carregados:', gastosPorCategoria.length, 'itens');
+          console.log('[Dashboard] Buscando gastos por categoria do endpoint real...');
+          const dataAtual = new Date();
+          console.log('[Dashboard] Parâmetros: usuarioIdString=', usuarioIdString, 'mês=', dataAtual.getMonth() + 1, 'ano=', dataAtual.getFullYear());
+          
+          gastosPorCategoria = await buscarGastosPorCategoriaEndpoint(
+            usuarioIdString,
+            dataAtual.getMonth() + 1,
+            dataAtual.getFullYear()
+          );
+          
+          console.log('[Dashboard] ✅ Gastos por categoria carregados - tipo:', typeof gastosPorCategoria);
+          console.log('[Dashboard] ✅ Array length:', (gastosPorCategoria || []).length);
+          console.log('[Dashboard] ✅ Raw array:', gastosPorCategoria);
         } catch (err) {
           console.warn('[Dashboard] ⚠️  Erro ao buscar gastos por categoria:', err);
+          console.warn('[Dashboard] Error details:', (err as any)?.response?.data || (err as any)?.message);
         }
 
         try {
           console.log('[Dashboard] Buscando saldos por instituição...');
-          saldosPorInstituicao = await buscarSaldosPorInstituicao(usuarioId);
+          saldosPorInstituicao = await buscarSaldosPorInstituicao(usuarioIdNumero);
           console.log('[Dashboard] ✅ Saldos por instituição carregados:', saldosPorInstituicao.length, 'itens');
         } catch (err) {
           console.warn('[Dashboard] ⚠️  Erro ao buscar saldos por instituição:', err);
@@ -129,17 +166,28 @@ export const useGerenciarDashboard = (usuarioIdProp?: number) => {
 
         try {
           console.log('[Dashboard] Buscando previsão de saldo...');
-          previsaoSaldo = await buscarPrevisaoSaldo(usuarioId);
+          previsaoSaldo = await buscarPrevisaoSaldo(usuarioIdNumero);
           console.log('[Dashboard] ✅ Previsão de saldo carregada');
         } catch (err) {
           console.warn('[Dashboard] ⚠️  Erro ao buscar previsão de saldo:', err);
         }
       }
 
+      // Validar e limpar dados - remover items com valor 0 ou inválido
+      const gastosPorCategoriaLimpo = (gastosPorCategoria || []).filter(
+        (item) => item && item.valor && item.valor > 0 // Apenas items com valor > 0
+      );
+      
+      console.log('[Dashboard] Gastos por categoria antes da limpeza:', gastosPorCategoria?.length || 0, 'itens');
+      console.log('[Dashboard] Gastos por categoria após limpeza (valor > 0):', gastosPorCategoriaLimpo.length, 'itens');
+      if (gastosPorCategoriaLimpo.length > 0) {
+        console.log('[Dashboard] Primeiro item após limpeza:', gastosPorCategoriaLimpo[0]);
+      }
+
       // Montar o objeto completo (resumo real + dados auxiliares)
       const dadosApi: DadosDashboard = {
         resumo: resumoMelhorado, // Sempre real
-        gastosPorCategoria,
+        gastosPorCategoria: gastosPorCategoriaLimpo,
         saldosPorInstituicao,
         previsaoSaldo,
       };
@@ -170,7 +218,7 @@ export const useGerenciarDashboard = (usuarioIdProp?: number) => {
       // Fallback para buscar dados da forma tradicional (se o novo endpoint falhar)
       try {
         console.warn('[Dashboard] Tentando fallback para buscarDadosDashboard...');
-        const dadosFallback = await buscarDadosDashboard(usuarioId);
+        const dadosFallback = await buscarDadosDashboard(usuarioIdNumero);
         console.log('[Dashboard] ✅ Fallback retornou dados:', dadosFallback);
         setDados(dadosFallback);
         await setCache(`${CACHE_KEYS.RESUMO}:${usuarioId}`, dadosFallback, CACHE_TTL.RESUMO);
@@ -276,7 +324,11 @@ export const useGerenciarDashboard = (usuarioIdProp?: number) => {
       console.log('[Dashboard] RENDERIZAÇÃO - resumo:', dados?.resumo);
       return dados?.resumo;
     })(),
-    gastosPorCategoria: dados?.gastosPorCategoria || [],
+    gastosPorCategoria: (() => {
+      console.log('[Dashboard] RENDERIZAÇÃO - gastosPorCategoria:', dados?.gastosPorCategoria);
+      console.log('[Dashboard] - Array length:', (dados?.gastosPorCategoria || []).length);
+      return dados?.gastosPorCategoria || [];
+    })(),
     saldosPorInstituicao: dados?.saldosPorInstituicao || [],
     previsaoSaldo: dados?.previsaoSaldo,
   };
