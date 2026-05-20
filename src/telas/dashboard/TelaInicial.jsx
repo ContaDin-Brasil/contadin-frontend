@@ -7,19 +7,18 @@ import {
   ActivityIndicator,
   TouchableOpacity
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { styles } from './styles/TelaInicial.styles';
 import { useAuth } from '../../contexts/AuthContext';
 import { useGerenciarDashboard } from './hooks/useGerenciarDashboard';
 import { CardResumo } from './components/CardResumo';
 import { ItemCategoria } from './components/ItemCategoria';
-import { ItemInstituicao } from './components/ItemInstituicao';
-import { GraficoPrevisaoSaldo } from './components/GraficoPrevisaoSaldo';
 import { GraficoSaldoDiario } from './components/GraficoSaldoDiario';
-import { ModalGraficoPizza } from './components/ModalGraficoPizza';
+import { ModalGraficoCategorias } from './components/ModalGraficoCategorias';
 
 const TelaInicial = () => {
-  const [modalPizzaVisible, setModalPizzaVisible] = useState(false);
+  const [modalGraficoCategoriasVisible, setModalGraficoCategoriasVisible] = useState(false);
   const { user } = useAuth();
 
   const {
@@ -32,9 +31,14 @@ const TelaInicial = () => {
     formatarMoeda,
     resumo,
     gastosPorCategoria,
-    saldosPorInstituicao,
-    previsaoSaldo,
-  } = useGerenciarDashboard(1); // TODO: Pegar ID do usuário logado
+  } = useGerenciarDashboard(); // ✅ Sem parâmetro - usa user.id do contexto
+
+  // Atualizar dados quando a tela recebe foco
+  useFocusEffect(
+    React.useCallback(() => {
+      atualizarDados();
+    }, [atualizarDados])
+  );
 
   // Loading inicial
   if (loading && !dados) {
@@ -82,11 +86,8 @@ const TelaInicial = () => {
           <View style={styles.headerTop}>
             <View style={styles.saudacao}>
               <Text style={styles.saudacaoTexto}>{obterSaudacao()},</Text>
-              <Text style={styles.nomeUsuario}>João</Text>
+              <Text style={styles.nomeUsuario}>{user?.nome || 'Usuário'}</Text>
             </View>
-            <TouchableOpacity style={styles.iconeNotificacao}>
-              <Ionicons name="notifications-outline" size={28} color="#FFFFFF" />
-            </TouchableOpacity>
           </View>
 
           <View style={styles.saldoTotal}>
@@ -115,41 +116,26 @@ const TelaInicial = () => {
         {/* Gastos por Categoria */}
         <View style={styles.secao}>
           <Text style={styles.secaoTitulo}>Gastos por Categoria</Text>
-          {gastosPorCategoria.length > 0 ? (
-            gastosPorCategoria.map((categoria) => (
-              <ItemCategoria 
-                key={categoria.id}
-                categoria={categoria}
-                formatarMoeda={formatarMoeda}
-              />
-            ))
-          ) : (
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyTexto}>Nenhum gasto registrado neste mês</Text>
-            </View>
-          )}
+          {(() => {
+            if (gastosPorCategoria && gastosPorCategoria.length > 0) {
+              return gastosPorCategoria.map((categoria) => (
+                <ItemCategoria 
+                  key={categoria.id}
+                  categoria={categoria}
+                  formatarMoeda={formatarMoeda}
+                  onPress={categoria.valor > 0 ? () => setModalGraficoCategoriasVisible(true) : undefined}
+                />
+              ));
+            }
+            return (
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyTexto}>Nenhum gasto registrado neste mês</Text>
+              </View>
+            );
+          })()}
         </View>
 
-        {/* Saldo por Instituição - exibe top 3 */}
-        <View style={styles.secao}>
-          <Text style={styles.secaoTitulo}>Saldo por Instituição</Text>
-          {saldosPorInstituicao.length > 0 ? (
-            saldosPorInstituicao.slice(0, 3).map((instituicao) => (
-              <ItemInstituicao 
-                key={instituicao.id}
-                instituicao={instituicao}
-                formatarMoeda={formatarMoeda}
-                onPress={instituicao.valor > 0 ? () => setModalPizzaVisible(true) : undefined}
-              />
-            ))
-          ) : (
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyTexto}>Nenhuma instituição com saldo</Text>
-            </View>
-          )}
-        </View>
-
-        {/* Saldo Diário - dados reais do back-end */}
+        {/* Saldo Diário */}
         {user?.id && (
           <View style={styles.secao}>
             <GraficoSaldoDiario
@@ -159,22 +145,14 @@ const TelaInicial = () => {
           </View>
         )}
 
-        {/* Previsão de Saldo */}
-        {previsaoSaldo && (
-          <View style={styles.secao}>
-            <GraficoPrevisaoSaldo
-              dados={previsaoSaldo}
-              formatarMoeda={formatarMoeda}
-            />
-          </View>
-        )}
+
 
       </ScrollView>
 
-      <ModalGraficoPizza
-        visible={modalPizzaVisible}
-        onClose={() => setModalPizzaVisible(false)}
-        dados={saldosPorInstituicao}
+      <ModalGraficoCategorias
+        visible={modalGraficoCategoriasVisible}
+        onClose={() => setModalGraficoCategoriasVisible(false)}
+        dados={gastosPorCategoria}
         formatarMoeda={formatarMoeda}
       />
     </View>

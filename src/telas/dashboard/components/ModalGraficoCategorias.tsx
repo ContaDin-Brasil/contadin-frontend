@@ -2,33 +2,33 @@ import React from 'react';
 import { Modal, View, Text, TouchableOpacity, FlatList } from 'react-native';
 import { PieChart } from 'react-native-gifted-charts';
 import { MaterialIcons } from '@expo/vector-icons';
-import type { SaldoInstituicao } from '../types/dashboard.types';
+import type { GastoCategoria } from '../types/dashboard.types';
 import { styles } from '../styles/TelaInicial.styles';
 
 
-interface ModalGraficoPizzaProps {
+interface ModalGraficoCategoriaProps {
   visible: boolean;
   onClose: () => void;
-  dados: SaldoInstituicao[];
+  dados: GastoCategoria[];
   formatarMoeda: (valor: number) => string;
 }
 
-export const ModalGraficoPizza: React.FC<ModalGraficoPizzaProps> = ({
+export const ModalGraficoCategorias: React.FC<ModalGraficoCategoriaProps> = ({
   visible,
   onClose,
   dados,
   formatarMoeda,
 }) => {
-  // Filtra apenas instituições com saldo positivo para o gráfico
-  const dadosPositivos = dados.filter(inst => inst.valor > 0);
+  // Filtra apenas categorias com gasto positivo para o gráfico
+  const dadosPositivos = dados.filter(cat => cat.valor > 0);
 
-  const totalPositivo = dadosPositivos.reduce((acc, inst) => acc + inst.valor, 0);
+  const totalPositivo = dadosPositivos.reduce((acc, cat) => acc + cat.valor, 0);
 
-  const dadosPizza = dadosPositivos.map(inst => {
-    const pct = Math.round((inst.valor / totalPositivo) * 100);
+  const dadosPizza = dadosPositivos.map(cat => {
+    const pct = Math.round((cat.valor / totalPositivo) * 100);
     return {
-      value: inst.valor,
-      color: inst.cor || '#999999',
+      value: cat.valor,
+      color: cat.cor || '#999999',
       // Só exibe texto na fatia se tiver espaço suficiente (>= 8%)
       text: pct >= 8 ? `${pct}%` : '',
       textColor: '#FFFFFF',
@@ -37,9 +37,9 @@ export const ModalGraficoPizza: React.FC<ModalGraficoPizzaProps> = ({
   });
 
   // Se não houver dados positivos, usa todos
-  const dadosExibir = dadosPizza.length > 0 ? dadosPizza : dados.map(inst => ({
-    value: Math.abs(inst.valor) || 1,
-    color: inst.cor || '#999999',
+  const dadosExibir = dadosPizza.length > 0 ? dadosPizza : dados.map(cat => ({
+    value: Math.abs(cat.valor) || 1,
+    color: cat.cor || '#999999',
     text: '',
     textColor: '#FFFFFF',
     textSize: 12,
@@ -60,7 +60,7 @@ export const ModalGraficoPizza: React.FC<ModalGraficoPizzaProps> = ({
             <MaterialIcons name="close" size={24} color="#333333" />
           </TouchableOpacity>
 
-          <Text style={styles.titleStyle}>Saldo por Instituição</Text>
+          <Text style={styles.titleStyle}>Gastos por Categoria</Text>
 
           <View style={styles.chartWrapperStyle}>
             <PieChart
@@ -76,19 +76,19 @@ export const ModalGraficoPizza: React.FC<ModalGraficoPizzaProps> = ({
           </View>
 
           <View style={styles.legendaGridStyle}>
-            {legendaItens.map(inst => {
+            {legendaItens.map(cat => {
               const pct = totalPositivo > 0
-                ? Math.round((inst.valor / totalPositivo) * 100)
+                ? Math.round((cat.valor / totalPositivo) * 100)
                 : 0;
               return (
-                <View key={inst.id} style={styles.legendaItemStyle}>
-                  <View style={[styles.legendaCorStyle, { backgroundColor: inst.cor || '#999999' }]} />
+                <View key={cat.id} style={styles.legendaItemStyle}>
+                  <View style={[styles.legendaCorStyle, { backgroundColor: cat.cor || '#999999' }]} />
                   <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                      <Text style={styles.legendaNomeStyle} numberOfLines={1}>{inst.nome}</Text>
+                      <Text style={styles.legendaNomeStyle} numberOfLines={1}>{cat.nome}</Text>
                       <Text style={styles.legendaPctStyle}>{pct}%</Text>
                     </View>
-                    <Text style={styles.legendaValorStyle}>{formatarMoeda(inst.valor)}</Text>
+                    <Text style={styles.legendaValorStyle}>{formatarMoeda(cat.valor)}</Text>
                   </View>
                 </View>
               );
@@ -99,4 +99,3 @@ export const ModalGraficoPizza: React.FC<ModalGraficoPizzaProps> = ({
     </Modal>
   );
 };
-
