@@ -1,23 +1,26 @@
 import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  ScrollView, 
-  RefreshControl, 
-  ActivityIndicator, 
-  TouchableOpacity 
+import {
+  View,
+  Text,
+  ScrollView,
+  RefreshControl,
+  ActivityIndicator,
+  TouchableOpacity
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { styles } from './styles/TelaInicial.styles';
+import { useAuth } from '../../contexts/AuthContext';
 import { useGerenciarDashboard } from './hooks/useGerenciarDashboard';
 import { CardResumo } from './components/CardResumo';
 import { ItemCategoria } from './components/ItemCategoria';
 import { ItemInstituicao } from './components/ItemInstituicao';
 import { GraficoPrevisaoSaldo } from './components/GraficoPrevisaoSaldo';
+import { GraficoSaldoDiario } from './components/GraficoSaldoDiario';
 import { ModalGraficoPizza } from './components/ModalGraficoPizza';
 
 const TelaInicial = () => {
   const [modalPizzaVisible, setModalPizzaVisible] = useState(false);
+  const { user } = useAuth();
 
   const {
     dados,
@@ -145,6 +148,16 @@ const TelaInicial = () => {
             </View>
           )}
         </View>
+
+        {/* Saldo Diário - dados reais do back-end */}
+        {user?.id && (
+          <View style={styles.secao}>
+            <GraficoSaldoDiario
+              usuarioId={user.id}
+              formatarMoeda={formatarMoeda}
+            />
+          </View>
+        )}
 
         {/* Previsão de Saldo */}
         {previsaoSaldo && (

@@ -154,6 +154,7 @@ export interface TransacaoPayload {
   tipo: TransactionType;
   dataTransacao: string;
   parcelado: boolean;
+  qtdParcelas?: number | null;
   recorrencia?: FrequencyType | null;
   fimRecorrencia?: string | null;
   ativo?: boolean;

@@ -9,6 +9,7 @@ import type {
   SaldoInstituicaoApi,
   TransacaoApi,
 } from '../types';
+import type { SaldoDiario } from '../../telas/dashboard/types/dashboard.types';
 
 type ProjecaoFutura = {
   data: Date;
@@ -455,6 +456,22 @@ export const buscarPrevisaoSaldo = async (
     console.error('Erro ao buscar previsão de saldo:', error);
     throw error;
   }
+};
+
+/**
+ * Busca saldo diário consolidado do usuário no período informado.
+ * Endpoint: GET /saldo/consolidado/{fkUsuario}?dataInicio=YYYY-MM-DD&dataFim=YYYY-MM-DD
+ */
+export const buscarSaldoDiario = async (
+  usuarioId: string | number,
+  dataInicio: string,
+  dataFim: string,
+): Promise<SaldoDiario[]> => {
+  const response = await api.get<SaldoDiario[]>(
+    `/saldo/consolidado/${usuarioId}`,
+    { params: { dataInicio, dataFim } },
+  );
+  return response.data;
 };
 
 /**
