@@ -1,0 +1,68 @@
+{
+  "bem_vindo": "Welcome to Contadin!",
+  "boa_noite": "Good evening",
+  "mudar_idioma": "Idioma",
+  "faq": {
+    "faq-01": {
+      "pergunta": "How do I register my first transaction?",
+      "resposta": "Go to Transactions, tap the + button, and fill in description, amount, type, institution, and category. Then tap Save. If there is no institution or category, create one first in Wallet or Categories."
+    },
+    "faq-02": {
+      "pergunta": "How do I edit or delete an expense?",
+      "resposta": "Open Transactions, tap the item you wish to edit. On the edit screen you can update the fields and save, or delete the transaction."
+    },
+    "faq-03": {
+      "pergunta": "How do I filter transactions to find an entry quickly?",
+      "resposta": "Use the text search at the top of the transactions screen and combine it with filters for type, institution, category, amount, and period. You can also sort by date, amount, and alphabetical order."
+    },
+    "faq-04": {
+      "pergunta": "What is the difference between recurring and instalment transactions?",
+      "resposta": "Recurring repeats automatically on a schedule (daily, weekly, monthly, or yearly). Instalment splits a purchase into several payments. In the form, the two options are mutually exclusive to avoid conflicts."
+    },
+    "faq-05": {
+      "pergunta": "Why can't I save a transaction?",
+      "resposta": "Required fields are description, amount, institution, and category. Also ensure the amount is greater than zero and the date is complete in dd/mm/yyyy format."
+    },
+    "faq-06": {
+      "pergunta": "How do I add banks and vouchers to the wallet?",
+      "resposta": "Open Wallet and use Add under Bank Accounts or Vouchers. You can choose default institutions or register a custom one with name, colour, and icon."
+    },
+    "faq-07": {
+      "pergunta": "How do I create and organise categories?",
+      "resposta": "Go to Categories to create, edit, and delete. Use EXPENSE categories for spending, INCOME for inflows, and GLOBAL for categories that can appear in both types."
+    },
+    "faq-08": {
+      "pergunta": "How do I use a photo to fill a transaction with AI?",
+      "resposta": "On the Add Transaction screen, tap Photo, choose camera or gallery, and wait for the suggestion. You can accept the suggested data or discard it and fill in manually."
+    },
+    "faq-09": {
+      "pergunta": "How does the wallet balance work?",
+      "resposta": "Each institution's balance is calculated automatically: sum of income minus sum of expenses linked to that institution."
+    },
+    "faq-10": {
+      "pergunta": "Which files are accepted for import?",
+      "resposta": "Import accepts .xlsx, .xls, and .csv files. If the file is not in these formats, the app shows an invalid file alert."
+    },
+    "faq-11": {
+      "pergunta": "Do I need institutions and categories registered beforehand?",
+      "resposta": "Yes, it is recommended. The app tries to link automatically to what already exists. If an institution or category from the spreadsheet is missing, you can register it on the review screen."
+    },
+    "faq-12": {
+      "pergunta": "What does a pending transaction mean in import?",
+      "resposta": "Pending means a required field is missing (description, amount, date, institution, or category). Open the transaction card, adjust the fields, and mark it to save."
+    },
+    "faq-13": {
+      "pergunta": "Can I save only some of the imported transactions?",
+      "resposta": "Yes. You review item by item and choose which to submit. At the end, the app shows how many transactions were created and how many failed confirmation."
+    },
+    "faq-14": {
+      "pergunta": "How do I recover my password?",
+      "resposta": "On the login screen, use Forgot my password. Enter your email, validate the code you receive, and set a new password following the app's security requirements."
+    }
+  },
+  "ajuda": {
+    "titulo": "Help and Contact",
+    "idioma_modal": "FAQ language",
+    "selecionar_idioma": "Select FAQ language"
+  }
+}

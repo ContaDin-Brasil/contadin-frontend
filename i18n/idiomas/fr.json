@@ -1,0 +1,68 @@
+{
+  "bem_vindo": "Contadin",
+  "boa_noite": "Good evening",
+  "mudar_idioma": "Idioma",
+  "faq": {
+    "faq-01": {
+      "pergunta": "Comment enregistrer ma première transaction ?",
+      "resposta": "Allez dans Transactions, appuyez sur +, remplissez description, montant, type, institution et catégorie. Puis appuyez sur Enregistrer. S'il manque une institution ou une catégorie, créez-les d'abord dans Portefeuille ou Catégories."
+    },
+    "faq-02": {
+      "pergunta": "Comment modifier ou supprimer une dépense ?",
+      "resposta": "Ouvrez Transactions, appuyez sur l'élément souhaité. Sur l'écran d'édition, mettez à jour les champs et enregistrez, ou supprimez la transaction."
+    },
+    "faq-03": {
+      "pergunta": "Comment filtrer les transactions pour trouver rapidement une écriture ?",
+      "resposta": "Utilisez la recherche textuelle en haut de l'écran Transactions et combinez-la avec les filtres type, institution, catégorie, montant et période. Vous pouvez aussi trier par date, montant et ordre alphabétique."
+    },
+    "faq-04": {
+      "pergunta": "Quelle est la différence entre transaction récurrente et échelonnée ?",
+      "resposta": "Récurrente se répète automatiquement (quotidienne, hebdomadaire, mensuelle ou annuelle). Échelonnée divise un achat en plusieurs versements. Dans le formulaire, les deux options sont exclusives."
+    },
+    "faq-05": {
+      "pergunta": "Pourquoi ne puis-je pas enregistrer une transaction ?",
+      "resposta": "Les champs obligatoires sont description, montant, institution et catégorie. Vérifiez aussi que le montant est supérieur à zéro et que la date est complète au format jj/mm/aaaa."
+    },
+    "faq-06": {
+      "pergunta": "Comment ajouter des banques et des bons dans le portefeuille ?",
+      "resposta": "Ouvrez Portefeuille et utilisez Ajouter dans Comptes bancaires ou Bons. Vous pouvez choisir des institutions par défaut ou en créer une personnalisée avec nom, couleur et icône."
+    },
+    "faq-07": {
+      "pergunta": "Comment créer et organiser les catégories ?",
+      "resposta": "Accédez à Catégories pour créer, modifier et supprimer. Utilisez DÉPENSE pour les sorties, REVENU pour les entrées et GLOBAL pour les deux types."
+    },
+    "faq-08": {
+      "pergunta": "Comment utiliser une photo pour remplir une transaction avec l'IA ?",
+      "resposta": "Sur l'écran Ajouter une transaction, appuyez sur Photo, choisissez appareil photo ou galerie et attendez la suggestion. Acceptez les données ou remplissez manuellement."
+    },
+    "faq-09": {
+      "pergunta": "Comment fonctionne le solde du portefeuille ?",
+      "resposta": "Le solde de chaque institution est calculé automatiquement : somme des revenus moins somme des dépenses liées à cette institution."
+    },
+    "faq-10": {
+      "pergunta": "Quels fichiers sont acceptés à l'import ?",
+      "resposta": "L'import accepte les fichiers .xlsx, .xls et .csv. Sinon, l'application affiche une alerte de fichier invalide."
+    },
+    "faq-11": {
+      "pergunta": "Dois-je avoir des institutions et catégories enregistrées avant ?",
+      "resposta": "Oui, c'est recommandé. L'app tente de lier automatiquement à l'existant. S'il manque une institution ou catégorie détectée, vous pouvez l'enregistrer à l'écran de révision."
+    },
+    "faq-12": {
+      "pergunta": "Que signifie une transaction en attente à l'import ?",
+      "resposta": "En attente signifie qu'un champ obligatoire manque (description, montant, date, institution ou catégorie). Ouvrez la carte, ajustez et marquez pour enregistrer."
+    },
+    "faq-13": {
+      "pergunta": "Puis-je enregistrer seulement une partie des transactions importées ?",
+      "resposta": "Oui. Vous révisez élément par élément et choisissez lesquels envoyer. À la fin, l'app indique combien ont été créées et combien ont échoué."
+    },
+    "faq-14": {
+      "pergunta": "Comment récupérer mon mot de passe ?",
+      "resposta": "Sur l'écran de connexion, utilisez Mot de passe oublié. Saisissez votre e-mail, validez le code reçu et définissez un nouveau mot de passe selon les exigences de sécurité."
+    }
+  },
+  "ajuda": {
+    "titulo": "Aide et contact",
+    "idioma_modal": "Langue de la FAQ",
+    "selecionar_idioma": "Choisir la langue de la FAQ"
+  }
+}

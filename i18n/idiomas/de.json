@@ -1,0 +1,68 @@
+{
+  "bem_vindo": "Contadin",
+  "boa_noite": "Good evening",
+  "mudar_idioma": "Idioma",
+  "faq": {
+    "faq-01": {
+      "pergunta": "Wie registriere ich meine erste Transaktion?",
+      "resposta": "Gehen Sie zu Transaktionen, tippen Sie auf +, und füllen Sie Beschreibung, Betrag, Typ, Institut und Kategorie aus. Dann auf Speichern tippen. Fehlt Institut oder Kategorie, legen Sie diese zuerst in Wallet oder Kategorien an."
+    },
+    "faq-02": {
+      "pergunta": "Wie bearbeite oder lösche ich eine Ausgabe?",
+      "resposta": "Öffnen Sie Transaktionen, tippen Sie auf den gewünschten Eintrag. Im Bearbeitungsbildschirm können Sie Felder aktualisieren und speichern oder die Transaktion löschen."
+    },
+    "faq-03": {
+      "pergunta": "Wie filtere ich Transaktionen, um einen Eintrag schnell zu finden?",
+      "resposta": "Nutzen Sie die Textsuche oben und kombinieren Sie sie mit Filtern für Typ, Institut, Kategorie, Betrag und Zeitraum. Sie können auch nach Datum, Betrag und Alphabet sortieren."
+    },
+    "faq-04": {
+      "pergunta": "Was ist der Unterschied zwischen wiederkehrend und Ratenzahlung?",
+      "resposta": "Wiederkehrend wiederholt sich automatisch (täglich, wöchentlich, monatlich oder jährlich). Ratenzahlung teilt einen Kauf in mehrere Raten. Im Formular sind beide Optionen gegenseitig ausgeschlossen."
+    },
+    "faq-05": {
+      "pergunta": "Warum kann ich keine Transaktion speichern?",
+      "resposta": "Pflichtfelder sind Beschreibung, Betrag, Institut und Kategorie. Prüfen Sie auch, ob der Betrag größer als null ist und das Datum vollständig im Format TT/MM/JJJJ ist."
+    },
+    "faq-06": {
+      "pergunta": "Wie füge ich Banken und Gutscheine zur Wallet hinzu?",
+      "resposta": "Öffnen Sie Wallet und nutzen Sie Hinzufügen unter Bankkonten oder Gutscheinen. Sie können Standardinstitute wählen oder ein eigenes mit Name, Farbe und Symbol anlegen."
+    },
+    "faq-07": {
+      "pergunta": "Wie erstelle und organisiere ich Kategorien?",
+      "resposta": "Gehen Sie zu Kategorien zum Erstellen, Bearbeiten und Löschen. Nutzen Sie AUSGABE für Ausgaben, EINNAHME für Eingänge und GLOBAL für beide Typen."
+    },
+    "faq-08": {
+      "pergunta": "Wie nutze ich ein Foto zum Ausfüllen einer Transaktion mit KI?",
+      "resposta": "Auf dem Bildschirm Transaktion hinzufügen tippen Sie auf Foto, wählen Kamera oder Galerie und warten auf den Vorschlag. Sie können die Daten übernehmen oder manuell eingeben."
+    },
+    "faq-09": {
+      "pergunta": "Wie funktioniert der Wallet-Saldo?",
+      "resposta": "Der Saldo jedes Instituts wird automatisch berechnet: Summe der Einnahmen minus Summe der mit diesem Institut verknüpften Ausgaben."
+    },
+    "faq-10": {
+      "pergunta": "Welche Dateien werden beim Import akzeptiert?",
+      "resposta": "Der Import akzeptiert .xlsx-, .xls- und .csv-Dateien. Bei anderen Formaten zeigt die App eine Warnung für ungültige Dateien."
+    },
+    "faq-11": {
+      "pergunta": "Brauche ich vorher registrierte Institute und Kategorien?",
+      "resposta": "Ja, das wird empfohlen. Die App versucht automatisch zu verknüpfen. Fehlt ein Institut oder eine Kategorie in der Tabelle, können Sie es auf dem Überprüfungsbildschirm anlegen."
+    },
+    "faq-12": {
+      "pergunta": "Was bedeutet ausstehende Transaktion beim Import?",
+      "resposta": "Ausstehend bedeutet, dass ein Pflichtfeld fehlt (Beschreibung, Betrag, Datum, Institut oder Kategorie). Öffnen Sie die Karte, passen Sie die Felder an und markieren Sie zum Speichern."
+    },
+    "faq-13": {
+      "pergunta": "Kann ich nur einen Teil der importierten Transaktionen speichern?",
+      "resposta": "Ja. Sie prüfen Eintrag für Eintrag und wählen, welche gesendet werden. Am Ende zeigt die App, wie viele erstellt wurden und wie viele fehlgeschlagen sind."
+    },
+    "faq-14": {
+      "pergunta": "Wie stelle ich mein Passwort wieder her?",
+      "resposta": "Auf dem Anmeldebildschirm Passwort vergessen verwenden. E-Mail eingeben, Code bestätigen und ein neues Passwort gemäß den Sicherheitsanforderungen festlegen."
+    }
+  },
+  "ajuda": {
+    "titulo": "Hilfe und Kontakt",
+    "idioma_modal": "FAQ-Sprache",
+    "selecionar_idioma": "FAQ-Sprache auswählen"
+  }
+}

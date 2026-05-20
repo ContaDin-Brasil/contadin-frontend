@@ -1,0 +1,68 @@
+{
+  "bem_vindo": "Contadin",
+  "boa_noite": "Good evening",
+  "mudar_idioma": "Idioma",
+  "faq": {
+    "faq-01": {
+      "pergunta": "¿Cómo registro mi primera transacción?",
+      "resposta": "Ve a Transacciones, pulsa el botón +, rellena descripción, importe, tipo, institución y categoría. Después pulsa Guardar. Si no hay institución o categoría, créalas antes en Cartera o Categorías."
+    },
+    "faq-02": {
+      "pergunta": "¿Cómo edito o elimino un gasto?",
+      "resposta": "Abre Transacciones, pulsa el elemento deseado para editar. En la pantalla de edición puedes actualizar los campos y guardar, o eliminar la transacción."
+    },
+    "faq-03": {
+      "pergunta": "¿Cómo filtro transacciones para encontrar un apunte rápido?",
+      "resposta": "Usa la búsqueda de texto en la parte superior y combínala con filtros por tipo, institución, categoría, importe y periodo. También puedes ordenar por fecha, importe y orden alfabético."
+    },
+    "faq-04": {
+      "pergunta": "¿Cuál es la diferencia entre transacción recurrente y fraccionada?",
+      "resposta": "Recurrente se repite automáticamente (diaria, semanal, mensual o anual). Fraccionada divide una compra en varios plazos. En el formulario, las dos opciones son excluyentes."
+    },
+    "faq-05": {
+      "pergunta": "¿Por qué no puedo guardar una transacción?",
+      "resposta": "Los campos obligatorios son descripción, importe, institución y categoría. Comprueba que el importe sea mayor que cero y la fecha esté completa en formato dd/mm/aaaa."
+    },
+    "faq-06": {
+      "pergunta": "¿Cómo añado bancos y vales en la cartera?",
+      "resposta": "Abre Cartera y usa Añadir en Cuentas bancarias o Vales. Puedes elegir instituciones predeterminadas o registrar una personalizada con nombre, color e icono."
+    },
+    "faq-07": {
+      "pergunta": "¿Cómo creo y organizo categorías?",
+      "resposta": "Accede a Categorías para crear, editar y eliminar. Usa GASTO para gastos, INGRESO para entradas y GLOBAL para ambos tipos."
+    },
+    "faq-08": {
+      "pergunta": "¿Cómo uso una foto para rellenar una transacción con IA?",
+      "resposta": "En Añadir transacción, pulsa Foto, elige cámara o galería y espera la sugerencia. Puedes aceptar los datos o descartarlos y rellenar manualmente."
+    },
+    "faq-09": {
+      "pergunta": "¿Cómo funciona el saldo en la cartera?",
+      "resposta": "El saldo de cada institución se calcula automáticamente: suma de ingresos menos suma de gastos vinculados a esa institución."
+    },
+    "faq-10": {
+      "pergunta": "¿Qué archivos acepta la importación?",
+      "resposta": "La importación acepta .xlsx, .xls y .csv. Si el archivo no tiene esos formatos, la app muestra una alerta de archivo no válido."
+    },
+    "faq-11": {
+      "pergunta": "¿Necesito instituciones y categorías registradas antes?",
+      "resposta": "Sí, es recomendable. La app intenta vincular automáticamente con lo existente. Si falta institución o categoría en la hoja, puedes registrarla en la pantalla de revisión."
+    },
+    "faq-12": {
+      "pergunta": "¿Qué significa transacción pendiente en la importación?",
+      "resposta": "Pendiente significa que falta un campo obligatorio (descripción, importe, fecha, institución o categoría). Abre la tarjeta, ajusta los campos y márcala para guardar."
+    },
+    "faq-13": {
+      "pergunta": "¿Puedo guardar solo parte de las transacciones importadas?",
+      "resposta": "Sí. Revisas elemento por elemento y eliges cuáles enviar. Al final, la app muestra cuántas se crearon y cuántas fallaron en la confirmación."
+    },
+    "faq-14": {
+      "pergunta": "¿Cómo recupero mi contraseña?",
+      "resposta": "En el inicio de sesión, usa He olvidado mi contraseña. Introduce tu correo, valida el código recibido y define una nueva contraseña según los requisitos de seguridad."
+    }
+  },
+  "ajuda": {
+    "titulo": "Ayuda y contacto",
+    "idioma_modal": "Idioma de las FAQ",
+    "selecionar_idioma": "Seleccionar idioma de las FAQ"
+  }
+}

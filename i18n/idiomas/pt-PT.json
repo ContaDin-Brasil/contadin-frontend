@@ -1,0 +1,68 @@
+{
+  "bem_vindo": "Bem-vindo(a) ao Contadin!",
+  "boa_noite": "Boa noite",
+  "mudar_idioma": "Idioma",
+  "faq": {
+    "faq-01": {
+      "pergunta": "Como registar a minha primeira transação?",
+      "resposta": "Vá a Transações, toque no botão +, preencha descrição, valor, tipo, instituição e categoria. Depois toque em Guardar. Se não existir instituição ou categoria, crie antes na Carteira ou em Categorias."
+    },
+    "faq-02": {
+      "pergunta": "Como editar ou eliminar uma despesa?",
+      "resposta": "Abra Transações, toque no item pretendido para entrar na edição. No ecrã de edição pode atualizar os campos e guardar, ou eliminar a transação."
+    },
+    "faq-03": {
+      "pergunta": "Como filtrar transações para encontrar um lançamento rapidamente?",
+      "resposta": "Use a pesquisa por texto no topo do ecrã de transações e combine com filtros por tipo, instituição, categoria, valor e período. Também pode ordenar por data, valor e ordem alfabética."
+    },
+    "faq-04": {
+      "pergunta": "Qual a diferença entre transação recorrente e parcelada?",
+      "resposta": "Recorrente repete automaticamente numa frequência (diária, semanal, mensal ou anual). Parcelada divide uma compra em várias prestações. No formulário, as duas opções são exclusivas para evitar conflito."
+    },
+    "faq-05": {
+      "pergunta": "Porque não consigo guardar uma transação?",
+      "resposta": "Os campos obrigatórios são descrição, valor, instituição e categoria. Valide também se o valor é superior a zero e se a data está completa no formato dd/mm/aaaa."
+    },
+    "faq-06": {
+      "pergunta": "Como adicionar bancos e vales na carteira?",
+      "resposta": "Abra Carteira e use Adicionar em Contas Bancárias ou Vales. Pode escolher instituições padrão ou registar uma instituição personalizada com nome, cor e ícone."
+    },
+    "faq-07": {
+      "pergunta": "Como criar e organizar categorias?",
+      "resposta": "Aceda a Categorias para criar, editar e eliminar. Use categorias de DESPESA para gastos, de RECEITA para entradas e GLOBAL para categorias que podem aparecer nos dois tipos."
+    },
+    "faq-08": {
+      "pergunta": "Como usar foto para preencher transação com IA?",
+      "resposta": "No ecrã Adicionar Transação, toque em Foto, escolha câmara ou galeria e aguarde a sugestão. Pode aceitar os dados sugeridos ou descartar e preencher manualmente."
+    },
+    "faq-09": {
+      "pergunta": "Como funciona o saldo na carteira?",
+      "resposta": "O saldo de cada instituição é calculado automaticamente: soma de receitas menos soma de despesas associadas a essa instituição."
+    },
+    "faq-10": {
+      "pergunta": "Que ficheiros são aceites na importação?",
+      "resposta": "A importação aceita ficheiros .xlsx, .xls e .csv. Se o ficheiro estiver fora destes formatos, a app mostra um alerta de ficheiro inválido."
+    },
+    "faq-11": {
+      "pergunta": "Preciso de ter instituições e categorias registadas antes?",
+      "resposta": "Sim, é recomendado. A app tenta associar automaticamente ao que já existe. Se faltar instituição ou categoria detetada na folha, pode registar diretamente no ecrã de revisão."
+    },
+    "faq-12": {
+      "pergunta": "O que significa transação pendente na importação?",
+      "resposta": "Pendente significa que falta algum campo obrigatório (descrição, valor, data, instituição ou categoria). Abra o cartão da transação, ajuste os campos e marque para guardar."
+    },
+    "faq-13": {
+      "pergunta": "Posso guardar apenas parte das transações importadas?",
+      "resposta": "Sim. Revê item a item e escolhe quais enviar. No final, a app mostra quantas transações foram criadas e quantas falharam na confirmação."
+    },
+    "faq-14": {
+      "pergunta": "Como recuperar a minha palavra-passe?",
+      "resposta": "No ecrã de login, use Esqueci a minha palavra-passe. Indique o seu e-mail, valide o código recebido e defina uma nova palavra-passe seguindo os requisitos de segurança da app."
+    }
+  },
+  "ajuda": {
+    "titulo": "Ajuda e Contacto",
+    "idioma_modal": "Idioma do FAQ",
+    "selecionar_idioma": "Selecionar idioma do FAQ"
+  }
+}
