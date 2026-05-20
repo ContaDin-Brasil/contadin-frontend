@@ -1,7 +1,5 @@
 {
   "bem_vindo": "Welcome to Contadin!",
-  "boa_noite": "Good evening",
-  "mudar_idioma": "Idioma",
   "faq": {
     "faq-01": {
       "pergunta": "How do I register my first transaction?",
@@ -63,6 +61,23 @@
   "ajuda": {
     "titulo": "Help and Contact",
     "idioma_modal": "FAQ language",
-    "selecionar_idioma": "Select FAQ language"
+    "selecionar_idioma": "Select FAQ language",
+    "tab_faq": "FAQ",
+    "tab_contato": "Contact"
+  },
+  "idiomas": {
+    "pt-BR": "Portuguese (Brazil)",
+    "pt-PT": "Portuguese (Portugal)",
+    "ar": "Arabic",
+    "zh": "Mandarin Chinese",
+    "en-US": "English (US)",
+    "en-GB": "English (UK)",
+    "ru": "Russian",
+    "ja": "Japanese",
+    "fr": "French",
+    "es-419": "Spanish (Latin America)",
+    "es-ES": "Spanish (Spain)",
+    "ca": "Catalan",
+    "de": "German"
   }
 }

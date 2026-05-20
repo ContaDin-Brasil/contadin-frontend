@@ -1,7 +1,5 @@
 {
   "bem_vindo": "Bem-vindo(a) ao Contadin!",
-  "boa_noite": "Boa noite",
-  "mudar_idioma": "Idioma",
   "faq": {
     "faq-01": {
       "pergunta": "Como registar a minha primeira transação?",
@@ -63,6 +61,23 @@
   "ajuda": {
     "titulo": "Ajuda e Contacto",
     "idioma_modal": "Idioma do FAQ",
-    "selecionar_idioma": "Selecionar idioma do FAQ"
+    "selecionar_idioma": "Selecionar idioma do FAQ",
+    "tab_faq": "FAQ",
+    "tab_contato": "Contacto"
+  },
+  "idiomas": {
+    "pt-BR": "Português (Brasil)",
+    "pt-PT": "Português (Portugal)",
+    "ar": "Árabe",
+    "zh": "Mandarim",
+    "en-US": "Inglês (EUA)",
+    "en-GB": "Inglês (Reino Unido)",
+    "ru": "Russo",
+    "ja": "Japonês",
+    "fr": "Francês",
+    "es-419": "Espanhol (América Latina)",
+    "es-ES": "Espanhol (Espanha)",
+    "ca": "Catalão",
+    "de": "Alemão"
   }
 }

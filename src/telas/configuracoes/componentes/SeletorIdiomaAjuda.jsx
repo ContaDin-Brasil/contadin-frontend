@@ -67,7 +67,7 @@ const SeletorIdiomaAjuda = () => {
                         selecionado && styles.opcaoTextoSelecionado,
                       ]}
                     >
-                      {item.rotulo}
+                      {t(`idiomas.${item.codigo}`)}
                     </Text>
                     {selecionado && <Ionicons name="checkmark" size={20} color="#0066FF" />}
                   </TouchableOpacity>

@@ -1,7 +1,5 @@
 {
   "bem_vindo": "Contadin",
-  "boa_noite": "Good evening",
-  "mudar_idioma": "Idioma",
   "faq": {
     "faq-01": {
       "pergunta": "Comment enregistrer ma première transaction ?",
@@ -63,6 +61,23 @@
   "ajuda": {
     "titulo": "Aide et contact",
     "idioma_modal": "Langue de la FAQ",
-    "selecionar_idioma": "Choisir la langue de la FAQ"
+    "selecionar_idioma": "Choisir la langue de la FAQ",
+    "tab_faq": "FAQ",
+    "tab_contato": "Contact"
+  },
+  "idiomas": {
+    "pt-BR": "Portugais (Brésil)",
+    "pt-PT": "Portugais (Portugal)",
+    "ar": "Arabe",
+    "zh": "Chinois (mandarin)",
+    "en-US": "Anglais (États-Unis)",
+    "en-GB": "Anglais (Royaume-Uni)",
+    "ru": "Russe",
+    "ja": "Japonais",
+    "fr": "Français",
+    "es-419": "Espagnol (Amérique latine)",
+    "es-ES": "Espagnol (Espagne)",
+    "ca": "Catalan",
+    "de": "Allemand"
   }
 }

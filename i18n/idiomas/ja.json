@@ -1,7 +1,5 @@
 {
   "bem_vindo": "Contadin",
-  "boa_noite": "Good evening",
-  "mudar_idioma": "Idioma",
   "faq": {
     "faq-01": {
       "pergunta": "最初の取引を登録するには？",
@@ -63,6 +61,23 @@
   "ajuda": {
     "titulo": "ヘルプとお問い合わせ",
     "idioma_modal": "FAQの言語",
-    "selecionar_idioma": "FAQの言語を選択"
+    "selecionar_idioma": "FAQの言語を選択",
+    "tab_faq": "よくある質問",
+    "tab_contato": "お問い合わせ"
+  },
+  "idiomas": {
+    "pt-BR": "ポルトガル語（ブラジル）",
+    "pt-PT": "ポルトガル語（ポルトガル）",
+    "ar": "アラビア語",
+    "zh": "中国語",
+    "en-US": "英語（アメリカ）",
+    "en-GB": "英語（イギリス）",
+    "ru": "ロシア語",
+    "ja": "日本語",
+    "fr": "フランス語",
+    "es-419": "スペイン語（ラテンアメリカ）",
+    "es-ES": "スペイン語（スペイン）",
+    "ca": "カタルーニャ語",
+    "de": "ドイツ語"
   }
 }

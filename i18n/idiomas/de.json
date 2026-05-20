@@ -1,7 +1,5 @@
 {
   "bem_vindo": "Contadin",
-  "boa_noite": "Good evening",
-  "mudar_idioma": "Idioma",
   "faq": {
     "faq-01": {
       "pergunta": "Wie registriere ich meine erste Transaktion?",
@@ -63,6 +61,23 @@
   "ajuda": {
     "titulo": "Hilfe und Kontakt",
     "idioma_modal": "FAQ-Sprache",
-    "selecionar_idioma": "FAQ-Sprache auswählen"
+    "selecionar_idioma": "FAQ-Sprache auswählen",
+    "tab_faq": "FAQ",
+    "tab_contato": "Kontakt"
+  },
+  "idiomas": {
+    "pt-BR": "Portugiesisch (Brasilien)",
+    "pt-PT": "Portugiesisch (Portugal)",
+    "ar": "Arabisch",
+    "zh": "Chinesisch (Mandarin)",
+    "en-US": "Englisch (USA)",
+    "en-GB": "Englisch (UK)",
+    "ru": "Russisch",
+    "ja": "Japanisch",
+    "fr": "Französisch",
+    "es-419": "Spanisch (Lateinamerika)",
+    "es-ES": "Spanisch (Spanien)",
+    "ca": "Katalanisch",
+    "de": "Deutsch"
   }
 }

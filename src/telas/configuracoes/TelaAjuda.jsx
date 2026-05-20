@@ -105,14 +105,18 @@ const HelpScreen = ({ navigation }) => {
             style={[styles.tab, ajuda.selectedTab === 'FAQ' && styles.activeTab]}
             onPress={() => ajuda.setSelectedTab('FAQ')}
           >
-            <Text style={[styles.tabText, ajuda.selectedTab === 'FAQ' && styles.activeTabText]}>FAQ</Text>
+            <Text style={[styles.tabText, ajuda.selectedTab === 'FAQ' && styles.activeTabText]}>
+              {t('ajuda.tab_faq')}
+            </Text>
           </TouchableOpacity>
           
           <TouchableOpacity 
             style={[styles.tab, ajuda.selectedTab === 'Contato' && styles.activeTab]}
             onPress={() => ajuda.setSelectedTab('Contato')}
           >
-            <Text style={[styles.tabText, ajuda.selectedTab === 'Contato' && styles.activeTabText]}>Contato</Text>
+            <Text style={[styles.tabText, ajuda.selectedTab === 'Contato' && styles.activeTabText]}>
+              {t('ajuda.tab_contato')}
+            </Text>
           </TouchableOpacity>
           
           {EXIBIR_CHATBOT_AJUDA && (
