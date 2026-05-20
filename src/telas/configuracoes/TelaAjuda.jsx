@@ -50,7 +50,7 @@ const CHAT_MENSAGENS = [
   {
     id: 'chat-06',
     from: 'bot',
-    text: 'Quer que eu crie categorias basicas e metas de gasto para voce?',
+    text: 'Quer que eu crie categorias basicas e objetivos de gasto para voce?',
     time: '10:27'
   }
 ];

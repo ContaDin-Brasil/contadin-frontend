@@ -65,7 +65,7 @@ const WalletScreen = ({ navigation }) => {
               <Text style={styles.sectionSubtitle}>Valor das faturas: R$ 0,00</Text>
             </View>
           </View>
-          <TouchableOpacity onPress={() => navigation.navigate('EditBanks')}>
+          <TouchableOpacity onPress={() => navigation.navigate('EditarBanco')}>
             <View style={styles.editButton}>
               <Ionicons name="create-outline" size={20} color="#FFF" />
             </View>
@@ -81,8 +81,8 @@ const WalletScreen = ({ navigation }) => {
               color={bank.cor}
               icon={renderIcon(bank.icone, bank.cor)}
               onPress={() => {
-                navigation.navigate('Transactions', {
-                  screen: 'TransactionsMain',
+                navigation.navigate('Transacoes', {
+                  screen: 'Transacao',
                   params: {
                     instituicao: {
                       id: bank.id,
@@ -120,7 +120,7 @@ const WalletScreen = ({ navigation }) => {
               <Text style={styles.sectionSubtitle}>Valor das faturas: R$ 0,00</Text>
             </View>
           </View>
-          <TouchableOpacity onPress={() => navigation.navigate('EditVouchers')}>
+          <TouchableOpacity onPress={() => navigation.navigate('EditarVouchers')}>
             <View style={styles.editButton}>
               <Ionicons name="create-outline" size={20} color="#FFF" />
             </View>
@@ -136,8 +136,8 @@ const WalletScreen = ({ navigation }) => {
               color={voucher.cor}
               icon={renderIcon(voucher.icone, voucher.cor)}
               onPress={() => {
-                navigation.navigate('Transactions', {
-                  screen: 'TransactionsMain',
+                navigation.navigate('Transacoes', {
+                  screen: 'Transacao',
                   params: {
                     instituicao: {
                       id: voucher.id,

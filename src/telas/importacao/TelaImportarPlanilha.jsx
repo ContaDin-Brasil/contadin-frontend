@@ -127,11 +127,11 @@ const SWAGGER_SUCCESS_MOCK = {
       fk_categoria: 10,
     },
   ],
-  metas_gasto: [
+  objetivos_gasto: [
     {
-      nome: 'Meta Alimentacao Abril',
+      nome: 'Objetivo Alimentacao Abril',
       valor: 1500,
-      data_fim_meta: '2026-04-30',
+      data_fim_objetivo: '2026-04-30',
       categoria: 'Alimentacao',
       fk_categoria: 10,
       fk_usuario: 1,

@@ -164,7 +164,9 @@ export const DatePickerInput: React.FC<DatePickerInputProps> = ({
       {label && <Text style={styles.label}>{label}</Text>}
       
       <View style={[styles.inputContainer, errorMessage && styles.inputContainerError]}>
-        <Ionicons name="calendar-outline" size={20} color={errorMessage ? COLORS.error : '#666'} />
+        <TouchableOpacity onPress={openPicker} style={styles.iconButton}>
+          <Ionicons name="calendar-outline" size={20} color={errorMessage ? COLORS.error : COLORS.primary} />
+        </TouchableOpacity>
         
         <TextInput
           style={styles.input}
@@ -175,10 +177,6 @@ export const DatePickerInput: React.FC<DatePickerInputProps> = ({
           keyboardType="numeric"
           maxLength={10}
         />
-        
-        <TouchableOpacity onPress={openPicker} style={styles.pickerButton}>
-          <Ionicons name="chevron-down" size={20} color={errorMessage ? COLORS.error : '#666'} />
-        </TouchableOpacity>
       </View>
 
       {errorMessage && (
@@ -219,12 +217,12 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: COLORS.white,
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderWidth: 1,
-    borderColor: 'transparent',
+    borderColor: COLORS.border,
   },
   inputContainerError: {
     borderColor: COLORS.error,
@@ -233,10 +231,10 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 16,
-    color: '#333',
+    color: COLORS.textPrimary,
     marginLeft: 12,
   },
-  pickerButton: {
+  iconButton: {
     padding: 4,
   },
   errorContainer: {

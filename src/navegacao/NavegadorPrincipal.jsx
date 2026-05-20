@@ -19,9 +19,9 @@ import TelaEditarPerfil from '../telas/configuracoes/TelaEditarPerfil';
 import TelaConta from '../telas/configuracoes/TelaConta';
 import TelaAlterarSenha from '../telas/configuracoes/TelaAlterarSenha';
 import TelaAjuda from '../telas/configuracoes/TelaAjuda';
-import TelaMetas from '../telas/configuracoes/TelaMetas';
-import TelaAdicionarMeta from '../telas/configuracoes/TelaAdicionarMeta';
-import TelaEditarMeta from '../telas/configuracoes/TelaEditarMeta';
+import TelaObjetivos from '../telas/configuracoes/TelaObjetivos';
+import TelaAdicionarObjetivo from '../telas/configuracoes/TelaAdicionarObjetivo';
+import TelaEditarObjetivo from '../telas/configuracoes/TelaEditarObjetivo';
 import TelaImportarPlanilha from '../telas/importacao/TelaImportarPlanilha';
 
 const Tab = createBottomTabNavigator();
@@ -35,15 +35,28 @@ function NavegadorConfiguracoes() {
         headerShown: false,
       }}
     >
-      <Stack.Screen name="SettingsMain" component={TelaConfiguracoes} />
-      <Stack.Screen name="EditProfile" component={TelaEditarPerfil} />
-      <Stack.Screen name="Account" component={TelaConta} />
-      <Stack.Screen name="ChangePassword" component={TelaAlterarSenha} />
-      <Stack.Screen name="Help" component={TelaAjuda} />
-      <Stack.Screen name="Goals" component={TelaMetas} />
-      <Stack.Screen name="GoalsAdd" component={TelaAdicionarMeta} />
-      <Stack.Screen name="GoalsEdit" component={TelaEditarMeta} />
+      <Stack.Screen name="Configuracoes" component={TelaConfiguracoes} />
+      <Stack.Screen name="Categorias" component={TelaCategorias} />
+      <Stack.Screen name="EditarPerfil" component={TelaEditarPerfil} />
+      <Stack.Screen name="Conta" component={TelaConta} />
+      <Stack.Screen name="AlterarSenha" component={TelaAlterarSenha} />
+      <Stack.Screen name="Ajuda" component={TelaAjuda} />
       <Stack.Screen name="ImportarPlanilha" component={TelaImportarPlanilha} />
+    </Stack.Navigator>
+  );
+}
+
+// Navegador de Objetivos (aba fixa)
+function NavegadorObjetivos() {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <Stack.Screen name="ObjetivosMain" component={TelaObjetivos} />
+      <Stack.Screen name="AdicionarObjetivos" component={TelaAdicionarObjetivo} />
+      <Stack.Screen name="EditarObjetivos" component={TelaEditarObjetivo} />
     </Stack.Navigator>
   );
 }
@@ -56,9 +69,9 @@ function NavegadorCarteira() {
         headerShown: false,
       }}
     >
-      <Stack.Screen name="WalletMain" component={TelaCarteira} />
-      <Stack.Screen name="EditBanks" component={TelaEditarBancos} />
-      <Stack.Screen name="EditVouchers" component={TelaEditarVales} />
+      <Stack.Screen name="Carteira" component={TelaCarteira} />
+      <Stack.Screen name="EditarBanco" component={TelaEditarBancos} />
+      <Stack.Screen name="EditarVouchers" component={TelaEditarVales} />
     </Stack.Navigator>
   );
 }
@@ -71,7 +84,7 @@ function NavegadorTransacoes() {
         headerShown: false,
       }}
     >
-      <Stack.Screen name="TransactionsMain" component={TelaTransacoes} />
+      <Stack.Screen name="Transacao" component={TelaTransacoes} />
       <Stack.Screen name="AdicionarTransacao" component={TelaAdicionarTransacao} />
       <Stack.Screen name="EditarTransacao" component={TelaEditarTransacao} />
     </Stack.Navigator>
@@ -107,7 +120,7 @@ function NavegadorPrincipal() {
         }}
       />
       <Tab.Screen 
-        name="Wallet" 
+        name="Carteira" 
         component={NavegadorCarteira}
         options={{
           tabBarIcon: ({ focused, color, size }) => (
@@ -116,7 +129,7 @@ function NavegadorPrincipal() {
         }}
       />
       <Tab.Screen 
-        name="Transactions" 
+        name="Transacoes" 
         component={NavegadorTransacoes}
         options={{
           tabBarIcon: ({ focused, color, size }) => (
@@ -125,16 +138,16 @@ function NavegadorPrincipal() {
         }}
       />
       <Tab.Screen 
-        name="Categories" 
-        component={TelaCategorias}
+        name="Objetivos" 
+        component={NavegadorObjetivos}
         options={{
           tabBarIcon: ({ focused, color, size }) => (
-            <Ionicons name={focused ? 'grid' : 'grid-outline'} size={28} color={color} />
+            <Ionicons name={focused ? 'trophy' : 'trophy-outline'} size={28} color={color} />
           ),
         }}
       />
       <Tab.Screen 
-        name="Settings" 
+        name="Configuracoes" 
         component={NavegadorConfiguracoes}
         options={{
           tabBarIcon: ({ focused, color, size }) => (

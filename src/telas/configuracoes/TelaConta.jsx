@@ -23,7 +23,7 @@ const AccountScreen = ({ navigation }) => {
       <View style={styles.buttonsContainer}>
         <CustomButton 
           title="Alterar Senha" 
-          onPress={() => navigation.navigate('ChangePassword')}
+          onPress={() => navigation.navigate('AlterarSenha')}
           icon={<Ionicons name="key-outline" size={24} color="#000" />}
         />
         
