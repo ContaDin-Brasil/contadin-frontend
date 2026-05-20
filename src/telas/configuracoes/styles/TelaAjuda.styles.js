@@ -7,6 +7,26 @@ export const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
     paddingTop: 20,
   },
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    marginTop: 24,
+    marginBottom: 20,
+    gap: 10,
+  },
+  seletorIdiomaHeader: {
+    marginLeft: 'auto',
+  },
+  backButton: {
+    padding: 4,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: COLORS.black,
+    flex: 1,
+  },
   body: {
     flex: 1,
   },
@@ -134,7 +154,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
     flex: 1,
-    paddingRight: 12,
+    paddingEnd: 12,
   },
   accordionTitle: {
     fontSize: 16,
