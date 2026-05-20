@@ -33,21 +33,12 @@ const TelaInicial = () => {
     gastosPorCategoria,
   } = useGerenciarDashboard(); // ✅ Sem parâmetro - usa user.id do contexto
 
-  // Atualizar dados quando a tela recebe foco (ex: ao voltar de criar transação)
+  // Atualizar dados quando a tela recebe foco
   useFocusEffect(
     React.useCallback(() => {
-      console.log('[TelaInicial] 🔄 Tela recebeu foco - atualizando dashboard');
-      atualizarDados(); // Invalida cache e força atualização
+      atualizarDados();
     }, [atualizarDados])
   );
-
-  console.log('[TelaInicial] Estado atual:');
-  console.log('[TelaInicial] - loading:', loading);
-  console.log('[TelaInicial] - dados:', dados);
-  console.log('[TelaInicial] - resumo:', resumo);
-  console.log('[TelaInicial] - gastosPorCategoria:', gastosPorCategoria);
-  console.log('[TelaInicial] - gastosPorCategoria.length:', gastosPorCategoria?.length || 0);
-  console.log('[TelaInicial] - erro:', erro);
 
   // Loading inicial
   if (loading && !dados) {
@@ -61,7 +52,6 @@ const TelaInicial = () => {
 
   // Estado de erro
   if (erro && !dados) {
-    console.log('[TelaInicial] ❌ Mostrando tela de erro');
     return (
       <View style={styles.erroContainer}>
         <Ionicons name="alert-circle-outline" size={64} color="#E31C23" />
@@ -75,8 +65,6 @@ const TelaInicial = () => {
       </View>
     );
   }
-
-  console.log('[TelaInicial] ✅ Renderizando dashboard com resumo:', resumo);
 
   return (
     <View style={styles.container}>
@@ -129,9 +117,7 @@ const TelaInicial = () => {
         <View style={styles.secao}>
           <Text style={styles.secaoTitulo}>Gastos por Categoria</Text>
           {(() => {
-            console.log('[TelaInicial] Renderizando Gastos por Categoria - length:', gastosPorCategoria?.length || 0);
             if (gastosPorCategoria && gastosPorCategoria.length > 0) {
-              console.log('[TelaInicial] Mostrando', gastosPorCategoria.length, 'categorias');
               return gastosPorCategoria.map((categoria) => (
                 <ItemCategoria 
                   key={categoria.id}
@@ -141,7 +127,6 @@ const TelaInicial = () => {
                 />
               ));
             }
-            console.log('[TelaInicial] Nenhum gasto - mostrando vazio');
             return (
               <View style={styles.emptyContainer}>
                 <Text style={styles.emptyTexto}>Nenhum gasto registrado neste mês</Text>
@@ -150,7 +135,7 @@ const TelaInicial = () => {
           })()}
         </View>
 
-        {/* Saldo Diário - dados reais do back-end */}
+        {/* Saldo Diário */}
         {user?.id && (
           <View style={styles.secao}>
             <GraficoSaldoDiario

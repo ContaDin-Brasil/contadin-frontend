@@ -13,7 +13,6 @@ interface ItemCategoriaProps {
 export const ItemCategoria: React.FC<ItemCategoriaProps> = ({ categoria, formatarMoeda, onPress }) => {
   // Validar categoria
   if (!categoria || !categoria.valor) {
-    console.warn('[ItemCategoria] ⚠️  Categoria inválida:', categoria);
     return null;
   }
 

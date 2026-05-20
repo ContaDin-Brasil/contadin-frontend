@@ -41,14 +41,6 @@ export const useGerenciarDashboard = (usuarioIdProp?: number) => {
   // Para funções legadas que ainda esperam number, usar hash simples da string ou fallback
   const usuarioIdNumero = usuarioIdProp || 1; // Se houver prop number, usar; senão fallback
   
-  console.log('[Dashboard] ══════════════════════════════════════════');
-  console.log('[Dashboard] Hook inicializado');
-  console.log('[Dashboard] user:', user);
-  console.log('[Dashboard] user?.id:', user?.id, '| tipo:', typeof user?.id);
-  console.log('[Dashboard] usuarioIdString (USADO NO ENDPOINT):', usuarioIdString);
-  console.log('[Dashboard] usuarioIdNumero (para funções legadas):', usuarioIdNumero);
-  console.log('[Dashboard] ══════════════════════════════════════════');
-  
   const [dados, setDados] = useState<DadosDashboard | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [erro, setErro] = useState<string | null>(null);
@@ -62,17 +54,11 @@ export const useGerenciarDashboard = (usuarioIdProp?: number) => {
 
       // ⚠️ AVISO: Se user?.id não está definido, algo está errado com a autenticação
       if (!user?.id && !usuarioIdProp) {
-        console.error('[Dashboard] ❌ ERRO: user?.id não está definido!');
-        console.error('[Dashboard] Usuário não autenticado ou contexto não carregou');
+        console.error('[Dashboard] Usuário não autenticado');
         throw new Error('Usuário não autenticado');
       }
 
-      // Buscar resumo SEMPRE do endpoint real (nunca mock, nunca cache)
-      console.log('[Dashboard] Buscando resumo real da API...');
-      console.log('[Dashboard] Chamando buscarResumoFinanceiroComIndicadores com usuarioIdString:', usuarioIdString);
-      
       const resumoMelhorado = await buscarResumoFinanceiroComIndicadores(usuarioIdString);
-      console.log('[Dashboard] ✅ Resumo carregado:', resumoMelhorado);
       
       // Para outros dados: tentar cache primeiro
       let gastosPorCategoria = [];
@@ -82,12 +68,10 @@ export const useGerenciarDashboard = (usuarioIdProp?: number) => {
       if (!forcarAtualizacao) {
         const dadosCache = await getCache<DadosDashboard>(`${CACHE_KEYS.RESUMO}:${usuarioId}`);
         if (dadosCache) {
-          console.log('[Dashboard] Dados auxiliares carregados do cache');
           gastosPorCategoria = dadosCache.gastosPorCategoria;
           saldosPorInstituicao = dadosCache.saldosPorInstituicao;
           previsaoSaldo = dadosCache.previsaoSaldo;
           
-          // Montar dados com resumo real + dados auxiliares do cache
           const dadosCompletos: DadosDashboard = {
             resumo: resumoMelhorado,
             gastosPorCategoria,
@@ -98,70 +82,43 @@ export const useGerenciarDashboard = (usuarioIdProp?: number) => {
           setLoading(false);
           return;
         }
-      } else {
-        console.log('[Dashboard] Atualizando dados (ignorando cache)...');
       }
       
       // Para os outros dados, usar mock ou real baseado em USAR_MOCK_DASHBOARD
       if (USAR_MOCK_DASHBOARD) {
-        // Usar mock para dados auxiliares (gráficos, saldos, etc)
-        // MAS SEMPRE busca gastos por categoria do endpoint real
-        console.log('[Dashboard] Usando dados MOCK para gráficos/saldos/saldoTotal');
         const dadosMock = buildMockDashboardData();
         saldosPorInstituicao = dadosMock.saldosPorInstituicao;
         previsaoSaldo = dadosMock.previsaoSaldo;
         
-        // Manter saldoTotal do mock
         resumoMelhorado.saldoTotal = dadosMock.resumo.saldoTotal;
         
-        // MAS buscar gastos por categoria do endpoint real
         try {
-          console.log('[Dashboard] Buscando gastos por categoria do endpoint real...');
           const dataAtual = new Date();
-          console.log('[Dashboard] Parâmetros: usuarioIdString=', usuarioIdString, 'mês=', dataAtual.getMonth() + 1, 'ano=', dataAtual.getFullYear());
           
           gastosPorCategoria = await buscarGastosPorCategoriaEndpoint(
             usuarioIdString,
             dataAtual.getMonth() + 1,
             dataAtual.getFullYear()
           );
-          
-          console.log('[Dashboard] ✅ Gastos por categoria reais carregados - tipo:', typeof gastosPorCategoria);
-          console.log('[Dashboard] ✅ Array length:', (gastosPorCategoria || []).length);
-          console.log('[Dashboard] ✅ Raw array:', gastosPorCategoria);
         } catch (err) {
-          console.warn('[Dashboard] ⚠️  Erro ao buscar gastos por categoria (usando mock como fallback):', err);
-          console.warn('[Dashboard] Error details:', (err as any)?.response?.data || (err as any)?.message);
-          gastosPorCategoria = dadosMock.gastosPorCategoria; // Fallback para mock
-          console.log('[Dashboard] Usando mock - tamanho:', gastosPorCategoria.length);
+          gastosPorCategoria = dadosMock.gastosPorCategoria;
         }
       } else {
-        // Buscar dados reais em paralelo (com tratamento individual de erros)
         try {
-          console.log('[Dashboard] Buscando gastos por categoria do endpoint real...');
           const dataAtual = new Date();
-          console.log('[Dashboard] Parâmetros: usuarioIdString=', usuarioIdString, 'mês=', dataAtual.getMonth() + 1, 'ano=', dataAtual.getFullYear());
-          
           gastosPorCategoria = await buscarGastosPorCategoriaEndpoint(
             usuarioIdString,
             dataAtual.getMonth() + 1,
             dataAtual.getFullYear()
           );
-          
-          console.log('[Dashboard] ✅ Gastos por categoria carregados - tipo:', typeof gastosPorCategoria);
-          console.log('[Dashboard] ✅ Array length:', (gastosPorCategoria || []).length);
-          console.log('[Dashboard] ✅ Raw array:', gastosPorCategoria);
         } catch (err) {
-          console.warn('[Dashboard] ⚠️  Erro ao buscar gastos por categoria:', err);
-          console.warn('[Dashboard] Error details:', (err as any)?.response?.data || (err as any)?.message);
+          console.error('[Dashboard] Erro ao buscar gastos por categoria:', err);
         }
 
         try {
-          console.log('[Dashboard] Buscando saldos por instituição...');
           saldosPorInstituicao = await buscarSaldosPorInstituicao(usuarioIdNumero);
-          console.log('[Dashboard] ✅ Saldos por instituição carregados:', saldosPorInstituicao.length, 'itens');
         } catch (err) {
-          console.warn('[Dashboard] ⚠️  Erro ao buscar saldos por instituição:', err);
+          console.error('[Dashboard] Erro ao buscar saldos por instituição:', err);
         }
 
         try {
