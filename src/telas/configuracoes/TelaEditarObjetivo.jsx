@@ -81,6 +81,7 @@ const TelaEditarObjetivo = ({ navigation, route }) => {
     setCategoriaSelecionadaId,
     carregandoCategorias,
     categoriasErro,
+    tipoCategoria,
     recarregarCategorias,
   } = useCategoriasObjetivo({
     usuarioId,
