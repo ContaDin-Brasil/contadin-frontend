@@ -11,9 +11,17 @@ import {
   Platform
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import TituloPagina from '../../componentes/TituloPagina';
+import { useTranslation } from 'react-i18next';
 import { useAjuda } from './hooks/useAjuda';
-import { CONTATOS, FAQ_ITENS, OUTROS_CONTATOS } from './constants/constantesConfiguracao';
+import { useLayoutRtl } from './hooks/useLayoutRtl';
+import {
+  CONTATOS,
+  EXIBIR_CHATBOT_AJUDA,
+  EXIBIR_OUTROS_CANAIS_AJUDA,
+  FAQ_ITENS,
+  OUTROS_CONTATOS,
+} from './constants/constantesConfiguracao';
+import SeletorIdiomaAjuda from './componentes/SeletorIdiomaAjuda';
 import { styles } from './styles/TelaAjuda.styles';
 
 const CHAT_MENSAGENS = [
@@ -57,6 +65,9 @@ const CHAT_MENSAGENS = [
 
 const HelpScreen = ({ navigation }) => {
   const ajuda = useAjuda();
+  const { t } = useTranslation();
+  const rtl = useLayoutRtl();
+  const exibirSeletorIdioma = ajuda.selectedTab === 'FAQ';
 
   const handleOpenEmail = () => {
     Linking.openURL(`mailto:${CONTATOS.email}`);
@@ -68,37 +79,59 @@ const HelpScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <TituloPagina 
-        mostrarBotaoVoltar={true} 
-        onVoltar={() => navigation.goBack()}
-      >
-        Ajuda e Contato
-      </TituloPagina>
+      <View style={styles.headerContainer}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+          accessibilityLabel="Voltar"
+          accessibilityRole="button"
+        >
+          <Ionicons
+            name={rtl.isRtl ? 'arrow-forward' : 'arrow-back'}
+            size={28}
+            color="#000"
+          />
+        </TouchableOpacity>
+        <Text style={[styles.headerTitle, rtl.texto]}>{t('ajuda.titulo')}</Text>
+        {exibirSeletorIdioma && (
+          <View style={styles.seletorIdiomaHeader}>
+            <SeletorIdiomaAjuda />
+          </View>
+        )}
+      </View>
       <View style={styles.body}>
         <View style={styles.tabsContainer}>
           <TouchableOpacity 
             style={[styles.tab, ajuda.selectedTab === 'FAQ' && styles.activeTab]}
             onPress={() => ajuda.setSelectedTab('FAQ')}
           >
-            <Text style={[styles.tabText, ajuda.selectedTab === 'FAQ' && styles.activeTabText]}>FAQ</Text>
+            <Text style={[styles.tabText, ajuda.selectedTab === 'FAQ' && styles.activeTabText]}>
+              {t('ajuda.tab_faq')}
+            </Text>
           </TouchableOpacity>
           
           <TouchableOpacity 
             style={[styles.tab, ajuda.selectedTab === 'Contato' && styles.activeTab]}
             onPress={() => ajuda.setSelectedTab('Contato')}
           >
-            <Text style={[styles.tabText, ajuda.selectedTab === 'Contato' && styles.activeTabText]}>Contato</Text>
+            <Text style={[styles.tabText, ajuda.selectedTab === 'Contato' && styles.activeTabText]}>
+              {t('ajuda.tab_contato')}
+            </Text>
           </TouchableOpacity>
           
-          <TouchableOpacity 
-            style={[styles.tab, ajuda.selectedTab === 'ChatBot' && styles.activeTab]}
-            onPress={() => ajuda.setSelectedTab('ChatBot')}
-          >
-            <Text style={[styles.tabText, ajuda.selectedTab === 'ChatBot' && styles.activeTabText]}>ChatBot</Text>
-          </TouchableOpacity>
+          {EXIBIR_CHATBOT_AJUDA && (
+            <TouchableOpacity
+              style={[styles.tab, ajuda.selectedTab === 'ChatBot' && styles.activeTab]}
+              onPress={() => ajuda.setSelectedTab('ChatBot')}
+            >
+              <Text style={[styles.tabText, ajuda.selectedTab === 'ChatBot' && styles.activeTabText]}>
+                ChatBot
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
 
-        {ajuda.selectedTab === 'ChatBot' ? (
+        {EXIBIR_CHATBOT_AJUDA && ajuda.selectedTab === 'ChatBot' ? (
           <KeyboardAvoidingView
             style={styles.chatContainer}
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -207,42 +240,46 @@ const HelpScreen = ({ navigation }) => {
                     </View>
                   )}
 
-                  <View style={styles.contactSection}>
-                    <Text style={styles.sectionTitle}>Outros canais</Text>
-                    {OUTROS_CONTATOS.map((item) => (
-                      <TouchableOpacity
-                        key={item.id}
-                        style={styles.channelItem}
-                        onPressIn={() => handleOpenLink(item.url)}
-                      >
-                        <View style={styles.channelHeader}>
-                          <Ionicons name={item.icon} size={22} color="#000" />
-                          <Text style={styles.channelTitle}>{item.titulo}</Text>
-                        </View>
-                        <View style={styles.channelRight}>
-                          <Text style={styles.channelValue}>{item.valor}</Text>
-                          <Ionicons name="open-outline" size={18} color="#666" />
-                        </View>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
+                  {EXIBIR_OUTROS_CANAIS_AJUDA && (
+                    <View style={styles.contactSection}>
+                      <Text style={styles.sectionTitle}>Outros canais</Text>
+                      {OUTROS_CONTATOS.map((item) => (
+                        <TouchableOpacity
+                          key={item.id}
+                          style={styles.channelItem}
+                          onPressIn={() => handleOpenLink(item.url)}
+                        >
+                          <View style={styles.channelHeader}>
+                            <Ionicons name={item.icon} size={22} color="#000" />
+                            <Text style={styles.channelTitle}>{item.titulo}</Text>
+                          </View>
+                          <View style={styles.channelRight}>
+                            <Text style={styles.channelValue}>{item.valor}</Text>
+                            <Ionicons name="open-outline" size={18} color="#666" />
+                          </View>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  )}
                 </View>
               )}
 
               {ajuda.selectedTab === 'FAQ' && (
-                <View>
+                <View style={rtl.container}>
                   {FAQ_ITENS.map((item) => {
                     const isExpanded = ajuda.faqExpandedIds.includes(item.id);
 
                     return (
                       <View key={item.id}>
                         <TouchableOpacity
-                          style={styles.accordionItem}
+                          style={[styles.accordionItem, rtl.row]}
                           onPressIn={() => ajuda.toggleFaqItem(item.id)}
                         >
-                          <View style={styles.accordionHeader}>
+                          <View style={[styles.accordionHeader, rtl.row]}>
                             <Ionicons name="help-circle-outline" size={22} color="#000" />
-                            <Text style={styles.accordionTitle}>{item.pergunta}</Text>
+                            <Text style={[styles.accordionTitle, rtl.texto]}>
+                              {t(`faq.${item.id}.pergunta`)}
+                            </Text>
                           </View>
                           <Ionicons
                             name={isExpanded ? 'chevron-up' : 'chevron-down'}
@@ -253,7 +290,9 @@ const HelpScreen = ({ navigation }) => {
 
                         {isExpanded && (
                           <View style={styles.accordionContent}>
-                            <Text style={styles.accordionText}>{item.resposta}</Text>
+                            <Text style={[styles.accordionText, rtl.texto]}>
+                              {t(`faq.${item.id}.resposta`)}
+                            </Text>
                           </View>
                         )}
                       </View>
