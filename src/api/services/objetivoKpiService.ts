@@ -19,9 +19,12 @@ const normalizeEnvUrl = (value?: string): string | null => {
 };
 
 const getEtlBaseURL = (): string | undefined => {
-  const fromEnv = normalizeEnvUrl(process.env.EXPO_PUBLIC_ETL_BASE_URL);
+  const fromEnv =
+    normalizeEnvUrl(process.env.EXPO_PUBLIC_PYTHON_BASE_URL);
   return fromEnv || api.defaults.baseURL;
 };
+
+const ETL_TIMEOUT_MS = 60000;
 
 const buildKpiParams = (
   fkUsuario: string | number,
@@ -86,6 +89,7 @@ const objetivoKpiService = {
   ): Promise<ObjetivoKpiAcaoRecomendadaResponse> => {
     const response = await api.get<ObjetivoKpiAcaoRecomendadaResponse>('/objetivos/kpis/acao-recomendada', {
       baseURL: getEtlBaseURL(),
+      timeout: ETL_TIMEOUT_MS,
       params: buildKpiParamsSnakeCase(usuarioId, query),
     });
     return response.data;
@@ -94,6 +98,7 @@ const objetivoKpiService = {
   obterInsights: async (usuarioId: string | number): Promise<ObjetivoKpiInsightResponse[]> => {
     const response = await api.get<ObjetivoKpiInsightResponse[]>('/objetivos/kpis/insights', {
       baseURL: getEtlBaseURL(),
+      timeout: ETL_TIMEOUT_MS,
       params: { fk_usuario: usuarioId },
     });
     return response.data;

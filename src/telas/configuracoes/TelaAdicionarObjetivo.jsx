@@ -53,6 +53,7 @@ const TelaAdicionarObjetivo = ({ navigation }) => {
     setCategoriaSelecionadaId,
     carregandoCategorias,
     categoriasErro,
+    tipoCategoria,
     recarregarCategorias,
   } = useCategoriasObjetivo({
     usuarioId,
