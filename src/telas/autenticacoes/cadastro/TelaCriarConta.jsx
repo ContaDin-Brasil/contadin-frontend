@@ -200,14 +200,6 @@ function TelaCriarConta({ navigation }) {
           ) : null}
         </View>
 
-        <View style={styles.areaGoogle}>
-          <Text style={styles.ouConecte}>Ou conecte-se com</Text>
-          <TouchableOpacity style={styles.botaoGoogle} activeOpacity={0.8}>
-            <Ionicons name="logo-google" size={24} color="#333" />
-            <Text style={styles.botaoGoogleText}>Google</Text>
-          </TouchableOpacity>
-        </View>
-
         <Text style={styles.linkLogin}>
           Já possui conta?{" "}
           <Text

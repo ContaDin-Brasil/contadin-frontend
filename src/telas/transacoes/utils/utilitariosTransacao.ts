@@ -54,8 +54,13 @@ export const parseTransacaoDate = (value: any): Date => {
  * Formata um valor numérico para o formato de moeda brasileira
  */
 export const formatCurrency = (value: number): string => {
-  const formatted = Math.abs(value).toFixed(2).replace('.', ',');
-  return value >= 0 ? `+R$ ${formatted}` : `-R$ ${formatted}`;
+  const abs = Math.abs(Number(value) || 0);
+  const formatted = new Intl.NumberFormat('pt-BR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(abs);
+
+  return value >= 0 ? `R$ ${formatted}` : `-R$ ${formatted}`;
 };
 
 /**

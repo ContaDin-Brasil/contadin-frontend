@@ -129,9 +129,12 @@ export const useEditarTransacao = (transacaoId: string | null) => {
     formState.setDescricao(transacao.descricao);
     formState.setTipo(transacao.tipo);
     
-    // Valor - formata para exibição com duas casas decimais
-    const valorNumerico = Number(transacao.valor);
-    const valorFormatado = valorNumerico.toFixed(2).replace('.', ',');
+    // Valor - formata para exibição com separador de milhares e duas casas decimais
+    const valorNumerico = Number(transacao.valor) || 0;
+    const valorFormatado = valorNumerico.toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
     formState.setValor(valorFormatado);
     
     // Data - converte de ISO para DD/MM/YYYY
