@@ -19,6 +19,7 @@ import { ModalGraficoCategorias } from './components/ModalGraficoCategorias';
 
 const TelaInicial = () => {
   const [modalGraficoCategoriasVisible, setModalGraficoCategoriasVisible] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
   const { user } = useAuth();
 
   const {
@@ -31,12 +32,14 @@ const TelaInicial = () => {
     formatarMoeda,
     resumo,
     gastosPorCategoria,
+    saldoConsolidado,
   } = useGerenciarDashboard(); // ✅ Sem parâmetro - usa user.id do contexto
 
-  // Atualizar dados quando a tela recebe foco
+  // Atualizar dados e gráfico quando a tela recebe foco
   useFocusEffect(
     React.useCallback(() => {
       atualizarDados();
+      setRefreshKey(prev => prev + 1);
     }, [atualizarDados])
   );
 
@@ -91,9 +94,13 @@ const TelaInicial = () => {
           </View>
 
           <View style={styles.saldoTotal}>
-            <Text style={styles.saldoLabel}>Saldo Total</Text>
+            <Text style={styles.saldoLabel}>Saldo Atual</Text>
             <Text style={styles.saldoValor}>
-              {resumo ? formatarMoeda(resumo.saldoTotal) : 'R$ 0,00'}
+              {saldoConsolidado !== null
+                ? formatarMoeda(saldoConsolidado)
+                : resumo
+                  ? formatarMoeda(resumo.saldoTotal)
+                  : 'R$ 0,00'}
             </Text>
           </View>
 
@@ -141,6 +148,7 @@ const TelaInicial = () => {
             <GraficoSaldoDiario
               usuarioId={user.id}
               formatarMoeda={formatarMoeda}
+              refreshKey={refreshKey}
             />
           </View>
         )}

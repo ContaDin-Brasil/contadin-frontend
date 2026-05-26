@@ -8,6 +8,7 @@ import {
   buscarGastosPorCategoriaEndpoint,
   buscarSaldosPorInstituicao,
   buscarPrevisaoSaldo,
+  buscarSaldoConsolidadoAtual,
 } from '../../../api/services/dashboardService';
 import {
   CACHE_KEYS,
@@ -45,6 +46,17 @@ export const useGerenciarDashboard = (usuarioIdProp?: number) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [erro, setErro] = useState<string | null>(null);
   const [atualizando, setAtualizando] = useState<boolean>(false);
+  const [saldoConsolidado, setSaldoConsolidado] = useState<number | null>(null);
+
+  const fetchSaldoConsolidado = useCallback(async () => {
+    if (!user?.id && !usuarioIdProp) return;
+    try {
+      const saldo = await buscarSaldoConsolidadoAtual(usuarioId);
+      setSaldoConsolidado(saldo);
+    } catch (err) {
+      console.warn('[Dashboard] Erro ao buscar saldo consolidado:', err);
+    }
+  }, [usuarioId, user?.id, usuarioIdProp]);
 
 
   const carregarDados = useCallback(async (forcarAtualizacao = false) => {
@@ -59,7 +71,7 @@ export const useGerenciarDashboard = (usuarioIdProp?: number) => {
       }
 
       const resumoMelhorado = await buscarResumoFinanceiroComIndicadores(usuarioIdString);
-      
+
       // Para outros dados: tentar cache primeiro
       let gastosPorCategoria = [];
       let saldosPorInstituicao = [];
@@ -208,10 +220,10 @@ export const useGerenciarDashboard = (usuarioIdProp?: number) => {
 
       // Invalidar cache para forçar atualização
       await invalidateCache(`${CACHE_KEYS.RESUMO}:${usuarioId}`);
-      
-      // Chamar com forceUpdate=true para ignorar cache
-      await carregarDados(true);
-      
+
+      // Busca os dados do dashboard e o saldo consolidado em paralelo
+      await Promise.all([carregarDados(true), fetchSaldoConsolidado()]);
+
       console.log('[Dashboard] Dados atualizados com sucesso');
     } catch (error) {
       console.error('[Dashboard] Erro ao atualizar dados:', error);
@@ -222,7 +234,7 @@ export const useGerenciarDashboard = (usuarioIdProp?: number) => {
         setAtualizando(false);
       }, 300);
     }
-  }, [usuarioId, invalidateCache, carregarDados]);
+  }, [usuarioId, invalidateCache, carregarDados, fetchSaldoConsolidado]);
 
 
   useEffect(() => {
@@ -234,10 +246,12 @@ export const useGerenciarDashboard = (usuarioIdProp?: number) => {
     } else {
       carregarDados();
     }
-    
+
+    fetchSaldoConsolidado();
+
     // Recarregar sempre que o usuário mudar (login/logout)
     console.log('[Dashboard] useEffect disparado - usuarioIdString agora é:', usuarioIdString);
-  }, [carregarDados, usuarioId, usuarioIdString, invalidateCache]);
+  }, [carregarDados, usuarioId, usuarioIdString, invalidateCache, fetchSaldoConsolidado]);
 
   /**
    * Retorna saudação baseada na hora do dia (Pegando informação do dis positivo para respeitar fuso horário)
@@ -288,5 +302,6 @@ export const useGerenciarDashboard = (usuarioIdProp?: number) => {
     })(),
     saldosPorInstituicao: dados?.saldosPorInstituicao || [],
     previsaoSaldo: dados?.previsaoSaldo,
+    saldoConsolidado,
   };
 };

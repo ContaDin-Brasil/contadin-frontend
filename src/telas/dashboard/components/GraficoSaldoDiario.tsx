@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   Dimensions,
   ScrollView,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import { LineChart } from 'react-native-gifted-charts';
 import { buscarSaldoDiario } from '../../../api/services/dashboardService';
@@ -16,12 +17,14 @@ import { COLORS } from '../../../styles/colors';
 interface GraficoSaldoDiarioProps {
   usuarioId: string | number;
   formatarMoeda: (valor: number) => string;
+  refreshKey?: number;
 }
 
 const { width } = Dimensions.get('window');
 const CHART_HEIGHT = 160;
 const Y_AXIS_WIDTH = 52;
 const N_SECTIONS = 4;
+const CHART_SPACING = 28;
 const NOMES_MESES = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
 const COR_REALIZADO_POS = '#51CF66';
@@ -48,72 +51,167 @@ const periodoParaDatas = (offset: number) => {
 export const GraficoSaldoDiario: React.FC<GraficoSaldoDiarioProps> = ({
   usuarioId,
   formatarMoeda,
+  refreshKey,
 }) => {
-  const [offsetSelecionado, setOffsetSelecionado] = useState(0);
   const [cache, setCache] = useState<Record<number, SaldoDiario[]>>({});
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
+  const [mesVisivel, setMesVisivel] = useState(0);
+  const mesVisivelRef = useRef(0);
+  const scrollRef = useRef<ScrollView>(null);
 
   const periodos = useMemo(() => [0, 1, 2].map(offset => ({ offset, ...periodoParaDatas(offset) })), []);
+  const hojeISO = toISO(new Date());
 
-  const carregarPeriodo = useCallback(async (offset: number) => {
-    if (cache[offset] !== undefined) return;
-    setLoading(true);
-    setErro(null);
+  const fetchDados = useCallback(async (offset: number) => {
     try {
       const { inicio, fim } = periodoParaDatas(offset);
       const dados = await buscarSaldoDiario(usuarioId, inicio, fim);
       setCache(prev => ({ ...prev, [offset]: dados }));
     } catch {
-      setErro('Não foi possível carregar o saldo.');
-    } finally {
-      setLoading(false);
+      if (offset === 0) setErro('Não foi possível carregar o saldo.');
     }
-  }, [usuarioId, cache]);
+  }, [usuarioId]);
 
-  useEffect(() => { carregarPeriodo(0); }, []);
+  // Carrega os 3 meses em paralelo na montagem
+  useEffect(() => {
+    setLoading(true);
+    setErro(null);
+    Promise.all([0, 1, 2].map(o => fetchDados(o))).finally(() => setLoading(false));
+  }, [fetchDados]);
 
-  const handleSelecionarPeriodo = (offset: number) => {
-    setOffsetSelecionado(offset);
-    carregarPeriodo(offset);
-  };
+  // Recarrega mês atual ao receber foco
+  const isFirstRender = useRef(true);
+  useEffect(() => {
+    if (isFirstRender.current) { isFirstRender.current = false; return; }
+    fetchDados(0);
+  }, [refreshKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const dados: SaldoDiario[] = cache[offsetSelecionado] ?? [];
-  const periodoAtual = periodos[offsetSelecionado];
-  const hojeISO = toISO(new Date());
-  const ehMesAtual = offsetSelecionado === 0;
-
-  // ── KPIs ──────────────────────────────────────────────────────────────────
-  const dadosPassado = dados.filter(d => d.data <= hojeISO);
-  const saldoHoje = dadosPassado.length > 0
-    ? Number(dadosPassado[dadosPassado.length - 1].saldoFinal)
-    : (dados.length > 0 ? Number(dados[0].saldoInicial) : 0);
-
-  const saldoProjetado = dados.length > 0 ? Number(dados[dados.length - 1].saldoFinal) : 0;
-  const variacao = saldoProjetado - saldoHoje;
-  const variacaoPositiva = variacao >= 0;
-  const corVariacao = variacaoPositiva ? COR_REALIZADO_POS : COR_REALIZADO_NEG;
-
-  // ── Linha do gráfico ─────────────────────────────────────────────────────
-  const dadosLinha = useMemo(() => {
-    if (!dados.length) return [];
-    const total = dados.length;
-    const step = total <= 10 ? 1 : total <= 20 ? 2 : 4;
-    return dados.map((d, i) => {
-      const futuro = d.data > hojeISO;
-      const [, mes, dia] = d.data.split('-');
-      return {
-        value: Number(d.saldoFinal),
-        label: i % step === 0 || i === total - 1 ? `${dia}/${mes}` : '',
-        dataPointColor: futuro ? COR_PROJECAO : (variacaoPositiva ? COR_REALIZADO_POS : COR_REALIZADO_NEG),
-        dataPointRadius: futuro ? 2 : 4,
-      };
+  // ── Limites de scroll por mês (índice cumulativo de pontos) ──────────────
+  const limitesMeses = useMemo(() => {
+    let cumulative = 0;
+    return [0, 1, 2].map(i => {
+      const start = cumulative;
+      cumulative += cache[i]?.length ?? 0;
+      return start;
     });
-  }, [dados, hojeISO, variacaoPositiva]);
+  }, [cache]);
 
-  // cor da linha: azul se só projeção, verde/vermelho se tem histórico
-  const corLinha = ehMesAtual || dadosPassado.length > 0
-    ? (variacaoPositiva ? COR_REALIZADO_POS : COR_REALIZADO_NEG)
+  // ── Navegação por aba: rola o gráfico até o mês selecionado ─────────────
+  const handleSelecionarMes = useCallback((offset: number) => {
+    const x = limitesMeses[offset] * CHART_SPACING;
+    if (!scrollRef.current) return;
+    if (Platform.OS === 'web') {
+      const node = (scrollRef.current as any).getScrollableNode?.();
+      node?.scrollTo?.({ left: x, behavior: 'smooth' });
+    } else {
+      scrollRef.current.scrollTo({ x, animated: true });
+    }
+  }, [limitesMeses]);
+
+  // ── Detecção do mês visível pelo scroll ───────────────────────────────────
+  const handleScroll = useCallback((event: any) => {
+    const x = event.nativeEvent.contentOffset.x;
+    let novoMes = 0;
+    for (let i = limitesMeses.length - 1; i >= 0; i--) {
+      if (cache[i]?.length && x >= limitesMeses[i] * CHART_SPACING - CHART_SPACING / 2) {
+        novoMes = i;
+        break;
+      }
+    }
+    if (novoMes !== mesVisivelRef.current) {
+      mesVisivelRef.current = novoMes;
+      setMesVisivel(novoMes);
+    }
+  }, [limitesMeses, cache]);
+
+  // ── KPIs calculados por mês ───────────────────────────────────────────────
+  const kpis = useMemo(() => {
+    const dadosMes = cache[mesVisivel] ?? [];
+    if (!dadosMes.length) return null;
+    const periodo = periodos[mesVisivel];
+
+    if (mesVisivel === 0) {
+      const dadosPassado = dadosMes.filter(d => d.data <= hojeISO);
+      const saldoHoje = dadosPassado.length > 0
+        ? Number(dadosPassado[dadosPassado.length - 1].saldoFinal)
+        : Number(dadosMes[0].saldoInicial);
+      const saldoPrevisto = Number(dadosMes[dadosMes.length - 1].saldoFinal);
+      return {
+        labelSaldo: 'Saldo hoje',
+        valorSaldo: saldoHoje,
+        labelPrevisto: `Previsto em ${periodo.label}`,
+        valorPrevisto: saldoPrevisto,
+        variacao: saldoPrevisto - saldoHoje,
+        temHistorico: dadosPassado.length > 0,
+      };
+    }
+
+    // Meses futuros: ganho/perda do mês inteiro
+    const saldoInicio = Number(dadosMes[0].saldoInicial);
+    const saldoPrevisto = Number(dadosMes[dadosMes.length - 1].saldoFinal);
+    return {
+      labelSaldo: `Início de ${periodo.label}`,
+      valorSaldo: saldoInicio,
+      labelPrevisto: `Previsto em ${periodo.label}`,
+      valorPrevisto: saldoPrevisto,
+      variacao: saldoPrevisto - saldoInicio,
+      temHistorico: false,
+    };
+  }, [cache, mesVisivel, hojeISO, periodos]);
+
+  const variacaoPositiva = (kpis?.variacao ?? 0) >= 0;
+
+  // Cor base do mês 0 (para colorir os pontos realizados)
+  const mes0Direcao = useMemo(() => {
+    const d = cache[0] ?? [];
+    if (!d.length) return true;
+    const passado = d.filter(x => x.data <= hojeISO);
+    const saldoHoje = passado.length > 0 ? Number(passado[passado.length - 1].saldoFinal) : Number(d[0].saldoInicial);
+    return Number(d[d.length - 1].saldoFinal) >= saldoHoje;
+  }, [cache, hojeISO]);
+
+  // ── Dados combinados dos 3 meses ─────────────────────────────────────────
+  const dadosLinha = useMemo(() => {
+    if (!cache[0]) return [];
+    const points: any[] = [];
+
+    for (let offset = 0; offset <= 2; offset++) {
+      const dadosMes = cache[offset];
+      if (!dadosMes || dadosMes.length === 0) break;
+
+      const total = dadosMes.length;
+      const step = total <= 10 ? 1 : total <= 20 ? 2 : 4;
+
+      dadosMes.forEach((d, i) => {
+        const futuro = d.data > hojeISO;
+        const [, mes, dia] = d.data.split('-');
+
+        // Label: nome do mês no primeiro ponto de meses futuros; data nos demais
+        let label = '';
+        if (offset > 0 && i === 0) {
+          label = periodos[offset].label;
+        } else if (i % step === 0 || i === total - 1) {
+          label = `${dia}/${mes}`;
+        }
+
+        points.push({
+          value: Number(d.saldoFinal),
+          label,
+          dataPointColor: futuro
+            ? COR_PROJECAO
+            : (mes0Direcao ? COR_REALIZADO_POS : COR_REALIZADO_NEG),
+          dataPointRadius: futuro ? 2 : 4,
+        });
+      });
+    }
+
+    return points;
+  }, [cache, hojeISO, periodos, mes0Direcao]);
+
+  // Cor da linha muda conforme o mês visível
+  const corLinha = mesVisivel === 0
+    ? (mes0Direcao ? COR_REALIZADO_POS : COR_REALIZADO_NEG)
     : COR_PROJECAO;
 
   // ── Escala Y ──────────────────────────────────────────────────────────────
@@ -125,16 +223,11 @@ export const GraficoSaldoDiario: React.FC<GraficoSaldoDiarioProps> = ({
 
   const yLabels = useMemo(() =>
     Array.from({ length: N_SECTIONS + 1 }, (_, i) =>
-      formatarYLabel((valorMax / N_SECTIONS) * (N_SECTIONS - i)),
+      formatarYLabel((valorMax / N_SECTIONS) * (N_SECTIONS - i))
     ), [valorMax]);
 
-  // ── Largura do gráfico ────────────────────────────────────────────────────
   const availableWidth = width - Y_AXIS_WIDTH - 48;
-  const isFewPoints = dadosLinha.length <= 10;
-  const chartSpacing = isFewPoints
-    ? Math.floor((availableWidth - 40) / Math.max(dadosLinha.length - 1, 1))
-    : 32;
-  const chartWidth = isFewPoints ? availableWidth : dadosLinha.length * 32 + 20;
+  const chartWidth = Math.max(dadosLinha.length * CHART_SPACING + 20, availableWidth);
 
   return (
     <View style={styles.containerStyle}>
@@ -143,16 +236,16 @@ export const GraficoSaldoDiario: React.FC<GraficoSaldoDiarioProps> = ({
       {/* KPIs */}
       <View style={styles.resumoStyle}>
         <View style={styles.resumoItemStyle}>
-          <Text style={styles.resumoLabelStyle}>
-            {ehMesAtual ? 'Saldo hoje' : `Início de ${periodoAtual?.label}`}
+          <Text style={styles.resumoLabelStyle}>{kpis?.labelSaldo ?? 'Saldo hoje'}</Text>
+          <Text style={styles.resumoValorStyle}>
+            {kpis ? formatarMoeda(kpis.valorSaldo) : '...'}
           </Text>
-          <Text style={styles.resumoValorStyle}>{formatarMoeda(saldoHoje)}</Text>
         </View>
         <View style={styles.separadorStyle} />
         <View style={styles.resumoItemStyle}>
-          <Text style={styles.resumoLabelStyle}>Previsto em {periodoAtual?.label}</Text>
+          <Text style={styles.resumoLabelStyle}>{kpis?.labelPrevisto ?? 'Previsto'}</Text>
           <Text style={[styles.resumoValorStyle, { color: corLinha }]}>
-            {formatarMoeda(saldoProjetado)}
+            {kpis ? formatarMoeda(kpis.valorPrevisto) : '...'}
           </Text>
         </View>
         <View style={styles.separadorStyle} />
@@ -160,21 +253,21 @@ export const GraficoSaldoDiario: React.FC<GraficoSaldoDiarioProps> = ({
           <Text style={styles.resumoLabelStyle}>
             {variacaoPositiva ? 'Ganho previsto' : 'Perda prevista'}
           </Text>
-          <Text style={[styles.resumoValorStyle, { color: corVariacao, fontSize: 13 }]}>
-            {variacao >= 0 ? '+' : ''}{formatarMoeda(variacao)}
+          <Text style={[styles.resumoValorStyle, { color: variacaoPositiva ? COR_REALIZADO_POS : COR_REALIZADO_NEG, fontSize: 13 }]}>
+            {kpis ? `${kpis.variacao >= 0 ? '+' : ''}${formatarMoeda(kpis.variacao)}` : '...'}
           </Text>
         </View>
       </View>
 
-      {/* Seletor de mês */}
+      {/* Abas de mês */}
       <View style={styles.periodoContainerStyle}>
         {periodos.map(p => {
-          const ativo = offsetSelecionado === p.offset;
+          const ativo = mesVisivel === p.offset;
           return (
             <TouchableOpacity
               key={p.offset}
               style={[styles.periodoItemStyle, ativo && { backgroundColor: '#569FFE' }]}
-              onPress={() => handleSelecionarPeriodo(p.offset)}
+              onPress={() => handleSelecionarMes(p.offset)}
               activeOpacity={0.7}
             >
               <Text style={[styles.periodoTextoStyle, ativo && { color: '#FFFFFF' }]}>
@@ -186,7 +279,7 @@ export const GraficoSaldoDiario: React.FC<GraficoSaldoDiarioProps> = ({
       </View>
 
       {/* Gráfico */}
-      {loading && !cache[offsetSelecionado] ? (
+      {loading && !cache[0] ? (
         <View style={styles.emptyStyle}>
           <ActivityIndicator color={COLORS.primaryLight} />
         </View>
@@ -202,15 +295,18 @@ export const GraficoSaldoDiario: React.FC<GraficoSaldoDiarioProps> = ({
             ))}
           </View>
           <ScrollView
+            ref={scrollRef}
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ paddingRight: 16 }}
             style={{ flex: 1 }}
+            onScroll={handleScroll}
+            scrollEventThrottle={80}
           >
             <LineChart
               data={dadosLinha}
               width={chartWidth}
-              spacing={chartSpacing}
+              spacing={CHART_SPACING}
               initialSpacing={20}
               height={CHART_HEIGHT}
               color={corLinha}
@@ -231,22 +327,20 @@ export const GraficoSaldoDiario: React.FC<GraficoSaldoDiarioProps> = ({
               xAxisLabelTextStyle={{ color: '#888888', fontSize: 9 }}
               dataPointsRadius={4}
               hideRules
-              isAnimated
+              isAnimated={false}
             />
           </ScrollView>
         </View>
       ) : (
         <View style={styles.emptyStyle}>
-          <Text style={styles.emptyTextoStyle}>
-            Nenhum dado de saldo para {periodoAtual?.label}
-          </Text>
+          <Text style={styles.emptyTextoStyle}>Nenhum dado de saldo disponível</Text>
         </View>
       )}
 
-      {/* Legenda realizado vs projeção */}
+      {/* Legenda */}
       {dadosLinha.length > 1 && (
         <View style={legendaLinhaStyle}>
-          {ehMesAtual && dadosPassado.length > 0 && (
+          {mesVisivel === 0 && kpis?.temHistorico && (
             <View style={legendaItemStyle}>
               <View style={[legendaCorStyle, { backgroundColor: corLinha }]} />
               <Text style={styles.yAxisLabelStyle}>Realizado</Text>
