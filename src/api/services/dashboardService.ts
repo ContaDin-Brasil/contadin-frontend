@@ -631,6 +631,19 @@ export const buscarSaldoDiario = async (
 };
 
 /**
+ * Retorna o saldo consolidado do usuário na data de hoje.
+ * Endpoint: GET /saldo/usuario/{fkUsuario}?data=YYYY-MM-DD
+ */
+export const buscarSaldoConsolidadoAtual = async (usuarioId: string | number): Promise<number> => {
+  const hoje = new Date().toISOString().split('T')[0];
+  const response = await api.get<{ data: string; saldoTotal: number; totalReceitas: number; totalGastos: number }>(
+    `/saldo/usuario/${usuarioId}`,
+    { params: { data: hoje } },
+  );
+  return Number(response.data.saldoTotal);
+};
+
+/**
  * Busca todos os dados do dashboard
  */
 export const buscarDadosDashboard = async (usuarioId: number): Promise<DadosDashboardApi> => {
