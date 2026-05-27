@@ -9,7 +9,7 @@ describe('getInstituicoesPadrao', () => {
     expect(getInstituicoesPadrao('vale')).toEqual(VALES_PADRAO);
   });
 
-  it('retorna bancos e vales quando tipo é outros', () => {
+  it('retorna bancos e vales quando tipo é todos', () => {
     expect(getInstituicoesPadrao('todos')).toEqual([...BANCOS_PADRAO, ...VALES_PADRAO]);
   });
 });
