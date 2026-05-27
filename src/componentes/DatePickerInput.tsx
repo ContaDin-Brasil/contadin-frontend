@@ -195,7 +195,6 @@ export const DatePickerInput: React.FC<DatePickerInputProps> = ({
         minimumDate={minDate}
         maximumDate={maxDate}
         locale="pt_BR"
-        headerTextIOS="Selecione a data"
         confirmTextIOS="Confirmar"
         cancelTextIOS="Cancelar"
         isDarkModeEnabled={false}
