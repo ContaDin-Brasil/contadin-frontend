@@ -193,7 +193,8 @@ function TelaCriarConta({ navigation }) {
               Li e aceito os{" "}
               <Text style={styles.termosLink} onPress={abrirTermos}>
                 Termos de Uso
-              </Text>{" "}
+              </Text>
+              .
             </Text>
           </View>
 
