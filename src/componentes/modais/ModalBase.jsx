@@ -1,7 +1,26 @@
 import React from 'react';
 import { Modal, View, Text, StyleSheet, TouchableOpacity, Pressable } from 'react-native';
+import { COLORS } from '../../styles/colors';
 
-const CustomModal = ({ visible, onClose, title, children, showButtons = true, onConfirm, confirmText = 'Continuar', cancelText = 'Cancelar' }) => {
+const CustomModal = ({
+  visible,
+  onClose,
+  title,
+  children,
+  showButtons = true,
+  onConfirm,
+  confirmText = 'Continuar',
+  cancelText = 'Cancelar',
+  confirmVariant = 'danger',
+  confirmColor,
+}) => {
+  const resolvedConfirmColor = confirmColor
+    ? confirmColor
+    : confirmVariant === 'success'
+      ? COLORS.success
+      : confirmVariant === 'primary'
+        ? COLORS.primary
+        : COLORS.error;
   return (
     <Modal
       visible={visible}
@@ -21,7 +40,10 @@ const CustomModal = ({ visible, onClose, title, children, showButtons = true, on
               <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
                 <Text style={styles.cancelButtonText}>{cancelText}</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.confirmButton} onPress={onConfirm}>
+              <TouchableOpacity
+                style={[styles.confirmButton, { backgroundColor: resolvedConfirmColor }]}
+                onPress={onConfirm}
+              >
                 <Text style={styles.confirmButtonText}>{confirmText}</Text>
               </TouchableOpacity>
             </View>

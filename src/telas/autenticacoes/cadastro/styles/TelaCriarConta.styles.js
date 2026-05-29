@@ -118,6 +118,17 @@ export const styles = StyleSheet.create({
     color: "#6BA7FF",
     textDecorationLine: "underline",
   },
+  termosModalScroll: {
+    maxHeight: 360,
+  },
+  termosModalContent: {
+    paddingBottom: 12,
+  },
+  termosModalTexto: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    lineHeight: 20,
+  },
   saveButton: {
     backgroundColor: "#2D85F8",
     paddingVertical: 16,
