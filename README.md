@@ -5,87 +5,116 @@ Aplicativo React Native/Expo para gerenciamento de finanças pessoais com contro
 ## 📋 Índice
 
 - [Pré-requisitos](#-pré-requisitos)
-- [Instalação](#-instalação)
+- [Configuração](#-configuração)
 - [Como Executar](#-como-executar)
 - [Estrutura do Projeto](#-estrutura-do-projeto)
 - [Funcionalidades](#-funcionalidades)
 - [Tecnologias Utilizadas](#-tecnologias-utilizadas)
 - [Como Testar](#-como-testar)
-- [API e Mock Server](#-api-e-mock-server)
+- [API e Serviços](#-api-e-serviços)
 - [Troubleshooting](#-troubleshooting)
 
 ## 🔧 Pré-requisitos
 
-- **Node.js** (v14 ou superior)
+- **Node.js** 18.18+ ou **20 LTS** (recomendado para Expo SDK 54)
 - **npm** ou **yarn**
-- **Expo CLI**: `npm install -g expo-cli`
-- **Emulador Android/iOS** ou **Expo Go** no dispositivo móvel
+- **Expo Go** no celular **ou** emulador Android/iOS (Android Studio / Xcode)
+- **Backend principal** rodando (porta padrão `8080`) — API Java/Spring do ContaDin
+- **Serviço Python (ETL/IA)** rodando (porta padrão `8000`) — necessário para OCR, áudio e importação de planilha
 
-## 📦 Instalação
+> Não é necessário instalar `expo-cli` globalmente. O projeto já inclui o Expo localmente; use `npm start` ou `npx expo start`.
 
-1. Clone o repositório:
+## ⚙️ Configuração
+
+Crie um arquivo `.env` na raiz do projeto com as variáveis abaixo. Use o exemplo como base:
+
+```bash
+cp .env.example .env
+# Edite .env com os valores do seu ambiente
+```
+
+| Variável | Descrição |
+|----------|-----------|
+| `EXPO_PUBLIC_API_BASE_URL` | URL base da API principal (ex.: `http://192.168.15.13:8080` ou `http://localhost:8080` no browser) |
+| `EXPO_PUBLIC_PYTHON_BASE_URL` | URL do serviço Python — OCR, áudio e ETL (ex.: `http://192.168.15.13:8000`) |
+| `EXPO_PUBLIC_ETL_IMPORT_PATH` | Caminho do endpoint de importação de planilha (padrão: `/data/process`) |
+| `EXPO_PUBLIC_ETL_SEND_AUTH` | Enviar token `Authorization` nas requisições ao ETL (`true`/`false`; padrão `false`) |
+| `EXPO_PUBLIC_SYSADMIN_EMAIL` | E-mail para login mockado (desenvolvimento) |
+| `EXPO_PUBLIC_SYSADMIN_PASSWORD` | Senha para login mockado (desenvolvimento) |
+
+**Comportamento por plataforma:**
+
+- **Web (browser):** se `EXPO_PUBLIC_*` não estiver definida, o app usa fallback `http://localhost:8080` (API) e `http://localhost:8000` (Python).
+- **Emulador ou dispositivo físico:** as URLs com IP da máquina são **obrigatórias** — `localhost` no celular aponta para o próprio aparelho, não para o seu PC.
+
+Para descobrir o IP da máquina na rede local:
+
+- **Windows:** `ipconfig`
+- **Linux/macOS:** `ip addr` ou `ifconfig`
+
+Após alterar o `.env`, reinicie o Expo (de preferência limpando cache):
+
+```bash
+npx expo start -c
+```
+
+## 🚀 Como Executar
+
+**1. Clonar o repositório**
+
 ```bash
 git clone https://github.com/ContaDin-Brasil/contadin-frontend
 cd contadin-frontend
 ```
 
-2. Instale as dependências do projeto:
+**2. Instalar dependências**
+
 ```bash
 npm install
 ```
 
-3. Instale as dependências do Mock Server:
+**3. Configurar variáveis de ambiente**
+
 ```bash
-cd mock-server
-npm install
-cd ..
+cp .env.example .env
+# Editar .env — veja a tabela na seção Configuração
 ```
 
-## 🚀 Como Executar
+**4. Subir os backends (em terminais separados)**
 
-### 1. Inicie o Mock Server
+- API principal na porta `8080`
+- Serviço Python na porta `8000` — suba com `uvicorn app.main:app --reload --host 0.0.0.0` no repositório do backend Python
 
-O Mock Server simula um backend real e precisa estar rodando antes de iniciar o aplicativo.
-
-**Windows:**
-```bash
-cd mock-server
-npm start
-```
-
-**Linux/Mac:**
-```bash
-cd mock-server
-npm start
-```
-
-O servidor será iniciado em: `http://localhost:3001`
-
-### 2. Inicie o Aplicativo
-
-Em outro terminal (na raiz do projeto):
+**5. Iniciar o aplicativo**
 
 ```bash
 npm start
 ```
 
-Aguarde o Metro Bundler iniciar e então:
-- Pressione `i` para iOS Simulator
-- Pressione `a` para Android Emulator
-- Escaneie o QR Code com o **Expo Go** para testar em dispositivo físico
+Quando o Metro Bundler abrir:
 
-### 3. Configuração de IP para Dispositivos Físicos
+- `i` — iOS Simulator
+- `a` — Android Emulator
+- Escaneie o QR Code com o **Expo Go** — dispositivo físico
 
-Se estiver testando em um dispositivo físico Android, edite o arquivo [src/api/config.js](src/api/config.js) e substitua o IP:
+Alternativas:
 
-```javascript
-// Substitua pelo IP da sua máquina na rede local
-const API_BASE_URL = 'http://192.168.x.x:3001';
+```bash
+npm run android
+npm run ios
+npm run web
 ```
 
-Para descobrir seu IP:
-- **Windows**: `ipconfig`
-- **Linux/Mac**: `ifconfig` ou `ip addr`
+> **Atenção — acesso via dispositivo físico ou emulador mobile**
+>
+> No `.env`, use o **IP da sua máquina na rede local**, não `localhost`:
+>
+> ```env
+> EXPO_PUBLIC_API_BASE_URL=http://192.168.X.X:8080
+> EXPO_PUBLIC_PYTHON_BASE_URL=http://192.168.X.X:8000
+> ```
+>
+> O serviço Python precisa escutar em todas as interfaces (`--host 0.0.0.0`). Sem isso, funções de câmera, galeria, áudio e importação de planilha podem falhar silenciosamente ou retornar erro de rede.
 
 ## 📁 Estrutura do Projeto
 
@@ -96,7 +125,7 @@ TestesFinance/
 │       └── instituicoes/          # Logos de bancos e vales (18 PNGs)
 ├── src/
 │   ├── api/                       # Camada de serviços API
-│   │   ├── config.js              # Configuração do Axios
+│   │   ├── config.ts              # Configuração do Axios e URL base
 │   │   └── services/              # Serviços por recurso
 │   │       ├── usuarioService.js
 │   │       ├── categoriaService.js
@@ -207,7 +236,7 @@ TestesFinance/
 - **TypeScript** - Para hooks e tipos
 - **React Navigation** - Navegação entre telas
 - **Axios** - Requisições HTTP
-- **JSON Server** - Mock backend
+- **i18next** - Internacionalização
 - **React Native Vector Icons** - Ícones
 - **React Native Gesture Handler** - Gestos e animações
 
@@ -215,12 +244,17 @@ TestesFinance/
 
 ### Teste Rápido de Conexão
 
-1. Com o Mock Server rodando, acesse no navegador:
+1. Com o backend principal rodando, acesse no navegador (ajuste a URL conforme seu `.env`):
 ```
-http://localhost:3001/instituicao
+http://localhost:8080/instituicao
 ```
 
-Você deve ver um JSON com as instituições cadastradas.
+Você deve receber uma resposta da API com as instituições cadastradas.
+
+2. Com o serviço Python rodando, acesse a documentação interativa:
+```
+http://localhost:8000/docs
+```
 
 ### Teste no Aplicativo
 
@@ -258,7 +292,7 @@ Você deve ver um JSON com as instituições cadastradas.
 
 **Criar uma nova instituição:**
 ```bash
-curl -X POST http://localhost:3001/instituicao \
+curl -X POST http://localhost:8080/instituicao \
   -H "Content-Type: application/json" \
   -d '{
     "nome": "Nubank",
@@ -271,23 +305,27 @@ curl -X POST http://localhost:3001/instituicao \
 
 **Listar transações por período:**
 ```bash
-curl "http://localhost:3001/transacao?data_transacao_gte=2026-02-01&data_transacao_lte=2026-02-28"
+curl "http://localhost:8080/transacao?data_transacao_gte=2026-02-01&data_transacao_lte=2026-02-28"
 ```
 
 **Filtrar instituições por tipo:**
 ```bash
-curl "http://localhost:3001/instituicao?tipoInstituicao=banco"
+curl "http://localhost:8080/instituicao?tipoInstituicao=banco"
 ```
 
-## 📡 API e Mock Server
+## 📡 API e Serviços
 
 ### Configuração Base
 
-A URL da API é configurada automaticamente em [src/api/config.js](src/api/config.js):
+As URLs dos serviços são lidas do `.env` via variáveis `EXPO_PUBLIC_*`:
 
-- **iOS Simulator**: `http://localhost:3001`
-- **Android Emulator**: `http://10.0.2.2:3001`
-- **Dispositivo Físico**: Configurar IP manualmente
+- **API principal:** [src/api/config.ts](src/api/config.ts) — `EXPO_PUBLIC_API_BASE_URL`
+- **Python (OCR, áudio, ETL):** [src/api/services/ocrService.ts](src/api/services/ocrService.ts), [src/api/services/importacaoPlanilhaService.ts](src/api/services/importacaoPlanilhaService.ts) — `EXPO_PUBLIC_PYTHON_BASE_URL`
+
+| Ambiente | API (`8080`) | Python (`8000`) |
+|----------|--------------|-----------------|
+| **Web (browser)** | Fallback `http://localhost:8080` | Fallback `http://localhost:8000` |
+| **Emulador / dispositivo físico** | IP da máquina no `.env` (obrigatório) | IP da máquina no `.env` (obrigatório) |
 
 ### Serviços Disponíveis
 
@@ -309,16 +347,9 @@ await transacaoService.atualizar(id, dados);
 await transacaoService.deletar(id);
 ```
 
-### Estrutura do Banco de Dados
+### Mock Server (legado)
 
-O arquivo `mock-server/db.json` contém:
-
-- **usuario** - Dados do usuário
-- **categoria** - Categorias de transações
-- **instituicao** - Bancos, carteiras e vales
-- **transacao** - Gastos e receitas
-- **meta_gasto** - Metas por categoria
-- **token_recuperar_senha** - Tokens de recuperação
+A pasta `mock-server/` contém um JSON Server local usado em desenvolvimento anterior. O fluxo principal do app aponta para a API na porta `8080`. Consulte [mock-server/README.md](mock-server/README.md) se precisar usá-lo.
 
 ### Atualização Automática de Dados
 
@@ -335,23 +366,23 @@ Isso garante que:
 
 ### Erro de Conexão "Network Error"
 
-**Problema**: App não consegue conectar ao Mock Server
+**Problema**: App não consegue conectar à API ou ao serviço Python
 
 **Soluções**:
-1. Verifique se o Mock Server está rodando (`npm start` em `mock-server/`)
-2. **Android Emulator**: Use `http://10.0.2.2:3001` em vez de `localhost`
-3. **Dispositivo físico**: Configure o IP da sua máquina na rede local
-4. Verifique o firewall - permita conexões na porta 3001
+1. Verifique se o backend principal está rodando na porta `8080`
+2. Verifique se o serviço Python está rodando na porta `8000`
+3. **Emulador ou dispositivo físico**: defina `EXPO_PUBLIC_API_BASE_URL` e `EXPO_PUBLIC_PYTHON_BASE_URL` com o IP da sua máquina no `.env` — `localhost` não funciona nesses ambientes
+4. Reinicie o Expo após alterar o `.env`: `npx expo start -c`
+5. Verifique o firewall — permita conexões nas portas `8080` e `8000`
 
-### Mock Server não inicia
+### OCR, áudio ou importação de planilha não funcionam
 
-**Problema**: Erro ao executar `npm start` no mock-server
+**Problema**: Funcionalidades de IA não respondem ou não geram logs no backend Python
 
 **Soluções**:
-1. Delete o `node_modules` e `package-lock.json`
-2. Execute `npm install` novamente
-3. Verifique se a porta 3001 está livre: `netstat -ano | findstr :3001` (Windows)
-4. Se estiver ocupada, mate o processo ou mude a porta em `mock-server/package.json`
+1. Confirme que `EXPO_PUBLIC_PYTHON_BASE_URL` aponta para o IP correto da máquina
+2. Suba o Python com `--host 0.0.0.0` para expor o serviço na rede local
+3. Dispositivo e computador devem estar na mesma rede Wi-Fi
 
 ### Dados não atualizam após delete/create
 
@@ -371,7 +402,7 @@ Se ainda ocorrer, verifique se está na versão mais recente do código.
 1. Verifique se os arquivos PNG estão em `assets/logos/instituicoes/`
 2. Nomes dos arquivos devem ser minúsculos e com hífens (ex: `banco-do-brasil.png`)
 3. Reinicie o Metro Bundler: pressione `r` no terminal ou `Ctrl+C` e `npm start`
-4. Limpe o cache: `expo start -c`
+4. Limpe o cache: `npx expo start -c`
 
 ### Erro "Cannot find module"
 
@@ -379,9 +410,8 @@ Se ainda ocorrer, verifique se está na versão mais recente do código.
 
 **Soluções**:
 1. Execute `npm install` na raiz do projeto
-2. Execute `npm install` dentro de `mock-server/`
-3. Limpe o cache do Metro: `expo start -c`
-4. Delete `node_modules` e reinstale
+2. Limpe o cache do Metro: `npx expo start -c`
+3. Delete `node_modules` e reinstale
 
 ### App não carrega no dispositivo físico
 
@@ -425,8 +455,6 @@ O projeto segue boas práticas de separação de responsabilidades:
 
 ### Próximos Passos
 
-- [ ] Conectar a um backend real
-- [ ] Implementar autenticação JWT
 - [ ] Adicionar gráficos e relatórios
 - [ ] Implementar sincronização offline
 - [ ] Adicionar testes unitários
