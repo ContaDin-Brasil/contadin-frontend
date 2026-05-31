@@ -7,19 +7,28 @@ import {
   ActivityIndicator,
   TouchableOpacity
 } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { styles } from './styles/TelaInicial.styles';
+import { getStyles } from './styles/TelaInicial.styles';
+import { getColorsByTheme } from '../../styles/colors';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useGerenciarDashboard } from './hooks/useGerenciarDashboard';
 import { CardResumo } from './components/CardResumo';
 import { ItemCategoria } from './components/ItemCategoria';
 import { GraficoSaldoDiario } from './components/GraficoSaldoDiario';
 import { ModalGraficoCategorias } from './components/ModalGraficoCategorias';
+import { EmptyStateTransacoes } from './components/EmptyStateTransacoes';
 
 const TelaInicial = () => {
+  const { isDarkMode } = useTheme();
+  const styles = getStyles(isDarkMode);
+  const COLORS = getColorsByTheme(isDarkMode);
+  const navigation = useNavigation();
+  
   const [modalGraficoCategoriasVisible, setModalGraficoCategoriasVisible] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [bloquearRenderizacao, setBloquearRenderizacao] = useState(true);
   const { user } = useAuth();
 
   const {
@@ -38,16 +47,28 @@ const TelaInicial = () => {
   // Atualizar dados e gráfico quando a tela recebe foco
   useFocusEffect(
     React.useCallback(() => {
-      atualizarDados();
-      setRefreshKey(prev => prev + 1);
+      let ativo = true;
+
+      setBloquearRenderizacao(true);
+
+      Promise.resolve(atualizarDados()).finally(() => {
+        if (ativo) {
+          setBloquearRenderizacao(false);
+          setRefreshKey(prev => prev + 1);
+        }
+      });
+
+      return () => {
+        ativo = false;
+      };
     }, [atualizarDados])
   );
 
   // Loading inicial
-  if (loading && !dados) {
+  if (bloquearRenderizacao || (loading && !dados)) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#5BA3FF" />
+        <ActivityIndicator size="large" color={COLORS.primary} />
         <Text style={styles.loadingText}>Carregando dados...</Text>
       </View>
     );
@@ -57,7 +78,7 @@ const TelaInicial = () => {
   if (erro && !dados) {
     return (
       <View style={styles.erroContainer}>
-        <Ionicons name="alert-circle-outline" size={64} color="#E31C23" />
+        <Ionicons name="alert-circle-outline" size={64} color={COLORS.error} />
         <Text style={styles.erroTexto}>{erro}</Text>
         <TouchableOpacity 
           style={styles.botaoTentarNovamente}
@@ -65,6 +86,19 @@ const TelaInicial = () => {
         >
           <Text style={styles.botaoTentarNovamenteTexto}>Tentar Novamente</Text>
         </TouchableOpacity>
+      </View>
+    );
+  }
+
+  // ✅ Empty State - quando não há transações cadastradas
+  const temTransacoes = resumo && (resumo.receitaTotal > 0 || resumo.gastoTotal > 0);
+  
+  if (!temTransacoes && !loading) {
+    return (
+      <View style={styles.container}>
+        <EmptyStateTransacoes
+          onAdicionarTransacao={() => navigation.navigate('Transacoes', { screen: 'AdicionarTransacao' })}
+        />
       </View>
     );
   }
@@ -79,8 +113,8 @@ const TelaInicial = () => {
           <RefreshControl
             refreshing={atualizando}
             onRefresh={atualizarDados}
-            colors={['#5BA3FF']}
-            tintColor="#5BA3FF"
+            colors={[COLORS.primary]}
+            tintColor={COLORS.primary}
           />
         }
       >

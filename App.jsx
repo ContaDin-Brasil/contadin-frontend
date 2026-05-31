@@ -7,6 +7,7 @@ import NavegadorPrincipal from "./src/navegacao/NavegadorPrincipal";
 import NavegadorAutenticacao from "./src/navegacao/NavegadorAutenticacao";
 import { CacheProvider } from "./src/contexts/CacheContext";
 import { AuthProvider, useAuth } from "./src/contexts/AuthContext";
+import { ThemeProvider } from "./src/contexts/ThemeContext";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 function NavegacaoRaiz() {
@@ -19,16 +20,22 @@ function NavegacaoRaiz() {
 
 export default function App() {
   return (
-    <CacheProvider>
-      <AuthProvider>
-        <SafeAreaProvider>
-          <NavigationContainer>
-            <StatusBar style="auto" />
-            <NavegacaoRaiz />
-          </NavigationContainer>
-          <Toast />
-        </SafeAreaProvider>
-      </AuthProvider>
-    </CacheProvider>
+    <ThemeProvider>
+      <CacheProvider>
+        <AuthProvider>
+          <StatusBar 
+            barStyle="dark-content" 
+            backgroundColor="#FFFFFF"
+            translucent={false}
+          />
+          <SafeAreaProvider>
+            <NavigationContainer>
+              <NavegacaoRaiz />
+            </NavigationContainer>
+            <Toast />
+          </SafeAreaProvider>
+        </AuthProvider>
+      </CacheProvider>
+    </ThemeProvider>
   );
 }

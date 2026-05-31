@@ -9,7 +9,8 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
-import { COLORS } from '../styles/colors';
+import { getColorsByTheme } from '../styles/colors';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface Props {
   visible: boolean;
@@ -24,6 +25,10 @@ const ModalConfirmarAudio: React.FC<Props> = ({
   onConfirm,
   onCancel,
 }) => {
+  const { isDarkMode } = useTheme();
+  const COLORS = getColorsByTheme(isDarkMode);
+  const styles = getStyles(isDarkMode);
+  
   const [isPlaying, setIsPlaying] = useState(false);
   const [position, setPosition] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -172,108 +177,113 @@ const ModalConfirmarAudio: React.FC<Props> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: COLORS.overlay,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 24,
-  },
-  card: {
-    backgroundColor: COLORS.white,
-    borderRadius: 16,
-    padding: 24,
-    width: '100%',
-    maxWidth: 380,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 4,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: COLORS.textPrimary,
-  },
-  subtitle: {
-    fontSize: 13,
-    color: COLORS.textSecondary,
-    marginBottom: 20,
-  },
-  player: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-    backgroundColor: COLORS.secondaryLighter,
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 24,
-  },
-  playButton: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  playerInfo: {
-    flex: 1,
-    gap: 6,
-  },
-  progressTrack: {
-    height: 4,
-    backgroundColor: COLORS.primaryLighter,
-    borderRadius: 2,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: COLORS.primary,
-    borderRadius: 2,
-  },
-  timeRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  timeText: {
-    fontSize: 11,
-    color: COLORS.textSecondary,
-  },
-  buttons: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  cancelButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    paddingVertical: 12,
-    borderRadius: 10,
-    borderWidth: 1.5,
-    borderColor: COLORS.error,
-  },
-  cancelText: {
-    color: COLORS.error,
-    fontWeight: '600',
-    fontSize: 14,
-  },
-  confirmButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    paddingVertical: 12,
-    borderRadius: 10,
-    backgroundColor: COLORS.primary,
-  },
-  confirmText: {
-    color: COLORS.white,
-    fontWeight: '600',
-    fontSize: 14,
-  },
-});
+const getStyles = (isDarkMode: boolean) => {
+  const COLORS = getColorsByTheme(isDarkMode);
 
+  return StyleSheet.create({
+    overlay: {
+      flex: 1,
+      backgroundColor: COLORS.overlay,
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingHorizontal: 24,
+    },
+    card: {
+      backgroundColor: COLORS.backgroundLight,
+      borderRadius: 16,
+      padding: 24,
+      width: '100%',
+      maxWidth: 380,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      marginBottom: 4,
+    },
+    title: {
+      fontSize: 18,
+      fontWeight: '700',
+      color: COLORS.textPrimary,
+    },
+    subtitle: {
+      fontSize: 13,
+      color: COLORS.textSecondary,
+      marginBottom: 20,
+    },
+    player: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 14,
+      backgroundColor: COLORS.backgroundDark,
+      borderRadius: 12,
+      padding: 12,
+      marginBottom: 24,
+    },
+    playButton: {
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    playerInfo: {
+      flex: 1,
+      gap: 6,
+    },
+    progressTrack: {
+      height: 4,
+      backgroundColor: COLORS.primaryLighter,
+      borderRadius: 2,
+      overflow: 'hidden',
+    },
+    progressFill: {
+      height: '100%',
+      backgroundColor: COLORS.primary,
+      borderRadius: 2,
+    },
+    timeRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+    },
+    timeText: {
+      fontSize: 11,
+      color: COLORS.textSecondary,
+    },
+    buttons: {
+      flexDirection: 'row',
+      gap: 12,
+    },
+    cancelButton: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 6,
+      paddingVertical: 12,
+      borderRadius: 10,
+      borderWidth: 1.5,
+      borderColor: COLORS.error,
+    },
+    cancelText: {
+      color: COLORS.error,
+      fontWeight: '600',
+      fontSize: 14,
+    },
+    confirmButton: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 6,
+      paddingVertical: 12,
+      borderRadius: 10,
+      backgroundColor: COLORS.primary,
+    },
+    confirmText: {
+      color: COLORS.white,
+      fontWeight: '600',
+      fontSize: 14,
+    },
+  });
+};
+
+const styles = getStyles(false);
 export default ModalConfirmarAudio;

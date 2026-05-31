@@ -11,8 +11,9 @@ import {
 import { LineChart } from 'react-native-gifted-charts';
 import { buscarSaldoDiario } from '../../../api/services/dashboardService';
 import type { SaldoDiario } from '../types/dashboard.types';
-import { styles } from '../styles/TelaInicial.styles';
-import { COLORS } from '../../../styles/colors';
+import { getStyles } from '../styles/TelaInicial.styles';
+import { getColorsByTheme } from '../../../styles/colors';
+import { useTheme } from '../../../contexts/ThemeContext';
 
 interface GraficoSaldoDiarioProps {
   usuarioId: string | number;
@@ -26,10 +27,6 @@ const Y_AXIS_WIDTH = 52;
 const N_SECTIONS = 4;
 const CHART_SPACING = 28;
 const NOMES_MESES = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-
-const COR_REALIZADO_POS = '#51CF66';
-const COR_REALIZADO_NEG = '#FF6B6B';
-const COR_PROJECAO = '#5BA3FF';
 
 const toISO = (d: Date) => d.toISOString().split('T')[0];
 
@@ -53,6 +50,15 @@ export const GraficoSaldoDiario: React.FC<GraficoSaldoDiarioProps> = ({
   formatarMoeda,
   refreshKey,
 }) => {
+  const { isDarkMode } = useTheme();
+  const styles = getStyles(isDarkMode);
+  const COLORS = getColorsByTheme(isDarkMode);
+  
+  // Cores dinâmicas baseadas no tema
+  const COR_REALIZADO_POS = COLORS.success;
+  const COR_REALIZADO_NEG = COLORS.error;
+  const COR_PROJECAO = COLORS.primary;
+  
   const [cache, setCache] = useState<Record<number, SaldoDiario[]>>({});
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
@@ -266,11 +272,11 @@ export const GraficoSaldoDiario: React.FC<GraficoSaldoDiarioProps> = ({
           return (
             <TouchableOpacity
               key={p.offset}
-              style={[styles.periodoItemStyle, ativo && { backgroundColor: '#569FFE' }]}
+              style={[styles.periodoItemStyle, ativo && { backgroundColor: COLORS.secondary }]}
               onPress={() => handleSelecionarMes(p.offset)}
               activeOpacity={0.7}
             >
-              <Text style={[styles.periodoTextoStyle, ativo && { color: '#FFFFFF' }]}>
+              <Text style={[styles.periodoTextoStyle, ativo && { color: COLORS.white }]}>
                 {p.label}
               </Text>
             </TouchableOpacity>
@@ -323,8 +329,8 @@ export const GraficoSaldoDiario: React.FC<GraficoSaldoDiarioProps> = ({
               hideYAxisText
               yAxisThickness={0}
               xAxisThickness={1}
-              xAxisColor="#E0E0E0"
-              xAxisLabelTextStyle={{ color: '#888888', fontSize: 9 }}
+              xAxisColor={COLORS.border}
+              xAxisLabelTextStyle={{ color: COLORS.textTertiary, fontSize: 9 }}
               dataPointsRadius={4}
               hideRules
               isAnimated={false}

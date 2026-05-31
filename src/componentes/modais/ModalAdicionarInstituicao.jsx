@@ -85,7 +85,7 @@ const AddCustomInstitutionModal = ({ visible, onClose, onAdd, tipoInicial = 'ban
                 value={name}
                 onChangeText={setName}
                 placeholder="Ex: Meu Banco"
-                placeholderTextColor="#999"
+                placeholderTextColor={COLORS.textTertiary}
               />
             </View>
 

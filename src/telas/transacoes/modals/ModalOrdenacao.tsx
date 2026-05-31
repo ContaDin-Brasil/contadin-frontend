@@ -1,7 +1,8 @@
 import React from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import COLORS from '../../../styles/colors';
+import { useTheme } from '../../../contexts/ThemeContext';
+import { getColorsByTheme } from '../../../styles/colors';
 
 interface ModalOrdenacaoProps {
   visible: boolean;
@@ -25,6 +26,10 @@ export const ModalOrdenacao: React.FC<ModalOrdenacaoProps> = ({
   ordenacaoAtual,
   onSelectOrdenacao,
 }) => {
+  const { isDarkMode } = useTheme();
+  const COLORS = getColorsByTheme(isDarkMode);
+  const styles = getModalOrdenacaoStyles(COLORS);
+
   const handleSelect = (value: string) => {
     onSelectOrdenacao(value);
     onClose();
@@ -92,7 +97,7 @@ export const ModalOrdenacao: React.FC<ModalOrdenacaoProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const getModalOrdenacaoStyles = (COLORS) => StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: COLORS.overlay,
@@ -100,7 +105,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContainer: {
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.backgroundLight,
     borderRadius: 16,
     width: '85%',
     maxWidth: 400,
@@ -137,7 +142,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.background,
+    borderBottomColor: COLORS.border,
   },
   optionItemSelected: {
     backgroundColor: COLORS.primaryLighter,

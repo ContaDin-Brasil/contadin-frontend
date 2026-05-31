@@ -1,23 +1,27 @@
 import { StyleSheet } from "react-native";
+import { getColorsByTheme } from '../../../styles/colors';
 
-export const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
-  },
-  modalContainer: {
-    backgroundColor: '#FFF',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    paddingHorizontal: 20,
-    paddingBottom: 30,
-    maxHeight: '70%',
-  },
+export const getStyles = (isDarkMode) => {
+  const COLORS = getColorsByTheme(isDarkMode);
+
+  return StyleSheet.create({
+    overlay: {
+      flex: 1,
+      backgroundColor: COLORS.overlay,
+      justifyContent: 'flex-end',
+    },
+    modalContainer: {
+      backgroundColor: COLORS.backgroundLight,
+      borderTopLeftRadius: 20,
+      borderTopRightRadius: 20,
+      paddingHorizontal: 20,
+      paddingBottom: 30,
+      maxHeight: '70%',
+    },
   handle: {
     width: 40,
     height: 4,
-    backgroundColor: '#CCC',
+    backgroundColor: COLORS.border,
     borderRadius: 2,
     alignSelf: 'center',
     marginTop: 10,
@@ -26,7 +30,7 @@ export const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#333',
+    color: COLORS.textPrimary,
     marginBottom: 20,
   },
   iconGrid: {
@@ -37,15 +41,15 @@ export const styles = StyleSheet.create({
     height: 60,
     margin: 5,
     borderRadius: 30,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: COLORS.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
   iconButtonSelected: {
-    backgroundColor: '#4A9EFF',
+    backgroundColor: COLORS.primary,
   },
   closeButton: {
-    backgroundColor: '#E0E0E0',
+    backgroundColor: COLORS.background,
     paddingVertical: 15,
     borderRadius: 10,
     alignItems: 'center',
@@ -54,6 +58,9 @@ export const styles = StyleSheet.create({
   closeButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#666',
+    color: COLORS.textSecondary,
   },
-});
+  });
+};
+
+export const styles = getStyles(false);

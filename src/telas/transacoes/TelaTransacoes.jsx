@@ -26,9 +26,14 @@ import {
   getCategoryIcon,
   parseTransacaoDate,
 } from "./utils/utilitariosTransacao";
-import { styles } from "./styles/TelaTransacoes.styles";
+import { getStyles } from "./styles/TelaTransacoes.styles";
+import { getColorsByTheme } from "../../styles/colors";
+import { useTheme } from "../../contexts/ThemeContext";
 
 const TelaTransacoes = ({ navigation, route }) => {
+  const { isDarkMode } = useTheme();
+  const styles = getStyles(isDarkMode);
+  const COLORS = getColorsByTheme(isDarkMode);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [refreshing, setRefreshing] = useState(false);
@@ -218,7 +223,7 @@ const TelaTransacoes = ({ navigation, route }) => {
         ]}
       >
         <ActivityIndicator size="large" color={COLORS.primary} />
-        <Text style={{ marginTop: 16, color: "#666" }}>
+        <Text style={{ marginTop: 16, color: COLORS.textSecondary }}>
           Carregando transações...
         </Text>
       </View>
@@ -234,8 +239,8 @@ const TelaTransacoes = ({ navigation, route }) => {
           { justifyContent: "center", alignItems: "center", padding: 20 },
         ]}
       >
-        <Ionicons name="alert-circle-outline" size={64} color="#E31C23" />
-        <Text style={{ marginTop: 16, color: "#E31C23", textAlign: "center" }}>
+        <Ionicons name="alert-circle-outline" size={64} color={COLORS.error} />
+        <Text style={{ marginTop: 16, color: COLORS.error, textAlign: "center" }}>
           {gerenciador.error}
         </Text>
         <TouchableOpacity
@@ -250,7 +255,7 @@ const TelaTransacoes = ({ navigation, route }) => {
             })
           }
         >
-          <Ionicons name="refresh" size={20} color="#666" />
+          <Ionicons name="refresh" size={20} color={COLORS.textSecondary} />
           <Text style={styles.filterButtonText}>Tentar Novamente</Text>
         </TouchableOpacity>
       </View>
@@ -309,7 +314,7 @@ const TelaTransacoes = ({ navigation, route }) => {
     const institution = gerenciador.buscarInstituicao(item.fkInstituicao);
     const categoryName = category?.nome || 'Categoria não informada';
     const institutionName = institution?.nome || 'Sem instituição';
-    const institutionColor = institution?.cor || '#666';
+    const institutionColor = institution?.cor || COLORS.textSecondary;
     const institutionLogo = getLogoByName(institutionName);
     
     // Mapeia frequência para texto amigável
@@ -379,7 +384,7 @@ const TelaTransacoes = ({ navigation, route }) => {
             <MaterialIcons 
               name={category?.icone || getCategoryIcon(categoryName)} 
               size={14} 
-              color="#666" 
+              color={COLORS.textSecondary} 
             />
             <Text style={styles.recorrenciaCategoryText}>{categoryName}</Text>
           </View>
@@ -411,7 +416,7 @@ const TelaTransacoes = ({ navigation, route }) => {
           </View>
           
           <View style={styles.recorrenciaProximaData}>
-            <Ionicons name="calendar-outline" size={14} color="#666" />
+            <Ionicons name="calendar-outline" size={14} color={COLORS.textSecondary} />
             <Text style={styles.recorrenciaProximaDataText}>
               {proximaData}
             </Text>
@@ -424,11 +429,11 @@ const TelaTransacoes = ({ navigation, route }) => {
             <Ionicons 
               name={ativa ? "alarm-outline" : "alert-circle-outline"} 
               size={14} 
-              color={ativa ? '#999' : COLORS.error} 
+              color={ativa ? COLORS.textTertiary : COLORS.error} 
             />
             <Text style={[
               styles.recorrenciaDataFimFooter,
-              ativa ? { color: '#999' } : { color: COLORS.error }
+              ativa ? { color: COLORS.textTertiary } : { color: COLORS.error }
             ]}>
               {ativa 
                 ? `Vence em ${diasAteFim} dia${diasAteFim !== 1 ? 's' : ''} (${dataFim.toLocaleDateString('pt-BR')})`
@@ -450,7 +455,7 @@ const TelaTransacoes = ({ navigation, route }) => {
     const institution = gerenciador.buscarInstituicao(item.fkInstituicao);
     const categoryName = category?.nome || 'Categoria não informada';
     const institutionName = institution?.nome || 'Sem instituição';
-    const institutionColor = institution?.cor || '#666';
+    const institutionColor = institution?.cor || COLORS.textSecondary;
     const institutionLogo = getLogoByName(institutionName);
 
     // Usa fimRecorrencia como data final do parcelamento (calculada no cadastro)
@@ -550,7 +555,7 @@ const TelaTransacoes = ({ navigation, route }) => {
             <MaterialIcons 
               name={category?.icone || getCategoryIcon(categoryName)} 
               size={14} 
-              color="#666" 
+              color={COLORS.textSecondary} 
             />
             <Text style={styles.parceladoCategoryText}>{categoryName}</Text>
           </View>
@@ -578,7 +583,7 @@ const TelaTransacoes = ({ navigation, route }) => {
             <Ionicons 
               name="calendar-outline" 
               size={14} 
-              color="#666" 
+              color={COLORS.textSecondary} 
             />
             <Text style={styles.parceladoFooterText}>
               {parcelasRestantes} parcela{parcelasRestantes !== 1 ? 's' : ''} restante{parcelasRestantes !== 1 ? 's' : ''} • Próxima: {proximaParcela.toLocaleDateString('pt-BR')}
@@ -632,7 +637,7 @@ const TelaTransacoes = ({ navigation, route }) => {
         ? "Categoria Inativa"
         : "Categoria não informada");
     const institutionName = institution?.nome || "Sem instituição";
-    const institutionColor = institution?.cor || "#666";
+    const institutionColor = institution?.cor || COLORS.textSecondary;
     const institutionIcon = institution?.icone || "📱";
     const institutionLogo = getLogoByName(institutionName);
     const transactionDate = parseTransacaoDate(
@@ -661,10 +666,10 @@ const TelaTransacoes = ({ navigation, route }) => {
       >
         <View style={styles.transactionHeader}>
           <View style={styles.transactionIcon}>
-            <MaterialIcons
+              <MaterialIcons
               name={category?.icone || getCategoryIcon(categoryName)}
               size={24}
-              color="#333"
+              color={COLORS.textPrimary}
             />
           </View>
           <Text style={styles.transactionCategory}>{categoryName}</Text>
@@ -714,15 +719,15 @@ const TelaTransacoes = ({ navigation, route }) => {
         <View style={styles.transactionBody}>
           <View style={styles.transactionLeft}>
             <View
-              style={[
-                styles.institutionBadge,
-                {
-                  backgroundColor: institutionLogo
-                    ? "#FFF"
-                    : institutionColor + "20",
-                  borderColor: institutionColor,
-                },
-              ]}
+                  style={[
+                    styles.institutionBadge,
+                    {
+                      backgroundColor: institutionLogo
+                        ? COLORS.white
+                        : institutionColor + "20",
+                      borderColor: institutionColor,
+                    },
+                  ]}
             >
               {institutionLogo ? (
                 <Image
@@ -786,11 +791,11 @@ const TelaTransacoes = ({ navigation, route }) => {
             >
               <View style={styles.bannerContent}>
                 <View
-                  style={[
+                    style={[
                     styles.bannerIcon,
                     {
                       backgroundColor: bannerLogo
-                        ? "#FFF"
+                        ? COLORS.white
                         : instituicaoSelecionada.cor,
                     },
                   ]}
@@ -839,20 +844,20 @@ const TelaTransacoes = ({ navigation, route }) => {
           style={styles.periodFilter}
           onPress={() => setModalPeriodoVisible(true)}
         >
-          <Ionicons name="calendar-outline" size={20} color="#666" />
+          <Ionicons name="calendar-outline" size={20} color={COLORS.textSecondary} />
           <Text style={styles.periodFilterText}>{gerenciador.periodo}</Text>
-          <Ionicons name="chevron-down" size={20} color="#666" />
+          <Ionicons name="chevron-down" size={20} color={COLORS.textSecondary} />
         </TouchableOpacity>
       )}
 
       {/* Campo de Pesquisa - Visível apenas em modo Transações */}
       {modoVisualizacao === 'TRANSACOES' && (
         <View style={styles.searchContainer}>
-          <Ionicons name="search" size={20} color="#999" style={styles.searchIcon} />
+          <Ionicons name="search" size={20} color={COLORS.textTertiary} style={styles.searchIcon} />
           <TextInput
             style={styles.searchInput}
             placeholder="Procurar transações..."
-            placeholderTextColor="#999"
+            placeholderTextColor={COLORS.textTertiary}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
@@ -861,7 +866,7 @@ const TelaTransacoes = ({ navigation, route }) => {
               style={styles.clearSearchButton}
               onPress={handleClearSearch}
             >
-              <Ionicons name="close-circle" size={20} color="#999" />
+              <Ionicons name="close-circle" size={20} color={COLORS.textTertiary} />
             </TouchableOpacity>
           )}
         </View>
@@ -875,13 +880,13 @@ const TelaTransacoes = ({ navigation, route }) => {
             onPress={() => setModalOrdenacaoVisible(true)}
           >
             <Text style={styles.sortFilterText}>{gerenciador.ordenacao}</Text>
-            <Ionicons name="chevron-down" size={16} color="#666" />
+            <Ionicons name="chevron-down" size={16} color={COLORS.textSecondary} />
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.filterButton}
             onPress={() => setModalFiltrosVisible(true)}
           >
-            <Ionicons name="options-outline" size={18} color="#666" />
+            <Ionicons name="options-outline" size={18} color={COLORS.textSecondary} />
             <Text style={styles.filterButtonText}>Filtros</Text>
             {countFiltrosAtivos() > 0 && (
               <View style={styles.filterBadge}>
@@ -898,7 +903,7 @@ const TelaTransacoes = ({ navigation, route }) => {
             onPress={() => setModalOrdenacaoVisible(true)}
           >
             <Text style={styles.sortFilterText}>{gerenciador.ordenacao}</Text>
-            <Ionicons name="chevron-down" size={16} color="#666" />
+            <Ionicons name="chevron-down" size={16} color={COLORS.textSecondary} />
           </TouchableOpacity>
           <View style={{ flex: 1 }} />
         </View>
@@ -906,7 +911,7 @@ const TelaTransacoes = ({ navigation, route }) => {
 
       {/* Indicador de Última Atualização */}
       <View style={styles.lastUpdateContainer}>
-        <Ionicons name="time-outline" size={12} color="#999" />
+        <Ionicons name="time-outline" size={12} color={COLORS.textTertiary} />
         <Text style={styles.lastUpdateText}>
           Atualizado às{" "}
           {lastUpdate.toLocaleTimeString("pt-BR", {
@@ -942,7 +947,7 @@ const TelaTransacoes = ({ navigation, route }) => {
             <Ionicons
               name={debouncedSearchQuery ? "search-outline" : "receipt-outline"}
               size={64}
-              color="#CCC"
+              color={COLORS.borderLight}
             />
             <Text style={styles.emptyStateTitle}>
               {debouncedSearchQuery
@@ -1064,7 +1069,7 @@ const TelaTransacoes = ({ navigation, route }) => {
               onPress={() => setModalVisualizacaoVisible(false)}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <Ionicons name="close" size={24} color="#333" />
+              <Ionicons name="close" size={24} color={COLORS.textPrimary} />
             </TouchableOpacity>
           </View>
 
@@ -1083,7 +1088,7 @@ const TelaTransacoes = ({ navigation, route }) => {
               <Ionicons 
                 name="receipt-outline" 
                 size={24} 
-                color={modoVisualizacao === 'TRANSACOES' ? COLORS.primary : '#666'} 
+                color={modoVisualizacao === 'TRANSACOES' ? COLORS.primary : COLORS.textSecondary} 
               />
               <Text style={[
                 styles.modalOpcaoTexto,
@@ -1110,7 +1115,7 @@ const TelaTransacoes = ({ navigation, route }) => {
               <Ionicons 
                 name="repeat-outline" 
                 size={24} 
-                color={modoVisualizacao === 'RECORRENCIAS' ? COLORS.primary : '#666'} 
+                color={modoVisualizacao === 'RECORRENCIAS' ? COLORS.primary : COLORS.textSecondary} 
               />
               <Text style={[
                 styles.modalOpcaoTexto,
@@ -1137,7 +1142,7 @@ const TelaTransacoes = ({ navigation, route }) => {
               <Ionicons 
                 name="layers-outline" 
                 size={24} 
-                color={modoVisualizacao === 'PARCELADOS' ? COLORS.primary : '#666'} 
+                color={modoVisualizacao === 'PARCELADOS' ? COLORS.primary : COLORS.textSecondary} 
               />
               <Text style={[
                 styles.modalOpcaoTexto,

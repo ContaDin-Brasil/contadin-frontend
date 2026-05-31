@@ -1,11 +1,13 @@
 import { StyleSheet } from 'react-native';
-import { COLORS } from '../../../styles/colors';
+import { getColorsByTheme } from '../../../styles/colors';
 import { FOOTER_HEIGHT } from '../../../componentes/BotoesAcaoFixo';
 
-export const styles = StyleSheet.create({
+export const getStyles = (isDarkMode) => {
+  const COLORS = getColorsByTheme(isDarkMode);
+  return StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.background,
     paddingTop: 20,
   },
   screen: {
@@ -13,7 +15,7 @@ export const styles = StyleSheet.create({
   },
   scroll: {
     flex: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.background,
     marginBottom: FOOTER_HEIGHT,
   },
   contentContainer: {
@@ -21,7 +23,7 @@ export const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.background,
   },
   section: {
     paddingHorizontal: 20,
@@ -89,10 +91,10 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.border,
     alignItems: 'center',
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.background,
   },
   typeButtonIncome: {
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.background,
   },
   typeButtonActive: {
     backgroundColor: COLORS.primaryLight,
@@ -115,6 +117,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 10,
     marginBottom: 15,
+    backgroundColor: COLORS.background,
     gap: 10,
   },
   searchInput: {
@@ -135,7 +138,7 @@ export const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     borderColor: COLORS.border,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.background,
     gap: 8,
   },
   categoryButtonActive: {
@@ -148,12 +151,12 @@ export const styles = StyleSheet.create({
     fontWeight: '500',
   },
   categoryButtonTextActive: {
-    color: '#FFF',
+    color: COLORS.white,
   },
   addCategoryButton: {
     borderColor: COLORS.primary,
     borderStyle: 'dashed',
-    backgroundColor: COLORS.primaryLight + '10',
+    backgroundColor: isDarkMode ? (COLORS.primary + '15') : (COLORS.primaryLight + '10'),
   },
   addCategoryButtonText: {
     color: COLORS.primary,
@@ -170,7 +173,7 @@ export const styles = StyleSheet.create({
   },
   recurringText: {
     fontSize: 16,
-    color: '#333',
+    color: COLORS.textPrimary,
     fontWeight: '500',
   },
   frequencyButtons: {
@@ -182,9 +185,9 @@ export const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: COLORS.border,
     alignItems: 'center',
-    backgroundColor: '#FFF',
+    backgroundColor: COLORS.background,
   },
   frequencyButtonActive: {
     backgroundColor: COLORS.primaryLight,
@@ -192,11 +195,11 @@ export const styles = StyleSheet.create({
   },
   frequencyButtonText: {
     fontSize: 14,
-    color: '#333',
+    color: COLORS.textPrimary,
     fontWeight: '500',
   },
   frequencyButtonTextActive: {
-    color: '#FFF',
+    color: COLORS.white,
   },
   installmentButtons: {
     flexDirection: 'row',
@@ -209,9 +212,9 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: COLORS.border,
     alignItems: 'center',
-    backgroundColor: '#FFF',
+    backgroundColor: COLORS.background,
   },
   installmentButtonActive: {
     backgroundColor: COLORS.primaryLight,
@@ -219,11 +222,11 @@ export const styles = StyleSheet.create({
   },
   installmentButtonText: {
     fontSize: 14,
-    color: '#333',
+    color: COLORS.textPrimary,
     fontWeight: '500',
   },
   installmentButtonTextActive: {
-    color: '#FFF',
+    color: COLORS.white,
   },
   customInstallmentButton: {
     flexDirection: 'row',
@@ -233,16 +236,16 @@ export const styles = StyleSheet.create({
   },
   customInstallmentInput: {
     fontSize: 14,
-    color: '#333',
+    color: COLORS.textPrimary,
     fontWeight: '500',
     minWidth: 35,
     textAlign: 'center',
   },
   customInstallmentInputActive: {
-    color: '#FFF',
+    color: COLORS.white,
   },
   installmentValueContainer: {
-    backgroundColor: COLORS.primaryLighter,
+    backgroundColor: isDarkMode ? (COLORS.primary + '20') : COLORS.primaryLighter,
     borderRadius: 12,
     padding: 14,
     marginTop: 10,
@@ -305,7 +308,7 @@ export const styles = StyleSheet.create({
     marginBottom: 8,
   },
   pickerContainer: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: COLORS.background,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: COLORS.border,
@@ -324,32 +327,32 @@ export const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: COLORS.border,
     alignItems: 'center',
-    backgroundColor: '#FFF',
+    backgroundColor: COLORS.background,
   },
   institutionTypeButtonActive: {
-    backgroundColor: '#5BA3FF',
-    borderColor: '#5BA3FF',
+    backgroundColor: COLORS.primaryLight,
+    borderColor: COLORS.primaryLight,
   },
   institutionTypeButtonText: {
     fontSize: 16,
-    color: '#333',
+    color: COLORS.textPrimary,
     fontWeight: '500',
   },
   institutionTypeButtonTextActive: {
-    color: '#FFF',
+    color: COLORS.white,
   },
   institutionChipContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: COLORS.border,
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
-    backgroundColor: '#FFF',
+    backgroundColor: COLORS.background,
   },
   institutionChipWrapper: {
     flex: 1,
@@ -380,14 +383,14 @@ export const styles = StyleSheet.create({
     objectFit: 'cover',
   },
   chipIconText: {
-    color: '#FFF',
+    color: COLORS.white,
     fontSize: 12,
     fontWeight: 'bold',
   },
   chipText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
+    color: COLORS.textPrimary,
   },
   chipRemoveButton: {
     marginLeft: 4,
@@ -400,17 +403,18 @@ export const styles = StyleSheet.create({
   },
   institutionPlaceholderText: {
     fontSize: 15,
-    color: '#999',
+    color: COLORS.textTertiary,
   },
   institutionSelector: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: COLORS.border,
     borderRadius: 10,
     paddingHorizontal: 15,
     paddingVertical: 12,
+    backgroundColor: COLORS.background,
   },
   institutionIcons: {
     flexDirection: 'row',
@@ -426,7 +430,7 @@ export const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   institutionIconText: {
-    color: '#FFF',
+    color: COLORS.white,
     fontSize: 14,
     fontWeight: 'bold',
   },
@@ -437,30 +441,30 @@ export const styles = StyleSheet.create({
   institutionName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
+    color: COLORS.textPrimary,
   },
   institutionPlaceholder: {
     fontSize: 16,
-    color: '#999',
+    color: COLORS.textTertiary,
   },
   saveButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#5BA3FF',
+    backgroundColor: COLORS.primary,
     marginHorizontal: 20,
     marginVertical: 30,
     paddingVertical: 16,
     borderRadius: 15,
     gap: 10,
-    shadowColor: '#000',
+    shadowColor: COLORS.black,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 5,
   },
   saveButtonText: {
-    color: '#FFF',
+    color: COLORS.white,
     fontSize: 18,
     fontWeight: 'bold',
   },
@@ -472,7 +476,7 @@ export const styles = StyleSheet.create({
   aiSectionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
+    color: COLORS.textPrimary,
     marginBottom: 12,
   },
   aiButtons: {
@@ -484,26 +488,26 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#F0F7FF',
+    backgroundColor: isDarkMode ? COLORS.primaryLighter : COLORS.secondaryLighter,
     paddingVertical: 16,
     paddingHorizontal: 20,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: '#5BA3FF',
+    borderColor: COLORS.primaryLight,
     gap: 8,
   },
   aiButtonText: {
     fontSize: 16,
-    color: '#5BA3FF',
+    color: COLORS.primaryLight,
     fontWeight: '600',
   },
   processingCard: {
     marginTop: 15,
-    backgroundColor: '#FFF',
+    backgroundColor: COLORS.background,
     padding: 20,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: COLORS.border,
   },
   processingHeader: {
     flexDirection: 'row',
@@ -515,25 +519,25 @@ export const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#5BA3FF',
+    backgroundColor: COLORS.primaryLight,
   },
   processingText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
+    color: COLORS.textPrimary,
   },
   processingSubtext: {
     fontSize: 14,
-    color: '#666',
+    color: COLORS.textSecondary,
     marginTop: 4,
   },
   suggestionCard: {
     marginTop: 15,
-    backgroundColor: '#F0F7FF',
+    backgroundColor: isDarkMode ? COLORS.primaryLighter : COLORS.secondaryLighter,
     padding: 18,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: '#5BA3FF',
+    borderColor: COLORS.primaryLight,
   },
   suggestionHeader: {
     flexDirection: 'row',
@@ -544,7 +548,7 @@ export const styles = StyleSheet.create({
   suggestionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#5BA3FF',
+    color: COLORS.primaryLight,
   },
   suggestionContent: {
     marginBottom: 15,
@@ -555,13 +559,13 @@ export const styles = StyleSheet.create({
   },
   suggestionLabel: {
     fontSize: 14,
-    color: '#666',
+    color: COLORS.textSecondary,
     width: 90,
     fontWeight: '500',
   },
   suggestionValue: {
     fontSize: 14,
-    color: '#333',
+    color: COLORS.textPrimary,
     flex: 1,
     fontWeight: '600',
   },
@@ -574,13 +578,13 @@ export const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: COLORS.border,
     alignItems: 'center',
-    backgroundColor: '#FFF',
+    backgroundColor: COLORS.background,
   },
   suggestionButtonRejectText: {
     fontSize: 14,
-    color: '#666',
+    color: COLORS.textSecondary,
     fontWeight: '600',
   },
   suggestionButtonAccept: {
@@ -590,12 +594,12 @@ export const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#5BA3FF',
+    backgroundColor: COLORS.primary,
     gap: 6,
   },
   suggestionButtonAcceptText: {
     fontSize: 14,
-    color: '#FFF',
+    color: COLORS.white,
     fontWeight: '600',
   },
   // Modal Styles
@@ -605,7 +609,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContainer: {
-    backgroundColor: '#FFF',
+    backgroundColor: COLORS.backgroundLight,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     padding: 24,
@@ -615,7 +619,7 @@ export const styles = StyleSheet.create({
   modalHandle: {
     width: 40,
     height: 4,
-    backgroundColor: '#CCC',
+    backgroundColor: COLORS.border,
     borderRadius: 2,
     alignSelf: 'center',
     marginBottom: 20,
@@ -635,7 +639,7 @@ export const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#333',
+    color: COLORS.textPrimary,
   },
   modalContent: {
     marginBottom: 24,
@@ -646,14 +650,14 @@ export const styles = StyleSheet.create({
   modalSuggestionLabel: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#999',
+    color: COLORS.textTertiary,
     marginBottom: 6,
     textTransform: 'uppercase',
   },
   modalSuggestionValue: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#333',
+    color: COLORS.textPrimary,
   },
   modalButtonContainer: {
     flexDirection: 'row',
@@ -662,14 +666,14 @@ export const styles = StyleSheet.create({
   },
   modalButtonCancel: {
     flex: 1,
-    backgroundColor: '#E8E8E8',
+    backgroundColor: COLORS.background,
     paddingVertical: 14,
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
   },
   modalButtonCancelText: {
-    color: '#666',
+    color: COLORS.textSecondary,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -684,8 +688,11 @@ export const styles = StyleSheet.create({
     gap: 8,
   },
   modalButtonConfirmText: {
-    color: '#FFF',
+    color: COLORS.white,
     fontSize: 16,
     fontWeight: '600',
-  },
-});
+  }
+  });
+};
+
+export const styles = getStyles(false);

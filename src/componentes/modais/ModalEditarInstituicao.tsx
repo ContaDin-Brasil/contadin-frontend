@@ -151,7 +151,7 @@ const ModalEditarInstituicao: React.FC<ModalEditarInstituicaoProps> = ({
               style={styles.botaoExcluir}
               onPress={handleDeleteConfirm}
             >
-              <Ionicons name="trash-outline" size={20} color="#FFF" />
+              <Ionicons name="trash-outline" size={20} color={COLORS.white} />
               <Text style={styles.textoExcluir}>Excluir instituição</Text>
             </TouchableOpacity>
 
@@ -164,7 +164,7 @@ const ModalEditarInstituicao: React.FC<ModalEditarInstituicaoProps> = ({
                   value={nome}
                   onChangeText={setNome}
                   placeholder="Nome da instituição"
-                  placeholderTextColor="#999"
+                  placeholderTextColor={COLORS.textTertiary}
                 />
               </View>
             </View>
@@ -175,7 +175,7 @@ const ModalEditarInstituicao: React.FC<ModalEditarInstituicaoProps> = ({
               disabled={true}
               activeOpacity={0.6}
             >
-              <Ionicons name="images-outline" size={20} color="#666" />
+              <Ionicons name="images-outline" size={20} color={COLORS.textSecondary} />
               <Text style={styles.textoAlterarIcone}>Alterar ícone</Text>
               <Text style={styles.textoEmBreve}>(em breve)</Text>
             </TouchableOpacity>

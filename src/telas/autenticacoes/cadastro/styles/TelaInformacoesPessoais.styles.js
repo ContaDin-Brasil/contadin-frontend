@@ -26,6 +26,8 @@ export const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 8,
     fontSize: 16,
+    placeholderTextColor: COLORS.textTertiary,
+    color: COLORS.textPrimary,
   },
   saveButton: {
     backgroundColor: COLORS.tooltip,

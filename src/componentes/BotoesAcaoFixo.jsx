@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native';
-import { COLORS } from '../styles/colors';
+import { getColorsByTheme } from '../styles/colors';
+import { useTheme } from '../contexts/ThemeContext';
 
 export const FOOTER_HEIGHT = 8;
 
@@ -17,19 +18,23 @@ const BotoesAcaoFixo = ({
   secondaryLoading = false,
   secondaryVariant = 'cancel',
 }) => {
+  const { isDarkMode } = useTheme();
+  const COLORS = getColorsByTheme(isDarkMode);
+
   const hasSecondary = Boolean(secondaryLabel);
   const primaryText = primaryLoading && primaryLoadingLabel ? primaryLoadingLabel : primaryLabel;
   const secondaryText = secondaryLoading && secondaryLoadingLabel ? secondaryLoadingLabel : secondaryLabel;
 
   return (
-    <View style={styles.footer}>
+    <View style={[styles.footer, { backgroundColor: COLORS.background }]}>
       <View style={hasSecondary ? styles.row : styles.singleRow}>
         {hasSecondary && (
           <TouchableOpacity
             style={[
               styles.button,
               styles.secondaryButton,
-              secondaryVariant === 'danger' && styles.secondaryDanger,
+              { backgroundColor: COLORS.white, borderColor: COLORS.border },
+              secondaryVariant === 'danger' && { backgroundColor: '#FFF0F0', borderColor: '#FFD1D1' },
               (secondaryDisabled || secondaryLoading) && styles.buttonDisabled,
               hasSecondary && styles.buttonHalf,
             ]}
@@ -42,7 +47,8 @@ const BotoesAcaoFixo = ({
             <Text
               style={[
                 styles.secondaryText,
-                secondaryVariant === 'danger' && styles.secondaryDangerText,
+                { color: COLORS.textPrimary },
+                secondaryVariant === 'danger' && { color: COLORS.error },
               ]}
             >
               {secondaryText}
@@ -54,6 +60,7 @@ const BotoesAcaoFixo = ({
           style={[
             styles.button,
             styles.primaryButton,
+            { backgroundColor: COLORS.primary },
             (primaryDisabled || primaryLoading) && styles.buttonDisabled,
             hasSecondary ? styles.buttonHalf : styles.buttonFull,
           ]}
@@ -63,7 +70,7 @@ const BotoesAcaoFixo = ({
           {primaryLoading ? (
             <ActivityIndicator size="small" color={COLORS.white} />
           ) : null}
-          <Text style={styles.primaryText}>{primaryText}</Text>
+          <Text style={[styles.primaryText, { color: COLORS.white }]}>{primaryText}</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -75,7 +82,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 32,
     paddingTop: 0,
-    backgroundColor: 'transparent',
   },
   row: {
     flexDirection: 'row',
@@ -102,29 +108,18 @@ const styles = StyleSheet.create({
     opacity: 0.65,
   },
   primaryButton: {
-    backgroundColor: COLORS.primary,
+    borderRadius: 14,
   },
   primaryText: {
-    color: COLORS.white,
     fontSize: 15,
     fontWeight: '700',
   },
   secondaryButton: {
-    backgroundColor: COLORS.white,
     borderWidth: 1,
-    borderColor: COLORS.border,
-  },
-  secondaryDanger: {
-    backgroundColor: '#FFF0F0',
-    borderColor: '#FFD1D1',
   },
   secondaryText: {
-    color: COLORS.textPrimary,
     fontSize: 14,
     fontWeight: '700',
-  },
-  secondaryDangerText: {
-    color: COLORS.error,
   },
 });
 

@@ -2,7 +2,9 @@ import React from 'react';
 import { View, Text, Modal, TouchableOpacity, FlatList, Pressable } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { CATEGORY_ICONS } from '../constants/constantesCategorias';
-import { styles } from '../style/ModalSelecaoIcone.style';
+import { getColorsByTheme } from '../../../styles/colors';
+import { useTheme } from '../../../contexts/ThemeContext';
+import { getStyles } from '../style/ModalSelecaoIcone.style';
 
 interface ModalSelecaoIconeProps {
   visible: boolean;
@@ -17,6 +19,10 @@ const ModalSelecaoIcone: React.FC<ModalSelecaoIconeProps> = ({
   onSelect,
   selectedIcon,
 }) => {
+  const { isDarkMode } = useTheme();
+  const styles = getStyles(isDarkMode);
+  const COLORS = getColorsByTheme(isDarkMode);
+
   return (
     <Modal
       visible={visible}
@@ -49,7 +55,7 @@ const ModalSelecaoIcone: React.FC<ModalSelecaoIconeProps> = ({
                 <MaterialIcons
                   name={item as any}
                   size={28}
-                  color={selectedIcon === item ? '#FFF' : '#333'}
+                  color={selectedIcon === item ? COLORS.white : COLORS.textPrimary}
                 />
               </TouchableOpacity>
             )}

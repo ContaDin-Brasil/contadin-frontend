@@ -26,7 +26,8 @@
         "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#03408E"
       },
-      "edgeToEdgeEnabled": true,
+      "edgeToEdgeEnabled": false,
+      "statusBarBackgroundColor": "#FFFFFF",
       "permissions": [
         "CAMERA",
         "READ_EXTERNAL_STORAGE",

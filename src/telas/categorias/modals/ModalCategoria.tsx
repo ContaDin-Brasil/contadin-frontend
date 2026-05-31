@@ -12,7 +12,9 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { Category, CategoryType } from '../types/categoria.types';
 import { CATEGORY_COLORS } from '../constants/constantesCategorias';
 import ModalSelecaoIcone from './ModalSelecaoIcone';
-import { styles } from '../style/ModalCategoria.style';
+import { getColorsByTheme } from '../../../styles/colors';
+import { useTheme } from '../../../contexts/ThemeContext';
+import { getStyles } from '../style/ModalCategoria.style';
 
 interface ModalCategoriaProps {
   visible: boolean;
@@ -31,6 +33,9 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
   tipoInicial,
   nomeInicial,
 }) => {
+  const { isDarkMode } = useTheme();
+  const styles = getStyles(isDarkMode);
+  const COLORS = getColorsByTheme(isDarkMode);
   const [nome, setNome] = useState('');
   const [tipo, setTipo] = useState<CategoryType>('GASTO');
   const [cor, setCor] = useState(CATEGORY_COLORS[0]);
@@ -96,8 +101,8 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
       >
         <ScrollView style={styles.container}>
           <View style={styles.header}>
-            <TouchableOpacity onPress={handleClose}>
-              <MaterialIcons name="arrow-back" size={24} color="#333" />
+              <TouchableOpacity onPress={handleClose}>
+              <MaterialIcons name="arrow-back" size={24} color={COLORS.textPrimary} />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>
               {categoria ? 'Editar Categoria' : 'Criar Categoria'}
@@ -135,7 +140,7 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
                     styles.typeRadio,
                     tipo === 'GASTO' && styles.typeRadioActive,
                   ]} />
-                  <Text style={styles.typeText}>Despesa</Text>
+                  <Text style={styles.typeText}>Gasto</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -160,7 +165,7 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
               <TextInput
                 style={styles.input}
                 placeholder="Digite o nome"
-                placeholderTextColor="#999"
+                placeholderTextColor={COLORS.textTertiary}
                 value={nome}
                 onChangeText={setNome}
               />
@@ -181,7 +186,7 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
                     onPress={() => setCor(color)}
                   >
                     {cor === color && (
-                      <MaterialIcons name="check" size={20} color="#FFF" />
+                      <MaterialIcons name="check" size={20} color={COLORS.white} />
                     )}
                   </TouchableOpacity>
                 ))}
@@ -196,7 +201,7 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
                 onPress={() => setIconModalVisible(true)}
               >
                 <View style={styles.iconCircle}>
-                  <MaterialIcons name={icone as any} size={24} color="#666" />
+                  <MaterialIcons name={icone as any} size={24} color={COLORS.textSecondary} />
                 </View>
                 <Text style={styles.iconSelectorText}>Selecione um ícone</Text>
               </TouchableOpacity>

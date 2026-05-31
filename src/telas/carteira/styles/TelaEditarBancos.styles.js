@@ -1,212 +1,223 @@
 import { StyleSheet } from 'react-native';
-import { COLORS } from '../../../styles/colors';
+import { getColorsByTheme } from '../../../styles/colors';
 
-export const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-    paddingTop: 20,
-  },
-  contentContainer: {
-    padding: 20,
-    paddingBottom: 100,
-  },
-  section: {
-    backgroundColor: COLORS.white,
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 8,
-    marginBottom: 16,
-  },
-  sectionTitleText: {
-    flex: 1,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: COLORS.black,
-    marginBottom: 2,
-  },
-  sectionSubtitle: {
-    fontSize: 13,
-    color: COLORS.textSecondary,
-  },
-  banksList: {
-    gap: 10,
-  },
-  bankItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    paddingHorizontal: 8,
-    backgroundColor: COLORS.backgroundLight,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: COLORS.backgroundDark,
-  },
-  bankInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-    gap: 12,
-  },
-  iconContainer: {
-    width: 36,
-    height: 36,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    overflow: 'hidden',
-    objectFit: 'cover',
-  },
-  iconText: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: COLORS.white,
-  },
-  bankDetails: {
-    flex: 1,
-  },
-  bankName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.black,
-    marginBottom: 2,
-  },
-  bankBalance: {
-    fontSize: 13,
-    color: COLORS.textSecondary,
-  },
-  deleteButton: {
-    padding: 8,
-  },
-  addButtonContainer: {
-    marginTop: 20,
-  },
-  addButton: {
-    backgroundColor: COLORS.secondaryLight,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 14,
-    borderRadius: 10,
-    gap: 8,
-  },
-  addButtonText: {
-    color: '#FFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  modalContent: {
-    paddingVertical: 10,
-  },
-  deleteInstitutionButton: {
-    backgroundColor: '#FF6B6B',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
-    borderRadius: 8,
-    gap: 8,
-    marginBottom: 20,
-  },
-  deleteInstitutionText: {
-    color: '#FFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  institutionHeader: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  institutionIconLarge: {
-    width: 80,
-    height: 80,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  institutionIconText: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#FFF',
-  },
-  institutionName: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#000',
-    marginBottom: 8,
-  },
-  changeIconText: {
-    fontSize: 16,
-    color: '#000',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  formGroup: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#000',
-    marginBottom: 8,
-  },
-  input: {
-    backgroundColor: '#E0E0E0',
-    padding: 14,
-    borderRadius: 8,
-    fontSize: 16,
-  },
-  colorPicker: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 3,
-    borderColor: '#FFF',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  modalButtons: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 20,
-  },
-  cancelButton: {
-    flex: 1,
-    backgroundColor: '#D3D3D3',
-    paddingVertical: 14,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  cancelButtonText: {
-    color: '#666',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  confirmButton: {
-    flex: 1,
-    backgroundColor: '#4A9EFF',
-    paddingVertical: 14,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  confirmButtonText: {
-    color: '#FFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-});
+export const getStyles = (isDarkMode) => {
+  const COLORS = getColorsByTheme(isDarkMode);
+
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: COLORS.background,
+      paddingTop: 20,
+    },
+    contentContainer: {
+      padding: 20,
+      paddingBottom: 100,
+    },
+    section: {
+      backgroundColor: COLORS.backgroundLight,
+      borderRadius: 16,
+      padding: 16,
+      borderWidth: 1,
+      borderColor: COLORS.border,
+    },
+    sectionHeader: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      gap: 8,
+      marginBottom: 16,
+    },
+    sectionTitleText: {
+      flex: 1,
+    },
+    sectionTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: COLORS.textPrimary,
+      marginBottom: 2,
+    },
+    sectionSubtitle: {
+      fontSize: 13,
+      color: COLORS.textSecondary,
+    },
+    banksList: {
+      gap: 10,
+    },
+    bankItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingVertical: 12,
+      paddingHorizontal: 8,
+      backgroundColor: COLORS.background,
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor: COLORS.border,
+    },
+    bankInfo: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      flex: 1,
+      gap: 12,
+    },
+    iconContainer: {
+      width: 36,
+      height: 36,
+      borderRadius: 8,
+      justifyContent: 'center',
+      alignItems: 'center',
+      overflow: 'hidden',
+      objectFit: 'cover',
+    },
+    iconText: {
+      fontSize: 14,
+      fontWeight: 'bold',
+      color: COLORS.white,
+    },
+    bankDetails: {
+      flex: 1,
+    },
+    bankName: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: COLORS.textPrimary,
+      marginBottom: 2,
+    },
+    bankBalance: {
+      fontSize: 13,
+      color: COLORS.textSecondary,
+    },
+    deleteButton: {
+      padding: 8,
+    },
+    addButtonContainer: {
+      marginTop: 20,
+    },
+    addButton: {
+      backgroundColor: COLORS.secondaryLight,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: 14,
+      borderRadius: 10,
+      gap: 8,
+    },
+    addButtonText: {
+      color: COLORS.white,
+      fontSize: 16,
+      fontWeight: '600',
+    },
+    modalContent: {
+      paddingVertical: 10,
+    },
+    deleteInstitutionButton: {
+      backgroundColor: COLORS.error,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: 12,
+      borderRadius: 8,
+      gap: 8,
+      marginBottom: 20,
+    },
+    deleteInstitutionText: {
+      color: COLORS.white,
+      fontSize: 16,
+      fontWeight: '600',
+    },
+    institutionHeader: {
+      alignItems: 'center',
+      marginBottom: 20,
+    },
+    institutionIconLarge: {
+      width: 80,
+      height: 80,
+      borderRadius: 20,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: 12,
+    },
+    institutionIconText: {
+      fontSize: 32,
+      fontWeight: 'bold',
+      color: COLORS.white,
+    },
+    institutionName: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: COLORS.textPrimary,
+      marginBottom: 8,
+    },
+    changeIconText: {
+      fontSize: 16,
+      color: COLORS.textPrimary,
+      marginBottom: 20,
+      textAlign: 'center',
+    },
+    formGroup: {
+      marginBottom: 20,
+    },
+    label: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: COLORS.textPrimary,
+      marginBottom: 8,
+    },
+    input: {
+      backgroundColor: COLORS.background,
+      padding: 14,
+      borderRadius: 8,
+      fontSize: 16,
+      color: COLORS.textPrimary,
+      borderWidth: 1,
+      borderColor: COLORS.border,
+    },
+    colorPicker: {
+      width: 60,
+      height: 60,
+      borderRadius: 30,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderWidth: 3,
+      borderColor: COLORS.background,
+      shadowColor: COLORS.black,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.2,
+      shadowRadius: 4,
+      elevation: 4,
+    },
+    modalButtons: {
+      flexDirection: 'row',
+      gap: 12,
+      marginTop: 20,
+    },
+    cancelButton: {
+      flex: 1,
+      backgroundColor: COLORS.background,
+      paddingVertical: 14,
+      borderRadius: 8,
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: COLORS.border,
+    },
+    cancelButtonText: {
+      color: COLORS.textPrimary,
+      fontSize: 16,
+      fontWeight: '600',
+    },
+    confirmButton: {
+      flex: 1,
+      backgroundColor: COLORS.primary,
+      paddingVertical: 14,
+      borderRadius: 8,
+      alignItems: 'center',
+    },
+    confirmButtonText: {
+      color: COLORS.white,
+      fontSize: 16,
+      fontWeight: '600',
+    },
+  });
+};
+
+export const styles = getStyles(false);

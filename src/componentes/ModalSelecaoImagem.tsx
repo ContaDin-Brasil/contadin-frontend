@@ -16,7 +16,8 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import COLORS from '../styles/colors';
+import { getColorsByTheme } from '../styles/colors';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface ModalSelecaoImagemProps {
   visible: boolean;
@@ -36,6 +37,10 @@ export const ModalSelecaoImagem: React.FC<ModalSelecaoImagemProps> = ({
   onCancel,
   isLoading = false,
 }) => {
+  const { isDarkMode } = useTheme();
+  const COLORS = getColorsByTheme(isDarkMode);
+  const styles = getStyles(isDarkMode);
+  
   const [translateY] = useState(new Animated.Value(MODAL_HEIGHT));
 
   React.useEffect(() => {
@@ -163,83 +168,90 @@ export const ModalSelecaoImagem: React.FC<ModalSelecaoImagemProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modal: {
-    height: MODAL_HEIGHT,
-    backgroundColor: COLORS.white,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  container: {
-    flex: 1,
-    padding: 20,
-  },
-  indicator: {
-    width: 40,
-    height: 4,
-    backgroundColor: COLORS.borderLight,
-    borderRadius: 2,
-    alignSelf: 'center',
-    marginBottom: 16,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: COLORS.textPrimary,
-    marginBottom: 16,
-  },
-  buttonWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    paddingHorizontal: 12,
-    marginVertical: 8,
-    backgroundColor: COLORS.backgroundLight,
-    borderRadius: 12,
-  },
-  buttonContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-    gap: 12,
-  },
-  buttonTextWrapper: {
-    flex: 1,
-  },
-  buttonTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.textPrimary,
-  },
-  buttonDescription: {
-    fontSize: 12,
-    color: COLORS.textSecondary,
-    marginTop: 2,
-  },
-  cancelButton: {
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    marginTop: 8,
-    backgroundColor: COLORS.primaryLight,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  cancelButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.white,
-  },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-});
+const getStyles = (isDarkMode: boolean) => {
+  const COLORS = getColorsByTheme(isDarkMode);
+
+  return StyleSheet.create({
+    overlay: {
+      flex: 1,
+      backgroundColor: COLORS.overlay,
+    },
+    modal: {
+      height: MODAL_HEIGHT,
+      backgroundColor: COLORS.backgroundLight,
+      borderTopLeftRadius: 20,
+      borderTopRightRadius: 20,
+      elevation: 5,
+      shadowColor: COLORS.black,
+      shadowOffset: { width: 0, height: -2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+    },
+    container: {
+      flex: 1,
+      padding: 20,
+    },
+    indicator: {
+      width: 40,
+      height: 4,
+      backgroundColor: COLORS.border,
+      borderRadius: 2,
+      alignSelf: 'center',
+      marginBottom: 16,
+    },
+    title: {
+      fontSize: 18,
+      fontWeight: '600',
+      color: COLORS.textPrimary,
+      marginBottom: 16,
+    },
+    buttonWrapper: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingVertical: 12,
+      paddingHorizontal: 12,
+      marginVertical: 8,
+      backgroundColor: COLORS.backgroundDark,
+      borderRadius: 12,
+    },
+    buttonContent: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      flex: 1,
+      gap: 12,
+    },
+    buttonTextWrapper: {
+      flex: 1,
+    },
+    buttonTitle: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: COLORS.textPrimary,
+    },
+    buttonDescription: {
+      fontSize: 12,
+      color: COLORS.textSecondary,
+      marginTop: 2,
+    },
+    cancelButton: {
+      paddingVertical: 14,
+      paddingHorizontal: 16,
+      marginTop: 8,
+      backgroundColor: COLORS.primary,
+      borderRadius: 12,
+      alignItems: 'center',
+    },
+    cancelButtonText: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: COLORS.white,
+    },
+    buttonDisabled: {
+      opacity: 0.6,
+    },
+  });
+};
+
+const styles = getStyles(false);
+export default ModalSelecaoImagem;
