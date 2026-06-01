@@ -29,7 +29,7 @@ const TelaInicial = () => {
   const [modalGraficoCategoriasVisible, setModalGraficoCategoriasVisible] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [bloquearRenderizacao, setBloquearRenderizacao] = useState(true);
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
 
   const {
     dados,
@@ -45,24 +45,14 @@ const TelaInicial = () => {
     temTransacoes,
   } = useGerenciarDashboard(); // ✅ Sem parâmetro - usa user.id do contexto
 
-  // Atualizar dados e gráfico quando a tela recebe foco
+  // Atualizar dados e gráfico quando a tela recebe foco,
+  // mas só depois que o AuthContext terminar de carregar o usuário.
   useFocusEffect(
     React.useCallback(() => {
-      let ativo = true;
-
-      setBloquearRenderizacao(true);
-
-      Promise.resolve(atualizarDados()).finally(() => {
-        if (ativo) {
-          setBloquearRenderizacao(false);
-          setRefreshKey(prev => prev + 1);
-        }
-      });
-
-      return () => {
-        ativo = false;
-      };
-    }, [atualizarDados])
+      if (authLoading || !user?.id) return;
+      atualizarDados();
+      setRefreshKey(prev => prev + 1);
+    }, [authLoading, user?.id, atualizarDados])
   );
 
   // Loading inicial

@@ -86,11 +86,11 @@ export const GraficoSaldoDiario: React.FC<GraficoSaldoDiarioProps> = ({
     Promise.all([0, 1, 2].map(o => fetchDados(o))).finally(() => setLoading(false));
   }, [fetchDados]);
 
-  // Recarrega mês atual ao receber foco
+  // Recarrega todos os meses ao receber foco (evita cache obsoleto nos meses futuros)
   const isFirstRender = useRef(true);
   useEffect(() => {
     if (isFirstRender.current) { isFirstRender.current = false; return; }
-    fetchDados(0);
+    Promise.all([0, 1, 2].map(o => fetchDados(o)));
   }, [refreshKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Limites de scroll por mês (índice cumulativo de pontos) ──────────────

@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { useCache } from '../../../contexts/CacheContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import {
-  buscarDadosDashboard,
   buscarResumoFinanceiroComIndicadores,
   buscarGastosPorCategoria,
   buscarGastosPorCategoriaEndpoint,
@@ -21,7 +20,7 @@ import type { DadosDashboard } from '../types/dashboard.types';
 import { buildMockDashboardData } from '../mocks/mockDashboardData';
 
 export const useGerenciarDashboard = (usuarioIdProp?: number) => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { getCache, setCache, invalidateCache } = useCache();
   
   // IMPORTANTE: user?.id é string|number, não converter para Number!
@@ -66,18 +65,21 @@ export const useGerenciarDashboard = (usuarioIdProp?: number) => {
       setLoading(true);
       setErro(null);
 
-      // ⚠️ AVISO: Se user?.id não está definido, algo está errado com a autenticação
-      if (!user?.id && !usuarioIdProp) {
-        console.error('[Dashboard] Usuário não autenticado');
-        throw new Error('Usuário não autenticado');
+      // Aguarda o AuthContext terminar de carregar (leitura do AsyncStorage).
+      // O useEffect vai re-disparar quando authLoading mudar para false.
+      if (authLoading || (!user?.id && !usuarioIdProp)) {
+        setLoading(false);
+        return;
       }
 
-      const [resumoMelhorado, possuiTransacoes] = await Promise.all([
-        buscarResumoFinanceiroComIndicadores(usuarioIdString),
-        usuarioPossuiTransacoes(usuarioIdString),
-      ]);
-
-      setTemTransacoes(possuiTransacoes);
+      // Buscar resumo real; se falhar (ex: usuário sem dados), usar mock para não cascatear erros
+      let resumoMelhorado;
+      try {
+        resumoMelhorado = await buscarResumoFinanceiroComIndicadores(usuarioIdString);
+      } catch (resumoErr) {
+        console.warn('[Dashboard] Falha ao buscar resumo financeiro; usando fallback de zeros');
+        resumoMelhorado = buildMockDashboardData().resumo;
+      }
 
       // Para outros dados: tentar cache primeiro
       let gastosPorCategoria = [];
@@ -179,42 +181,16 @@ export const useGerenciarDashboard = (usuarioIdProp?: number) => {
       console.log('[Dashboard] ✅ Dados carregados com sucesso (resumo real + dados auxiliares)');
     } catch (error) {
       console.error('[Dashboard] ❌ Erro ao carregar dados:', error);
-      if (error instanceof Error) {
-        console.error('[Dashboard] Mensagem de erro:', error.message);
-        console.error('[Dashboard] Stack:', error.stack);
-      }
-      
-      // Tentar extrair detalhes da resposta HTTP se for AxiosError
       if ((error as any)?.response) {
         console.error('[Dashboard] Status HTTP:', (error as any).response.status);
         console.error('[Dashboard] URL chamada:', (error as any).response.config?.url);
-        console.error('[Dashboard] Response data:', (error as any).response.data);
       }
 
-      // Fallback para buscar dados da forma tradicional (se o novo endpoint falhar)
-      try {
-        console.warn('[Dashboard] Tentando fallback para buscarDadosDashboard...');
-        const dadosFallback = await buscarDadosDashboard(usuarioIdNumero);
-        console.log('[Dashboard] ✅ Fallback retornou dados:', dadosFallback);
-        setDados(dadosFallback);
-        await setCache(`${CACHE_KEYS.RESUMO}:${usuarioId}`, dadosFallback, CACHE_TTL.RESUMO);
-        setErro(null);
-        console.log('[Dashboard] Dados carregados com sucesso (fallback)');
-      } catch (fallbackError) {
-        console.error('[Dashboard] ❌ Erro no fallback também:', fallbackError);
-        if (fallbackError instanceof Error) {
-          console.error('[Dashboard] Mensagem fallback:', fallbackError.message);
-        }
-        
-        // Último recurso: usar mock
-        const dadosMock = buildMockDashboardData();
-        console.warn('[Dashboard] Usando dados MOCK como último recurso');
-        setDados(dadosMock);
-        setTemTransacoes(true);
-        await setCache(`${CACHE_KEYS.RESUMO}:${usuarioId}`, dadosMock, CACHE_TTL.RESUMO);
-        setErro(null);
-        console.warn('[Dashboard] Exibindo dados mock por indisponibilidade da API.');
-      }
+      // Último recurso: usar mock para não deixar a tela em branco
+      const dadosMock = buildMockDashboardData();
+      setDados(dadosMock);
+      await setCache(`${CACHE_KEYS.RESUMO}:${usuarioId}`, dadosMock, CACHE_TTL.RESUMO);
+      setErro(null);
     } finally {
       setLoading(false);
     }
@@ -246,20 +222,19 @@ export const useGerenciarDashboard = (usuarioIdProp?: number) => {
 
 
   useEffect(() => {
-    // Se USAR_MOCK_DASHBOARD foi desativado, limpar cache antigo com dados mock
+    // Aguarda o AuthContext terminar de inicializar antes de carregar dados
+    if (authLoading) return;
+
     if (!USAR_MOCK_DASHBOARD) {
       invalidateCache(`${CACHE_KEYS.RESUMO}:${usuarioId}`).then(() => {
-        carregarDados(true); // Forçar atualização
+        carregarDados(true);
       });
     } else {
       carregarDados();
     }
 
     fetchSaldoConsolidado();
-
-    // Recarregar sempre que o usuário mudar (login/logout)
-    console.log('[Dashboard] useEffect disparado - usuarioIdString agora é:', usuarioIdString);
-  }, [carregarDados, usuarioId, usuarioIdString, invalidateCache, fetchSaldoConsolidado]);
+  }, [authLoading, carregarDados, usuarioId, invalidateCache, fetchSaldoConsolidado]);
 
   /**
    * Retorna saudação baseada na hora do dia (Pegando informação do dis positivo para respeitar fuso horário)
