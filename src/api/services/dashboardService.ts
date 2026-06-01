@@ -114,6 +114,37 @@ export const buscarResumoFinanceiroComIndicadores = async (
 };
 
 /**
+ * Verifica se o usuário já possui transações cadastradas em qualquer período.
+ * A dashboard usa essa informação para não cair no empty state apenas porque
+ * o mês atual ainda não tem movimento.
+ */
+export const usuarioPossuiTransacoes = async (
+  usuarioId: string | number,
+): Promise<boolean> => {
+  try {
+    const [responseTransacoes, responseInstituicoes] = await Promise.all([
+      api.get<TransacaoApi[]>('/transacao'),
+      api.get<InstituicaoApi[]>(`/instituicao?fk_usuario=${usuarioId}`),
+    ]);
+
+    const todasTransacoes = Array.isArray(responseTransacoes.data) ? responseTransacoes.data : [];
+    const instituicoesUsuario = Array.isArray(responseInstituicoes.data) ? responseInstituicoes.data : [];
+    const idsInstituicoes = instituicoesUsuario.map((instituicao) => instituicao.id);
+
+    const transacoesUsuario = todasTransacoes.filter((transacao) =>
+      transacao.fkInstituicao !== null &&
+      transacao.fkInstituicao !== undefined &&
+      idsInstituicoes.includes(transacao.fkInstituicao),
+    );
+
+    return transacoesUsuario.length > 0;
+  } catch (error) {
+    console.error('[Dashboard] Erro ao verificar transações do usuário:', error);
+    throw error;
+  }
+};
+
+/**
  * Busca gastos agrupados por categoria do endpoint real
  * GET /categorias/gastos?fkUsuario=UUID&mes=M&ano=YYYY
  * 

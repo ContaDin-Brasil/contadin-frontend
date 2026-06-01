@@ -10,11 +10,16 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import TituloPagina from "../../../componentes/TituloPagina";
 import { useLogin } from "./hooks/useLogin";
-import { styles } from "./styles/TelaLogin.styles";
+import { useTheme } from "../../../contexts/ThemeContext";
+import { getColorsByTheme } from "../../../styles/colors";
+import { getStyles } from "./styles/TelaLogin.styles";
 
 function TelaLogin({ navigation }) {
   const login = useLogin();
   const [mostrarSenha, setMostrarSenha] = useState(false);
+  const { isDarkMode } = useTheme();
+  const COLORS = getColorsByTheme(isDarkMode);
+  const styles = getStyles(isDarkMode);
 
   const onLogin = async () => {
     const result = await login.handleLogin();
@@ -66,7 +71,7 @@ function TelaLogin({ navigation }) {
               <Ionicons
                 name={mostrarSenha ? "eye-off-outline" : "eye-outline"}
                 size={22}
-                color="#666"
+                color={COLORS.textTertiary}
               />
             </TouchableOpacity>
           </View>

@@ -9,6 +9,7 @@ import {
   buscarSaldosPorInstituicao,
   buscarPrevisaoSaldo,
   buscarSaldoConsolidadoAtual,
+  usuarioPossuiTransacoes,
 } from '../../../api/services/dashboardService';
 import {
   CACHE_KEYS,
@@ -47,6 +48,7 @@ export const useGerenciarDashboard = (usuarioIdProp?: number) => {
   const [erro, setErro] = useState<string | null>(null);
   const [atualizando, setAtualizando] = useState<boolean>(false);
   const [saldoConsolidado, setSaldoConsolidado] = useState<number | null>(null);
+  const [temTransacoes, setTemTransacoes] = useState<boolean>(false);
 
   const fetchSaldoConsolidado = useCallback(async () => {
     if (!user?.id && !usuarioIdProp) return;
@@ -70,7 +72,12 @@ export const useGerenciarDashboard = (usuarioIdProp?: number) => {
         throw new Error('Usuário não autenticado');
       }
 
-      const resumoMelhorado = await buscarResumoFinanceiroComIndicadores(usuarioIdString);
+      const [resumoMelhorado, possuiTransacoes] = await Promise.all([
+        buscarResumoFinanceiroComIndicadores(usuarioIdString),
+        usuarioPossuiTransacoes(usuarioIdString),
+      ]);
+
+      setTemTransacoes(possuiTransacoes);
 
       // Para outros dados: tentar cache primeiro
       let gastosPorCategoria = [];
@@ -203,6 +210,7 @@ export const useGerenciarDashboard = (usuarioIdProp?: number) => {
         const dadosMock = buildMockDashboardData();
         console.warn('[Dashboard] Usando dados MOCK como último recurso');
         setDados(dadosMock);
+        setTemTransacoes(true);
         await setCache(`${CACHE_KEYS.RESUMO}:${usuarioId}`, dadosMock, CACHE_TTL.RESUMO);
         setErro(null);
         console.warn('[Dashboard] Exibindo dados mock por indisponibilidade da API.');
@@ -303,5 +311,6 @@ export const useGerenciarDashboard = (usuarioIdProp?: number) => {
     saldosPorInstituicao: dados?.saldosPorInstituicao || [],
     previsaoSaldo: dados?.previsaoSaldo,
     saldoConsolidado,
+    temTransacoes,
   };
 };

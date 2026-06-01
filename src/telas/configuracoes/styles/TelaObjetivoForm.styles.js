@@ -1,9 +1,12 @@
 import { StyleSheet } from 'react-native';
-import { COLORS } from '../../../styles/colors';
+import { getColorsByTheme } from '../../../styles/colors';
 import { FOOTER_HEIGHT } from '../../../componentes/BotoesAcaoFixo';
 
-export const styles = StyleSheet.create({
-  safeArea: {
+export const getStyles = (isDarkMode) => {
+  const COLORS = getColorsByTheme(isDarkMode);
+
+  return StyleSheet.create({
+    safeArea: {
     flex: 1,
     backgroundColor: COLORS.background,
     paddingTop: 20,
@@ -39,7 +42,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 12,
     fontSize: 15,
     color: COLORS.textPrimary,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.backgroundLight,
   },
   searchContainer: {
     flexDirection: 'row',
@@ -50,7 +53,7 @@ export const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.backgroundLight,
     marginBottom: 10,
   },
   searchInput: {
@@ -72,7 +75,7 @@ export const styles = StyleSheet.create({
     borderRadius: 999,
     borderWidth: 1,
     borderColor: COLORS.border,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.backgroundLight,
   },
   categoryButtonActive: {
     backgroundColor: COLORS.primaryLight,
@@ -104,7 +107,7 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.border,
     borderRadius: 12,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.backgroundLight,
     overflow: 'hidden',
   },
   picker: {
@@ -158,7 +161,7 @@ export const styles = StyleSheet.create({
     borderColor: COLORS.border,
     paddingVertical: 12,
     alignItems: 'center',
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.backgroundLight,
   },
   typeButtonActive: {
     backgroundColor: COLORS.primaryLight,
@@ -180,7 +183,7 @@ export const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 12,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.backgroundLight,
   },
   currencySymbol: {
     fontSize: 16,
@@ -207,7 +210,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 12,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.backgroundLight,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: COLORS.borderLight,
@@ -276,16 +279,19 @@ export const styles = StyleSheet.create({
     fontWeight: '700',
   },
   dangerButton: {
-    backgroundColor: '#FFF0F0',
+    backgroundColor: COLORS.errorLight,
     borderRadius: 14,
     paddingVertical: 12,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#FFD1D1',
+    borderColor: COLORS.errorBorder,
   },
   dangerButtonText: {
     color: COLORS.error,
     fontSize: 14,
     fontWeight: '700',
   },
-});
+  });
+};
+
+export const styles = getStyles(false);

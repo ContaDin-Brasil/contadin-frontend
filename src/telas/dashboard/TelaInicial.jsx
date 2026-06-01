@@ -42,6 +42,7 @@ const TelaInicial = () => {
     resumo,
     gastosPorCategoria,
     saldoConsolidado,
+    temTransacoes,
   } = useGerenciarDashboard(); // ✅ Sem parâmetro - usa user.id do contexto
 
   // Atualizar dados e gráfico quando a tela recebe foco
@@ -91,9 +92,10 @@ const TelaInicial = () => {
   }
 
   // ✅ Empty State - quando não há transações cadastradas
-  const temTransacoes = resumo && (resumo.receitaTotal > 0 || resumo.gastoTotal > 0);
+  const temResumoMensal = resumo && (resumo.receitaTotal > 0 || resumo.gastoTotal > 0);
+  const mostrarEmptyState = !temTransacoes && !temResumoMensal;
   
-  if (!temTransacoes && !loading) {
+  if (mostrarEmptyState && !loading) {
     return (
       <View style={styles.container}>
         <EmptyStateTransacoes

@@ -15,12 +15,17 @@ import {
   obterResultadosValidacaoSenha,
   verificarSenhasConferem,
 } from "../../../utils/senhaUtils";
-import { styles } from "./styles/TelaNovaSenha.styles";
+import { useTheme } from "../../../contexts/ThemeContext";
+import { getColorsByTheme } from "../../../styles/colors";
+import { getStyles } from "./styles/TelaNovaSenha.styles";
 
 function TelaNovaSenha({ navigation, route }) {
   const email = route.params?.email ?? "";
   const token = route.params?.token ?? "";
   const novaSenha = useNovaSenha(email, token);
+  const { isDarkMode } = useTheme();
+  const COLORS = getColorsByTheme(isDarkMode);
+  const styles = getStyles(isDarkMode);
   const [showSenha, setShowSenha] = useState(false);
   const [showConfirmar, setShowConfirmar] = useState(false);
   const [tooltipVisivel, setTooltipVisivel] = useState(false);
@@ -65,7 +70,7 @@ function TelaNovaSenha({ navigation, route }) {
               <Ionicons
                 name="information-circle-outline"
                 size={20}
-                color={tooltipVisivel ? "#2D85F8" : "#999"}
+                color={tooltipVisivel ? COLORS.primary : COLORS.textTertiary}
               />
             </TouchableOpacity>
           </View>
@@ -100,7 +105,7 @@ function TelaNovaSenha({ navigation, route }) {
               <Ionicons
                 name={showSenha ? "eye-off-outline" : "eye-outline"}
                 size={22}
-                color="#666"
+                color={COLORS.textTertiary}
               />
             </TouchableOpacity>
           </View>
@@ -112,7 +117,7 @@ function TelaNovaSenha({ navigation, route }) {
                   <Ionicons
                     name={r.valido ? "checkmark-circle" : "close-circle"}
                     size={16}
-                    color={r.valido ? "#21C25E" : "#E53935"}
+                    color={r.valido ? COLORS.success : COLORS.error}
                   />
                   <Text
                     style={[
@@ -147,7 +152,7 @@ function TelaNovaSenha({ navigation, route }) {
               <Ionicons
                 name={showConfirmar ? "eye-off-outline" : "eye-outline"}
                 size={22}
-                color="#666"
+                color={COLORS.textTertiary}
               />
             </TouchableOpacity>
           </View>
@@ -156,7 +161,7 @@ function TelaNovaSenha({ navigation, route }) {
             novaSenha.confirmarSenha.length > 0 &&
             !senhasConferem && (
               <View style={styles.validacaoItem}>
-                <Ionicons name="close-circle" size={16} color="#E53935" />
+                <Ionicons name="close-circle" size={16} color={COLORS.error} />
                 <Text style={styles.validacaoTextoErro}>
                   As senhas não coincidem.
                 </Text>
@@ -168,7 +173,7 @@ function TelaNovaSenha({ navigation, route }) {
             onPress={onAtualizar}
             disabled={novaSenha.loading}
           >
-            <Ionicons name="key-outline" size={24} color="#FFF" />
+            <Ionicons name="key-outline" size={24} color={COLORS.white} />
             <Text style={styles.saveButtonText}>
               {novaSenha.loading ? "Atualizando..." : "Atualizar Senha"}
             </Text>

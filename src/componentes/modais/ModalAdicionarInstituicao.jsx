@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Modal, ScrollView, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS } from '../../styles/colors';
+import { useTheme } from '../../contexts/ThemeContext';
+import { getColorsByTheme, addOpacity } from '../../styles/colors';
 
 const AddCustomInstitutionModal = ({ visible, onClose, onAdd, tipoInicial = 'banco', nomeInicial = null }) => {
   const [name, setName] = useState('');
@@ -10,11 +11,15 @@ const AddCustomInstitutionModal = ({ visible, onClose, onAdd, tipoInicial = 'ban
   const [showColorWheel, setShowColorWheel] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const { isDarkMode } = useTheme();
+  const COLORS = getColorsByTheme(isDarkMode);
+  const styles = getStyles(isDarkMode);
+
   // Atualiza o tipo e nome quando o modal abre
   React.useEffect(() => {
     if (visible) {
       setType(tipoInicial === 'banco' || tipoInicial === 'BANCO' ? 'Banco' : 'Vale');
-      setName(nomeInicial || '');
+      setName('');
       setSelectedColor('#E31C23');
       setShowColorWheel(false);
     }
@@ -208,228 +213,230 @@ const AddCustomInstitutionModal = ({ visible, onClose, onAdd, tipoInicial = 'ban
     </Modal>
   );
 };
-
-const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
-  },
-  modalContainer: {
-    backgroundColor: COLORS.white,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    maxHeight: '90%',
-    paddingBottom: 20,
-  },
-  handle: {
-    width: 40,
-    height: 5,
-    backgroundColor: COLORS.borderLight,
-    borderRadius: 3,
-    alignSelf: 'center',
-    marginTop: 12,
-    marginBottom: 16,
-  },
-  content: {
-    paddingHorizontal: 20,
-  },
-  scrollContent: {
-    paddingBottom: 20,
-  },
-  modalTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: COLORS.black,
-    marginBottom: 24,
-    textAlign: 'center',
-  },
-  formGroup: {
-    marginBottom: 24,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.black,
-    marginBottom: 12,
-  },
-  input: {
-    backgroundColor: COLORS.background,
-    borderRadius: 10,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontSize: 16,
-    color: COLORS.black,
-    borderWidth: 1,
-    borderColor: COLORS.backgroundDark,
-  },
-  typeButtonContainer: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  typeButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: COLORS.backgroundDark,
-    paddingVertical: 14,
-    borderRadius: 10,
-    gap: 8,
-    borderWidth: 2,
-    borderColor: COLORS.backgroundDark,
-  },
-  typeButtonActive: {
-    backgroundColor: COLORS.secondaryLight,
-    borderColor: COLORS.secondaryLight,
-  },
-  typeButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.textSecondary,
-  },
-  typeButtonTextActive: {
-    color: COLORS.white,
-  },
-  seletorCorExecutivo: {
-    backgroundColor: COLORS.white,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-    shadowColor: COLORS.black,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 1,
-  },
-  corPreviewContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-    flex: 1,
-  },
-  corPreviewCirculo: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    borderWidth: 3,
-    borderColor: COLORS.background,
-    shadowColor: COLORS.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  corInfoContainer: {
-    flex: 1,
-  },
-  corNomeLabel: {
-    fontSize: 13,
-    color: COLORS.textSecondary,
-    fontWeight: '500',
-    marginBottom: 2,
-  },
-  corHexCode: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: COLORS.black,
-    letterSpacing: 0.5,
-  },
-  alterarCorContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  alterarCorTexto: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: COLORS.textSecondary,
-  },
-  rodaDeCores: {
-    backgroundColor: COLORS.backgroundLight,
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: COLORS.backgroundDark,
-  },
-  gridCores: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    gap: 12,
-  },
-  colorOption: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  colorOptionSelected: {
-    borderWidth: 3,
-    borderColor: COLORS.white,
-    shadowColor: COLORS.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.4,
-    shadowRadius: 4,
-    elevation: 5,
-    transform: [{ scale: 1.1 }],
-  },
-  checkContainer: {
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    borderRadius: 15,
-    width: 30,
-    height: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 8,
-  },
-  cancelButton: {
-    flex: 1,
-    backgroundColor: COLORS.backgroundDark,
-    paddingVertical: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  cancelButtonText: {
-    color: COLORS.textSecondary,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  addButton: {
-    flex: 1,
-    backgroundColor: COLORS.secondaryLight,
-    paddingVertical: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-    shadowColor: COLORS.secondaryLight,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  addButtonDisabled: {
-    backgroundColor: COLORS.primaryLighter,
-    shadowOpacity: 0,
-    elevation: 0,
-  },
-  addButtonText: {
-    color: COLORS.white,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-});
+const getStyles = (isDarkMode) => {
+  const COLORS = getColorsByTheme(isDarkMode);
+  return StyleSheet.create({
+    overlay: {
+      flex: 1,
+      backgroundColor: COLORS.overlay,
+      justifyContent: 'flex-end',
+    },
+    modalContainer: {
+      backgroundColor: COLORS.backgroundLight,
+      borderTopLeftRadius: 24,
+      borderTopRightRadius: 24,
+      maxHeight: '90%',
+      paddingBottom: 20,
+    },
+    handle: {
+      width: 40,
+      height: 5,
+      backgroundColor: COLORS.borderLight,
+      borderRadius: 3,
+      alignSelf: 'center',
+      marginTop: 12,
+      marginBottom: 16,
+    },
+    content: {
+      paddingHorizontal: 20,
+    },
+    scrollContent: {
+      paddingBottom: 20,
+    },
+    modalTitle: {
+      fontSize: 24,
+      fontWeight: '700',
+      color: COLORS.textPrimary,
+      marginBottom: 24,
+      textAlign: 'center',
+    },
+    formGroup: {
+      marginBottom: 24,
+    },
+    label: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: COLORS.textPrimary,
+      marginBottom: 12,
+    },
+    input: {
+      backgroundColor: COLORS.background,
+      borderRadius: 10,
+      paddingHorizontal: 16,
+      paddingVertical: 14,
+      fontSize: 16,
+      color: COLORS.textPrimary,
+      borderWidth: 1,
+      borderColor: COLORS.border,
+    },
+    typeButtonContainer: {
+      flexDirection: 'row',
+      gap: 12,
+    },
+    typeButton: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: COLORS.backgroundLight,
+      paddingVertical: 14,
+      borderRadius: 10,
+      gap: 8,
+      borderWidth: 2,
+      borderColor: COLORS.border,
+    },
+    typeButtonActive: {
+      backgroundColor: COLORS.secondaryLight,
+      borderColor: COLORS.secondaryLight,
+    },
+    typeButtonText: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: COLORS.textSecondary,
+    },
+    typeButtonTextActive: {
+      color: COLORS.white,
+    },
+    seletorCorExecutivo: {
+      backgroundColor: COLORS.backgroundLight,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: COLORS.border,
+      paddingVertical: 16,
+      paddingHorizontal: 16,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: 16,
+      shadowColor: COLORS.black,
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.05,
+      shadowRadius: 3,
+      elevation: 1,
+    },
+    corPreviewContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 14,
+      flex: 1,
+    },
+    corPreviewCirculo: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      borderWidth: 3,
+      borderColor: COLORS.background,
+      shadowColor: COLORS.black,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.15,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    corInfoContainer: {
+      flex: 1,
+    },
+    corNomeLabel: {
+      fontSize: 13,
+      color: COLORS.textSecondary,
+      fontWeight: '500',
+      marginBottom: 2,
+    },
+    corHexCode: {
+      fontSize: 17,
+      fontWeight: '700',
+      color: COLORS.textPrimary,
+      letterSpacing: 0.5,
+    },
+    alterarCorContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+    },
+    alterarCorTexto: {
+      fontSize: 15,
+      fontWeight: '600',
+      color: COLORS.textSecondary,
+    },
+    rodaDeCores: {
+      backgroundColor: COLORS.backgroundLight,
+      borderRadius: 16,
+      padding: 16,
+      borderWidth: 1,
+      borderColor: COLORS.border,
+    },
+    gridCores: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'center',
+      gap: 12,
+    },
+    colorOption: {
+      width: 50,
+      height: 50,
+      borderRadius: 25,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderWidth: 2,
+      borderColor: 'transparent',
+    },
+    colorOptionSelected: {
+      borderWidth: 3,
+      borderColor: COLORS.white,
+      shadowColor: COLORS.black,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.4,
+      shadowRadius: 4,
+      elevation: 5,
+      transform: [{ scale: 1.1 }],
+    },
+    checkContainer: {
+      backgroundColor: 'rgba(0, 0, 0, 0.3)',
+      borderRadius: 15,
+      width: 30,
+      height: 30,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    buttonContainer: {
+      flexDirection: 'row',
+      gap: 12,
+      marginTop: 8,
+    },
+    cancelButton: {
+      flex: 1,
+      backgroundColor: COLORS.background,
+      paddingVertical: 16,
+      borderRadius: 12,
+      alignItems: 'center',
+    },
+    cancelButtonText: {
+      color: COLORS.textSecondary,
+      fontSize: 16,
+      fontWeight: '600',
+    },
+    addButton: {
+      flex: 1,
+      backgroundColor: COLORS.secondaryLight,
+      paddingVertical: 16,
+      borderRadius: 12,
+      alignItems: 'center',
+      shadowColor: COLORS.secondaryLight,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.3,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    addButtonDisabled: {
+      backgroundColor: COLORS.primaryLighter,
+      shadowOpacity: 0,
+      elevation: 0,
+    },
+    addButtonText: {
+      color: COLORS.white,
+      fontSize: 16,
+      fontWeight: '600',
+    },
+  });
+};
 
 export default AddCustomInstitutionModal;

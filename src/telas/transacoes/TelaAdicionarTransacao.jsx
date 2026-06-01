@@ -615,6 +615,7 @@ const TelaAdicionarTransacao = ({ navigation }) => {
                   }
                 }}
                 style={styles.picker}
+                itemStyle={{ color: COLORS.textPrimary }}
                 dropdownIconColor={COLORS.primary}
               >
                 {INSTALLMENT_OPTIONS.map(option => (

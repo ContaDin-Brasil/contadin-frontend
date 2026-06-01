@@ -196,6 +196,7 @@ export const getStyles = (isDarkMode) => {
       borderWidth: 1,
       gap: 4,
       alignSelf: 'flex-start',
+      backgroundColor: COLORS.backgroundLight,
     },
     institutionBadgeIcon: {
       fontSize: 12,

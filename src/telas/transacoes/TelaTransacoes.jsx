@@ -17,7 +17,6 @@ import { useGerenciarTransacoes } from "./hooks/useGerenciarTransacoes";
 import { ModalOrdenacao } from "./modals/ModalOrdenacao";
 import { ModalFiltros } from "./modals/ModalFiltros";
 import { ModalPeriodo } from "./modals/ModalPeriodo";
-import COLORS from "../../styles/colors";
 import BotaoFlutuanteAdicionar from "../../componentes/BotaoFlutuanteAdicionar";
 import {
   formatCurrency,
@@ -27,7 +26,7 @@ import {
   parseTransacaoDate,
 } from "./utils/utilitariosTransacao";
 import { getStyles } from "./styles/TelaTransacoes.styles";
-import { getColorsByTheme } from "../../styles/colors";
+import { addOpacity, getColorsByTheme } from "../../styles/colors";
 import { useTheme } from "../../contexts/ThemeContext";
 
 const TelaTransacoes = ({ navigation, route }) => {
@@ -723,8 +722,8 @@ const TelaTransacoes = ({ navigation, route }) => {
                     styles.institutionBadge,
                     {
                       backgroundColor: institutionLogo
-                        ? COLORS.white
-                        : institutionColor + "20",
+                        ? (isDarkMode ? COLORS.backgroundLight : COLORS.white)
+                        : addOpacity(institutionColor, isDarkMode ? 18 : 10),
                       borderColor: institutionColor,
                     },
                   ]}
@@ -784,7 +783,9 @@ const TelaTransacoes = ({ navigation, route }) => {
               style={[
                 styles.selectedInstitutionBanner,
                 {
-                  backgroundColor: instituicaoSelecionada.cor + "20",
+                  backgroundColor: isDarkMode
+                    ? COLORS.backgroundLight
+                    : addOpacity(instituicaoSelecionada.cor, 10),
                   borderColor: instituicaoSelecionada.cor,
                 },
               ]}

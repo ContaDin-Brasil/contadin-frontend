@@ -3,16 +3,21 @@ import { View, Text, TouchableOpacity, ScrollView, TextInput, SafeAreaView } fro
 import { Ionicons } from '@expo/vector-icons';
 import TituloPagina from '../../componentes/TituloPagina';
 import BotoesAcaoFixo from '../../componentes/BotoesAcaoFixo';
+import { useTheme } from '../../contexts/ThemeContext';
+import { getColorsByTheme } from '../../styles/colors';
 import { useAlterarSenha } from './hooks/useAlterarSenha';
 import { REQUISITOS_SENHA } from './constants/constantesConfiguracao';
 import {
   obterResultadosValidacaoSenha,
   verificarSenhasConferem,
 } from '../../utils/senhaUtils';
-import { styles } from './styles/TelaAlterarSenha.styles';
+import { getStyles } from './styles/TelaAlterarSenha.styles';
 
 const ChangePasswordScreen = ({ navigation }) => {
   const senha = useAlterarSenha();
+  const { isDarkMode } = useTheme();
+  const styles = getStyles(isDarkMode);
+  const COLORS = getColorsByTheme(isDarkMode);
   const [showSenhaAtual, setShowSenhaAtual] = useState(false);
   const [showNovaSenha, setShowNovaSenha] = useState(false);
   const [showConfirmarSenha, setShowConfirmarSenha] = useState(false);
@@ -63,7 +68,7 @@ const ChangePasswordScreen = ({ navigation }) => {
                 <Ionicons
                   name={showSenhaAtual ? 'eye-off-outline' : 'eye-outline'}
                   size={22}
-                  color="#666"
+                  color={COLORS.textTertiary}
                 />
               </TouchableOpacity>
             </View>
@@ -78,7 +83,7 @@ const ChangePasswordScreen = ({ navigation }) => {
                 <Ionicons
                   name="information-circle-outline"
                   size={20}
-                  color={tooltipVisivel ? '#2D85F8' : '#999'}
+                  color={tooltipVisivel ? COLORS.primary : COLORS.textTertiary}
                 />
               </TouchableOpacity>
             </View>
@@ -113,7 +118,7 @@ const ChangePasswordScreen = ({ navigation }) => {
                 <Ionicons
                   name={showNovaSenha ? 'eye-off-outline' : 'eye-outline'}
                   size={22}
-                  color="#666"
+                  color={COLORS.textTertiary}
                 />
               </TouchableOpacity>
             </View>
@@ -125,7 +130,7 @@ const ChangePasswordScreen = ({ navigation }) => {
                     <Ionicons
                       name={resultado.valido ? 'checkmark-circle' : 'close-circle'}
                       size={16}
-                      color={resultado.valido ? '#21C25E' : '#E53935'}
+                      color={resultado.valido ? COLORS.success : COLORS.error}
                     />
                     <Text
                       style={[
@@ -160,14 +165,14 @@ const ChangePasswordScreen = ({ navigation }) => {
                 <Ionicons
                   name={showConfirmarSenha ? 'eye-off-outline' : 'eye-outline'}
                   size={22}
-                  color="#666"
+                  color={COLORS.textTertiary}
                 />
               </TouchableOpacity>
             </View>
 
             {senhaTocada && senha.confirmarSenha.length > 0 && !senhasConferem && (
               <View style={styles.validacaoItem}>
-                <Ionicons name="close-circle" size={16} color="#E53935" />
+                <Ionicons name="close-circle" size={16} color={COLORS.error} />
                 <Text style={styles.validacaoTextoErro}>As senhas não coincidem.</Text>
               </View>
             )}

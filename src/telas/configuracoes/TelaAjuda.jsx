@@ -22,7 +22,9 @@ import {
   OUTROS_CONTATOS,
 } from './constants/constantesConfiguracao';
 import SeletorIdiomaAjuda from './componentes/SeletorIdiomaAjuda';
-import { styles } from './styles/TelaAjuda.styles';
+import { useTheme } from '../../contexts/ThemeContext';
+import { getColorsByTheme } from '../../styles/colors';
+import { getStyles } from './styles/TelaAjuda.styles';
 
 const CHAT_MENSAGENS = [
   {
@@ -67,6 +69,9 @@ const HelpScreen = ({ navigation }) => {
   const ajuda = useAjuda();
   const { t } = useTranslation();
   const rtl = useLayoutRtl();
+  const { isDarkMode } = useTheme();
+  const styles = getStyles(isDarkMode);
+  const COLORS = getColorsByTheme(isDarkMode);
   const exibirSeletorIdioma = ajuda.selectedTab === 'FAQ';
 
   const handleOpenEmail = () => {
@@ -89,7 +94,7 @@ const HelpScreen = ({ navigation }) => {
           <Ionicons
             name={rtl.isRtl ? 'arrow-forward' : 'arrow-back'}
             size={28}
-            color="#000"
+            color={COLORS.textPrimary}
           />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, rtl.texto]}>{t('ajuda.titulo')}</Text>
@@ -175,15 +180,15 @@ const HelpScreen = ({ navigation }) => {
             </ScrollView>
 
             <View style={styles.chatComposer}>
-              <Ionicons name="attach-outline" size={20} color="#666" />
+              <Ionicons name="attach-outline" size={20} color={COLORS.textSecondary} />
               <TextInput
                 style={styles.chatInput}
                 placeholder="Envie uma mensagem"
-                placeholderTextColor="#999"
+                placeholderTextColor={COLORS.textTertiary}
               />
               <View style={styles.chatComposerActions}>
-                <Ionicons name="mic-outline" size={20} color="#666" />
-                <Ionicons name="send" size={20} color="#0066FF" />
+                <Ionicons name="mic-outline" size={20} color={COLORS.textSecondary} />
+                <Ionicons name="send" size={20} color={COLORS.primary} />
               </View>
             </View>
           </KeyboardAvoidingView>
@@ -197,10 +202,10 @@ const HelpScreen = ({ navigation }) => {
                     onPressIn={ajuda.toggleEmail}
                   >
                     <View style={styles.contactHeader}>
-                      <Ionicons name="mail-outline" size={24} color="#000" />
+                      <Ionicons name="mail-outline" size={24} color={COLORS.textPrimary} />
                       <Text style={styles.contactTitle}>Email</Text>
                     </View>
-                    <Ionicons name={ajuda.emailExpanded ? 'chevron-up' : 'chevron-down'} size={24} color="#000" />
+                    <Ionicons name={ajuda.emailExpanded ? 'chevron-up' : 'chevron-down'} size={24} color={COLORS.textPrimary} />
                   </TouchableOpacity>
 
                   {ajuda.emailExpanded && (
@@ -211,7 +216,7 @@ const HelpScreen = ({ navigation }) => {
                         onPressIn={handleOpenEmail}
                       >
                         <Text style={styles.linkButtonText}>Enviar email</Text>
-                        <Ionicons name="open-outline" size={18} color="#1A73E8" />
+                        <Ionicons name="open-outline" size={18} color={COLORS.primary} />
                       </TouchableOpacity>
                     </View>
                   )}
@@ -221,10 +226,10 @@ const HelpScreen = ({ navigation }) => {
                     onPressIn={ajuda.toggleWhatsapp}
                   >
                     <View style={styles.contactHeader}>
-                      <Ionicons name="logo-whatsapp" size={24} color="#25D366" />
+                      <Ionicons name="logo-whatsapp" size={24} color={COLORS.success} />
                       <Text style={styles.contactTitle}>Whatsapp</Text>
                     </View>
-                    <Ionicons name={ajuda.whatsappExpanded ? 'chevron-up' : 'chevron-down'} size={24} color="#000" />
+                    <Ionicons name={ajuda.whatsappExpanded ? 'chevron-up' : 'chevron-down'} size={24} color={COLORS.textPrimary} />
                   </TouchableOpacity>
 
                   {ajuda.whatsappExpanded && (
@@ -235,7 +240,7 @@ const HelpScreen = ({ navigation }) => {
                         onPressIn={() => handleOpenLink(CONTATOS.whatsappLink)}
                       >
                         <Text style={styles.linkButtonText}>Abrir WhatsApp</Text>
-                        <Ionicons name="open-outline" size={18} color="#1A73E8" />
+                        <Ionicons name="open-outline" size={18} color={COLORS.primary} />
                       </TouchableOpacity>
                     </View>
                   )}
@@ -250,12 +255,12 @@ const HelpScreen = ({ navigation }) => {
                           onPressIn={() => handleOpenLink(item.url)}
                         >
                           <View style={styles.channelHeader}>
-                            <Ionicons name={item.icon} size={22} color="#000" />
+                            <Ionicons name={item.icon} size={22} color={COLORS.textPrimary} />
                             <Text style={styles.channelTitle}>{item.titulo}</Text>
                           </View>
                           <View style={styles.channelRight}>
                             <Text style={styles.channelValue}>{item.valor}</Text>
-                            <Ionicons name="open-outline" size={18} color="#666" />
+                            <Ionicons name="open-outline" size={18} color={COLORS.textSecondary} />
                           </View>
                         </TouchableOpacity>
                       ))}
@@ -276,7 +281,7 @@ const HelpScreen = ({ navigation }) => {
                           onPressIn={() => ajuda.toggleFaqItem(item.id)}
                         >
                           <View style={[styles.accordionHeader, rtl.row]}>
-                            <Ionicons name="help-circle-outline" size={22} color="#000" />
+                            <Ionicons name="help-circle-outline" size={22} color={COLORS.textPrimary} />
                             <Text style={[styles.accordionTitle, rtl.texto]}>
                               {t(`faq.${item.id}.pergunta`)}
                             </Text>
@@ -284,7 +289,7 @@ const HelpScreen = ({ navigation }) => {
                           <Ionicons
                             name={isExpanded ? 'chevron-up' : 'chevron-down'}
                             size={24}
-                            color="#000"
+                            color={COLORS.textPrimary}
                           />
                         </TouchableOpacity>
 

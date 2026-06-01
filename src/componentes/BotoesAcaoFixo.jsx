@@ -33,8 +33,11 @@ const BotoesAcaoFixo = ({
             style={[
               styles.button,
               styles.secondaryButton,
-              { backgroundColor: COLORS.white, borderColor: COLORS.border },
-              secondaryVariant === 'danger' && { backgroundColor: '#FFF0F0', borderColor: '#FFD1D1' },
+              { backgroundColor: COLORS.backgroundLight, borderColor: COLORS.border },
+              secondaryVariant === 'danger' && {
+                backgroundColor: isDarkMode ? COLORS.backgroundLight : COLORS.background,
+                borderColor: isDarkMode ? COLORS.error + '55' : COLORS.error + '33',
+              },
               (secondaryDisabled || secondaryLoading) && styles.buttonDisabled,
               hasSecondary && styles.buttonHalf,
             ]}

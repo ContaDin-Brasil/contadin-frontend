@@ -11,7 +11,9 @@ import InstitutionSelectionModal from "../../../componentes/modais/ModalSelecaoI
 import AddCustomInstitutionModal from "../../../componentes/modais/ModalAdicionarInstituicao";
 import { instituicaoService } from "../../../api";
 import { getInstituicoesPadrao } from "../../carteira/constants/instituicoesPadrao";
-import { styles } from "./styles/TelaCadastroInstituicao.styles";
+import { useTheme } from "../../../contexts/ThemeContext";
+import { getColorsByTheme } from "../../../styles/colors";
+import { getStyles } from "./styles/TelaCadastroInstituicao.styles";
 import {
   extrairUsuarioId,
   obterUsuarioIdOuErro,
@@ -25,6 +27,9 @@ function TelaCadastroInstituicao({ navigation, route }) {
   const [customVisible, setCustomVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { isDarkMode } = useTheme();
+  const COLORS = getColorsByTheme(isDarkMode);
+  const styles = getStyles(isDarkMode);
 
   const availableInstitutions = [
     ...getInstituicoesPadrao("banco"),
@@ -98,7 +103,7 @@ function TelaCadastroInstituicao({ navigation, route }) {
       <View style={styles.contentContainer}>
         {loading && (
           <View style={styles.loadingWrap}>
-            <ActivityIndicator size="large" color="#2D85F8" />
+            <ActivityIndicator size="large" color={COLORS.primary} />
             <Text style={styles.loadingText}>Salvando...</Text>
           </View>
         )}

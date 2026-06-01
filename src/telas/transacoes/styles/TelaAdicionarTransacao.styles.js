@@ -316,6 +316,7 @@ export const getStyles = (isDarkMode) => {
   },
   picker: {
     height: 50,
+    color: COLORS.textPrimary,
   },
   institutionTypeButtons: {
     flexDirection: 'row',

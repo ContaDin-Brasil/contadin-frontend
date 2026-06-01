@@ -10,10 +10,15 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import TituloPagina from "../../../componentes/TituloPagina";
 import { useEsqueceuSenha } from "./hooks/useEsqueceuSenha";
-import { styles } from "./styles/TelaSolicitarEmail.styles";
+import { useTheme } from "../../../contexts/ThemeContext";
+import { getColorsByTheme } from "../../../styles/colors";
+import { getStyles } from "./styles/TelaSolicitarEmail.styles";
 
 function TelaSolicitarEmail({ navigation }) {
   const esqueceu = useEsqueceuSenha();
+  const { isDarkMode } = useTheme();
+  const COLORS = getColorsByTheme(isDarkMode);
+  const styles = getStyles(isDarkMode);
 
   const onEnviarCodigo = async () => {
     const success = await esqueceu.handleEnviarCodigo();
@@ -52,7 +57,7 @@ function TelaSolicitarEmail({ navigation }) {
             onPress={onEnviarCodigo}
             disabled={esqueceu.loading}
           >
-            <Ionicons name="mail-outline" size={24} color="#FFF" />
+            <Ionicons name="mail-outline" size={24} color={COLORS.white} />
             <Text style={styles.saveButtonText}>
               {esqueceu.loading ? "Enviando..." : "Enviar Código"}
             </Text>

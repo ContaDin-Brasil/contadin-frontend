@@ -12,8 +12,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import TituloPagina from '../../componentes/TituloPagina';
 import BotaoFlutuanteAdicionar from '../../componentes/BotaoFlutuanteAdicionar';
-import { COLORS } from '../../styles/colors';
-import { styles } from './styles/TelaObjetivos.styles';
+import { useTheme } from '../../contexts/ThemeContext';
+import { getColorsByTheme } from '../../styles/colors';
+import { getStyles } from './styles/TelaObjetivos.styles';
 import { useGerenciarObjetivos } from './hooks/useGerenciarObjetivos';
 import { STATUS_VISUAL, TIPO_VISUAL } from '@/telas/configuracoes/objetivos/constants/constantesObjetivo';
 import { formatarData } from '@/utils/dateUtils';
@@ -21,6 +22,9 @@ import { formatarMoeda, formatarMoedaDetalhada } from '@/utils/moedaUtils';
 import { formatarPrioridade } from '@/telas/configuracoes/objetivos/utils/objetivoFormatters';
 
 const TelaObjetivos = ({ navigation }) => {
+  const { isDarkMode } = useTheme();
+  const styles = getStyles(isDarkMode);
+  const COLORS = getColorsByTheme(isDarkMode);
   const {
     objetivos,
     resumo,
@@ -117,7 +121,7 @@ const TelaObjetivos = ({ navigation }) => {
                   Objetivos
                   {'\n'}no ritmo
                 </Text>
-                <View style={[styles.kpiIcon, { backgroundColor: '#E9F8EF' }]}>
+                <View style={[styles.kpiIcon, { backgroundColor: COLORS.primaryLighter }]}>
                   <Ionicons name="checkmark-circle" size={16} color={COLORS.success} />
                 </View>
               </View>
@@ -132,7 +136,7 @@ const TelaObjetivos = ({ navigation }) => {
                 Maior
                 {'\n'}alerta
               </Text>
-              <View style={[styles.kpiIcon, { backgroundColor: '#FFF4E5' }]}>
+              <View style={[styles.kpiIcon, { backgroundColor: COLORS.warningLight }]}>
                 <Ionicons name="alert-circle" size={16} color={COLORS.warning} />
               </View>
             </View>
