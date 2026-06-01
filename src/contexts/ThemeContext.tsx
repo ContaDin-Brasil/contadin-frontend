@@ -17,7 +17,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const systemColorScheme = useColorScheme();
-  const [themePreference, setThemePreference] = useState<Theme>('system');
+  const [themePreference, setThemePreference] = useState<Theme>('light');
   const [isLoading, setIsLoading] = useState(true);
 
   // Resolver o tema efetivo baseado na preferência e preferência do sistema
