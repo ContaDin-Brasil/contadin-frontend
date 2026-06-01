@@ -683,7 +683,7 @@ const TelaAdicionarTransacao = ({ navigation }) => {
                   const institutionLogo = getLogoByName(formState.selectedInstitution.nome);
                   return (
                     <>
-                                <View style={[styles.chipIconContainer, { backgroundColor: institutionLogo ? COLORS.white : formState.selectedInstitution.cor }]}>
+                      <View style={[styles.chipIconContainer, { backgroundColor: institutionLogo ? COLORS.white : formState.selectedInstitution.cor }]}>
                         {institutionLogo ? (
                           <Image 
                             source={institutionLogo} 
