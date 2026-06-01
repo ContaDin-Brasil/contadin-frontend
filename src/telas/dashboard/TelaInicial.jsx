@@ -20,7 +20,7 @@ import { ModalGraficoCategorias } from './components/ModalGraficoCategorias';
 const TelaInicial = () => {
   const [modalGraficoCategoriasVisible, setModalGraficoCategoriasVisible] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
 
   const {
     dados,
@@ -35,12 +35,14 @@ const TelaInicial = () => {
     saldoConsolidado,
   } = useGerenciarDashboard(); // ✅ Sem parâmetro - usa user.id do contexto
 
-  // Atualizar dados e gráfico quando a tela recebe foco
+  // Atualizar dados e gráfico quando a tela recebe foco,
+  // mas só depois que o AuthContext terminar de carregar o usuário.
   useFocusEffect(
     React.useCallback(() => {
+      if (authLoading || !user?.id) return;
       atualizarDados();
       setRefreshKey(prev => prev + 1);
-    }, [atualizarDados])
+    }, [authLoading, user?.id, atualizarDados])
   );
 
   // Loading inicial
