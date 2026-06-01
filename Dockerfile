@@ -1,0 +1,29 @@
+# Stage 1: Build
+FROM node:22-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+
+# 1. Declara que espera o argumento (injetado pelo Railway)
+ARG EXPO_PUBLIC_API_BASE_URL
+ARG EXPO_PUBLIC_PYTHON_BASE_URL
+ARG EXPO_PUBLIC_ETL_IMPORT_PATH
+ARG EXPO_PUBLIC_ETL_SEND_AUTH
+ARG EXPO_PUBLIC_SYSADMIN_EMAIL
+ARG EXPO_PUBLIC_SYSADMIN_PASSWORD
+# 2. Transforma em variável de ambiente para o comando abaixo enxergar
+ENV EXPO_PUBLIC_API_BASE_URL=$EXPO_PUBLIC_API_BASE_URL
+ENV EXPO_PUBLIC_PYTHON_BASE_URL=$EXPO_PUBLIC_PYTHON_BASE_URL
+ENV EXPO_PUBLIC_ETL_IMPORT_PATH=$EXPO_PUBLIC_ETL_IMPORT_PATH
+ENV EXPO_PUBLIC_ETL_SEND_AUTH=$EXPO_PUBLIC_ETL_SEND_AUTH
+ENV EXPO_PUBLIC_SYSADMIN_EMAIL=$EXPO_PUBLIC_SYSADMIN_EMAIL
+ENV EXPO_PUBLIC_SYSADMIN_PASSWORD=$EXPO_PUBLIC_SYSADMIN_PASSWORD
+# O Expo vai ler o ENV e injetar no JS gerado
+RUN npx expo export --platform web
+
+# Stage 2: Nginx
+FROM nginx:alpine
+COPY --from=builder /app/dist /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
