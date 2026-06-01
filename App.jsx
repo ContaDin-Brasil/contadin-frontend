@@ -12,7 +12,8 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 function NavegacaoRaiz() {
   const { token, loading } = useAuth();
-  if (!token && !loading) {
+  // Mostrar tela de autenticação enquanto carregando ou se não houver token
+  if (loading || !token) {
     return <NavegadorAutenticacao />;
   }
   return <NavegadorPrincipal />;

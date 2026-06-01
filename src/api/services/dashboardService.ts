@@ -124,7 +124,7 @@ export const usuarioPossuiTransacoes = async (
   try {
     const [responseTransacoes, responseInstituicoes] = await Promise.all([
       api.get<TransacaoApi[]>('/transacao'),
-      api.get<InstituicaoApi[]>(`/instituicao?fk_usuario=${usuarioId}`),
+      api.get<InstituicaoApi[]>(`/instituicoes?fkUsuario=${usuarioId}`),
     ]);
 
     const todasTransacoes = Array.isArray(responseTransacoes.data) ? responseTransacoes.data : [];
@@ -164,10 +164,10 @@ export const buscarGastosPorCategoriaEndpoint = async (
     const mesParam = mes ?? (dataAtual.getMonth() + 1);
     const anoParam = ano ?? dataAtual.getFullYear();
 
-    const url = `/categorias/gastos?fkUsuario=${usuarioId}&mes=${mesParam}&ano=${anoParam}`;
-    console.log('[API] Chamando endpoint de gastos por categoria:', url);
+    const params: any = { fkUsuario: usuarioId, mes: mesParam, ano: anoParam };
+    console.log('[API] Chamando endpoint de gastos por categoria:', '/categorias/gastos', params);
 
-    const response = await api.get<GastoCategoriaApi[]>(url);
+    const response = await api.get<GastoCategoriaApi[]>('/categorias/gastos', { params });
 
     console.log('[API] ✅ Gastos por categoria recebidos (RAW):', response.data);
     console.log('[API] Tipo de resposta:', typeof response.data);
@@ -243,7 +243,7 @@ export const buscarResumoFinanceiro = async (usuarioId: number): Promise<ResumoF
     // Buscar todas as transações e instituições
     const [responseTransacoes, responseInstituicoes] = await Promise.all([
       api.get<TransacaoApi[]>('/transacao'),
-      api.get<InstituicaoApi[]>(`/instituicoes?fkUsuario=${usuarioId}`),
+      api.get<InstituicaoApi[]>('/instituicoes', { params: { fkUsuario: usuarioId } }),
     ]);
     
     const todasTransacoes = responseTransacoes.data;
@@ -332,7 +332,7 @@ export const buscarGastosPorCategoria = async (
     const [responseTransacoes, responseCategorias, responseInstituicoes] = await Promise.all([
       api.get<TransacaoApi[]>('/transacao'),
       api.get<CategoriaApi[]>('/categorias'),
-      api.get<InstituicaoApi[]>(`/instituicoes?fkUsuario=${usuarioId}`),
+      api.get<InstituicaoApi[]>('/instituicoes', { params: { fkUsuario: usuarioId } }),
     ]);
     
     const todasTransacoes = responseTransacoes.data;
@@ -426,9 +426,13 @@ export const buscarSaldosPorInstituicao = async (
     // ─────────────────────────────────────────────────────────────────
 
     // Buscar instituições e transações
+    const instituicoesPromise = api.get<InstituicaoApi[]>('/instituicoes', {
+      params: usuarioId != null ? { fkUsuario: usuarioId } : {},
+    });
+    const transacoesPromise = api.get<TransacaoApi[]>('/transacao');
     const [responseInstituicoes, responseTransacoes] = await Promise.all([
-      api.get<InstituicaoApi[]>(`/instituicoes?fkUsuario=${usuarioId}`),
-      api.get<TransacaoApi[]>('/transacao'),
+      instituicoesPromise,
+      transacoesPromise,
     ]);
     
     const instituicoes = responseInstituicoes.data;
@@ -536,9 +540,13 @@ export const buscarPrevisaoSaldo = async (
     //   };
     // ─────────────────────────────────────────────────────────────────
 
+    const transacoesPromise = api.get<TransacaoApi[]>('/transacao');
+    const instituicoesPromise = api.get<InstituicaoApi[]>('/instituicoes', {
+      params: usuarioId != null ? { fkUsuario: usuarioId } : {},
+    });
     const [responseTransacoes, responseInstituicoes] = await Promise.all([
-      api.get<TransacaoApi[]>('/transacao'),
-      api.get<InstituicaoApi[]>(`/instituicoes?fkUsuario=${usuarioId}`),
+      transacoesPromise,
+      instituicoesPromise,
     ]);
 
     const todasTransacoes = responseTransacoes.data;

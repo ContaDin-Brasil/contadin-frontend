@@ -90,9 +90,6 @@ export const getStyles = (isDarkMode) => {
       paddingVertical: 16,
       paddingHorizontal: 20,
       backgroundColor: COLORS.errorLight,
-      borderRadius: 12,
-      borderWidth: 1.5,
-      borderColor: COLORS.errorBorder,
       gap: 10,
     },
     logoutButtonText: {

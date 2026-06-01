@@ -113,7 +113,13 @@ const triggerUnauthorized = (): void => {
 
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    console.log(`➡️  ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`);
+    const fullUrl = new URL(`${config.baseURL}${config.url}`);
+    if (config.params) {
+      Object.entries(config.params).forEach(([key, value]) => {
+        fullUrl.searchParams.append(key, String(value));
+      });
+    }
+    console.log(`➡️  ${config.method?.toUpperCase()} ${fullUrl.href}`);
 
     if (isPublicAuthRoute(config.url)) {
       if (config.headers?.Authorization) {

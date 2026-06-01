@@ -28,7 +28,6 @@ const TelaInicial = () => {
   
   const [modalGraficoCategoriasVisible, setModalGraficoCategoriasVisible] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
-  const [bloquearRenderizacao, setBloquearRenderizacao] = useState(true);
   const { user, loading: authLoading } = useAuth();
 
   const {
@@ -56,7 +55,8 @@ const TelaInicial = () => {
   );
 
   // Loading inicial
-  if (bloquearRenderizacao || (loading && !dados)) {
+  if (loading && !dados) {
+    console.log('[TelaInicial] Mostrando tela de loading - loading:', loading, 'dados:', dados ? 'existe' : 'null');
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={COLORS.primary} />
@@ -65,8 +65,9 @@ const TelaInicial = () => {
     );
   }
 
-  // Estado de erro
+  // Estado de erro - apenas se NÃO houver dados
   if (erro && !dados) {
+    console.log('[TelaInicial] Mostrando tela de erro:', erro);
     return (
       <View style={styles.erroContainer}>
         <Ionicons name="alert-circle-outline" size={64} color={COLORS.error} />
@@ -85,7 +86,10 @@ const TelaInicial = () => {
   const temResumoMensal = resumo && (resumo.receitaTotal > 0 || resumo.gastoTotal > 0);
   const mostrarEmptyState = !temTransacoes && !temResumoMensal;
   
+  console.log('[TelaInicial] Estado final - dados:', dados ? 'existe' : 'null', 'loading:', loading, 'temResumoMensal:', temResumoMensal, 'temTransacoes:', temTransacoes);
+  
   if (mostrarEmptyState && !loading) {
+    console.log('[TelaInicial] Mostrando empty state');
     return (
       <View style={styles.container}>
         <EmptyStateTransacoes
