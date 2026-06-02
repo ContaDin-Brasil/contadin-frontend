@@ -1,7 +1,10 @@
 import { StyleSheet } from 'react-native';
-import { COLORS } from '../../../styles/colors';
+import { getColorsByTheme } from '../../../styles/colors';
 
-export const styles = StyleSheet.create({
+export const getStyles = (isDarkMode) => {
+  const COLORS = getColorsByTheme(isDarkMode);
+
+  return StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
@@ -36,7 +39,7 @@ export const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 12,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.backgroundLight,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -56,7 +59,7 @@ export const styles = StyleSheet.create({
     borderRadius: 999,
     borderWidth: 1,
     borderColor: COLORS.borderLight,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.backgroundLight,
     alignItems: 'center',
   },
   kpiFiltroBotaoAtivo: {
@@ -80,7 +83,7 @@ export const styles = StyleSheet.create({
     gap: 12,
   },
   kpiCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.backgroundLight,
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
@@ -142,7 +145,7 @@ export const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.backgroundDark,
+    backgroundColor: COLORS.backgroundLight,
     paddingHorizontal: 14,
     paddingVertical: 12,
     borderRadius: 12,
@@ -171,7 +174,7 @@ export const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     borderColor: COLORS.borderLight,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.backgroundLight,
     alignItems: 'center',
   },
   filtroBotaoAtivo: {
@@ -222,7 +225,7 @@ export const styles = StyleSheet.create({
     color: COLORS.white,
   },
   objetivoCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.backgroundLight,
     borderRadius: 18,
     padding: 16,
     borderWidth: 1,
@@ -309,7 +312,7 @@ export const styles = StyleSheet.create({
   },
   progressoBarra: {
     height: 8,
-    backgroundColor: '#EDF1F7',
+    backgroundColor: COLORS.border,
     borderRadius: 999,
     overflow: 'hidden',
   },
@@ -346,7 +349,7 @@ export const styles = StyleSheet.create({
     color: COLORS.textSecondary,
   },
   secondaryButton: {
-    backgroundColor: '#F0F4FF',
+    backgroundColor: COLORS.primaryLighter,
     borderRadius: 12,
     paddingVertical: 8,
     paddingHorizontal: 12,
@@ -356,4 +359,7 @@ export const styles = StyleSheet.create({
     fontWeight: '600',
     color: COLORS.primaryDark,
   },
-});
+  });
+};
+
+export const styles = getStyles(false);

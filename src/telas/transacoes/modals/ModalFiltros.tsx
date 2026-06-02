@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet, ScrollView, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import COLORS from '../../../styles/colors';
+import { useTheme } from '../../../contexts/ThemeContext';
+import { getColorsByTheme } from '../../../styles/colors';
 import type { Category, FiltrosTransacao, Institution } from '../types/transacao.types';
 
 type Filtros = FiltrosTransacao;
@@ -31,6 +32,9 @@ export const ModalFiltros: React.FC<ModalFiltrosProps> = ({
   instituicoes,
   categorias,
 }) => {
+  const { isDarkMode } = useTheme();
+  const COLORS = getColorsByTheme(isDarkMode);
+  const styles = getModalFiltrosStyles(COLORS);
   const [filtrosTemp, setFiltrosTemp] = useState<Filtros>(filtrosAtuais);
 
   // Atualiza filtros temporários quando o modal abre
@@ -332,14 +336,14 @@ export const ModalFiltros: React.FC<ModalFiltrosProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const getModalFiltrosStyles = (COLORS) => StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: COLORS.overlay,
     justifyContent: 'flex-end',
   },
   modalContainer: {
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.backgroundLight,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     maxHeight: '90%',
@@ -386,6 +390,7 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: 20,
+    backgroundColor: COLORS.backgroundLight,
   },
   section: {
     paddingVertical: 20,
@@ -412,7 +417,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: COLORS.border,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.background,
     gap: 6,
   },
   typeButtonActive: {
@@ -491,7 +496,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.background,
   },
   currencySymbol: {
     fontSize: 14,
@@ -538,7 +543,7 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.background,
     shadowColor: COLORS.black,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
@@ -565,7 +570,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: COLORS.border,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.background,
     gap: 6,
   },
   clearButtonText: {
@@ -620,7 +625,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: COLORS.border,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.background,
     gap: 4,
   },
   periodButtonText: {
@@ -648,7 +653,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.background,
     gap: 8,
   },
   dateInputText: {

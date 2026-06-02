@@ -20,8 +20,9 @@ import ModalAdicionarInstituicao from '../../componentes/modais/ModalAdicionarIn
 import ModalCategoria from '../categorias/modals/ModalCategoria';
 import { categoriaService, importacaoPlanilhaService, instituicaoService } from '../../api';
 import { useAuth } from '../../contexts/AuthContext';
-import { styles } from './styles/TelaImportarPlanilha.styles';
-import { COLORS } from '../../styles/colors';
+import { getStyles } from './styles/TelaImportarPlanilha.styles';
+import { useTheme } from '../../contexts/ThemeContext';
+import { getColorsByTheme } from '../../styles/colors';
 import { useToastFeedback } from '../transacoes/hooks/useToastFeedback';
 import { CATEGORY_COLORS } from '../categorias/constants/constantesCategorias';
 
@@ -183,6 +184,10 @@ const mapSwaggerTransacao = (item, index) => ({
 const ETLImportScreen = ({ navigation, route }) => {
   const { user } = useAuth();
   const toast = useToastFeedback();
+
+  const { isDarkMode } = useTheme();
+  const COLORS = getColorsByTheme(isDarkMode);
+  const styles = getStyles(isDarkMode);
 
   const routeToken = route?.params?.token;
   const routeUser = route?.params?.user;
@@ -1001,6 +1006,8 @@ const ETLImportScreen = ({ navigation, route }) => {
 
                       <View style={styles.pickerContainer}>
                         <Picker
+                          style={styles.picker}
+                          itemStyle={{ color: COLORS.textPrimary }}
                           selectedValue={item.tipo}
                           onValueChange={(value) => atualizarTransacao(item.localId, { tipo: value })}
                         >
@@ -1011,6 +1018,8 @@ const ETLImportScreen = ({ navigation, route }) => {
 
                       <View style={styles.pickerContainer}>
                         <Picker
+                          style={styles.picker}
+                          itemStyle={{ color: COLORS.textPrimary }}
                           selectedValue={item.fkInstituicao ?? ''}
                           onValueChange={(value) =>
                             atualizarTransacao(item.localId, {
@@ -1027,6 +1036,8 @@ const ETLImportScreen = ({ navigation, route }) => {
 
                       <View style={styles.pickerContainer}>
                         <Picker
+                          style={styles.picker}
+                          itemStyle={{ color: COLORS.textPrimary }}
                           selectedValue={item.fkCategoria ?? ''}
                           onValueChange={(value) =>
                             atualizarTransacao(item.localId, {

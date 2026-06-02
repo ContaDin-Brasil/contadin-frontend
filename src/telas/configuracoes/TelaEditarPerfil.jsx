@@ -4,11 +4,15 @@ import TituloPagina from '../../componentes/TituloPagina';
 import BotoesAcaoFixo from '../../componentes/BotoesAcaoFixo';
 import { useEditarPerfil } from './hooks/useEditarPerfil';
 import { confirmarAcao } from '../../utils/confirmarAcao';
-import { COLORS } from '../../styles/colors';
-import { styles } from './styles/TelaEditarPerfil.styles';
+import { getColorsByTheme } from '../../styles/colors';
+import { useTheme } from '../../contexts/ThemeContext';
+import { getStyles } from './styles/TelaEditarPerfil.styles';
 
 const EditProfileScreen = ({ navigation }) => {
   const perfil = useEditarPerfil();
+  const { isDarkMode } = useTheme();
+  const styles = getStyles(isDarkMode);
+  const COLORS = getColorsByTheme(isDarkMode);
   const permitirSaidaRef = useRef(false);
 
   const confirmarSaidaSemSalvar = useCallback(
@@ -61,7 +65,7 @@ const EditProfileScreen = ({ navigation }) => {
 
       {perfil.isLoading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#4A9EFF" />
+          <ActivityIndicator size="large" color={COLORS.primary} />
           <Text style={styles.loadingText}>Carregando perfil...</Text>
         </View>
       ) : (
@@ -80,6 +84,7 @@ const EditProfileScreen = ({ navigation }) => {
                 value={perfil.nome}
                 onChangeText={perfil.setNome}
                 placeholder=""
+                placeholderTextColor={COLORS.textSecondary}
               />
 
               <Text style={styles.label}>Sobrenome</Text>
@@ -88,6 +93,7 @@ const EditProfileScreen = ({ navigation }) => {
                 value={perfil.sobrenome}
                 onChangeText={perfil.setSobrenome}
                 placeholder=""
+                placeholderTextColor={COLORS.textSecondary}
               />
 
               <Text style={styles.label}>Telefone</Text>
@@ -97,6 +103,7 @@ const EditProfileScreen = ({ navigation }) => {
                 onChangeText={perfil.setTelefone}
                 placeholder=""
                 keyboardType="phone-pad"
+                placeholderTextColor={COLORS.textSecondary}
               />
 
               <Text style={styles.label}>Email</Text>
@@ -107,6 +114,7 @@ const EditProfileScreen = ({ navigation }) => {
                 placeholder=""
                 keyboardType="email-address"
                 autoCapitalize="none"
+                placeholderTextColor={COLORS.textSecondary}
               />
 
               {perfil.emailFoiAlterado ? (
@@ -120,22 +128,12 @@ const EditProfileScreen = ({ navigation }) => {
               <Text style={styles.sectionTitle}>Preferencias do app</Text>
 
               <View style={styles.switchContainer}>
-                <Text style={styles.switchLabel}>Notificações Push</Text>
-                <Switch
-                  value={perfil.pushNotifications}
-                  onValueChange={perfil.setPushNotifications}
-                  trackColor={{ false: '#D3D3D3', true: '#6BA7FF' }}
-                  thumbColor={perfil.pushNotifications ? COLORS.white : '#f4f3f4'}
-                />
-              </View>
-
-              <View style={styles.switchContainer}>
                 <Text style={styles.switchLabel}>Tema Escuro</Text>
                 <Switch
                   value={perfil.darkTheme}
                   onValueChange={perfil.setDarkTheme}
-                  trackColor={{ false: '#D3D3D3', true: '#6BA7FF' }}
-                  thumbColor={perfil.darkTheme ? COLORS.white : '#f4f3f4'}
+                  trackColor={{ false: COLORS.border, true: COLORS.primaryLight }}
+                  thumbColor={perfil.darkTheme ? COLORS.primary : COLORS.backgroundLight}
                 />
               </View>
             </View>

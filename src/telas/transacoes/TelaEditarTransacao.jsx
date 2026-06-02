@@ -15,10 +15,14 @@ import { FREQUENCIES, INSTALLMENT_OPTIONS } from './constants/constantesTransaca
 import { getCategoryIcon } from './utils/utilitariosTransacao';
 import { categoriaService } from '../../api';
 import { useAuth } from '../../contexts/AuthContext';
-import COLORS from '../../styles/colors';
-import { styles } from './styles/TelaAdicionarTransacao.styles';
+import { getColorsByTheme } from '../../styles/colors';
+import { useTheme } from '../../contexts/ThemeContext';
+import { getStyles } from './styles/TelaAdicionarTransacao.styles';
 
 const TelaEditarTransacao = ({ navigation, route }) => {
+  const { isDarkMode } = useTheme();
+  const COLORS = getColorsByTheme(isDarkMode);
+  const styles = getStyles(isDarkMode);
   const { user } = useAuth();
   const transacaoId = route.params?.transacaoId || null;
   
@@ -132,7 +136,7 @@ const TelaEditarTransacao = ({ navigation, route }) => {
         </TituloPagina>
         <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
           <ActivityIndicator size="large" color={COLORS.primary} />
-          <Text style={{ marginTop: 16, color: '#666' }}>Carregando transação...</Text>
+          <Text style={{ marginTop: 16, color: COLORS.textSecondary }}>Carregando transação...</Text>
         </View>
       </SafeAreaView>
     );
@@ -149,8 +153,8 @@ const TelaEditarTransacao = ({ navigation, route }) => {
           Editar Transação
         </TituloPagina>
         <View style={[styles.container, { justifyContent: 'center', alignItems: 'center', padding: 20 }]}>
-          <Ionicons name="alert-circle-outline" size={64} color="#E31C23" />
-          <Text style={{ marginTop: 16, color: '#E31C23', textAlign: 'center' }}>
+          <Ionicons name="alert-circle-outline" size={64} color={COLORS.error} />
+          <Text style={{ marginTop: 16, color: COLORS.error, textAlign: 'center' }}>
             Transação não encontrada
           </Text>
           <TouchableOpacity 
@@ -185,7 +189,7 @@ const TelaEditarTransacao = ({ navigation, route }) => {
         <TextInput
           style={styles.input}
           placeholder="Ex: Salário, Conta de Luz, Compras no mercado..."
-          placeholderTextColor="#999"
+          placeholderTextColor={COLORS.textTertiary}
           value={editState.descricao}
           onChangeText={editState.setDescricao}
         />
@@ -199,7 +203,7 @@ const TelaEditarTransacao = ({ navigation, route }) => {
           <TextInput
             style={styles.amountInput}
             placeholder="Digite o valor (ex: 100,00)"
-            placeholderTextColor="#999"
+            placeholderTextColor={COLORS.textTertiary}
             value={editState.valor}
             onChangeText={editState.handleValorChange}
             onBlur={editState.handleValorBlur}
@@ -258,11 +262,11 @@ const TelaEditarTransacao = ({ navigation, route }) => {
       <View style={styles.section}>
         <Text style={styles.label}>Categoria:</Text>
         <View style={styles.searchContainer}>
-          <Ionicons name="search" size={20} color="#999" />
+          <Ionicons name="search" size={20} color={COLORS.textTertiary} />
           <TextInput
             style={styles.searchInput}
             placeholder="Pesquisar categorias..."
-            placeholderTextColor="#999"
+            placeholderTextColor={COLORS.textTertiary}
             value={editState.categorySearch}
             onChangeText={editState.setCategorySearch}
           />
@@ -280,7 +284,7 @@ const TelaEditarTransacao = ({ navigation, route }) => {
               <MaterialIcons
                 name={category.icone || getCategoryIcon(category.nome)}
                 size={20}
-                color={editState.selectedCategory === category.id ? '#FFF' : '#333'}
+                color={editState.selectedCategory === category.id ? COLORS.white : COLORS.textPrimary}
               />
               <Text style={[
                 styles.categoryButtonText,
@@ -312,8 +316,8 @@ const TelaEditarTransacao = ({ navigation, route }) => {
             <Switch
               value={editState.isRecurring}
               onValueChange={editState.handleToggleRecurring}
-              trackColor={{ false: COLORS.borderDark, true: COLORS.primaryLight }}
-              thumbColor={COLORS.white}
+              trackColor={{ false: COLORS.border, true: COLORS.primaryLight }}
+              thumbColor={editState.isRecurring ? COLORS.primary : COLORS.backgroundLight}
             />
             <Text style={styles.recurringText}>Recorrência</Text>
           </View>
@@ -343,8 +347,8 @@ const TelaEditarTransacao = ({ navigation, route }) => {
               <Switch
                 value={editState.hasRecurrenceEndDate}
                 onValueChange={editState.setHasRecurrenceEndDate}
-                trackColor={{ false: COLORS.borderDark, true: COLORS.primaryLight }}
-                thumbColor={COLORS.white}
+                trackColor={{ false: COLORS.border, true: COLORS.primaryLight }}
+                thumbColor={editState.hasRecurrenceEndDate ? COLORS.primary : COLORS.backgroundLight}
               />
               <Text style={styles.recurringText}>Data limite da recorrência</Text>
             </View>
@@ -367,8 +371,8 @@ const TelaEditarTransacao = ({ navigation, route }) => {
             <Switch
               value={editState.isInstallment}
               onValueChange={editState.handleToggleInstallment}
-              trackColor={{ false: COLORS.borderDark, true: COLORS.primaryLight }}
-              thumbColor={COLORS.white}
+              trackColor={{ false: COLORS.border, true: COLORS.primaryLight }}
+              thumbColor={editState.isInstallment ? COLORS.primary : COLORS.backgroundLight}
             />
             <Text style={styles.recurringText}>Parcelado</Text>
           </View>
@@ -411,6 +415,7 @@ const TelaEditarTransacao = ({ navigation, route }) => {
                   }
                 }}
                 style={styles.picker}
+                itemStyle={{ color: COLORS.textPrimary }}
                 dropdownIconColor={COLORS.primary}
               >
                 {INSTALLMENT_OPTIONS.map(option => (
@@ -476,7 +481,7 @@ const TelaEditarTransacao = ({ navigation, route }) => {
                   const institutionLogo = getLogoByName(editState.selectedInstitution.nome);
                   return (
                     <>
-                      <View style={[styles.chipIconContainer, { backgroundColor: institutionLogo ? '#FFF' : editState.selectedInstitution.cor }]}>
+                      <View style={[styles.chipIconContainer, { backgroundColor: institutionLogo ? COLORS.white : editState.selectedInstitution.cor }]}>
                         {institutionLogo ? (
                           <Image 
                             source={institutionLogo} 
@@ -489,7 +494,7 @@ const TelaEditarTransacao = ({ navigation, route }) => {
                       </View>
                       <View style={{ flex: 1 }}>
                         <Text style={styles.chipText}>{editState.selectedInstitution.nome}</Text>
-                        <Text style={{ fontSize: 12, color: '#999', marginTop: 2, marginLeft: 2 }}>
+                        <Text style={{ fontSize: 12, color: COLORS.textTertiary, marginTop: 2, marginLeft: 2 }}>
                           {editState.selectedInstitution.tipoInstituicao === 'VALE' ? 'Vale' : 'Banco'}
                         </Text>
                       </View>
@@ -501,7 +506,7 @@ const TelaEditarTransacao = ({ navigation, route }) => {
                         }}
                         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                       >
-                        <Ionicons name="close-circle" size={20} color="#E31C23" />
+                        <Ionicons name="close-circle" size={20} color={COLORS.error} />
                       </TouchableOpacity>
                     </>
                   );
@@ -510,9 +515,9 @@ const TelaEditarTransacao = ({ navigation, route }) => {
             </View>
           ) : (
             <View style={styles.institutionPlaceholderContainer}>
-              <Ionicons name="business-outline" size={20} color="#999" />
+              <Ionicons name="business-outline" size={20} color={COLORS.textTertiary} />
               <Text style={styles.institutionPlaceholderText}>Selecione uma instituição</Text>
-              <Text style={{ fontSize: 12, color: '#CCC', marginTop: 4 }}>(obrigatório)</Text>
+              <Text style={{ fontSize: 12, color: COLORS.textTertiary, marginTop: 4 }}>(obrigatório)</Text>
             </View>
           )}
           <Ionicons name="chevron-forward" size={20} color="#999" />

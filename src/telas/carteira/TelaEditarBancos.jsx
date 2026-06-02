@@ -9,10 +9,15 @@ import ModalEditarInstituicao from '../../componentes/modais/ModalEditarInstitui
 import ModalConfirmDelete from '../../componentes/modais/ModalConfirmDelete';
 import { useEditarBancos } from './hooks/useEditarInstituicoes';
 import { getLogoByName } from '../../componentes/modais/logosInstituicoes';
-import { styles } from './styles/TelaEditarBancos.styles';
+import { getStyles } from './styles/TelaEditarBancos.styles';
+import { getColorsByTheme } from '../../styles/colors';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const EditBanksScreen = ({ navigation }) => {
   const editor = useEditarBancos();
+  const { isDarkMode } = useTheme();
+  const styles = getStyles(isDarkMode);
+  const COLORS = getColorsByTheme(isDarkMode);
   const [deleteModalVisible, setDeleteModalVisible] = React.useState(false);
   const [bankDeletando, setBankDeletando] = React.useState(null);
   const [isDeletando, setIsDeletando] = React.useState(false);
@@ -49,7 +54,7 @@ const EditBanksScreen = ({ navigation }) => {
     const logo = getLogoByName(institutionName);
     
     return (
-      <View style={[styles.iconContainer, { backgroundColor: logo ? '#FFF' : color }]}>
+      <View style={[styles.iconContainer, { backgroundColor: logo ? COLORS.background : color }]}>
         {logo ? (
           <Image 
             source={logo} 
@@ -77,8 +82,8 @@ const EditBanksScreen = ({ navigation }) => {
           </TituloPagina>
         </View>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <ActivityIndicator size="large" color="#8A05BE" />
-          <Text style={{ marginTop: 16, color: '#666' }}>Carregando bancos...</Text>
+          <ActivityIndicator size="large" color={COLORS.primary} />
+          <Text style={{ marginTop: 16, color: COLORS.textSecondary }}>Carregando bancos...</Text>
         </View>
       </SafeAreaView>
     );
@@ -96,10 +101,9 @@ const EditBanksScreen = ({ navigation }) => {
 
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Ionicons name="information-circle-outline" size={24} color="#000" />
+          <Ionicons name="information-circle-outline" size={24} color={COLORS.textPrimary} />
           <View style={styles.sectionTitleText}>
             <Text style={styles.sectionTitle}>Contas Bancárias</Text>
-            <Text style={styles.sectionSubtitle}>Valor das faturas: R$ 0,00</Text>
           </View>
         </View>
 
@@ -125,7 +129,7 @@ const EditBanksScreen = ({ navigation }) => {
                   handleDeleteConfirm(bank);
                 }}
               >
-                <Ionicons name="trash-outline" size={22} color="#666" />
+                <Ionicons name="trash-outline" size={22} color={COLORS.textSecondary} />
               </TouchableOpacity>
             </TouchableOpacity>
           ))}
@@ -137,7 +141,7 @@ const EditBanksScreen = ({ navigation }) => {
           style={styles.addButton}
           onPress={() => editor.setSelectionModalVisible(true)}
         >
-          <Ionicons name="add" size={20} color="#FFF" />
+          <Ionicons name="add" size={20} color={COLORS.white} />
           <Text style={styles.addButtonText}>Adicionar</Text>
         </TouchableOpacity>
       </View>

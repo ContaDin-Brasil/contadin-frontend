@@ -19,10 +19,14 @@ import { useAuth } from '../../contexts/AuthContext';
 import { transacaoService, categoriaService } from '../../api';
 import { FREQUENCIES, INSTALLMENT_OPTIONS } from './constants/constantesTransacao';
 import { getCategoryIcon } from './utils/utilitariosTransacao';
-import COLORS from '../../styles/colors';
-import { styles } from './styles/TelaAdicionarTransacao.styles';
+import { getColorsByTheme } from '../../styles/colors';
+import { useTheme } from '../../contexts/ThemeContext';
+import { getStyles } from './styles/TelaAdicionarTransacao.styles';
 
 const TelaAdicionarTransacao = ({ navigation }) => {
+  const { isDarkMode } = useTheme();
+  const COLORS = getColorsByTheme(isDarkMode);
+  const styles = getStyles(isDarkMode);
   const { user } = useAuth();
   const [selectionModalVisible, setSelectionModalVisible] = useState(false);
   const [customModalVisible, setCustomModalVisible] = useState(false);
@@ -451,11 +455,11 @@ const TelaAdicionarTransacao = ({ navigation }) => {
       <View style={styles.section}>
         <Text style={styles.label}>Categoria:</Text>
         <View style={styles.searchContainer}>
-          <Ionicons name="search" size={20} color="#999" />
+          <Ionicons name="search" size={20} color={COLORS.textTertiary} />
           <TextInput
             style={styles.searchInput}
             placeholder="Pesquisar categorias..."
-            placeholderTextColor="#999"
+            placeholderTextColor={COLORS.textTertiary}
             value={formState.categorySearch}
             onChangeText={formState.setCategorySearch}
           />
@@ -473,7 +477,7 @@ const TelaAdicionarTransacao = ({ navigation }) => {
               <MaterialIcons
                 name={category.icone || getCategoryIcon(category.nome)}
                 size={20}
-                color={String(formState.selectedCategory) === String(category.id) ? '#FFF' : '#333'}
+                color={String(formState.selectedCategory) === String(category.id) ? COLORS.white : COLORS.textPrimary}
               />
               <Text style={[
                 styles.categoryButtonText,
@@ -512,8 +516,8 @@ const TelaAdicionarTransacao = ({ navigation }) => {
             <Switch
               value={formState.isRecurring}
               onValueChange={formState.handleToggleRecurring}
-              trackColor={{ false: COLORS.borderDark, true: COLORS.primaryLight }}
-              thumbColor={COLORS.white}
+              trackColor={{ false: COLORS.border, true: COLORS.primaryLight }}
+              thumbColor={formState.isRecurring ? COLORS.primary : COLORS.backgroundLight}
             />
             <Text style={styles.recurringText}>Recorrência</Text>
           </View>
@@ -543,8 +547,8 @@ const TelaAdicionarTransacao = ({ navigation }) => {
               <Switch
                 value={formState.hasRecurrenceEndDate}
                 onValueChange={formState.setHasRecurrenceEndDate}
-                trackColor={{ false: COLORS.borderDark, true: COLORS.primaryLight }}
-                thumbColor={COLORS.white}
+                trackColor={{ false: COLORS.border, true: COLORS.primaryLight }}
+                thumbColor={formState.hasRecurrenceEndDate ? COLORS.primary : COLORS.backgroundLight}
               />
               <Text style={styles.recurringText}>Data limite da recorrência</Text>
             </View>
@@ -567,8 +571,8 @@ const TelaAdicionarTransacao = ({ navigation }) => {
             <Switch
               value={formState.isInstallment}
               onValueChange={formState.handleToggleInstallment}
-              trackColor={{ false: COLORS.borderDark, true: COLORS.primaryLight }}
-              thumbColor={COLORS.white}
+              trackColor={{ false: COLORS.border, true: COLORS.primaryLight }}
+              thumbColor={formState.isInstallment ? COLORS.primary : COLORS.backgroundLight}
             />
             <Text style={styles.recurringText}>Parcelado</Text>
           </View>
@@ -611,6 +615,7 @@ const TelaAdicionarTransacao = ({ navigation }) => {
                   }
                 }}
                 style={styles.picker}
+                itemStyle={{ color: COLORS.textPrimary }}
                 dropdownIconColor={COLORS.primary}
               >
                 {INSTALLMENT_OPTIONS.map(option => (
@@ -678,7 +683,7 @@ const TelaAdicionarTransacao = ({ navigation }) => {
                   const institutionLogo = getLogoByName(formState.selectedInstitution.nome);
                   return (
                     <>
-                      <View style={[styles.chipIconContainer, { backgroundColor: institutionLogo ? '#FFF' : formState.selectedInstitution.cor }]}>
+                      <View style={[styles.chipIconContainer, { backgroundColor: institutionLogo ? COLORS.white : formState.selectedInstitution.cor }]}>
                         {institutionLogo ? (
                           <Image 
                             source={institutionLogo} 
@@ -698,7 +703,7 @@ const TelaAdicionarTransacao = ({ navigation }) => {
                         }}
                         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                       >
-                        <Ionicons name="close-circle" size={20} color="#666" />
+                        <Ionicons name="close-circle" size={20} color={COLORS.textSecondary} />
                       </TouchableOpacity>
                     </>
                   );
@@ -707,11 +712,11 @@ const TelaAdicionarTransacao = ({ navigation }) => {
             </View>
           ) : (
             <View style={styles.institutionPlaceholderContainer}>
-              <Ionicons name="business-outline" size={20} color="#999" />
+              <Ionicons name="business-outline" size={20} color={COLORS.textTertiary} />
               <Text style={styles.institutionPlaceholderText}>Toque para selecionar uma instituição</Text>
             </View>
           )}
-          <Ionicons name="chevron-forward" size={20} color="#999" />
+          <Ionicons name="chevron-forward" size={20} color={COLORS.textTertiary} />
         </TouchableOpacity>
         {semInstituicoesDisponiveis && (
           <View style={{ marginTop: 8 }}>
@@ -733,7 +738,7 @@ const TelaAdicionarTransacao = ({ navigation }) => {
           {formState.loading && (
             <View style={{ padding: 20, alignItems: 'center' }}>
               <ActivityIndicator size="small" color={COLORS.primary} />
-              <Text style={{ marginTop: 8, color: '#666' }}>Carregando dados...</Text>
+              <Text style={{ marginTop: 8, color: COLORS.textSecondary }}>Carregando dados...</Text>
             </View>
           )}
         </ScrollView>
@@ -865,7 +870,7 @@ const TelaAdicionarTransacao = ({ navigation }) => {
                 style={styles.modalButtonConfirm}
                 onPress={applyAISuggestion}
               >
-                <Ionicons name="checkmark" size={18} color="#FFF" />
+                <Ionicons name="checkmark" size={18} color={COLORS.white} />
                 <Text style={styles.modalButtonConfirmText}>Aplicar</Text>
               </TouchableOpacity>
             </View>

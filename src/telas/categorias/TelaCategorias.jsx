@@ -8,8 +8,9 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { COLORS } from "../../styles/colors";
-import { styles } from "./style/TelaCategorias.styles";
+import { getColorsByTheme } from "../../styles/colors";
+import { useTheme } from "../../contexts/ThemeContext";
+import { getStyles } from "./style/TelaCategorias.styles";
 import { useGerenciarCategorias } from "../categorias/hooks/useGerenciarCategorias";
 import ModalCategoria from "../categorias/modals/ModalCategoria";
 import ModalConfirmDelete from "../../componentes/modais/ModalConfirmDelete";
@@ -18,6 +19,9 @@ import TituloPagina from "../../componentes/TituloPagina";
 import BotaoFlutuanteAdicionar from "../../componentes/BotaoFlutuanteAdicionar";
 
 const TelaCategorias = ({ navigation }) => {
+  const { isDarkMode } = useTheme();
+  const styles = getStyles(isDarkMode);
+  const COLORS = getColorsByTheme(isDarkMode);
   const {
     categorias,
     loading,
@@ -216,7 +220,7 @@ const TelaCategorias = ({ navigation }) => {
                 selectedType === "GASTO" && styles.toggleButtonTextActive,
               ]}
             >
-              Despesas
+              Gastos
             </Text>
           </TouchableOpacity>
         </View>

@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert } from 'react-native';
 import { usuarioService } from '../../../api';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useTheme } from '../../../contexts/ThemeContext';
 import { PerfilUsuario } from '../types/configuracoes.types';
 import { PERFIL_INICIAL } from '../constants/constantesConfiguracao';
 import { apenasDigitosTelefone, formatarTelefone } from '../../../utils/mascaraTelefone';
@@ -43,13 +44,14 @@ const getErrorMessage = (error: unknown): string => {
 
 export const useEditarPerfil = () => {
   const { user, updateUser } = useAuth();
+  const { setTheme } = useTheme();
 
   const [nome, setNome] = useState(PERFIL_INICIAL.nome);
   const [sobrenome, setSobrenome] = useState(PERFIL_INICIAL.sobrenome);
   const [telefone, setTelefone] = useState(PERFIL_INICIAL.telefone);
   const [email, setEmail] = useState(PERFIL_INICIAL.email);
   const [pushNotifications, setPushNotifications] = useState(PERFIL_INICIAL.pushNotifications);
-  const [darkTheme, setDarkTheme] = useState(PERFIL_INICIAL.darkTheme);
+  const [darkTheme, setDarkThemeLocal] = useState(PERFIL_INICIAL.darkTheme);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [initialSnapshot, setInitialSnapshot] = useState<PerfilSnapshot>({
@@ -62,6 +64,13 @@ export const useEditarPerfil = () => {
   });
 
   const userAuth = user as UsuarioComId | null;
+
+  // Sincronizar mudanças de darkTheme com ThemeContext
+  const handleSetDarkTheme = useCallback((value: boolean) => {
+    setDarkThemeLocal(value);
+    // Aplicar tema imediatamente ao ThemeContext
+    setTheme(value ? 'dark' : 'light');
+  }, [setTheme]);
 
   const normalizarSnapshot = useCallback((dados: PerfilSnapshot): PerfilSnapshot => {
     return {
@@ -192,7 +201,7 @@ export const useEditarPerfil = () => {
     pushNotifications,
     setPushNotifications,
     darkTheme,
-    setDarkTheme,
+    setDarkTheme: handleSetDarkTheme,
     isLoading,
     isSaving,
     isDirty,

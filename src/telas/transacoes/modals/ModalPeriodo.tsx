@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet, ScrollView, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import COLORS from '../../../styles/colors';
+import { useTheme } from '../../../contexts/ThemeContext';
+import { getColorsByTheme } from '../../../styles/colors';
 
 interface ModalPeriodoProps {
   visible: boolean;
@@ -20,6 +21,9 @@ export const ModalPeriodo: React.FC<ModalPeriodoProps> = ({
   dataFim,
   onAplicarPeriodo,
 }) => {
+  const { isDarkMode } = useTheme();
+  const COLORS = getColorsByTheme(isDarkMode);
+  const styles = getModalPeriodoStyles(COLORS);
   const [periodoSelecionado, setPeriodoSelecionado] = useState(periodoAtual);
   const [dataInicioTemp, setDataInicioTemp] = useState(dataInicio);
   const [dataFimTemp, setDataFimTemp] = useState(dataFim);
@@ -283,14 +287,14 @@ export const ModalPeriodo: React.FC<ModalPeriodoProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const getModalPeriodoStyles = (COLORS) => StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: COLORS.overlay,
     justifyContent: 'flex-end',
   },
   modalContainer: {
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.backgroundLight,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     maxHeight: '85%',
@@ -349,7 +353,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 2,
     borderColor: COLORS.border,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.background,
     gap: 8,
   },
   periodCardActive: {
@@ -387,7 +391,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 12,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.background,
     gap: 8,
   },
   dateInput: {
@@ -430,12 +434,12 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: COLORS.border,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.background,
   },
   cancelButtonText: {
     fontSize: 15,
     fontWeight: '600',
-    color: COLORS.textSecondary,
+    color: COLORS.textPrimary,
   },
   applyButton: {
     flex: 2,

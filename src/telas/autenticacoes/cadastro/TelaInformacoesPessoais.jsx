@@ -10,11 +10,16 @@ import {
 import TituloPagina from "../../../componentes/TituloPagina";
 import { useInformacoesPessoais } from "./hooks/useInformacoesPessoais";
 import { formatarTelefone } from "../../../utils/mascaraTelefone";
-import { styles } from "./styles/TelaInformacoesPessoais.styles";
+import { useTheme } from "../../../contexts/ThemeContext";
+import { getColorsByTheme } from "../../../styles/colors";
+import { getStyles } from "./styles/TelaInformacoesPessoais.styles";
 
 function TelaInformacoesPessoais({ navigation, route }) {
   const cadastro = route.params?.cadastro;
   const info = useInformacoesPessoais(cadastro);
+  const { isDarkMode } = useTheme();
+  const COLORS = getColorsByTheme(isDarkMode);
+  const styles = getStyles(isDarkMode);
 
   const onContinuar = async () => {
     await info.handleContinuar(navigation);
@@ -54,6 +59,7 @@ function TelaInformacoesPessoais({ navigation, route }) {
             value={info.telefone}
             onChangeText={(t) => info.setTelefone(formatarTelefone(t))}
             placeholder="(11) 93843-3432"
+            placeholderTextColor={COLORS.textTertiary}
             keyboardType="phone-pad"
             editable={!info.loading}
           />

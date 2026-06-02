@@ -4,12 +4,17 @@ import { Ionicons } from '@expo/vector-icons';
 import TituloPagina from '../../componentes/TituloPagina';
 import CustomModal from '../../componentes/modais/ModalBase';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
+import { getColorsByTheme } from '../../styles/colors';
 import { useGerenciarConta } from './hooks/useGerenciarConta';
-import { styles } from './styles/TelaConfiguracoes.styles';
+import { getStyles } from './styles/TelaConfiguracoes.styles';
 
 const SettingsScreen = ({ navigation }) => {
   const [logoutModalVisible, setLogoutModalVisible] = useState(false);
   const { logout } = useAuth();
+  const { isDarkMode } = useTheme();
+  const styles = getStyles(isDarkMode);
+  const COLORS = getColorsByTheme(isDarkMode);
   const conta = useGerenciarConta();
 
   const handleLogout = async () => {
@@ -28,7 +33,7 @@ const SettingsScreen = ({ navigation }) => {
           {subtitle && <Text style={styles.settingSubtitle}>{subtitle}</Text>}
         </View>
       </View>
-      <Ionicons name="chevron-forward" size={24} color="#B0B0B0" />
+      <Ionicons name="chevron-forward" size={24} color={COLORS.textTertiary} />
     </TouchableOpacity>
   );
 
@@ -42,21 +47,21 @@ const SettingsScreen = ({ navigation }) => {
           <Text style={styles.sectionTitle}>Perfil e Conta</Text>
           <View style={styles.sectionContent}>
             <SettingItem 
-              icon={<Ionicons name="person-outline" size={24} color="#5BA3FF" />}
+              icon={<Ionicons name="person-outline" size={24} color={COLORS.primary} />}
               title="Editar Perfil" 
               subtitle="Atualize suas informações pessoais"
               onPress={() => navigation.navigate('EditarPerfil')}
             />
             <View style={styles.divider} />
             <SettingItem 
-              icon={<Ionicons name="key-outline" size={24} color="#5BA3FF" />}
+              icon={<Ionicons name="key-outline" size={24} color={COLORS.primary} />}
               title="Alterar Senha" 
               subtitle="Atualize sua senha de segurança"
               onPress={() => navigation.navigate('AlterarSenha')}
             />
             <View style={styles.divider} />
             <SettingItem 
-              icon={<Ionicons name="person-remove-outline" size={24} color="#E31C23" />}
+              icon={<Ionicons name="person-remove-outline" size={24} color={COLORS.error} />}
               title="Excluir Conta" 
               subtitle="Remova sua conta permanentemente"
               onPress={() => conta.setDeleteModalVisible(true)}
@@ -69,14 +74,14 @@ const SettingsScreen = ({ navigation }) => {
           <Text style={styles.sectionTitle}>Financeiro</Text>
           <View style={styles.sectionContent}>
             <SettingItem 
-              icon={<Ionicons name="grid-outline" size={24} color="#5BA3FF" />}
+              icon={<Ionicons name="grid-outline" size={24} color={COLORS.primary} />}
               title="Categorias" 
               subtitle="Gerencie categorias de gastos e receitas"
               onPress={() => navigation.navigate('Categorias')}
             />
             <View style={styles.divider} />
             <SettingItem
-              icon={<Ionicons name="document-text-outline" size={24} color="#5BA3FF" />}
+              icon={<Ionicons name="document-text-outline" size={24} color={COLORS.primary} />}
               title="Importar Planilha"
               subtitle="Importe transacoes de Excel e revise antes de salvar"
               onPress={() => navigation.navigate('ImportarPlanilha')}
@@ -89,7 +94,7 @@ const SettingsScreen = ({ navigation }) => {
           <Text style={styles.sectionTitle}>Suporte</Text>
           <View style={styles.sectionContent}>
             <SettingItem 
-              icon={<Ionicons name="help-circle-outline" size={24} color="#5BA3FF" />}
+              icon={<Ionicons name="help-circle-outline" size={24} color={COLORS.primary} />}
               title="Ajuda e Suporte" 
               subtitle="Dúvidas e informações úteis"
               onPress={() => navigation.navigate('Ajuda')}
@@ -103,7 +108,7 @@ const SettingsScreen = ({ navigation }) => {
             style={styles.logoutButton}
             onPress={() => setLogoutModalVisible(true)}
           >
-            <Ionicons name="log-out-outline" size={24} color="#E31C23" />
+            <Ionicons name="log-out-outline" size={24} color={COLORS.error} />
             <Text style={styles.logoutButtonText}>Sair da Conta</Text>
           </TouchableOpacity>
         </View>
@@ -143,6 +148,7 @@ const SettingsScreen = ({ navigation }) => {
             value={conta.deleteConfirmText}
             onChangeText={conta.setDeleteConfirmText}
             placeholder=""
+            placeholderTextColor={COLORS.textTertiary}
           />
         </View>
       </CustomModal>

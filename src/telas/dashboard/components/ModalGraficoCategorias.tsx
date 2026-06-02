@@ -2,8 +2,10 @@ import React from 'react';
 import { Modal, View, Text, TouchableOpacity, FlatList } from 'react-native';
 import { PieChart } from 'react-native-gifted-charts';
 import { MaterialIcons } from '@expo/vector-icons';
+import { getStyles } from '../styles/TelaInicial.styles';
+import { getColorsByTheme } from '../../../styles/colors';
+import { useTheme } from '../../../contexts/ThemeContext';
 import type { GastoCategoria } from '../types/dashboard.types';
-import { styles } from '../styles/TelaInicial.styles';
 
 
 interface ModalGraficoCategoriaProps {
@@ -19,6 +21,10 @@ export const ModalGraficoCategorias: React.FC<ModalGraficoCategoriaProps> = ({
   dados,
   formatarMoeda,
 }) => {
+  const { isDarkMode } = useTheme();
+  const styles = getStyles(isDarkMode);
+  const COLORS = getColorsByTheme(isDarkMode);
+  
   // Filtra apenas categorias com gasto positivo para o gráfico
   const dadosPositivos = dados.filter(cat => cat.valor > 0);
 
@@ -31,7 +37,7 @@ export const ModalGraficoCategorias: React.FC<ModalGraficoCategoriaProps> = ({
       color: cat.cor || '#999999',
       // Só exibe texto na fatia se tiver espaço suficiente (>= 8%)
       text: pct >= 8 ? `${pct}%` : '',
-      textColor: '#FFFFFF',
+      textColor: COLORS.white,
       textSize: 12,
     };
   });
@@ -41,7 +47,7 @@ export const ModalGraficoCategorias: React.FC<ModalGraficoCategoriaProps> = ({
     value: Math.abs(cat.valor) || 1,
     color: cat.cor || '#999999',
     text: '',
-    textColor: '#FFFFFF',
+    textColor: COLORS.white,
     textSize: 12,
   }));
 
@@ -57,7 +63,7 @@ export const ModalGraficoCategorias: React.FC<ModalGraficoCategoriaProps> = ({
       <View style={styles.overlayStyle}>
         <View style={styles.modalStyle}>
           <TouchableOpacity style={styles.closeButtonStyle} onPress={onClose}>
-            <MaterialIcons name="close" size={24} color="#333333" />
+            <MaterialIcons name="close" size={24} color={COLORS.textPrimary} />
           </TouchableOpacity>
 
           <Text style={styles.titleStyle}>Gastos por Categoria</Text>
@@ -69,7 +75,7 @@ export const ModalGraficoCategorias: React.FC<ModalGraficoCategoriaProps> = ({
               radius={90}
               innerRadius={48}
               showText
-              textColor="#FFFFFF"
+              textColor={COLORS.white}
               textSize={12}
               focusOnPress
             />

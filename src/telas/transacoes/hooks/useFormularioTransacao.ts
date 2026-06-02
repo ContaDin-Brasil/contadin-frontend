@@ -170,33 +170,33 @@ export const useFormularioTransacao = () => {
         tipoInstituicao: inst.type === 'VALE' ? 'VALE' : 'BANCO',
       }));
       setInstituicoes(instituicoesFormatadas);
+      console.log('[useFormularioTransacao] ✅ Instituições carregadas:', instituicoesFormatadas.length);
     } catch (errorInstituicoes) {
-      console.error('Erro ao carregar instituições:', errorInstituicoes);
+      console.error('[useFormularioTransacao] Erro ao carregar instituições:', errorInstituicoes);
       setInstituicoes([]);
     }
 
-    if (instituicoesFormatadas.length > 0) {
-      try {
-        const categoriasData = await carregarCategoriasParaTransacoes(usuarioId);
-        setCategorias(categoriasData ?? []);
-        if ((categoriasData?.length ?? 0) > 0 && selectedCategory === null) {
-          setSelectedCategory(String(categoriasData[0].id));
-        }
-      } catch (errorCategorias) {
-        console.error('Erro ao carregar categorias:', errorCategorias);
-        setCategorias([]);
+    // Categorias — carrega SEMPRE, independentemente de haver instituições
+    try {
+      const categoriasData = await carregarCategoriasParaTransacoes(usuarioId);
+      setCategorias(categoriasData ?? []);
+      console.log('[useFormularioTransacao] ✅ Categorias carregadas:', categoriasData?.length || 0);
+      if ((categoriasData?.length ?? 0) > 0 && selectedCategory === null) {
+        setSelectedCategory(String(categoriasData[0].id));
       }
-    } else {
+    } catch (errorCategorias) {
+      console.error('[useFormularioTransacao] Erro ao carregar categorias:', errorCategorias);
       setCategorias([]);
-      setSelectedCategory(null);
     }
 
     // Transações (usadas apenas para calcular top-3 de categorias; falha não é crítica)
-    try {
-      const transacoesDoUsuario = await carregarTransacoesPorInstituicoes(instituicoesFormatadas);
-      setTransacoes(transacoesDoUsuario);
-    } catch (errorTransacoes) {
-      console.warn('Não foi possível carregar transações para top-3 de categorias:', errorTransacoes);
+    if (instituicoesFormatadas.length > 0) {
+      try {
+        const transacoesDoUsuario = await carregarTransacoesPorInstituicoes(instituicoesFormatadas);
+        setTransacoes(transacoesDoUsuario);
+      } catch (errorTransacoes) {
+        console.warn('[useFormularioTransacao] Não foi possível carregar transações para top-3 de categorias:', errorTransacoes);
+      }
     }
 
     setLoading(false);

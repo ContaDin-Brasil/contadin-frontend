@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { Ionicons } from '@expo/vector-icons';
-import COLORS from '../styles/colors';
+import { getColorsByTheme } from '../styles/colors';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface DatePickerInputProps {
   value: string; // Data no formato DD/MM/YYYY
@@ -30,6 +31,10 @@ export const DatePickerInput: React.FC<DatePickerInputProps> = ({
   errorMessage,
   style,
 }) => {
+  const { isDarkMode } = useTheme();
+  const COLORS = getColorsByTheme(isDarkMode);
+  const styles = getStyles(isDarkMode);
+  
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const isWeb = Platform.OS === 'web';
 
@@ -129,7 +134,7 @@ export const DatePickerInput: React.FC<DatePickerInputProps> = ({
         {label && <Text style={styles.label}>{label}</Text>}
         
         <View style={[styles.inputContainer, errorMessage && styles.inputContainerError]}>
-          <Ionicons name="calendar-outline" size={20} color={errorMessage ? COLORS.error : '#666'} />
+          <Ionicons name="calendar-outline" size={20} color={errorMessage ? COLORS.error : COLORS.textSecondary} />
           
           <input
             type="date"
@@ -138,7 +143,7 @@ export const DatePickerInput: React.FC<DatePickerInputProps> = ({
             style={{
               flex: 1,
               fontSize: 16,
-              color: '#333',
+              color: COLORS.textPrimary,
               marginLeft: 12,
               border: 'none',
               background: 'transparent',
@@ -171,7 +176,7 @@ export const DatePickerInput: React.FC<DatePickerInputProps> = ({
         <TextInput
           style={styles.input}
           placeholder={placeholder}
-          placeholderTextColor="#999"
+          placeholderTextColor={COLORS.textTertiary}
           value={value}
           onChangeText={handleTextChange}
           keyboardType="numeric"
@@ -197,54 +202,61 @@ export const DatePickerInput: React.FC<DatePickerInputProps> = ({
         locale="pt_BR"
         confirmTextIOS="Confirmar"
         cancelTextIOS="Cancelar"
-        isDarkModeEnabled={false}
+        isDarkModeEnabled={isDarkMode}
       />
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    marginBottom: 12,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.white,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-  },
-  inputContainerError: {
-    borderColor: COLORS.error,
-    backgroundColor: '#ffebee',
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    color: COLORS.textPrimary,
-    marginLeft: 12,
-  },
-  iconButton: {
-    padding: 4,
-  },
-  errorContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 6,
-    marginLeft: 4,
-  },
-  errorText: {
-    fontSize: 12,
-    color: COLORS.error,
-    marginLeft: 4,
-  },
-});
+const getStyles = (isDarkMode: boolean) => {
+  const COLORS = getColorsByTheme(isDarkMode);
+
+  return StyleSheet.create({
+    container: {
+      marginBottom: 12,
+    },
+    label: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: COLORS.textPrimary,
+      marginBottom: 8,
+    },
+    inputContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: COLORS.backgroundLight,
+      borderRadius: 12,
+      paddingHorizontal: 16,
+      paddingVertical: 14,
+      borderWidth: 1,
+      borderColor: COLORS.border,
+    },
+    inputContainerError: {
+      borderColor: COLORS.error,
+      backgroundColor: isDarkMode ? '#3d2728' : '#ffebee',
+    },
+    input: {
+      flex: 1,
+      fontSize: 16,
+      color: COLORS.textPrimary,
+      marginLeft: 12,
+    },
+    iconButton: {
+      padding: 4,
+    },
+    errorContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginTop: 6,
+      marginLeft: 4,
+    },
+    errorText: {
+      fontSize: 12,
+      color: COLORS.error,
+      marginLeft: 4,
+    },
+  });
+};
+
+const styles = getStyles(false);
+export default DatePickerInput;

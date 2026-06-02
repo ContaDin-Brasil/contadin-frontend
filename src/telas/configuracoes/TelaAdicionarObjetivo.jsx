@@ -10,7 +10,8 @@ import ModalAviso from '../../componentes/modais/ModalAviso';
 import ModalCategoria from '../categorias/modals/ModalCategoria';
 import { categoriaService, objetivoGastoService } from '../../api';
 import { useAuth } from '../../contexts/AuthContext';
-import { COLORS } from '../../styles/colors';
+import { useTheme } from '../../contexts/ThemeContext';
+import { getColorsByTheme } from '../../styles/colors';
 import { extrairUsuarioId, obterUsuarioIdOuErro } from '../../utils/normalizacao';
 import { getCategoryIcon } from '../transacoes/utils/utilitariosTransacao';
 import { converterParaNumero, formatarValorMonetario } from '../transacoes/utils/formatacaoMoeda';
@@ -27,10 +28,13 @@ import {
   parseDataEntrada,
 } from '@/utils/dateUtils';
 import { useCategoriasObjetivo } from '@/telas/configuracoes/objetivos/hooks/useCategoriasObjetivo';
-import { styles } from './styles/TelaObjetivoForm.styles';
+import { getStyles } from './styles/TelaObjetivoForm.styles';
 
 const TelaAdicionarObjetivo = ({ navigation }) => {
   const { user } = useAuth();
+  const { isDarkMode } = useTheme();
+  const styles = getStyles(isDarkMode);
+  const COLORS = getColorsByTheme(isDarkMode);
   const usuarioId = extrairUsuarioId(user);
   const [tipo, setTipo] = useState('LIMITE_GASTO');
   const [nome, setNome] = useState('');
@@ -234,7 +238,7 @@ const TelaAdicionarObjetivo = ({ navigation }) => {
             <TextInput
               style={styles.input}
               placeholder="Ex: Gastar no máximo R$ 450 com delivery"
-              placeholderTextColor="#999"
+              placeholderTextColor={COLORS.textTertiary}
               value={nome}
               onChangeText={setNome}
             />
@@ -245,7 +249,7 @@ const TelaAdicionarObjetivo = ({ navigation }) => {
             <TextInput
               style={[styles.input, styles.inputMultiline]}
               placeholder="Ex: Reduzir pedidos no fim de semana."
-              placeholderTextColor="#999"
+              placeholderTextColor={COLORS.textTertiary}
               value={descricao}
               onChangeText={setDescricao}
               multiline
@@ -319,7 +323,7 @@ const TelaAdicionarObjetivo = ({ navigation }) => {
               <TextInput
                 style={styles.amountInput}
                 placeholder="0,00"
-                placeholderTextColor="#999"
+                placeholderTextColor={COLORS.textTertiary}
                 keyboardType="numeric"
                 value={valorAlvo}
                 onChangeText={handleValorChange}
@@ -357,6 +361,7 @@ const TelaAdicionarObjetivo = ({ navigation }) => {
                 selectedValue={prioridade}
                 onValueChange={(value) => setPrioridade(value)}
                 style={styles.picker}
+                itemStyle={{ color: COLORS.textPrimary }}
               >
                 <Picker.Item label="Selecione" value="" />
                 {PRIORIDADES.map((opcao) => (

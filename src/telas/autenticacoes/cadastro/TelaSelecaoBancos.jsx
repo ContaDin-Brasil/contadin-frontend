@@ -9,10 +9,13 @@ import {
   Modal,
   Pressable,
 } from "react-native";
+import { useIsFocused } from "@react-navigation/native";
 import TituloPagina from "../../../componentes/TituloPagina";
 import { useSelecaoBancos } from "./hooks/useSelecaoBancos";
 import { getLogoByName } from "../../../componentes/modais/logosInstituicoes";
-import { styles } from "./styles/TelaSelecaoBancos.styles";
+import { useTheme } from "../../../contexts/ThemeContext";
+import { getColorsByTheme } from "../../../styles/colors";
+import { getStyles } from "./styles/TelaSelecaoBancos.styles";
 
 function TelaSelecaoBancos({ navigation, route }) {
   const { token, user } = route.params || {};
@@ -23,6 +26,10 @@ function TelaSelecaoBancos({ navigation, route }) {
       ? rawUserId
       : null;
   const sel = useSelecaoBancos(userId);
+  const isFocused = useIsFocused();
+  const { isDarkMode } = useTheme();
+  const COLORS = getColorsByTheme(isDarkMode);
+  const styles = getStyles(isDarkMode);
 
   const onSelecionar = async () => {
     await sel.handleContinuar(navigation, token, user);
@@ -45,7 +52,7 @@ function TelaSelecaoBancos({ navigation, route }) {
         <View
           style={[
             styles.bankCardIcon,
-            { backgroundColor: logo ? "#FFF" : banco.cor },
+              { backgroundColor: logo ? COLORS.backgroundLight : banco.cor },
           ]}
         >
           {logo ? (
@@ -75,9 +82,10 @@ function TelaSelecaoBancos({ navigation, route }) {
       </TituloPagina>
 
       <Modal
-        visible={true}
+        visible={isFocused}
         transparent={true}
         animationType="slide"
+        onRequestClose={() => navigation.goBack()}
       >
         <Pressable style={styles.overlay}>
           <Pressable

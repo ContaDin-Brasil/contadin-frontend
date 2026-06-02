@@ -1,7 +1,9 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { styles } from '../styles/TelaInicial.styles';
+import { getStyles } from '../styles/TelaInicial.styles';
+import { getColorsByTheme } from '../../../styles/colors';
+import { useTheme } from '../../../contexts/ThemeContext';
 
 interface CardResumoProps {
   tipo: 'receita' | 'gasto';
@@ -11,7 +13,11 @@ interface CardResumoProps {
 }
 
 export const CardResumo: React.FC<CardResumoProps> = ({ tipo, valor, formatarMoeda, mes }) => {
+  const { isDarkMode } = useTheme();
+  const styles = getStyles(isDarkMode);
+  const COLORS = getColorsByTheme(isDarkMode);
   const isReceita = tipo === 'receita';
+  const iconColor = isReceita ? COLORS.success : COLORS.error;
   
   return (
     <View style={styles.cardResumo}>
@@ -20,7 +26,7 @@ export const CardResumo: React.FC<CardResumoProps> = ({ tipo, valor, formatarMoe
           <Ionicons 
             name={isReceita ? 'arrow-down-circle' : 'arrow-up-circle'} 
             size={20} 
-            color={isReceita ? '#4CAF50' : '#E31C23'} 
+            color={iconColor} 
           />
         </View>
         <View style={{ flex: 1 }}>

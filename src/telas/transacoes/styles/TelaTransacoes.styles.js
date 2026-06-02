@@ -1,229 +1,234 @@
 import { StyleSheet } from 'react-native';
-import { COLORS } from '../../../styles/colors';
+import { getColorsByTheme } from '../../../styles/colors';
 
-export const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-    paddingTop: 20,
-  },
-  periodFilter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.border,
-    marginHorizontal: 20,
-    paddingVertical: 12,
-    paddingHorizontal: 15,
-    borderRadius: 10,
-    marginBottom: 15,
-  },
-  periodFilterText: {
-    flex: 1,
-    marginLeft: 10,
-    fontSize: 16,
-    color: COLORS.textPrimary,
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.backgroundDark,
-    marginHorizontal: 20,
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    borderRadius: 10,
-    marginBottom: 15,
-  },
-  searchIcon: {
-    marginRight: 10,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 16,
-    color: COLORS.textPrimary,
-  },
-  clearSearchButton: {
-    padding: 4,
-    marginLeft: 8,
-  },
-  filtersRow: {
-    flexDirection: 'row',
-    paddingHorizontal: 20,
-    marginBottom: 20,
-    gap: 10,
-  },
-  sortFilter: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.border,
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderRadius: 8,
-  },
-  sortFilterText: {
-    flex: 1,
-    fontSize: 14,
-    color: COLORS.textPrimary,
-  },
-  filterButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.border,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    gap: 5,
-    position: 'relative',
-  },
-  filterButtonText: {
-    fontSize: 14,
-    color: COLORS.textPrimary,
-    fontWeight: '500',
-  },
-  filterBadge: {
-    position: 'absolute',
-    top: -6,
-    right: -6,
-    backgroundColor: COLORS.primary,
-    borderRadius: 10,
-    minWidth: 20,
-    height: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 6,
-  },
-  filterBadgeText: {
-    color: COLORS.white,
-    fontSize: 11,
-    fontWeight: 'bold',
-  },
-  transactionsList: {
-    flex: 1,
-    paddingHorizontal: 20,
-  },
-  dateGroup: {
-    marginBottom: 8,
-  },
-  dateLabel: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 6,
-    fontWeight: '500',
-  },
-  transactionItem: {
-    backgroundColor: '#FFF',
-    borderColor: '#E0E0E0',
-    paddingVertical: 15,
-    paddingHorizontal: 35,
-    marginHorizontal: -20,
-    borderRadius: 12,
-    marginBottom: 10,
-    borderWidth: 1,
-  },
-  transactionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  transactionIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#F0F0F0',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
-  },
-  transactionCategory: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#333',
-    flex: 1,
-  },
-  transactionHeaderRight: {
-    alignItems: 'flex-end',
-  },
-  transactionDate: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#999',
-    marginBottom: 4,
-  },
-  transactionBadgesRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  transactionBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.primaryLight + '20',
-    paddingHorizontal: 6,
-    paddingVertical: 3,
-    borderRadius: 8,
-    gap: 3,
-  },
-  transactionBadgeText: {
-    fontSize: 10,
-    fontWeight: '600',
-    color: COLORS.primary,
-  },
-  recurrenceBadge: {
-    backgroundColor: COLORS.success + '20',
-  },
-  recurrenceBadgeText: {
-    color: COLORS.success,
-  },
-  transactionBody: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    justifyContent: 'space-between',
-    paddingLeft: 0,
-  },
-  transactionLeft: {
-    flex: 1,
-    gap: 4,
-  },
-  institutionBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    borderWidth: 1,
-    gap: 4,
-    alignSelf: 'flex-start',
-  },
-  institutionBadgeIcon: {
-    fontSize: 12,
-  },
-  institutionBadgeLogo: {
-    width: 16,
-    height: 16,
-    objectFit: 'cover',
-    borderRadius: 4,
-  },
-  institutionBadgeText: {
-    fontSize: 11,
-    fontWeight: '600',
-  },
-  transactionDescription: {
-    fontSize: 14,
-    color: '#999',
-    marginTop: 2,
-  },
-  transactionAmount: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    textAlign: 'right',
-    marginLeft: 12,
-  },
-  incomeAmount: {
-    color: COLORS.success,
-  },
-  expenseAmount: {
-    color: COLORS.error,
-  },
+export const getStyles = (isDarkMode) => {
+  const COLORS = getColorsByTheme(isDarkMode);
+
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: COLORS.background,
+      paddingTop: 20,
+    },
+    periodFilter: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: COLORS.backgroundLight,
+      marginHorizontal: 20,
+      paddingVertical: 12,
+      paddingHorizontal: 15,
+      borderRadius: 10,
+      marginBottom: 15,
+    },
+    periodFilterText: {
+      flex: 1,
+      marginLeft: 10,
+      fontSize: 16,
+      color: COLORS.textPrimary,
+    },
+    searchContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: isDarkMode ? COLORS.backgroundLight : COLORS.backgroundDark,
+      marginHorizontal: 20,
+      paddingHorizontal: 15,
+      paddingVertical: 12,
+      borderRadius: 10,
+      marginBottom: 15,
+    },
+    searchIcon: {
+      marginRight: 10,
+    },
+    searchInput: {
+      flex: 1,
+      fontSize: 16,
+      color: COLORS.textPrimary,
+    },
+    clearSearchButton: {
+      padding: 4,
+      marginLeft: 8,
+    },
+    filtersRow: {
+      flexDirection: 'row',
+      paddingHorizontal: 20,
+      marginBottom: 20,
+      gap: 10,
+    },
+    sortFilter: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: isDarkMode ? COLORS.backgroundLight : COLORS.backgroundDark,
+      paddingVertical: 10,
+      paddingHorizontal: 15,
+      borderRadius: 8,
+    },
+    sortFilterText: {
+      flex: 1,
+      fontSize: 14,
+      color: COLORS.textPrimary,
+    },
+    filterButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: isDarkMode ? COLORS.backgroundLight : COLORS.backgroundDark,
+      paddingVertical: 10,
+      paddingHorizontal: 20,
+      borderRadius: 8,
+      gap: 5,
+      position: 'relative',
+    },
+    filterButtonText: {
+      fontSize: 14,
+      color: COLORS.textPrimary,
+      fontWeight: '500',
+    },
+    filterBadge: {
+      position: 'absolute',
+      top: -6,
+      right: -6,
+      backgroundColor: COLORS.primary,
+      borderRadius: 10,
+      minWidth: 20,
+      height: 20,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: 6,
+    },
+    filterBadgeText: {
+      color: COLORS.white,
+      fontSize: 11,
+      fontWeight: 'bold',
+    },
+    transactionsList: {
+      flex: 1,
+      paddingHorizontal: 20,
+    },
+    dateGroup: {
+      marginBottom: 8,
+    },
+    dateLabel: {
+      fontSize: 14,
+      color: COLORS.textSecondary,
+      marginBottom: 6,
+      fontWeight: '500',
+    },
+    transactionItem: {
+      backgroundColor: COLORS.backgroundLight,
+      borderColor: COLORS.border,
+      paddingVertical: 15,
+      paddingHorizontal: 35,
+      marginHorizontal: -20,
+      borderRadius: 12,
+      marginBottom: 10,
+      borderWidth: 1,
+    },
+    transactionHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 8,
+    },
+    transactionIcon: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      backgroundColor: COLORS.backgroundDark,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: 12,
+    },
+    transactionCategory: {
+      fontSize: 18,
+      fontWeight: '800',
+      color: COLORS.textPrimary,
+      flex: 1,
+    },
+    transactionHeaderRight: {
+      alignItems: 'flex-end',
+    },
+    transactionDate: {
+      fontSize: 14,
+      fontWeight: '500',
+      color: COLORS.textTertiary,
+      marginBottom: 4,
+    },
+    transactionBadgesRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+    },
+    transactionBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: COLORS.primaryLight + '20',
+      paddingHorizontal: 6,
+      paddingVertical: 3,
+      borderRadius: 8,
+      gap: 3,
+    },
+    transactionBadgeText: {
+      fontSize: 10,
+      fontWeight: '600',
+      color: COLORS.primary,
+    },
+    recurrenceBadge: {
+      backgroundColor: COLORS.success + '20',
+    },
+    recurrenceBadgeText: {
+      color: COLORS.success,
+    },
+    transactionBody: {
+      flexDirection: 'row',
+      alignItems: 'flex-end',
+      justifyContent: 'space-between',
+      paddingLeft: 0,
+    },
+    transactionLeft: {
+      flex: 1,
+      gap: 4,
+    },
+    institutionBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 8,
+      paddingVertical: 4,
+      borderRadius: 12,
+      borderWidth: 1,
+      gap: 4,
+      alignSelf: 'flex-start',
+      backgroundColor: COLORS.backgroundLight,
+    },
+    institutionBadgeIcon: {
+      fontSize: 12,
+    },
+    institutionBadgeLogo: {
+      width: 16,
+      height: 16,
+      objectFit: 'cover',
+      borderRadius: 4,
+    },
+    institutionBadgeText: {
+      fontSize: 11,
+      fontWeight: '600',
+      color: COLORS.textPrimary,
+    },
+    transactionDescription: {
+      fontSize: 14,
+      color: COLORS.textSecondary,
+      marginTop: 2,
+    },
+    transactionAmount: {
+      fontSize: 22,
+      fontWeight: 'bold',
+      textAlign: 'right',
+      marginLeft: 12,
+    },
+    incomeAmount: {
+      color: COLORS.success,
+    },
+    expenseAmount: {
+      color: COLORS.error,
+    },
   // Estilos do Banner de Instituição Selecionada
   selectedInstitutionBanner: {
     flexDirection: 'row',
@@ -252,7 +257,7 @@ export const styles = StyleSheet.create({
   bannerIconText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#FFF',
+    color: COLORS.white,
   },
   bannerLogoImage: {
     width: 36,
@@ -266,12 +271,12 @@ export const styles = StyleSheet.create({
   bannerTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333',
+    color: COLORS.textPrimary,
     marginBottom: 2,
   },
   bannerSubtitle: {
     fontSize: 13,
-    color: '#666',
+    color: COLORS.textSecondary,
   },
   bannerClose: {
     padding: 4,
@@ -280,18 +285,18 @@ export const styles = StyleSheet.create({
   offlineBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFF3E0',
+    backgroundColor: COLORS.warning + '15',
     marginHorizontal: 20,
     marginBottom: 15,
     padding: 12,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#FF9800',
+    borderColor: COLORS.warning,
     gap: 10,
   },
   offlineBannerText: {
     fontSize: 14,
-    color: '#FF9800',
+    color: COLORS.warning,
     fontWeight: '500',
   },
   // Indicador de última atualização
@@ -306,7 +311,7 @@ export const styles = StyleSheet.create({
   },
   lastUpdateText: {
     fontSize: 12,
-    color: '#999',
+    color: COLORS.textTertiary,
     fontStyle: 'italic',
   },
   // Estado vazio (sem transações ou sem resultados de busca)
@@ -320,14 +325,14 @@ export const styles = StyleSheet.create({
   emptyStateTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#666',
+    color: COLORS.textSecondary,
     marginTop: 20,
     marginBottom: 8,
     textAlign: 'center',
   },
   emptyStateSubtitle: {
     fontSize: 14,
-    color: '#999',
+    color: COLORS.textTertiary,
     textAlign: 'center',
     lineHeight: 20,
   },
@@ -339,7 +344,7 @@ export const styles = StyleSheet.create({
     borderRadius: 8,
   },
   emptyStateButtonText: {
-    color: '#FFF',
+    color: COLORS.white,
     fontSize: 14,
     fontWeight: '600',
   },
@@ -354,7 +359,7 @@ export const styles = StyleSheet.create({
   },
   loadingMoreText: {
     fontSize: 14,
-    color: '#999',
+    color: COLORS.textTertiary,
   },
   endOfListContainer: {
     alignItems: 'center',
@@ -364,7 +369,7 @@ export const styles = StyleSheet.create({
   },
   endOfListText: {
     fontSize: 13,
-    color: '#999',
+    color: COLORS.textTertiary,
     textAlign: 'center',
   },
   // Título com Seletor de Visualização
@@ -384,13 +389,13 @@ export const styles = StyleSheet.create({
   },
   // Modal de Visualização
   modalVisualizacao: {
-    backgroundColor: '#FFF',
+    backgroundColor: COLORS.backgroundLight,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     paddingTop: 20,
     paddingHorizontal: 20,
     paddingBottom: 40,
-    shadowColor: '#000',
+    shadowColor: COLORS.black,
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
@@ -427,7 +432,7 @@ export const styles = StyleSheet.create({
   modalOpcaoTexto: {
     flex: 1,
     fontSize: 17,
-    color: '#666',
+    color: COLORS.textSecondary,
     fontWeight: '500',
   },
   modalOpcaoTextoSelecionado: {
@@ -440,11 +445,11 @@ export const styles = StyleSheet.create({
     marginBottom: 12,
     paddingVertical: 16,
     paddingHorizontal: 36,
-    backgroundColor: '#FFF',
+    backgroundColor: COLORS.backgroundLight,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
-    shadowColor: '#000',
+    borderColor: COLORS.border,
+    shadowColor: COLORS.black,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -500,15 +505,15 @@ export const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 8,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: COLORS.backgroundLight,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: COLORS.border,
     gap: 8,
   },
   recorrenciaCategoryText: {
     fontSize: 13,
     fontWeight: '500',
-    color: '#666',
+    color: COLORS.textSecondary,
   },
   institutionBadgeSmall: {
     flex: 1,
@@ -518,8 +523,8 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 12,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#DDD',
-    backgroundColor: '#FAFAFA',
+    borderColor: COLORS.borderLight,
+    backgroundColor: COLORS.backgroundLight,
     gap: 8,
   },
   institutionBadgeLogoSmall: {
@@ -531,7 +536,7 @@ export const styles = StyleSheet.create({
   institutionBadgeTextSmall: {
     fontSize: 13,
     fontWeight: '500',
-    color: '#666',
+    color: COLORS.textSecondary,
   },
   recorrenciaThirdRow: {
     flexDirection: 'row',
@@ -557,29 +562,29 @@ export const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F5F5F5',
+    backgroundColor: COLORS.backgroundLight,
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 8,
     gap: 6,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: COLORS.border,
   },
   recorrenciaProximaDataText: {
     fontSize: 13,
-    color: '#666',
+    color: COLORS.textSecondary,
     fontWeight: '500',
   },
   recorrenciaFooter: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F5F5F5',
+    backgroundColor: COLORS.backgroundLight,
     paddingVertical: 10,
     paddingHorizontal: 12,
     borderRadius: 8,
     gap: 8,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: COLORS.border,
   },
   recorrenciaDataFimFooter: {
     fontSize: 13,
@@ -590,14 +595,14 @@ export const styles = StyleSheet.create({
 
   parceladoItem: {
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: COLORS.border,
     borderRadius: 12,
     padding: 16,
     paddingHorizontal: 36,
     marginHorizontal: -20,
     marginVertical: 12,
-    backgroundColor: '#FFFFFF',
-    shadowColor: '#000',
+    backgroundColor: COLORS.backgroundLight,
+    shadowColor: COLORS.black,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.08,
     shadowRadius: 3,
@@ -605,8 +610,8 @@ export const styles = StyleSheet.create({
   },
 
   parceladoItemConcluido: {
-    backgroundColor: '#F8FFF8',
-    borderColor: '#C8E6C9',
+    backgroundColor: COLORS.success + '10',
+    borderColor: COLORS.success + '40',
   },
 
   parceladoHeader: {
@@ -659,21 +664,21 @@ export const styles = StyleSheet.create({
 
   parceladoProgressBar: {
     height: 8,
-    backgroundColor: '#E0E0E0',
+    backgroundColor: COLORS.border,
     borderRadius: 4,
     overflow: 'hidden',
   },
 
   parceladoProgressFill: {
     height: '100%',
-    backgroundColor: '#2196F3',
+    backgroundColor: COLORS.primary,
     borderRadius: 4,
   },
 
   parceladoProgressText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#1976D2',
+    color: COLORS.primaryDark,
     textAlign: 'right',
   },
 
@@ -688,25 +693,25 @@ export const styles = StyleSheet.create({
   parceladoCategoryBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F5F5F5',
+    backgroundColor: COLORS.backgroundLight,
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 8,
     gap: 6,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: COLORS.border,
   },
 
   parceladoCategoryText: {
     fontSize: 13,
     fontWeight: '500',
-    color: '#666',
+    color: COLORS.textSecondary,
   },
 
   institutionBadgeSmall: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.backgroundLight,
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 8,
@@ -728,30 +733,33 @@ export const styles = StyleSheet.create({
   institutionBadgeTextSmall: {
     fontSize: 13,
     fontWeight: '500',
-    color: '#666',
+    color: COLORS.textSecondary,
   },
 
   parceladoFooter: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F5F5F5',
+    backgroundColor: COLORS.backgroundLight,
     paddingVertical: 10,
     paddingHorizontal: 12,
     borderRadius: 8,
     gap: 8,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: COLORS.border,
   },
 
   parceladoFooterConcluido: {
-    backgroundColor: '#F1F8E9',
-    borderColor: '#AED581',
+    backgroundColor: COLORS.success + '10',
+    borderColor: COLORS.success + '40',
   },
 
   parceladoFooterText: {
     fontSize: 13,
     fontWeight: '500',
-    color: '#666',
+    color: COLORS.textSecondary,
     flex: 1,
   },
-});
+  });
+};
+
+export const styles = getStyles(false);

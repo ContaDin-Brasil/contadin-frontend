@@ -2,7 +2,9 @@ import React, { useState, useMemo } from 'react';
 import { View, Text, TouchableOpacity, Dimensions, ScrollView } from 'react-native';
 import { LineChart } from 'react-native-gifted-charts';
 import type { DadosPrevisaoSaldo } from '../types/dashboard.types';
-import { styles } from '../styles/TelaInicial.styles';
+import { getStyles } from '../styles/TelaInicial.styles';
+import { getColorsByTheme } from '../../../styles/colors';
+import { useTheme } from '../../../contexts/ThemeContext';
 
 
 interface GraficoPrevisaoSaldoProps {
@@ -35,6 +37,10 @@ export const GraficoPrevisaoSaldo: React.FC<GraficoPrevisaoSaldoProps> = ({
   dados,
   formatarMoeda,
 }) => {
+  const { isDarkMode } = useTheme();
+  const styles = getStyles(isDarkMode);
+  const COLORS = getColorsByTheme(isDarkMode);
+  
   const periodos = useMemo(() => gerarPeriodos(), []);
   const [offsetSelecionado, setOffsetSelecionado] = useState(0);
 
@@ -73,7 +79,7 @@ export const GraficoPrevisaoSaldo: React.FC<GraficoPrevisaoSaldoProps> = ({
   const saldoInicial = pontosFiltrados[0]?.saldo ?? dados?.saldoAtual ?? 0;
   const saldoFinal = pontosFiltrados[pontosFiltrados.length - 1]?.saldo ?? saldoInicial;
   const tendenciaPositiva = saldoFinal >= saldoInicial;
-  const corLinha = tendenciaPositiva ? '#51CF66' : '#FF6B6B';
+  const corLinha = tendenciaPositiva ? COLORS.success : COLORS.error;
 
   const valorMax = useMemo(() => {
     if (!pontosFiltrados.length) return 10000;
@@ -88,7 +94,7 @@ export const GraficoPrevisaoSaldo: React.FC<GraficoPrevisaoSaldoProps> = ({
   }, [valorMax]);
 
   const diferencaSaldo = saldoFinal - saldoInicial;
-  const corDiferenca = diferencaSaldo >= 0 ? '#51CF66' : '#FF6B6B';
+  const corDiferenca = diferencaSaldo >= 0 ? COLORS.success : COLORS.error;
   const periodoLabel = periodos[offsetSelecionado]?.label ?? '';
   const labelDiferenca = diferencaSaldo >= 0 ? 'Ganho previsto' : 'Perda prevista';
 
@@ -126,11 +132,11 @@ export const GraficoPrevisaoSaldo: React.FC<GraficoPrevisaoSaldoProps> = ({
           return (
             <TouchableOpacity
               key={p.offset}
-              style={[styles.periodoItemStyle, ativo && { backgroundColor: '#569FFE' }]}
+              style={[styles.periodoItemStyle, ativo && { backgroundColor: COLORS.secondary }]}
               onPress={() => setOffsetSelecionado(p.offset)}
               activeOpacity={0.7}
             >
-              <Text style={[styles.periodoTextoStyle, ativo && { color: '#FFFFFF' }]}>
+              <Text style={[styles.periodoTextoStyle, ativo && { color: COLORS.white }]}>
                 {p.label}
               </Text>
             </TouchableOpacity>
@@ -174,8 +180,8 @@ export const GraficoPrevisaoSaldo: React.FC<GraficoPrevisaoSaldoProps> = ({
               hideYAxisText
               yAxisThickness={0}
               xAxisThickness={1}
-              xAxisColor="#E0E0E0"
-              xAxisLabelTextStyle={{ color: '#888888', fontSize: 9 }}
+              xAxisColor={COLORS.border}
+              xAxisLabelTextStyle={{ color: COLORS.textTertiary, fontSize: 9 }}
               dataPointsColor={corLinha}
               dataPointsRadius={4}
               hideRules

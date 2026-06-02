@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { styles } from '../styles/TelaInicial.styles';
+import { getStyles } from '../styles/TelaInicial.styles';
+import { useTheme } from '../../../contexts/ThemeContext';
 import type { GastoCategoria } from '../types/dashboard.types';
 
 interface ItemCategoriaProps {
@@ -11,6 +12,9 @@ interface ItemCategoriaProps {
 }
 
 export const ItemCategoria: React.FC<ItemCategoriaProps> = ({ categoria, formatarMoeda, onPress }) => {
+  const { isDarkMode } = useTheme();
+  const styles = getStyles(isDarkMode);
+  
   // Validar categoria
   if (!categoria || !categoria.valor) {
     return null;

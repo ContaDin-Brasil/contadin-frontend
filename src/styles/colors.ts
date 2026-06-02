@@ -119,6 +119,73 @@ export const CATEGORY_COLORS = [
 ];
 
 /**
+ * Paleta de cores para modo escuro
+ */
+export const COLORS_DARK = {
+  // Cores Primárias (Azul adaptado para escuro)
+  primary: '#2E5F99',           // Azul bem escuro
+  primaryLight: '#4A7CAD',      // Azul claro - ícones, elementos secundários
+  primaryLighter: '#1F3F5F',    // Azul bem escuro - backgrounds
+  primaryDark: '#4A7CAD',       // Azul mais claro - hover states
+  
+  // Cores Secundárias
+  secondary: '#3A6BA8',         // Azul bem escuro (headers, destaques)
+  secondaryLight: '#4A7CAD',    // Azul luz adicional (botões)
+  secondaryLighter: '#1F3A4F',  // Azul muito escuro - backgrounds
+  secondaryBorder: '#2E5F80',   // Borda azul calibrada
+  
+  // Cores de Status (com contraste melhorado)
+  success: '#4CAF50',           // Verde mais claro - receitas, sucesso
+  error: '#FF5252',             // Vermelho mais claro - despesas, erros
+  warning: '#FFB74D',           // Laranja mais claro - avisos
+  info: '#3A6BA8',              // Azul informação (bem escuro)
+  
+  // Cores Especiais
+  tooltip: '#2E5F99',           // Azul tooltip (bem escuro)
+  tooltipBg: '#1A1A1A',         // Background tooltip escuro (mais contraste)
+  tooltipText: '#E8E8E8',       // Texto tooltip claro
+  cardBg: '#1F1F1F',            // Background de cards escuro
+  
+  // Cinzas e Neutros
+  background: '#0F0F0F',        // Background principal escuro (bem escuro)
+  backgroundLight: '#242424',   // Background claro (escuro) - cards/seções
+  backgroundDark: '#090909',    // Background ainda mais escuro
+  
+  border: '#2A2A2A',            // Bordas padrão
+  borderLight: '#353535',       // Bordas claras (escuro)
+  borderDark: '#151515',        // Bordas escuras (escuro)
+  
+  // Textos
+  textPrimary: '#E8E8E8',       // Texto principal claro
+  textSecondary: '#B0B0B0',     // Texto secundário
+  textTertiary: '#808080',      // Texto terciário
+  textDisabled: '#555555',      // Texto desabilitado
+  textDark: '#FFFFFF',          // Texto escuro suave (branco)
+  textLight: '#D0D0D0',         // Texto claro
+  textLighter: '#A0A0A0',       // Texto muito claro
+  textPale: '#C0C0C0',          // Texto pálido
+  
+  // Brancos e Pretos
+  white: '#FFFFFF',
+  black: '#000000',
+  
+  // Overlay
+  overlay: 'rgba(0, 0, 0, 0.9)', // Fundo de modais (mais opaco)
+  
+  // Especiais
+  whatsapp: '#25D366',          // Verde WhatsApp (mantém cor)
+};
+
+/**
+ * Utilitário para obter a paleta de cores baseada no tema
+ * @param isDarkMode Indica se deve usar tema escuro
+ * @returns Paleta de cores apropriada (light ou dark)
+ */
+export const getColorsByTheme = (isDarkMode: boolean) => {
+  return isDarkMode ? COLORS_DARK : COLORS;
+};
+
+/**
  * Utilitário para adicionar opacidade a uma cor hex
  * @param color Cor em hexadecimal (ex: '#0066FF')
  * @param opacity Opacidade de 0 a 100 (ex: 20 para 20%)

@@ -10,13 +10,18 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import TituloPagina from "../../../componentes/TituloPagina";
 import { useValidarToken } from "./hooks/useValidarToken";
-import { styles } from "./styles/TelaValidarToken.styles";
+import { useTheme } from "../../../contexts/ThemeContext";
+import { getColorsByTheme } from "../../../styles/colors";
+import { getStyles } from "./styles/TelaValidarToken.styles";
 
 const PIN_LENGTH = 6;
 
 function TelaValidarToken({ navigation, route }) {
   const email = route.params?.email ?? "";
   const validar = useValidarToken(email);
+  const { isDarkMode } = useTheme();
+  const COLORS = getColorsByTheme(isDarkMode);
+  const styles = getStyles(isDarkMode);
   const inputRefs = useRef([]);
 
   const onValidar = async () => {
@@ -94,7 +99,7 @@ function TelaValidarToken({ navigation, route }) {
             onPress={onValidar}
             disabled={validar.loading}
           >
-            <Ionicons name="checkmark-circle-outline" size={24} color="#FFF" />
+            <Ionicons name="checkmark-circle-outline" size={24} color={COLORS.white} />
             <Text style={styles.saveButtonText}>Validar Código</Text>
           </TouchableOpacity>
           {validar.error ? (

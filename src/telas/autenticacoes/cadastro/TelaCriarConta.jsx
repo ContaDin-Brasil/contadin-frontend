@@ -17,13 +17,17 @@ import {
   obterResultadosValidacaoSenha,
   verificarSenhasConferem,
 } from "../../../utils/senhaUtils";
-import COLORS from "../../../styles/colors";
-import { styles } from "./styles/TelaCriarConta.styles";
+import { useTheme } from "../../../contexts/ThemeContext";
+import { getColorsByTheme } from "../../../styles/colors";
+import { getStyles } from "./styles/TelaCriarConta.styles";
 
 const TERMOS_DE_USO = `1. Aceitação dos termos\nAo criar uma conta no Contadin, você concorda com estes Termos de Uso. Se não concordar, não utilize o aplicativo.\n\n2. Descrição do serviço\nO Contadin oferece ferramentas de gestão financeira pessoal, como organização de transações, categorias, metas e relatórios. O serviço não fornece consultoria financeira, contabilidade, crédito ou investimentos.\n\n3. Cadastro e segurança\nVocê é responsável por manter a confidencialidade da sua conta, senha e dispositivos. Qualquer uso indevido deve ser comunicado imediatamente.\n\n4. Uso permitido e proibições\nÉ proibido: (a) praticar fraude, falsificação ou manipulação de dados; (b) acessar sistemas de forma não autorizada; (c) utilizar o app para atividades ilegais; (d) tentar burlar mecanismos de segurança.\n\n5. Propriedade intelectual\nO Contadin, suas marcas, layout, código, logotipos e conteúdos são protegidos por direitos autorais e outras leis de propriedade intelectual. Você não pode copiar, modificar, distribuir ou explorar comercialmente sem autorização.\n\n6. Cancelamento e reembolso\nSe houver planos pagos, o cancelamento pode ser solicitado a qualquer momento. Reembolsos seguem a legislação aplicável e as regras do provedor de pagamento. Em compras digitais, pode existir prazo legal para arrependimento.\n\n7. Limitação de responsabilidade\nO Contadin é fornecido "como está". Não garantimos disponibilidade ininterrupta, ausência de falhas ou resultados financeiros. Em nenhuma hipótese seremos responsáveis por perdas indiretas, lucros cessantes ou danos consequenciais.\n\n8. Privacidade e dados\nO tratamento de dados pessoais segue a Política de Privacidade. Ao usar o app, você concorda com a coleta e o uso de dados conforme descrito nela.\n\n9. Alterações dos termos\nPodemos atualizar estes Termos de Uso. A versão vigente será disponibilizada no app. O uso continuado após atualizações implica aceite.\n\n10. Contato\nDúvidas? Fale com a equipe pelo email: contadinbrasil01@gmail.com\n\nVigência: 28/05/2026`;
 
 function TelaCriarConta({ navigation }) {
   const criar = useCriarConta();
+  const { isDarkMode } = useTheme();
+  const COLORS = getColorsByTheme(isDarkMode);
+  const styles = getStyles(isDarkMode);
   const [showSenha, setShowSenha] = useState(false);
   const [showConfirmarSenha, setShowConfirmarSenha] = useState(false);
   const [tooltipVisivel, setTooltipVisivel] = useState(false);
@@ -84,7 +88,7 @@ function TelaCriarConta({ navigation }) {
               <Ionicons
                 name="information-circle-outline"
                 size={20}
-                color={tooltipVisivel ? "#2D85F8" : "#999"}
+                color={tooltipVisivel ? COLORS.primary : COLORS.textTertiary}
               />
             </TouchableOpacity>
           </View>
@@ -119,7 +123,7 @@ function TelaCriarConta({ navigation }) {
               <Ionicons
                 name={showSenha ? "eye-off-outline" : "eye-outline"}
                 size={22}
-                color="#666"
+                color={COLORS.textTertiary}
               />
             </TouchableOpacity>
           </View>
@@ -131,7 +135,7 @@ function TelaCriarConta({ navigation }) {
                   <Ionicons
                     name={r.valido ? "checkmark-circle" : "close-circle"}
                     size={16}
-                    color={r.valido ? "#21C25E" : "#E53935"}
+                    color={r.valido ? COLORS.success : COLORS.error}
                   />
                   <Text
                     style={[
@@ -166,7 +170,7 @@ function TelaCriarConta({ navigation }) {
               <Ionicons
                 name={showConfirmarSenha ? "eye-off-outline" : "eye-outline"}
                 size={22}
-                color="#666"
+                color={COLORS.textTertiary}
               />
             </TouchableOpacity>
           </View>
@@ -175,7 +179,7 @@ function TelaCriarConta({ navigation }) {
             criar.confirmarSenha.length > 0 &&
             !senhasConferem && (
               <View style={styles.validacaoItem}>
-                <Ionicons name="close-circle" size={16} color="#E53935" />
+                <Ionicons name="close-circle" size={16} color={COLORS.error} />
                 <Text style={styles.validacaoTextoErro}>
                   As senhas não coincidem.
                 </Text>
@@ -186,8 +190,8 @@ function TelaCriarConta({ navigation }) {
             <Switch
               value={criar.aceiteTermos}
               onValueChange={criar.setAceiteTermos}
-              trackColor={{ false: "#D3D3D3", true: "#2D85F8" }}
-              thumbColor={criar.aceiteTermos ? COLORS.white : "#f4f3f4"}
+              trackColor={{ false: COLORS.border, true: COLORS.primary }}
+              thumbColor={criar.aceiteTermos ? COLORS.white : COLORS.backgroundLight}
             />
             <Text style={styles.termosTexto}>
               Li e aceito os{" "}
@@ -230,7 +234,7 @@ function TelaCriarConta({ navigation }) {
         onConfirm={aceitarTermos}
         confirmText="Aceitar"
         cancelText="Fechar"
-        confirmVariant="success"
+        confirmVariant="primary"
       >
         <ScrollView
           style={styles.termosModalScroll}

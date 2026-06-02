@@ -8,6 +8,7 @@ import {
   buscarSaldosPorInstituicao,
   buscarPrevisaoSaldo,
   buscarSaldoConsolidadoAtual,
+  usuarioPossuiTransacoes,
 } from '../../../api/services/dashboardService';
 import {
   CACHE_KEYS,
@@ -46,17 +47,18 @@ export const useGerenciarDashboard = (usuarioIdProp?: number) => {
   const [erro, setErro] = useState<string | null>(null);
   const [atualizando, setAtualizando] = useState<boolean>(false);
   const [saldoConsolidado, setSaldoConsolidado] = useState<number | null>(null);
+  const [temTransacoes, setTemTransacoes] = useState<boolean>(false);
+  const [inicializacaoCompleta, setInicializacaoCompleta] = useState<boolean>(false);
 
   const fetchSaldoConsolidado = useCallback(async () => {
-    if (!user?.id && !usuarioIdProp) return;
+    if (!usuarioId) return;
     try {
       const saldo = await buscarSaldoConsolidadoAtual(usuarioId);
       setSaldoConsolidado(saldo);
     } catch (err) {
       console.warn('[Dashboard] Erro ao buscar saldo consolidado:', err);
     }
-  }, [usuarioId, user?.id, usuarioIdProp]);
-
+  }, [usuarioId]);
 
   const carregarDados = useCallback(async (forcarAtualizacao = false) => {
     try {
@@ -66,9 +68,12 @@ export const useGerenciarDashboard = (usuarioIdProp?: number) => {
       // Aguarda o AuthContext terminar de carregar (leitura do AsyncStorage).
       // O useEffect vai re-disparar quando authLoading mudar para false.
       if (authLoading || (!user?.id && !usuarioIdProp)) {
+        console.log('[Dashboard] Pulando carregamento - authLoading:', authLoading, 'user.id:', user?.id);
         setLoading(false);
         return;
       }
+
+      console.log('[Dashboard] ✅ Iniciando carregamento de dados com usuarioId:', usuarioIdString);
 
       // Buscar resumo real; se falhar (ex: usuário sem dados), usar mock para não cascatear erros
       let resumoMelhorado;
@@ -130,14 +135,18 @@ export const useGerenciarDashboard = (usuarioIdProp?: number) => {
             dataAtual.getMonth() + 1,
             dataAtual.getFullYear()
           );
+          console.log('[Dashboard] ✅ Gastos por categoria carregados:', gastosPorCategoria?.length || 0, 'itens');
         } catch (err) {
-          console.error('[Dashboard] Erro ao buscar gastos por categoria:', err);
+          console.error('[Dashboard] ❌ Erro ao buscar gastos por categoria:', err);
+          gastosPorCategoria = [];
         }
 
         try {
           saldosPorInstituicao = await buscarSaldosPorInstituicao(usuarioIdNumero);
+          console.log('[Dashboard] ✅ Saldos por instituição carregados:', saldosPorInstituicao?.length || 0, 'itens');
         } catch (err) {
-          console.error('[Dashboard] Erro ao buscar saldos por instituição:', err);
+          console.error('[Dashboard] ❌ Erro ao buscar saldos por instituição:', err);
+          saldosPorInstituicao = [];
         }
 
         try {
@@ -146,6 +155,7 @@ export const useGerenciarDashboard = (usuarioIdProp?: number) => {
           console.log('[Dashboard] ✅ Previsão de saldo carregada');
         } catch (err) {
           console.warn('[Dashboard] ⚠️  Erro ao buscar previsão de saldo:', err);
+          previsaoSaldo = undefined;
         }
       }
 
@@ -168,7 +178,12 @@ export const useGerenciarDashboard = (usuarioIdProp?: number) => {
         previsaoSaldo,
       };
 
-      console.log('[Dashboard] 📦 Dados completos a salvar:', dadosApi);
+      console.log('[Dashboard] 📦 Dados completos a salvar:', {
+        resumo: dadosApi.resumo,
+        gastosPorCategoria: gastosPorCategoriaLimpo.length,
+        saldosPorInstituicao: saldosPorInstituicao.length,
+        previsaoSaldo: previsaoSaldo ? 'OK' : 'undefined'
+      });
 
       // Salvar no cache
       await setCache(`${CACHE_KEYS.RESUMO}:${usuarioId}`, dadosApi, CACHE_TTL.RESUMO);
@@ -186,13 +201,14 @@ export const useGerenciarDashboard = (usuarioIdProp?: number) => {
 
       // Último recurso: usar mock para não deixar a tela em branco
       const dadosMock = buildMockDashboardData();
+      console.log('[Dashboard] 📦 Usando dados mock após erro');
       setDados(dadosMock);
       await setCache(`${CACHE_KEYS.RESUMO}:${usuarioId}`, dadosMock, CACHE_TTL.RESUMO);
       setErro(null);
     } finally {
       setLoading(false);
     }
-  }, [usuarioId, getCache, setCache]);
+  }, [usuarioId, usuarioIdString, getCache, setCache]);
 
 
   const atualizarDados = useCallback(async () => {
@@ -221,18 +237,39 @@ export const useGerenciarDashboard = (usuarioIdProp?: number) => {
 
   useEffect(() => {
     // Aguarda o AuthContext terminar de inicializar antes de carregar dados
-    if (authLoading) return;
+    // Dispara APENAS quando authLoading muda de true para false E usuarioId está disponível
+    if (authLoading || !usuarioId || inicializacaoCompleta) return;
 
-    if (!USAR_MOCK_DASHBOARD) {
-      invalidateCache(`${CACHE_KEYS.RESUMO}:${usuarioId}`).then(() => {
-        carregarDados(true);
-      });
-    } else {
-      carregarDados();
-    }
+    console.log('[Dashboard] Iniciando carregamento dos dados...');
+    setInicializacaoCompleta(true);
 
-    fetchSaldoConsolidado();
-  }, [authLoading, carregarDados, usuarioId, invalidateCache, fetchSaldoConsolidado]);
+    let timeoutId: NodeJS.Timeout | null = null;
+
+    const inicializar = async () => {
+      if (!USAR_MOCK_DASHBOARD) {
+        await invalidateCache(`${CACHE_KEYS.RESUMO}:${usuarioId}`);
+      }
+      await carregarDados();
+      await fetchSaldoConsolidado();
+    };
+
+    inicializar().catch((err) => {
+      console.error('[Dashboard] Erro na inicialização:', err);
+    });
+
+    // Timeout: se ainda estiver carregando após 10s, forçar parada
+    timeoutId = setTimeout(() => {
+      console.warn('[Dashboard] ⚠️  Timeout de carregamento atingido (10s)');
+      if (loading && !dados) {
+        console.warn('[Dashboard] Forçando parada do carregamento');
+        setLoading(false);
+      }
+    }, 10000);
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [authLoading, usuarioId]);
 
   /**
    * Retorna saudação baseada na hora do dia (Pegando informação do dis positivo para respeitar fuso horário)
@@ -284,5 +321,6 @@ export const useGerenciarDashboard = (usuarioIdProp?: number) => {
     saldosPorInstituicao: dados?.saldosPorInstituicao || [],
     previsaoSaldo: dados?.previsaoSaldo,
     saldoConsolidado,
+    temTransacoes,
   };
 };

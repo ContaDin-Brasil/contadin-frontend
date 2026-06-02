@@ -114,6 +114,37 @@ export const buscarResumoFinanceiroComIndicadores = async (
 };
 
 /**
+ * Verifica se o usuário já possui transações cadastradas em qualquer período.
+ * A dashboard usa essa informação para não cair no empty state apenas porque
+ * o mês atual ainda não tem movimento.
+ */
+export const usuarioPossuiTransacoes = async (
+  usuarioId: string | number,
+): Promise<boolean> => {
+  try {
+    const [responseTransacoes, responseInstituicoes] = await Promise.all([
+      api.get<TransacaoApi[]>('/transacao'),
+      api.get<InstituicaoApi[]>(`/instituicoes?fkUsuario=${usuarioId}`),
+    ]);
+
+    const todasTransacoes = Array.isArray(responseTransacoes.data) ? responseTransacoes.data : [];
+    const instituicoesUsuario = Array.isArray(responseInstituicoes.data) ? responseInstituicoes.data : [];
+    const idsInstituicoes = instituicoesUsuario.map((instituicao) => instituicao.id);
+
+    const transacoesUsuario = todasTransacoes.filter((transacao) =>
+      transacao.fkInstituicao !== null &&
+      transacao.fkInstituicao !== undefined &&
+      idsInstituicoes.includes(transacao.fkInstituicao),
+    );
+
+    return transacoesUsuario.length > 0;
+  } catch (error) {
+    console.error('[Dashboard] Erro ao verificar transações do usuário:', error);
+    throw error;
+  }
+};
+
+/**
  * Busca gastos agrupados por categoria do endpoint real
  * GET /categorias/gastos?fkUsuario=UUID&mes=M&ano=YYYY
  * 
@@ -133,10 +164,10 @@ export const buscarGastosPorCategoriaEndpoint = async (
     const mesParam = mes ?? (dataAtual.getMonth() + 1);
     const anoParam = ano ?? dataAtual.getFullYear();
 
-    const url = `/categorias/gastos?fkUsuario=${usuarioId}&mes=${mesParam}&ano=${anoParam}`;
-    console.log('[API] Chamando endpoint de gastos por categoria:', url);
+    const params: any = { fkUsuario: usuarioId, mes: mesParam, ano: anoParam };
+    console.log('[API] Chamando endpoint de gastos por categoria:', '/categorias/gastos', params);
 
-    const response = await api.get<GastoCategoriaApi[]>(url);
+    const response = await api.get<GastoCategoriaApi[]>('/categorias/gastos', { params });
 
     console.log('[API] ✅ Gastos por categoria recebidos (RAW):', response.data);
     console.log('[API] Tipo de resposta:', typeof response.data);
@@ -212,7 +243,7 @@ export const buscarResumoFinanceiro = async (usuarioId: number): Promise<ResumoF
     // Buscar todas as transações e instituições
     const [responseTransacoes, responseInstituicoes] = await Promise.all([
       api.get<TransacaoApi[]>('/transacao'),
-      api.get<InstituicaoApi[]>(`/instituicoes?fkUsuario=${usuarioId}`),
+      api.get<InstituicaoApi[]>('/instituicoes', { params: { fkUsuario: usuarioId } }),
     ]);
     
     const todasTransacoes = responseTransacoes.data;
@@ -301,7 +332,7 @@ export const buscarGastosPorCategoria = async (
     const [responseTransacoes, responseCategorias, responseInstituicoes] = await Promise.all([
       api.get<TransacaoApi[]>('/transacao'),
       api.get<CategoriaApi[]>('/categorias'),
-      api.get<InstituicaoApi[]>(`/instituicoes?fkUsuario=${usuarioId}`),
+      api.get<InstituicaoApi[]>('/instituicoes', { params: { fkUsuario: usuarioId } }),
     ]);
     
     const todasTransacoes = responseTransacoes.data;
@@ -395,9 +426,13 @@ export const buscarSaldosPorInstituicao = async (
     // ─────────────────────────────────────────────────────────────────
 
     // Buscar instituições e transações
+    const instituicoesPromise = api.get<InstituicaoApi[]>('/instituicoes', {
+      params: usuarioId != null ? { fkUsuario: usuarioId } : {},
+    });
+    const transacoesPromise = api.get<TransacaoApi[]>('/transacao');
     const [responseInstituicoes, responseTransacoes] = await Promise.all([
-      api.get<InstituicaoApi[]>(`/instituicoes?fkUsuario=${usuarioId}`),
-      api.get<TransacaoApi[]>('/transacao'),
+      instituicoesPromise,
+      transacoesPromise,
     ]);
     
     const instituicoes = responseInstituicoes.data;
@@ -505,9 +540,13 @@ export const buscarPrevisaoSaldo = async (
     //   };
     // ─────────────────────────────────────────────────────────────────
 
+    const transacoesPromise = api.get<TransacaoApi[]>('/transacao');
+    const instituicoesPromise = api.get<InstituicaoApi[]>('/instituicoes', {
+      params: usuarioId != null ? { fkUsuario: usuarioId } : {},
+    });
     const [responseTransacoes, responseInstituicoes] = await Promise.all([
-      api.get<TransacaoApi[]>('/transacao'),
-      api.get<InstituicaoApi[]>(`/instituicoes?fkUsuario=${usuarioId}`),
+      transacoesPromise,
+      instituicoesPromise,
     ]);
 
     const todasTransacoes = responseTransacoes.data;

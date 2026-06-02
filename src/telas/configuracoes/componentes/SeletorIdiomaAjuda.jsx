@@ -10,12 +10,17 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { IDIOMAS_AJUDA } from '../../../../i18n/constantesIdiomas';
 import { useLayoutRtl } from '../hooks/useLayoutRtl';
+import { useTheme } from '../../../contexts/ThemeContext';
+import { getColorsByTheme } from '../../../styles/colors';
 import BandeiraFlag from './BandeiraFlag';
-import { styles } from '../styles/SeletorIdiomaAjuda.styles';
+import { getStyles } from '../styles/SeletorIdiomaAjuda.styles';
 
 const SeletorIdiomaAjuda = () => {
   const { i18n, t } = useTranslation();
   const rtl = useLayoutRtl();
+  const { isDarkMode } = useTheme();
+  const COLORS = getColorsByTheme(isDarkMode);
+  const styles = getStyles(isDarkMode);
   const [modalVisivel, setModalVisivel] = useState(false);
 
   const idiomaAtual =
@@ -35,7 +40,7 @@ const SeletorIdiomaAjuda = () => {
         accessibilityRole="button"
       >
         <BandeiraFlag codigo={idiomaAtual.bandeira} largura={32} altura={24} />
-        <Ionicons name="chevron-down" size={16} color="#333" />
+        <Ionicons name="chevron-down" size={16} color={COLORS.textPrimary} />
       </TouchableOpacity>
 
       <Modal
@@ -69,7 +74,7 @@ const SeletorIdiomaAjuda = () => {
                     >
                       {t(`idiomas.${item.codigo}`)}
                     </Text>
-                    {selecionado && <Ionicons name="checkmark" size={20} color="#0066FF" />}
+                    {selecionado && <Ionicons name="checkmark" size={20} color={COLORS.primary} />}
                   </TouchableOpacity>
                 );
               }}

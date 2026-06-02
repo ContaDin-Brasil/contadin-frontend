@@ -1,10 +1,13 @@
 import React from "react";
 import { View, Text, TouchableOpacity, SafeAreaView } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import Logo from "@assets/logos/contadin/LogoContadinDefault.svg";
-import { styles } from "./styles/TelaEntradaAuth.styles";
+import { useTheme } from "../../../contexts/ThemeContext";
+import { getStyles } from "./styles/TelaEntradaAuth.styles";
 
 function TelaEntradaAuth({ navigation }) {
+  const { isDarkMode } = useTheme();
+  const styles = getStyles(isDarkMode);
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.logoArea}>
