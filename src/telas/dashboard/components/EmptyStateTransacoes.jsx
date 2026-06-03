@@ -68,14 +68,14 @@ export const EmptyStateTransacoes = ({ onAdicionarTransacao }) => {
         </Text>
       </TouchableOpacity>
 
-      {/* Botão secundário - explorar Carteira */}
+      {/* Botão secundário - Explorar Instituições */}
       <TouchableOpacity
         style={styles.emptyStateSecondaryButton}
         onPress={handleExplorarCarteira}
         activeOpacity={0.7}
       >
         <Text style={styles.emptyStateSecondaryButtonText}>
-          Explorar Carteira
+          Explorar Instituições
         </Text>
       </TouchableOpacity>
     </View>
