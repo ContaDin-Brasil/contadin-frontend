@@ -53,6 +53,9 @@ function TelaValidarToken({ navigation, route }) {
       </TituloPagina>
       <ScrollView contentContainerStyle={styles.contentContainer}>
         <View style={styles.formContainer}>
+          <Text style={styles.infoMessage}>
+            Se este email estiver cadastrado em nossa plataforma, você receberá um código de 6 dígitos. Digite-o abaixo para prosseguir com a recuperação de sua senha.
+          </Text>
           <View style={styles.pinRow}>
             {validar.pinDigits.map((digit, index) => (
               <TextInput

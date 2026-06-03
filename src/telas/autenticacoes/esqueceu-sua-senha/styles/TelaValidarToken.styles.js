@@ -75,6 +75,13 @@ export const getStyles = (isDarkMode) => {
       fontSize: 14,
       color: COLORS.error,
     },
+    infoMessage: {
+      fontSize: 14,
+      color: COLORS.textSecondary,
+      textAlign: 'center',
+      lineHeight: 20,
+      marginBottom: 10,
+    },
   });
 };
 
