@@ -85,7 +85,12 @@ const ModalEditarInstituicao: React.FC<ModalEditarInstituicaoProps> = ({
   }, [instituicao]);
 
   const handleSave = () => {
-    if (instituicao && nome.trim()) {
+    if (!nome.trim()) {
+      Alert.alert('Nome obrigatório', 'Por favor, preencha o nome da instituição.');
+      return;
+    }
+    
+    if (instituicao) {
       onSave({
         ...instituicao,
         nome: nome.trim(),
