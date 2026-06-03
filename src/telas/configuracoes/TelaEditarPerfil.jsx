@@ -86,6 +86,11 @@ const EditProfileScreen = ({ navigation }) => {
                 placeholder=""
                 placeholderTextColor={COLORS.textSecondary}
               />
+              {perfil.validationErrors?.nome && (
+                <Text style={{ color: COLORS.error, fontSize: 12, marginTop: 4 }}>
+                  {perfil.validationErrors.nome}
+                </Text>
+              )}
 
               <Text style={styles.label}>Sobrenome</Text>
               <TextInput
@@ -95,6 +100,11 @@ const EditProfileScreen = ({ navigation }) => {
                 placeholder=""
                 placeholderTextColor={COLORS.textSecondary}
               />
+              {perfil.validationErrors?.sobrenome && (
+                <Text style={{ color: COLORS.error, fontSize: 12, marginTop: 4 }}>
+                  {perfil.validationErrors.sobrenome}
+                </Text>
+              )}
 
               <Text style={styles.label}>Telefone</Text>
               <TextInput
@@ -105,6 +115,11 @@ const EditProfileScreen = ({ navigation }) => {
                 keyboardType="phone-pad"
                 placeholderTextColor={COLORS.textSecondary}
               />
+              {perfil.validationErrors?.telefone && (
+                <Text style={{ color: COLORS.error, fontSize: 12, marginTop: 4 }}>
+                  {perfil.validationErrors.telefone}
+                </Text>
+              )}
 
               <Text style={styles.label}>Email</Text>
               <TextInput
@@ -116,10 +131,15 @@ const EditProfileScreen = ({ navigation }) => {
                 autoCapitalize="none"
                 placeholderTextColor={COLORS.textSecondary}
               />
+              {perfil.validationErrors?.email && (
+                <Text style={{ color: COLORS.error, fontSize: 12, marginTop: 4 }}>
+                  {perfil.validationErrors.email}
+                </Text>
+              )}
 
               {perfil.emailFoiAlterado ? (
                 <Text style={styles.impactText}>
-                  Este email sera usado para login e recuperacao.
+                  Este email sera usado para login e recuperação.
                 </Text>
               ) : null}
 
@@ -143,7 +163,7 @@ const EditProfileScreen = ({ navigation }) => {
             primaryLabel="Salvar Alterações"
             primaryLoadingLabel="Salvando..."
             onPrimaryPress={perfil.handleSaveProfile}
-            primaryDisabled={perfil.isSaving || !perfil.isDirty}
+            primaryDisabled={perfil.isSaving || !perfil.isDirty || Object.keys(perfil.validationErrors || {}).length > 0}
             primaryLoading={perfil.isSaving}
           />
         </View>

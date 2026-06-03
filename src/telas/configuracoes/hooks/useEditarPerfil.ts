@@ -7,15 +7,16 @@ import { usuarioService } from '../../../api';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { PerfilUsuario } from '../types/configuracoes.types';
-import { PERFIL_INICIAL } from '../constants/constantesConfiguracao';
+import { PERFIL_INICIAL, validarNome, validarSobrenome, validarEmail, validarTelefone } from '../constants/constantesConfiguracao';
 import { apenasDigitosTelefone, formatarTelefone } from '../../../utils/mascaraTelefone';
+import type { UsuarioApi, UsuarioAutenticado } from '../../../api/types';
 
 interface UsuarioComId {
   id?: string | number;
-  nome?: string;
-  sobrenome?: string;
+  nome?: string | null;
+  sobrenome?: string | null;
   email?: string;
-  telefone?: string;
+  telefone?: string | null;
 }
 
 interface PerfilSnapshot {
@@ -42,6 +43,21 @@ const getErrorMessage = (error: unknown): string => {
   return 'Ocorreu um erro inesperado. Tente novamente.';
 };
 
+const normalizarUsuarioAutenticado = (
+  usuarioAtualizado: UsuarioApi,
+  fallback: {
+    id: string | number;
+    nome: string;
+    sobrenome: string;
+    email: string;
+  },
+): UsuarioAutenticado => ({
+  id: usuarioAtualizado.id ?? fallback.id,
+  nome: usuarioAtualizado.nome ?? fallback.nome,
+  sobrenome: usuarioAtualizado.sobrenome ?? fallback.sobrenome,
+  email: usuarioAtualizado.email ?? fallback.email,
+});
+
 export const useEditarPerfil = () => {
   const { user, updateUser } = useAuth();
   const { setTheme } = useTheme();
@@ -62,6 +78,9 @@ export const useEditarPerfil = () => {
     pushNotifications: PERFIL_INICIAL.pushNotifications,
     darkTheme: PERFIL_INICIAL.darkTheme,
   });
+
+  // Estados para validação
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   const userAuth = user as UsuarioComId | null;
 
@@ -145,12 +164,50 @@ export const useEditarPerfil = () => {
     return currentSnapshot.email !== initialSnapshot.email;
   }, [currentSnapshot.email, initialSnapshot.email]);
 
+  /**
+   * Valida todos os campos de perfil
+   * Retorna objeto com erros (vazio se válido)
+   */
+  const validarCampos = useCallback((): Record<string, string> => {
+    const errors: Record<string, string> = {};
+
+    const erroNome = validarNome(nome);
+    if (erroNome) errors.nome = erroNome;
+
+    const erroSobrenome = validarSobrenome(sobrenome);
+    if (erroSobrenome) errors.sobrenome = erroSobrenome;
+
+    const erroEmail = validarEmail(email);
+    if (erroEmail) errors.email = erroEmail;
+
+    const erroTelefone = validarTelefone(telefone);
+    if (erroTelefone) errors.telefone = erroTelefone;
+
+    return errors;
+  }, [nome, sobrenome, email, telefone]);
+
+  /**
+   * Atualiza erros de validação em tempo real
+   */
+  useEffect(() => {
+    const erros = validarCampos();
+    setValidationErrors(erros);
+  }, [validarCampos]);
+
   const handleChangeTelefone = useCallback((texto: string) => {
     setTelefone(formatarTelefone(texto));
   }, []);
 
   const handleSaveProfile = async () => {
     if (!userAuth?.id || isSaving || !isDirty) {
+      return;
+    }
+
+    // Valida campos antes de salvar
+    const erros = validarCampos();
+    if (Object.keys(erros).length > 0) {
+      setValidationErrors(erros);
+      Alert.alert('Erro', 'Por favor, corrija os erros nos campos antes de salvar.');
       return;
     }
 
@@ -166,17 +223,20 @@ export const useEditarPerfil = () => {
     };
 
     try {
+      // Atualiza todos os dados, incluindo email
       const usuarioAtualizado = await usuarioService.atualizarCadastro(userAuth.id, {
         nome: perfil.nome,
         sobrenome: perfil.sobrenome,
         telefone: perfil.telefone,
-        email: perfil.email,
+        email: perfil.email, // Email agora é atualizado
       });
 
-      await updateUser({
-        ...(userAuth ?? {}),
-        ...usuarioAtualizado,
-      });
+      await updateUser(normalizarUsuarioAutenticado(usuarioAtualizado, {
+        id: userAuth.id,
+        nome: perfil.nome.trim(),
+        sobrenome: perfil.sobrenome.trim(),
+        email: perfil.email.trim(),
+      }));
 
       setTelefone(formatarTelefone(usuarioAtualizado.telefone ?? perfil.telefone));
       setInitialSnapshot(currentSnapshot);
@@ -206,6 +266,7 @@ export const useEditarPerfil = () => {
     isSaving,
     isDirty,
     emailFoiAlterado,
-    handleSaveProfile
+    handleSaveProfile,
+    validationErrors
   };
 };
