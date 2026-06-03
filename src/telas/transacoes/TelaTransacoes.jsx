@@ -633,7 +633,7 @@ const TelaTransacoes = ({ navigation, route }) => {
     const categoryName =
       category?.nome ||
       (possuiVinculoCategoria
-        ? "Categoria Inativa"
+        ? "Categoria Excluída"
         : "Categoria não informada");
     const institutionName = institution?.nome || "Sem instituição";
     const institutionColor = institution?.cor || COLORS.textSecondary;
