@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { transacaoService, categoriaService, instituicaoService } from '../../../api';
 import { useAuth } from '../../../contexts/AuthContext';
 import { parseTransacaoDate } from '../utils/utilitariosTransacao';
@@ -52,6 +52,7 @@ export const useGerenciarTransacoes = () => {
   const [error, setError] = useState<string | null>(null);
   const [periodo, setPeriodo] = useState('Período Completo');
   const [ordenacao, setOrdenacao] = useState('Mais recentes');
+  const ordenacaoRef = useRef('Mais recentes');
   
   const [filtros, setFiltros] = useState<Filtros>({
     tipo: 'TODOS',
@@ -347,7 +348,7 @@ export const useGerenciarTransacoes = () => {
     setError(null);
 
     const filtrosAtivos = opcoes.filtrosOverride ?? filtros;
-    const ordenacaoAtiva = opcoes.ordenacaoOverride ?? ordenacao;
+    const ordenacaoAtiva = opcoes.ordenacaoOverride ?? ordenacaoRef.current;
     const searchAtivo = opcoes.search;
     const paramsBase = construirParametrosBackend(filtrosAtivos, ordenacaoAtiva, searchAtivo);
     
@@ -434,6 +435,7 @@ export const useGerenciarTransacoes = () => {
     novaOrdenacao: string,
     opcoes: Omit<CarregarDadosOpcoes, 'ordenacaoOverride'> = {},
   ) => {
+    ordenacaoRef.current = novaOrdenacao;
     setOrdenacao(novaOrdenacao);
     await carregarDados({ ...opcoes, ordenacaoOverride: novaOrdenacao });
   };

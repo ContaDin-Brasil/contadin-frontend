@@ -83,7 +83,7 @@ const SettingsScreen = ({ navigation }) => {
             <SettingItem
               icon={<Ionicons name="document-text-outline" size={24} color={COLORS.primary} />}
               title="Importar Planilha"
-              subtitle="Importe transacoes de Excel e revise antes de salvar"
+              subtitle="Importe transações de Excel e revise antes de salvar"
               onPress={() => navigation.navigate('ImportarPlanilha')}
             />
           </View>

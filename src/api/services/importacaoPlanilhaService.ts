@@ -283,7 +283,14 @@ const importacaoPlanilhaService = {
         detail,
       });
 
-      throw new Error(`Falha ao importar planilha (status ${response.status})`);
+      const serverMessage =
+        detail && typeof detail === 'object' && 'message' in (detail as object)
+          ? String((detail as Record<string, unknown>).message)
+          : null;
+
+      throw new Error(
+        serverMessage ?? `Falha ao importar planilha (status ${response.status})`,
+      );
     }
 
     const payload = await response.json();

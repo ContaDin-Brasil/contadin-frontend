@@ -40,6 +40,7 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
   const [tipo, setTipo] = useState<CategoryType>('GASTO');
   const [cor, setCor] = useState(CATEGORY_COLORS[0]);
   const [icone, setIcone] = useState('shopping-cart');
+  const [iconeEscolhido, setIconeEscolhido] = useState(false);
   const [iconModalVisible, setIconModalVisible] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -49,12 +50,13 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
       setTipo(categoria.tipo || 'GASTO');
       setCor(categoria.cor || CATEGORY_COLORS[0]);
       setIcone(categoria.icone || 'shopping-cart');
+      setIconeEscolhido(true);
     } else if (nomeInicial) {
-      // Pré-preencher com nome inicial para criação
       setNome(nomeInicial);
       setTipo(tipoInicial || 'GASTO');
       setCor(CATEGORY_COLORS[0]);
       setIcone('shopping-cart');
+      setIconeEscolhido(false);
     } else {
       resetForm();
     }
@@ -65,6 +67,7 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
     setTipo(tipoInicial);
     setCor(CATEGORY_COLORS[0]);
     setIcone('shopping-cart');
+    setIconeEscolhido(false);
   };
 
   const handleSave = async () => {
@@ -200,10 +203,19 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
                 style={styles.iconSelector}
                 onPress={() => setIconModalVisible(true)}
               >
-                <View style={styles.iconCircle}>
-                  <MaterialIcons name={icone as any} size={24} color={COLORS.textSecondary} />
+                <View style={[styles.iconCircle, iconeEscolhido && { backgroundColor: cor }]}>
+                  <MaterialIcons
+                    name={icone as any}
+                    size={24}
+                    color={iconeEscolhido ? COLORS.white : COLORS.textSecondary}
+                  />
                 </View>
-                <Text style={styles.iconSelectorText}>Selecione um ícone</Text>
+                <Text style={styles.iconSelectorText}>
+                  {iconeEscolhido ? 'Toque para alterar o ícone' : 'Selecione um ícone'}
+                </Text>
+                {iconeEscolhido && (
+                  <MaterialIcons name="check-circle" size={18} color={cor} style={{ marginLeft: 'auto' }} />
+                )}
               </TouchableOpacity>
             </View>
 
@@ -224,7 +236,10 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
       <ModalSelecaoIcone
         visible={iconModalVisible}
         onClose={() => setIconModalVisible(false)}
-        onSelect={setIcone}
+        onSelect={(novoIcone) => {
+          setIcone(novoIcone);
+          setIconeEscolhido(true);
+        }}
         selectedIcon={icone}
       />
     </>

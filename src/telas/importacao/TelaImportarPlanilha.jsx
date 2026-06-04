@@ -175,7 +175,7 @@ const mapSwaggerTransacao = (item, index) => ({
   selecionada: true,
   linhaOrigem: index + 1,
   observacao: [
-    item?.instituicao ? `Instituicao detectada: ${item.instituicao}` : null,
+    item?.instituicao ? `Instituição detectada: ${item.instituicao}` : null,
     item?.categoria ? `Categoria detectada: ${item.categoria}` : null,
   ]
     .filter(Boolean)
@@ -414,7 +414,10 @@ const ETLImportScreen = ({ navigation, route }) => {
         Alert.alert('Sem transações', 'A planilha foi processada, mas não retornou registros.');
       }
     } catch (error) {
-      Alert.alert('Erro na importação', 'Não foi possível processar sua planilha no sistema.');
+      const mensagem =
+        error?.message ||
+        'Não foi possível processar sua planilha. Verifique o servidor ETL e tente novamente.';
+      Alert.alert('Erro na importação', mensagem);
     } finally {
       setLoadingImport(false);
     }
@@ -625,7 +628,7 @@ const ETLImportScreen = ({ navigation, route }) => {
     const pendentes = selecionadas.filter((item) => !transacaoEstaCompleta(item));
 
     if (selecionadas.length === 0) {
-      Alert.alert('Campos obrigatórios', 'Selecione ao menos uma transacao para salvar.');
+      Alert.alert('Campos obrigatórios', 'Selecione ao menos uma transação para salvar.');
       return;
     }
 
@@ -680,8 +683,8 @@ const ETLImportScreen = ({ navigation, route }) => {
       toast.show('Importação finalizada', mensagemToast, 'success');
 
       Alert.alert(
-        'Importacao finalizada',
-        `Transacoes criadas: ${resultado.criadas}\nFalhas: ${resultado.falhas}`,
+        'Importação finalizada',
+        `Transações criadas: ${resultado.criadas}\nFalhas: ${resultado.falhas}`,
         [
           {
             text: 'OK',
@@ -870,7 +873,7 @@ const ETLImportScreen = ({ navigation, route }) => {
         {transacoes.length > 0 ? (
           <View style={styles.reviewSection}>
             <View style={styles.reviewHeader}>
-              <Text style={styles.reviewTitle}>Revisar transacoes ({transacoes.length})</Text>
+              <Text style={styles.reviewTitle}>Revisar transações ({transacoes.length})</Text>
               <Text style={styles.reviewSubtitle}>
                 Selecionadas para salvar: {totalSelecionadas} | Pendentes de ajuste: {totalPendentesAjuste}
               </Text>
