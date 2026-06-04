@@ -3,10 +3,9 @@ import { Animated } from 'react-native';
 import { Audio } from 'expo-av';
 import { AISuggestion, ProcessingType } from '../types/transacao.types';
 import { useCaptureImage, CapturedImage } from './useCaptureImage';
-import { useToastFeedback } from './useToastFeedback';
 import ocrService from '../../../api/services/ocrService';
 import audioService from '../../../api/services/audioService';
-import type { OCRResponse200 } from '../../../api/types';
+import type { AIProcessingError, OCRResponse200 } from '../../../api/types';
 import {
   requestAudioPermission,
   configureAudioSession,
@@ -28,6 +27,69 @@ const getTodayDate = (): string => {
   return `${day}/${month}/${year}`;
 };
 
+export interface ProcessingFeedbackError {
+  title: string;
+  message: string;
+  kind: AIProcessingError['kind'];
+  source: 'photo' | 'audio' | 'capture' | 'general';
+  statusCode?: number;
+  details?: string;
+  retryable: boolean;
+}
+
+const getErrorTitle = (kind: AIProcessingError['kind'], source: ProcessingFeedbackError['source']): string => {
+  if (source === 'capture') return 'Erro ao capturar mídia';
+  switch (kind) {
+    case 'validation':
+      return 'OCR inválido';
+    case 'bad_request':
+      return 'Requisição inválida';
+    case 'unauthorized':
+      return 'Sessão expirada';
+    case 'forbidden':
+      return 'Acesso negado';
+    case 'not_found':
+      return 'Serviço indisponível';
+    case 'server_error':
+      return 'Erro no servidor';
+    case 'timeout':
+      return 'Tempo esgotado';
+    case 'network_error':
+      return 'Falha de conexão';
+    default:
+      return source === 'audio' ? 'Erro no áudio' : 'Erro no processamento';
+  }
+};
+
+const buildProcessingError = (
+  error: AIProcessingError,
+  source: ProcessingFeedbackError['source'],
+  fallbackMessage: string,
+): ProcessingFeedbackError => ({
+  title: getErrorTitle(error.kind, source),
+  message:
+    error.kind === 'validation' && source === 'photo'
+      ? 'Não foi reconhecido nenhum dado financeiro na imagem. Tente novamente com uma foto mais nítida ou com mais informações visíveis.'
+      : error.message || fallbackMessage,
+  kind: error.kind,
+  source,
+  statusCode: error.statusCode,
+  details: error.details,
+  retryable: error.retryable ?? true,
+});
+
+const buildFallbackError = (
+  source: ProcessingFeedbackError['source'],
+  message: string,
+  retryable: boolean,
+): ProcessingFeedbackError => ({
+  title: getErrorTitle('unknown', source),
+  message,
+  kind: 'unknown',
+  source,
+  retryable,
+});
+
 /**
  * Hook customizado para gerenciar o processamento de IA/Sugestões
  * Gerencia captura de imagens e geração de sugestões
@@ -42,7 +104,7 @@ export const useProcessamentoIA = () => {
   const [ocrMetadata, setOcrMetadata] = useState<Partial<MappedOCRResult>>({});
 
   // Erro durante processamento OCR (para permitir retry)
-  const [processingError, setProcessingError] = useState<string | null>(null);
+  const [processingError, setProcessingError] = useState<ProcessingFeedbackError | null>(null);
 
   // Progresso de upload (0-100%)
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -56,13 +118,11 @@ export const useProcessamentoIA = () => {
 
   // URI do áudio gravado aguardando confirmação do usuário
   const [pendingAudioUri, setPendingAudioUri] = useState<string | null>(null);
+  const [lastAudioUri, setLastAudioUri] = useState<string | null>(null);
   const [audioConfirmModalVisible, setAudioConfirmModalVisible] = useState(false);
 
   // Hook para capturar imagens
   const captureImage = useCaptureImage();
-
-  // Hook para feedback visual
-  const { showError, showSuccess } = useToastFeedback();
 
   // Animação do loading
   const pulseAnim = useRef(new Animated.Value(1)).current;
@@ -108,7 +168,7 @@ export const useProcessamentoIA = () => {
     } catch (error) {
       console.error('Erro ao capturar foto:', error);
       const errorMsg = error instanceof Error ? error.message : 'Erro ao capturar foto';
-      setProcessingError(errorMsg);
+      setProcessingError(buildFallbackError('capture', errorMsg, false));
     } finally {
       setIsProcessing(false);
       setProcessingType(null);
@@ -137,7 +197,7 @@ export const useProcessamentoIA = () => {
     } catch (error) {
       console.error('Erro ao iniciar gravação:', error);
       const msg = error instanceof Error ? error.message : 'Erro ao iniciar gravação';
-      showError(msg, 'Erro na Gravação');
+      setProcessingError(buildFallbackError('audio', msg, true));
     }
   };
 
@@ -157,7 +217,7 @@ export const useProcessamentoIA = () => {
       recordingRef.current = null;
 
       if (!uri) {
-        showError('Não foi possível obter o arquivo de áudio.', 'Erro na Gravação');
+        setProcessingError(buildFallbackError('audio', 'Não foi possível obter o arquivo de áudio.', true));
         return;
       }
 
@@ -165,12 +225,13 @@ export const useProcessamentoIA = () => {
 
       // Abre modal para o usuário ouvir e confirmar antes de enviar
       setPendingAudioUri(uri);
+      setLastAudioUri(uri);
       setAudioConfirmModalVisible(true);
 
     } catch (error) {
       console.error('Erro ao finalizar gravação:', error);
       const msg = error instanceof Error ? error.message : 'Erro ao processar áudio';
-      showError(msg, 'Erro na Gravação');
+      setProcessingError(buildFallbackError('audio', msg, true));
     }
   };
 
@@ -184,7 +245,6 @@ export const useProcessamentoIA = () => {
     if (!pendingAudioUri) return;
 
     const uri = pendingAudioUri;
-    setPendingAudioUri(null);
 
     try {
       setIsProcessing(true);
@@ -193,9 +253,12 @@ export const useProcessamentoIA = () => {
       const result = await audioService.sendAudioForTranscription(uri);
 
       if (!result.success || !result.data) {
-        const errorMsg = result.error || 'Erro ao processar áudio. Tente novamente.';
-        showError(errorMsg, 'Erro no Áudio');
-        setProcessingError(errorMsg);
+        const errorObj = result.error ?? {
+          kind: 'unknown' as const,
+          message: 'Erro ao processar áudio. Tente novamente.',
+          retryable: true,
+        };
+        setProcessingError(buildProcessingError(errorObj, 'audio', 'Erro ao processar áudio. Tente novamente.'));
         return;
       }
 
@@ -209,13 +272,14 @@ export const useProcessamentoIA = () => {
       });
 
       setAiSuggestion(mappedResult.aiSuggestion);
-      showSuccess('Transação extraída com sucesso!', '✅ Áudio processado');
+      setPendingAudioUri(null);
+      setLastAudioUri(null);
+      // Sucesso silencioso: a sugestão da IA já aparece no modal próprio da tela.
 
     } catch (error) {
       console.error('Erro ao enviar áudio:', error);
       const msg = error instanceof Error ? error.message : 'Erro ao enviar áudio';
-      showError(msg, 'Erro no Áudio');
-      setProcessingError(msg);
+      setProcessingError(buildFallbackError('audio', msg, true));
     } finally {
       setIsProcessing(false);
       setStatusMessage(null);
@@ -228,6 +292,7 @@ export const useProcessamentoIA = () => {
   const cancelAudioSend = (): void => {
     setAudioConfirmModalVisible(false);
     setPendingAudioUri(null);
+    setLastAudioUri(null);
     setProcessingType(null);
   };
 
@@ -252,6 +317,8 @@ export const useProcessamentoIA = () => {
     setCapturedImage(null);
     setOcrMetadata({});
     setProcessingError(null);
+    setPendingAudioUri(null);
+    setLastAudioUri(null);
     captureImage.clearImage();
   };
 
@@ -260,12 +327,12 @@ export const useProcessamentoIA = () => {
    */
   const retryOCRProcessing = async () => {
     if (!capturedImage) {
-      showError('Nenhuma imagem capturada. Tente capturar novamente.');
+      setProcessingError(buildFallbackError('photo', 'Nenhuma imagem capturada. Tente capturar novamente.', true));
       return;
     }
 
-    setIsProcessing(true);
     setProcessingError(null);
+    setIsProcessing(true);
     await _processImageWithOCR(capturedImage);
   };
 
@@ -303,11 +370,12 @@ export const useProcessamentoIA = () => {
 
       if (!ocrResult.success) {
         // Erro no OCR
-        const errorMessage =
-          ocrResult.error ||
-          'Erro desconhecido ao processar imagem. Tente novamente.';
-        showError(errorMessage, 'OCR Falhou');
-        setProcessingError(errorMessage);
+        const errorObj = ocrResult.error ?? {
+          kind: 'unknown' as const,
+          message: 'Erro desconhecido ao processar imagem. Tente novamente.',
+          retryable: true,
+        };
+        setProcessingError(buildProcessingError(errorObj, 'photo', 'Erro desconhecido ao processar imagem. Tente novamente.'));
         setUploadProgress(0);
 
         // Exibir timing mesmo em erro
@@ -321,8 +389,7 @@ export const useProcessamentoIA = () => {
       }
 
       if (!ocrResult.ocr) {
-        showError('Resposta OCR inválida. Tente novamente.', 'Erro de Resposta');
-        setProcessingError('Resposta OCR vazia');
+        setProcessingError(buildFallbackError('photo', 'Resposta OCR inválida. Tente novamente.', true));
         setUploadProgress(0);
         setIsProcessing(false);
         return;
@@ -345,10 +412,7 @@ export const useProcessamentoIA = () => {
       const timingMsg = ocrResult.totalTimeMs
         ? `em ${ocrResult.totalTimeMs}ms (upload: ${ocrResult.uploadTimeMs}ms, processamento: ${ocrResult.processingTimeMs}ms)`
         : '';
-      showSuccess(
-        `Transação extraída com sucesso!\n${timingMsg}`,
-        '✅ OCR Completo'
-      );
+      // Sucesso silencioso: a sugestão da IA já aparece no modal próprio da tela.
 
       console.log(
         `✨ OCR sucesso: ${mappedResult.aiSuggestion.descricao}`
@@ -366,8 +430,7 @@ export const useProcessamentoIA = () => {
         error instanceof Error
           ? error.message
           : 'Erro ao processar imagem com OCR';
-      showError(errorMessage, 'Erro no Processamento');
-      setProcessingError(errorMessage);
+      setProcessingError(buildFallbackError('photo', errorMessage, true));
       setUploadProgress(0);
       setStatusMessage(null);
       setIsProcessing(false);
@@ -393,7 +456,7 @@ export const useProcessamentoIA = () => {
     } catch (error) {
       console.error('Erro ao capturar foto:', error);
       const errorMsg = error instanceof Error ? error.message : 'Erro ao capturar foto';
-      setProcessingError(errorMsg);
+      setProcessingError(buildFallbackError('capture', errorMsg, false));
     } finally {
       setIsProcessing(false);
       setProcessingType(null);
@@ -419,11 +482,56 @@ export const useProcessamentoIA = () => {
     } catch (error) {
       console.error('Erro ao selecionar foto:', error);
       const errorMsg = error instanceof Error ? error.message : 'Erro ao selecionar foto';
-      setProcessingError(errorMsg);
+      setProcessingError(buildFallbackError('capture', errorMsg, false));
     } finally {
       setIsProcessing(false);
       setProcessingType(null);
     }
+  };
+
+  const clearProcessingError = () => {
+    setProcessingError(null);
+  };
+
+  const retryProcessing = async () => {
+    if (processingError?.source === 'audio' && lastAudioUri) {
+      setProcessingError(null);
+      setAudioConfirmModalVisible(false);
+      setIsProcessing(true);
+      setStatusMessage('Enviando áudio...');
+
+      try {
+        const result = await audioService.sendAudioForTranscription(lastAudioUri);
+        if (!result.success || !result.data) {
+          const errorObj = result.error ?? {
+            kind: 'unknown' as const,
+            message: 'Erro ao processar áudio. Tente novamente.',
+            retryable: true,
+          };
+          setProcessingError(buildProcessingError(errorObj, 'audio', 'Erro ao processar áudio. Tente novamente.'));
+          return;
+        }
+
+        const mappedResult = mapOCRToAISuggestion(result.data as OCRResponse200);
+        setOcrMetadata({
+          fkInstituicao: mappedResult.fkInstituicao,
+          fkCategoria: mappedResult.fkCategoria,
+          idInstituicaoExistente: mappedResult.idInstituicaoExistente,
+        });
+        setAiSuggestion(mappedResult.aiSuggestion);
+        setPendingAudioUri(null);
+        setLastAudioUri(null);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Erro ao processar áudio';
+        setProcessingError(buildFallbackError('audio', message, true));
+      } finally {
+        setIsProcessing(false);
+        setStatusMessage(null);
+      }
+      return;
+    }
+
+    await retryOCRProcessing();
   };
 
   return {
@@ -433,6 +541,8 @@ export const useProcessamentoIA = () => {
     capturedImage,
     pulseAnim,
     processingError,
+    clearProcessingError,
+    retryProcessing,
     ocrMetadata,
     uploadProgress,
     statusMessage,

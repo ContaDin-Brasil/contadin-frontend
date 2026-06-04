@@ -8,6 +8,8 @@ import BotoesAcaoFixo from '../../componentes/BotoesAcaoFixo';
 import { DatePickerInput } from '../../componentes/DatePickerInput';
 import { ImagePreview } from '../../componentes/ImagePreview';
 import ModalConfirmarAudio from '../../componentes/ModalConfirmarAudio';
+import AIProcessingModal from './componentes/AIProcessingModal';
+import AIProcessingErrorModal from './componentes/AIProcessingErrorModal';
 import { ErrorMessage } from './componentes/ErrorMessage';
 import { getLogoByName } from '../../componentes/modais/logosInstituicoes';
 import ModalSelecaoInstituicao from '../../componentes/modais/ModalSelecaoInstituicao';
@@ -340,24 +342,6 @@ const TelaAdicionarTransacao = ({ navigation }) => {
             </Text>
           </TouchableOpacity>
         </View>
-
-        {/* Indicador de processamento */}
-        {aiState.isProcessing && (
-          <View style={styles.processingCard}>
-            <View style={styles.processingHeader}>
-              <Animated.View style={[
-                styles.loadingDot, 
-                { transform: [{ scale: aiState.pulseAnim }] }
-              ]} />
-              <Text style={styles.processingText}>
-                {aiState.processingType === 'photo' ? 'Analisando foto...' : 'Transcrevendo áudio...'}
-              </Text>
-            </View>
-            <Text style={styles.processingSubtext}>
-              A IA está extraindo as informações da transação
-            </Text>
-          </View>
-        )}
 
         {/* Preview da imagem capturada */}
         {aiState.capturedImage && !aiState.isProcessing && (
@@ -758,6 +742,20 @@ const TelaAdicionarTransacao = ({ navigation }) => {
         audioUri={aiState.pendingAudioUri}
         onConfirm={aiState.confirmAudioSend}
         onCancel={aiState.cancelAudioSend}
+      />
+
+      <AIProcessingModal
+        visible={aiState.isProcessing}
+        mode={aiState.processingType}
+        progress={aiState.uploadProgress}
+        statusMessage={aiState.statusMessage}
+      />
+
+      <AIProcessingErrorModal
+        visible={!!aiState.processingError}
+        error={aiState.processingError}
+        onClose={aiState.clearProcessingError}
+        onRetry={aiState.retryProcessing}
       />
 
       <ModalSelecaoInstituicao
