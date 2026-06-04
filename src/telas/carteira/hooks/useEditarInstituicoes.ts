@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Banco, Vale, Instituicao } from '../types/carteira.types';
 import { instituicaoService } from '../../../api';
-import type { InstituicaoApi } from '../../../api/types';
+import transacaoService from '../../../api/services/transacaoService';
+import type { InstituicaoApi, TransacaoApi } from '../../../api/types';
 import { useCache } from '../../../contexts/CacheContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import { getInstituicoesPadrao } from '../constants/instituicoesPadrao';
 import {
   extrairUsuarioId,
+  idsIguais,
   idValido,
+  normalizarId,
   obterUsuarioIdOuErro,
   normalizarTipoInstituicaoDaEntidade,
 } from '../../../utils/normalizacao';
@@ -17,6 +20,34 @@ const getErrorMessage = (error: unknown, fallback: string): string => {
     return error.message;
   }
   return fallback;
+};
+
+const getTransacaoInstituicaoId = (transacao: TransacaoApi): string | number | null => {
+  const source = transacao as unknown as Record<string, unknown>;
+  return normalizarId(transacao?.fkInstituicao ?? source.fk_instituicao);
+};
+
+const formatarSaldo = (valor: number): string => {
+  return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+};
+
+const calcularSaldo = (instituicaoId: string | number, transacoes: TransacaoApi[]): number => {
+  return transacoes
+    .filter((transacao) => idsIguais(getTransacaoInstituicaoId(transacao), instituicaoId))
+    .reduce((acc, transacao) => (
+      transacao.tipo === 'RECEITA'
+        ? acc + Number(transacao.valor || 0)
+        : acc - Number(transacao.valor || 0)
+    ), 0);
+};
+
+const calcularGastos = (instituicaoId: string | number, transacoes: TransacaoApi[]): number => {
+  return transacoes
+    .filter((transacao) =>
+      idsIguais(getTransacaoInstituicaoId(transacao), instituicaoId) &&
+      transacao.tipo === 'GASTO'
+    )
+    .reduce((acc, transacao) => acc + Number(transacao.valor || 0), 0);
 };
 
 /**
@@ -59,13 +90,21 @@ export const useEditarBancos = () => {
       if (!forceRefresh) {
         const cached = await getCache<Banco[]>(cacheKey);
         if (cached) {
-          setBanks(cached);
+          const transacoes = await transacaoService.listar();
+          setBanks(cached.map((bank) => ({
+            ...bank,
+            balance: formatarSaldo(calcularSaldo(bank.id, transacoes)),
+            expenses: formatarSaldo(calcularGastos(bank.id, transacoes)),
+          })));
           setLoading(false);
           return;
         }
       }
       
-      const instituicoes = await instituicaoService.listarPorUsuario(usuarioIdValido);
+      const [instituicoes, transacoes] = await Promise.all([
+        instituicaoService.listarPorUsuario(usuarioIdValido),
+        transacaoService.listar(),
+      ]);
       
       // Filtra apenas bancos usando type
       const bancosList: Banco[] = instituicoes
@@ -73,8 +112,8 @@ export const useEditarBancos = () => {
         .map((inst: InstituicaoApi) => ({
           id: inst.id,
           nome: inst.nome,
-          balance: 'R$ 0,00',
-          expenses: 'R$ 0,00',
+          balance: formatarSaldo(calcularSaldo(inst.id, transacoes)),
+          expenses: formatarSaldo(calcularGastos(inst.id, transacoes)),
           cor: inst.cor,
           icone: inst.icone,
           type: 'BANCO',
@@ -288,13 +327,20 @@ export const useEditarVales = () => {
       if (!forceRefresh) {
         const cached = await getCache<Vale[]>(cacheKey);
         if (cached) {
-          setVouchers(cached);
+          const transacoes = await transacaoService.listar();
+          setVouchers(cached.map((voucher) => ({
+            ...voucher,
+            balance: formatarSaldo(calcularSaldo(voucher.id, transacoes)),
+          })));
           setLoading(false);
           return;
         }
       }
       
-      const instituicoes = await instituicaoService.listarPorUsuario(usuarioIdValido);
+      const [instituicoes, transacoes] = await Promise.all([
+        instituicaoService.listarPorUsuario(usuarioIdValido),
+        transacaoService.listar(),
+      ]);
       
       // Filtra apenas vales usando type
       const valesList: Vale[] = instituicoes
@@ -302,7 +348,7 @@ export const useEditarVales = () => {
         .map((inst: InstituicaoApi) => ({
           id: inst.id,
           nome: inst.nome,
-          balance: 'R$ 0,00',
+          balance: formatarSaldo(calcularSaldo(inst.id, transacoes)),
           cor: inst.cor,
           icone: inst.icone,
           type: 'VALE',

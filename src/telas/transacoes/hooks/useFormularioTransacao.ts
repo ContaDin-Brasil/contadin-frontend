@@ -645,15 +645,15 @@ export const useFormularioTransacao = () => {
 
   /**
    * Retorna categorias filtradas para exibição
-   * - Se não houver busca: retorna apenas top 3
-   * - Se houver busca (após debounce): retorna todas filtradas pela busca
+   * - Retorna todas as categorias filtradas pelo tipo
+   * - Se houver busca (após debounce): filtra também pela busca
    */
   const getCategoriasExibidas = (): Category[] => {
     const categoriasFiltradas = getCategoriasFiltradasPorTipo();
 
-    // Se não houver busca, mostra apenas top 3
+    // Se não houver busca, mostra todas as categorias
     if (!debouncedCategorySearch.trim()) {
-      return getTop3Categorias();
+      return categoriasFiltradas;
     }
 
     // Com busca, filtra pelo nome

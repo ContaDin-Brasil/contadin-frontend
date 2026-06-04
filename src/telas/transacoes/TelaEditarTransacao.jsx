@@ -277,18 +277,18 @@ const TelaEditarTransacao = ({ navigation, route }) => {
               key={category.id}
               style={[
                 styles.categoryButton,
-                editState.selectedCategory === category.id && styles.categoryButtonActive
+                String(editState.selectedCategory) === String(category.id) && styles.categoryButtonActive
               ]}
-              onPress={() => editState.setSelectedCategory(category.id)}
+              onPress={() => editState.setSelectedCategory(String(category.id))}
             >
               <MaterialIcons
                 name={category.icone || getCategoryIcon(category.nome)}
                 size={20}
-                color={editState.selectedCategory === category.id ? COLORS.white : COLORS.textPrimary}
+                color={String(editState.selectedCategory) === String(category.id) ? COLORS.white : COLORS.textPrimary}
               />
               <Text style={[
                 styles.categoryButtonText,
-                editState.selectedCategory === category.id && styles.categoryButtonTextActive
+                String(editState.selectedCategory) === String(category.id) && styles.categoryButtonTextActive
               ]}>
                 {category.nome}
               </Text>
