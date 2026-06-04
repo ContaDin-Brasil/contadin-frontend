@@ -24,7 +24,7 @@ export const useGerenciarDashboard = (usuarioIdProp?: number) => {
   const { getCache, setCache, invalidateCache } = useCache();
   
   // IMPORTANTE: user?.id é string|number, não converter para Number!
-  // Se user?.id não existe, usar o prop (para testes)
+  // Se user?.id não existe, usar o prop (para testes). Null indica "ainda não disponível".
   const usuarioIdString = (() => {
     if (user?.id) {
       return String(user.id); // UUID do usuário autenticado
@@ -32,7 +32,7 @@ export const useGerenciarDashboard = (usuarioIdProp?: number) => {
     if (usuarioIdProp) {
       return String(usuarioIdProp);
     }
-    return '1'; // Fallback apenas se nenhum ID estiver disponível
+    return null; // Sem ID disponível — guards devem bloquear chamadas
   })();
   
   // Não converter UUID para Number - gera NaN
@@ -51,14 +51,14 @@ export const useGerenciarDashboard = (usuarioIdProp?: number) => {
   const [inicializacaoCompleta, setInicializacaoCompleta] = useState<boolean>(false);
 
   const fetchSaldoConsolidado = useCallback(async () => {
-    if (!usuarioId) return;
+    if (!user?.id || !usuarioId) return;
     try {
       const saldo = await buscarSaldoConsolidadoAtual(usuarioId);
       setSaldoConsolidado(saldo);
     } catch (err) {
       console.warn('[Dashboard] Erro ao buscar saldo consolidado:', err);
     }
-  }, [usuarioId]);
+  }, [user, usuarioId]);
 
   const carregarDados = useCallback(async (forcarAtualizacao = false) => {
     try {
