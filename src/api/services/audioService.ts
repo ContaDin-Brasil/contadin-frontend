@@ -1,5 +1,5 @@
 import { Platform } from 'react-native';
-import type { OCRResponse200 } from '../types';
+import type { AIProcessingError, AIProcessingErrorKind, OCRResponse200 } from '../types';
 
 /**
  * Resposta do serviço de áudio.
@@ -8,9 +8,71 @@ import type { OCRResponse200 } from '../types';
 export interface AudioServiceResponse {
   success: boolean;
   data?: OCRResponse200;
-  error?: string;
+  error?: AIProcessingError;
   totalTimeMs?: number;
 }
+
+const mapStatusToErrorKind = (status?: number): AIProcessingErrorKind => {
+  if (status === 400) return 'bad_request';
+  if (status === 401) return 'unauthorized';
+  if (status === 403) return 'forbidden';
+  if (status === 404) return 'not_found';
+  if (status === 422) return 'validation';
+  if (status && status >= 500) return 'server_error';
+  return 'unknown';
+};
+
+const buildError = (
+  kind: AIProcessingErrorKind,
+  message: string,
+  statusCode?: number,
+  details?: string,
+  retryable = true,
+): AIProcessingError => ({
+  kind,
+  message,
+  statusCode,
+  details,
+  retryable,
+});
+
+const extractReadableError = (payload: unknown, fallbackMessage: string): string => {
+  if (typeof payload === 'string') {
+    const trimmed = payload.trim();
+    if (!trimmed) return fallbackMessage;
+
+    try {
+      return extractReadableError(JSON.parse(trimmed), fallbackMessage);
+    } catch (_e) {
+      return trimmed;
+    }
+  }
+
+  if (payload && typeof payload === 'object') {
+    const candidate = payload as Record<string, unknown>;
+
+    if (typeof candidate.message === 'string' && candidate.message.trim()) {
+      return candidate.message.trim();
+    }
+
+    if (typeof candidate.detail === 'string' && candidate.detail.trim()) {
+      return candidate.detail.trim();
+    }
+
+    if (Array.isArray(candidate.detail) && candidate.detail.length > 0) {
+      const firstDetail = candidate.detail[0] as Record<string, unknown> | undefined;
+      if (firstDetail && typeof firstDetail.msg === 'string' && firstDetail.msg.trim()) {
+        return firstDetail.msg.trim();
+      }
+    }
+
+    if (typeof candidate.error === 'string' && candidate.error.trim()) {
+      return candidate.error.trim();
+    }
+  }
+
+  return fallbackMessage;
+};
 
 /**
  * Determina a URL base do serviço de áudio/ETL.
@@ -103,10 +165,29 @@ const audioService = {
         return { success: true, data, totalTimeMs };
       }
 
-      const errorBody = await response.text();
-      const errorMsg = `Erro ${response.status}: ${errorBody.substring(0, 200)}`;
+      let errorBody = '';
+      try {
+        errorBody = await response.text();
+      } catch (_e) {
+        errorBody = '';
+      }
+
+      const readableMessage = extractReadableError(errorBody, 'Não foi possível extrair informações financeiras do áudio. Tente novamente.');
+      const errorMsg = readableMessage.startsWith('Erro ')
+        ? readableMessage
+        : readableMessage;
       console.error(`   ❌ ${errorMsg}`);
-      return { success: false, error: errorMsg, totalTimeMs };
+      return {
+        success: false,
+        error: buildError(
+          mapStatusToErrorKind(response.status),
+          errorMsg,
+          response.status,
+          readableMessage,
+          response.status < 500,
+        ),
+        totalTimeMs,
+      };
 
     } catch (error) {
       const totalTimeMs = Date.now() - startTime;
@@ -114,12 +195,12 @@ const audioService = {
       if (error instanceof Error && error.name === 'AbortError') {
         const msg = `Timeout: requisição excedeu ${timeoutMs}ms`;
         console.error(`   ❌ ${msg}`);
-        return { success: false, error: msg, totalTimeMs };
+        return { success: false, error: buildError('timeout', msg, undefined, msg, true), totalTimeMs };
       }
 
       const msg = error instanceof Error ? error.message : 'Erro desconhecido ao enviar áudio';
       console.error(`   ❌ Erro de conexão (${totalTimeMs}ms):`, msg);
-      return { success: false, error: msg, totalTimeMs };
+      return { success: false, error: buildError('network_error', msg, undefined, msg, true), totalTimeMs };
     }
   },
 };

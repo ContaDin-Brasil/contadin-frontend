@@ -1,6 +1,8 @@
 import { Platform } from 'react-native';
 import api, { setAuthToken } from '../config';
 import type {
+  AIProcessingError,
+  AIProcessingErrorKind,
   OCRResponse200,
   OCRResponseError422,
   OCRValidationError,
@@ -39,12 +41,74 @@ export type ProgressCallback = (progress: {
 export interface OCRServiceResponse {
   success: boolean;
   ocr?: OCRResponse200;
-  error?: string;
+  error?: AIProcessingError;
   method?: UploadMethod;
   uploadTimeMs?: number;
   processingTimeMs?: number;
   totalTimeMs?: number;
 }
+
+const mapStatusToErrorKind = (status?: number): AIProcessingErrorKind => {
+  if (status === 400) return 'bad_request';
+  if (status === 401) return 'unauthorized';
+  if (status === 403) return 'forbidden';
+  if (status === 404) return 'not_found';
+  if (status === 422) return 'validation';
+  if (status && status >= 500) return 'server_error';
+  return 'unknown';
+};
+
+const buildError = (
+  kind: AIProcessingErrorKind,
+  message: string,
+  statusCode?: number,
+  details?: string,
+  retryable = true,
+): AIProcessingError => ({
+  kind,
+  message,
+  statusCode,
+  details,
+  retryable,
+});
+
+const extractReadableError = (payload: unknown, fallbackMessage: string): string => {
+  if (typeof payload === 'string') {
+    const trimmed = payload.trim();
+    if (!trimmed) return fallbackMessage;
+
+    try {
+      return extractReadableError(JSON.parse(trimmed), fallbackMessage);
+    } catch (_e) {
+      return trimmed;
+    }
+  }
+
+  if (payload && typeof payload === 'object') {
+    const candidate = payload as Record<string, unknown>;
+
+    if (typeof candidate.message === 'string' && candidate.message.trim()) {
+      return candidate.message.trim();
+    }
+
+    if (typeof candidate.detail === 'string' && candidate.detail.trim()) {
+      return candidate.detail.trim();
+    }
+
+    if (Array.isArray(candidate.detail) && candidate.detail.length > 0) {
+      const firstDetail = candidate.detail[0] as Record<string, unknown> | undefined;
+      if (firstDetail && typeof firstDetail.msg === 'string' && firstDetail.msg.trim()) {
+        return firstDetail.msg.trim();
+      }
+    }
+
+    if (typeof candidate.error === 'string' && candidate.error.trim()) {
+      return candidate.error.trim();
+    }
+  }
+
+  return fallbackMessage;
+};
 
 /**
  * Determina a URL base do endpoint OCR.
@@ -157,7 +221,7 @@ const ocrService = {
         });
         return {
           success: false,
-          error: errorMsg,
+          error: buildError('bad_request', errorMsg, 400, errorMsg, false),
           method,
           totalTimeMs: Date.now() - startTime,
         };
@@ -252,7 +316,7 @@ const ocrService = {
         const totalTimeMs = Date.now() - startTime;
         return {
           success: false,
-          error: errorMsg,
+          error: buildError('unknown', errorMsg, undefined, errorMsg, true),
           method,
           uploadTimeMs,
           totalTimeMs,
@@ -302,9 +366,7 @@ const ocrService = {
           errorData.detail && errorData.detail.length > 0
             ? errorData.detail[0]
             : null;
-        const errorMessage = firstError
-          ? firstError.msg
-          : 'Erro de validação desconhecido';
+        const errorMessage = firstError?.msg?.trim() || extractReadableError(data, 'Não foi reconhecido nenhum dado financeiro na imagem. Tente novamente.');
 
         const totalTimeMs = Date.now() - startTime;
         console.warn(`   ⚠️  Erro 422 (${totalTimeMs}ms): ${errorMessage}`);
@@ -319,21 +381,17 @@ const ocrService = {
 
         return {
           success: false,
-          error: errorMessage,
+          error: buildError('validation', errorMessage, 422, firstError ? JSON.stringify(firstError) : undefined, true),
           method,
           uploadTimeMs,
           totalTimeMs,
         };
       } else {
         // Outros erros HTTP
-        let errorMsg = 'Erro desconhecido do servidor OCR';
-        
-        if (typeof data === 'string') {
-          // Resposta em texto (HTML error page, etc)
-          errorMsg = `Erro ${response.status}: ${data.substring(0, 200)}`;
-        } else if (data.detail) {
-          errorMsg = typeof data.detail === 'string' ? data.detail : 'Erro ao processar imagem';
-        }
+        const parsedMessage = extractReadableError(data, 'Erro ao processar imagem');
+        const errorMsg = typeof data === 'string' && !data.trim().startsWith('{')
+          ? `Erro ${response.status}: ${parsedMessage.substring(0, 200)}`
+          : parsedMessage;
 
         const totalTimeMs = Date.now() - startTime;
         console.error(
@@ -352,7 +410,13 @@ const ocrService = {
 
         return {
           success: false,
-          error: errorMsg,
+          error: buildError(
+            mapStatusToErrorKind(response.status),
+            errorMsg,
+            response.status,
+            typeof data === 'string' ? data.substring(0, 500) : JSON.stringify(data).substring(0, 500),
+            response.status < 500,
+          ),
           method,
           uploadTimeMs,
           totalTimeMs,
@@ -374,7 +438,7 @@ const ocrService = {
         });
         return {
           success: false,
-          error: errorMsg,
+          error: buildError('timeout', errorMsg, undefined, errorMsg, true),
           method,
           totalTimeMs,
         };
@@ -402,7 +466,7 @@ const ocrService = {
 
       return {
         success: false,
-        error: errorMessage,
+        error: buildError('network_error', errorMessage, undefined, errorMessage, true),
         method,
         totalTimeMs,
       };

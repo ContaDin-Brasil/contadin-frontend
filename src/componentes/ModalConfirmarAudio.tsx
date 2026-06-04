@@ -36,6 +36,58 @@ const ModalConfirmarAudio: React.FC<Props> = ({
   const webAudioRef = useRef<HTMLAudioElement | null>(null);
   const soundRef = useRef<Audio.Sound | null>(null);
 
+  useEffect(() => {
+    const preloadDuration = async () => {
+      if (!visible || !audioUri) return;
+
+      await _cleanup();
+      setIsPlaying(false);
+      setPosition(0);
+      setDuration(0);
+
+      if (Platform.OS === 'web') {
+        const audio = new (window as any).Audio(audioUri);
+        audio.preload = 'metadata';
+        audio.onloadedmetadata = () => {
+          setDuration(Math.round(audio.duration * 1000));
+        };
+        audio.ontimeupdate = () => {
+          setPosition(Math.round(audio.currentTime * 1000));
+        };
+        audio.onended = () => {
+          setIsPlaying(false);
+          setPosition(0);
+        };
+        webAudioRef.current = audio;
+        audio.load?.();
+        return;
+      }
+
+      const { sound } = await Audio.Sound.createAsync(
+        { uri: audioUri },
+        { shouldPlay: false },
+        (status) => {
+          if (status.isLoaded) {
+            setDuration(status.durationMillis ?? 0);
+            setPosition(status.positionMillis);
+            if (status.didJustFinish) {
+              setIsPlaying(false);
+              setPosition(0);
+            }
+          }
+        },
+      );
+
+      soundRef.current = sound;
+      await sound.getStatusAsync();
+    };
+
+    void preloadDuration();
+    return () => {
+      void _cleanup();
+    };
+  }, [visible, audioUri]);
+
   // Limpa o player quando o modal fecha
   useEffect(() => {
     if (!visible) {
@@ -66,6 +118,7 @@ const ModalConfirmarAudio: React.FC<Props> = ({
     if (Platform.OS === 'web') {
       if (!webAudioRef.current) {
         const audio = new (window as any).Audio(audioUri);
+        audio.preload = 'metadata';
         audio.onloadedmetadata = () => {
           setDuration(Math.round(audio.duration * 1000));
         };
@@ -77,6 +130,7 @@ const ModalConfirmarAudio: React.FC<Props> = ({
           setPosition(0);
         };
         webAudioRef.current = audio;
+        audio.load?.();
       }
 
       if (isPlaying) {
@@ -88,17 +142,20 @@ const ModalConfirmarAudio: React.FC<Props> = ({
       }
     } else {
       if (!soundRef.current) {
-        const { sound } = await Audio.Sound.createAsync({ uri: audioUri });
-        sound.setOnPlaybackStatusUpdate((status) => {
-          if (status.isLoaded) {
-            setPosition(status.positionMillis);
-            setDuration(status.durationMillis ?? 0);
-            if (status.didJustFinish) {
-              setIsPlaying(false);
-              setPosition(0);
+        const { sound } = await Audio.Sound.createAsync(
+          { uri: audioUri },
+          { shouldPlay: false },
+          (status) => {
+            if (status.isLoaded) {
+              setPosition(status.positionMillis);
+              setDuration(status.durationMillis ?? 0);
+              if (status.didJustFinish) {
+                setIsPlaying(false);
+                setPosition(0);
+              }
             }
-          }
-        });
+          },
+        );
         soundRef.current = sound;
       }
 

@@ -304,3 +304,22 @@ export interface OCRValidationError {
 export interface OCRResponseError422 {
   detail: OCRValidationError[];
 }
+
+export type AIProcessingErrorKind =
+  | 'validation'
+  | 'bad_request'
+  | 'unauthorized'
+  | 'forbidden'
+  | 'not_found'
+  | 'server_error'
+  | 'timeout'
+  | 'network_error'
+  | 'unknown';
+
+export interface AIProcessingError {
+  kind: AIProcessingErrorKind;
+  message: string;
+  statusCode?: number;
+  details?: string;
+  retryable?: boolean;
+}
