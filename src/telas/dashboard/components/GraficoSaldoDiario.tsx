@@ -304,7 +304,6 @@ export const GraficoSaldoDiario: React.FC<GraficoSaldoDiarioProps> = ({
             ref={scrollRef}
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingRight: 16 }}
             style={{ flex: 1 }}
             onScroll={handleScroll}
             scrollEventThrottle={80}
@@ -314,6 +313,7 @@ export const GraficoSaldoDiario: React.FC<GraficoSaldoDiarioProps> = ({
               width={chartWidth}
               spacing={CHART_SPACING}
               initialSpacing={20}
+              endSpacing={0}
               height={CHART_HEIGHT}
               color={corLinha}
               thickness={2.5}
