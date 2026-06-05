@@ -8,3 +8,9 @@ jest.mock(
 	() => ({}),
 	{ virtual: true },
 );
+
+// Node.js 22+ e 24 expõem ReadableStream globalmente. O Axios 1.x usa isso para
+// testar o adapter fetch ao carregar, mas a polyfill do Expo não é compatível com
+// esse teste, derrubando o processo. Removemos o global para que o Axios ignore o
+// adapter fetch e use o adapter http nativo — sem efeito nos testes que mocam APIs.
+global.ReadableStream = undefined;

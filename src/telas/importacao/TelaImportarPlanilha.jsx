@@ -19,6 +19,7 @@ import TituloPagina from '../../componentes/TituloPagina';
 import ModalAdicionarInstituicao from '../../componentes/modais/ModalAdicionarInstituicao';
 import ModalCategoria from '../categorias/modals/ModalCategoria';
 import { categoriaService, importacaoPlanilhaService, instituicaoService } from '../../api';
+import { setAuthToken } from '../../api/config';
 import { useAuth } from '../../contexts/AuthContext';
 import { getStyles } from './styles/TelaImportarPlanilha.styles';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -174,7 +175,7 @@ const mapSwaggerTransacao = (item, index) => ({
   selecionada: true,
   linhaOrigem: index + 1,
   observacao: [
-    item?.instituicao ? `Instituicao detectada: ${item.instituicao}` : null,
+    item?.instituicao ? `Instituição detectada: ${item.instituicao}` : null,
     item?.categoria ? `Categoria detectada: ${item.categoria}` : null,
   ]
     .filter(Boolean)
@@ -194,6 +195,12 @@ const ETLImportScreen = ({ navigation, route }) => {
   const fromLoginSuccess = route?.params?.fromLoginSuccess === true;
 
   const effectiveUser = user || routeUser || null;
+
+  useEffect(() => {
+    if (fromLoginSuccess && routeToken) {
+      setAuthToken(routeToken);
+    }
+  }, []);
 
   const [arquivo, setArquivo] = useState(null);
   const [loadingImport, setLoadingImport] = useState(false);
@@ -255,7 +262,7 @@ const ETLImportScreen = ({ navigation, route }) => {
           return;
         }
 
-        Alert.alert('Erro', 'Nao foi possivel carregar instituicoes e categorias.');
+        Alert.alert('Erro', 'Não foi possível carregar instituições e categorias.');
       } finally {
         if (active) {
           setLoadingOptions(false);
@@ -312,7 +319,7 @@ const ETLImportScreen = ({ navigation, route }) => {
       const firstFile = result.assets?.[0] ?? null;
 
       if (!firstFile?.uri) {
-        Alert.alert('Arquivo invalido', 'Selecione um arquivo .xlsx, .xls ou .csv.');
+        Alert.alert('Arquivo inválido', 'Selecione um arquivo .xlsx, .xls ou .csv.');
         return;
       }
 
@@ -326,25 +333,25 @@ const ETLImportScreen = ({ navigation, route }) => {
       setTransacoes([]);
       setAccordionAbertos({});
     } catch (error) {
-      Alert.alert('Erro', 'Nao foi possivel selecionar o arquivo.');
+      Alert.alert('Erro', 'Não foi possível selecionar o arquivo.');
     }
   };
 
   const importarPlanilha = async () => {
     if (!arquivo) {
-      Alert.alert('Arquivo necessario', 'Selecione uma planilha para importar.');
+      Alert.alert('Arquivo necessário', 'Selecione uma planilha para importar.');
       return;
     }
 
     if (loadingOptions) {
-      Alert.alert('Aguarde', 'Carregando instituicoes e categorias.');
+      Alert.alert('Aguarde', 'Carregando instituições e categorias.');
       return;
     }
 
     if (!SIMULAR_SUCESSO_SWAGGER && (instituicoes.length === 0 || categorias.length === 0)) {
       Alert.alert(
         'Dados incompletos',
-        'Cadastre ao menos uma instituicao e uma categoria antes de importar.',
+        'Cadastre ao menos uma instituição e uma categoria antes de importar.',
       );
       return;
     }
@@ -404,10 +411,13 @@ const ETLImportScreen = ({ navigation, route }) => {
       setAccordionAbertos(estadoAccordionInicial);
 
       if (comEstadoInicial.length === 0) {
-        Alert.alert('Sem transacoes', 'A planilha foi processada, mas nao retornou registros.');
+        Alert.alert('Sem transações', 'A planilha foi processada, mas não retornou registros.');
       }
     } catch (error) {
-      Alert.alert('Erro na importacao', 'Nao foi possivel processar sua planilha no backend.');
+      const mensagem =
+        error?.message ||
+        'Não foi possível processar sua planilha. Verifique o servidor ETL e tente novamente.';
+      Alert.alert('Erro na importação', mensagem);
     } finally {
       setLoadingImport(false);
     }
@@ -618,7 +628,7 @@ const ETLImportScreen = ({ navigation, route }) => {
     const pendentes = selecionadas.filter((item) => !transacaoEstaCompleta(item));
 
     if (selecionadas.length === 0) {
-      Alert.alert('Campos obrigatórios', 'Selecione ao menos uma transacao para salvar.');
+      Alert.alert('Campos obrigatórios', 'Selecione ao menos uma transação para salvar.');
       return;
     }
 
@@ -673,8 +683,8 @@ const ETLImportScreen = ({ navigation, route }) => {
       toast.show('Importação finalizada', mensagemToast, 'success');
 
       Alert.alert(
-        'Importacao finalizada',
-        `Transacoes criadas: ${resultado.criadas}\nFalhas: ${resultado.falhas}`,
+        'Importação finalizada',
+        `Transações criadas: ${resultado.criadas}\nFalhas: ${resultado.falhas}`,
         [
           {
             text: 'OK',
@@ -788,7 +798,7 @@ const ETLImportScreen = ({ navigation, route }) => {
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Arquivo Excel</Text>
           <Text style={styles.cardDescription}>
-            Envie .xlsx, .xls ou .csv. O backend ETL interpreta os dados e devolve transacoes.
+            Envie .xlsx, .xls ou .csv. O sistema de ETL interpreta os dados e devolve transações.
           </Text>
 
           <TouchableOpacity style={styles.selectButton} onPress={selecionarArquivo}>
@@ -863,7 +873,7 @@ const ETLImportScreen = ({ navigation, route }) => {
         {transacoes.length > 0 ? (
           <View style={styles.reviewSection}>
             <View style={styles.reviewHeader}>
-              <Text style={styles.reviewTitle}>Revisar transacoes ({transacoes.length})</Text>
+              <Text style={styles.reviewTitle}>Revisar transações ({transacoes.length})</Text>
               <Text style={styles.reviewSubtitle}>
                 Selecionadas para salvar: {totalSelecionadas} | Pendentes de ajuste: {totalPendentesAjuste}
               </Text>

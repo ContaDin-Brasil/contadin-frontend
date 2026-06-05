@@ -85,12 +85,10 @@ const TelaEditarTransacao = ({ navigation, route }) => {
       }
 
       await editState.atualizarTransacao();
-      
+
       Alert.alert('Sucesso', 'Transação atualizada com sucesso!', [
         { text: 'OK', onPress: () => navigation.goBack() }
       ]);
-      // Fallback para web onde Alert pode não funcionar como esperado
-      setTimeout(() => navigation.goBack(), 100);
     } catch (error) {
       console.error('Erro ao atualizar transação:', error);
       Alert.alert('Erro', error.message || 'Não foi possível atualizar a transação');
@@ -112,10 +110,6 @@ const TelaEditarTransacao = ({ navigation, route }) => {
       Alert.alert('Sucesso', 'Transação excluída com sucesso!', [
         { text: 'OK', onPress: () => navigation.goBack() }
       ]);
-      // Fallback para web onde Alert pode não funcionar
-      setTimeout(() => {
-        navigation.goBack();
-      }, 100);
     } catch (error) {
       console.error('Erro ao deletar transação:', error);
       setDeleteModalVisible(false);

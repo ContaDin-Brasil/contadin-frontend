@@ -52,6 +52,11 @@ const TelaTransacoes = ({ navigation, route }) => {
     carregarDadosRef.current = gerenciador.carregarDados;
   });
 
+  const filtrosRef = React.useRef(gerenciador.filtros);
+  React.useEffect(() => {
+    filtrosRef.current = gerenciador.filtros;
+  });
+
   const debouncedSearchQueryRef = React.useRef(debouncedSearchQuery);
   React.useEffect(() => {
     debouncedSearchQueryRef.current = debouncedSearchQuery;
@@ -141,7 +146,8 @@ const TelaTransacoes = ({ navigation, route }) => {
       console.log('📊 Recarregando dados do banco...');
       
       // Recarrega com os filtros atuais (incluindo o filtro de recorrências/parcelados se aplicável)
-      let filtrosAaplicar = { ...gerenciador.filtros };
+      // Usa refs para garantir que sempre temos os valores mais recentes, mesmo que o callback seja stale
+      let filtrosAaplicar = { ...filtrosRef.current };
       
       if (modoVisualizacao === 'RECORRENCIAS') {
         filtrosAaplicar.apenasRecorrente = true;
@@ -154,8 +160,8 @@ const TelaTransacoes = ({ navigation, route }) => {
         filtrosAaplicar.apenasParcelado = false;
       }
 
-      gerenciador.carregarDados({
-        search: debouncedSearchQuery,
+      carregarDadosRef.current({
+        search: debouncedSearchQueryRef.current,
         instituicaoFixaId: instituicaoSelecionada?.id,
         filtrosOverride: filtrosAaplicar,
       }).then(() => {
@@ -180,7 +186,7 @@ const TelaTransacoes = ({ navigation, route }) => {
 
     setRefreshing(true);
     try {
-      let filtrosAaplicar = { ...gerenciador.filtros };
+      let filtrosAaplicar = { ...filtrosRef.current };
       
       if (modoVisualizacao === 'RECORRENCIAS') {
         filtrosAaplicar.apenasRecorrente = true;
@@ -193,8 +199,8 @@ const TelaTransacoes = ({ navigation, route }) => {
         filtrosAaplicar.apenasParcelado = false;
       }
 
-      await gerenciador.carregarDados({
-        search: debouncedSearchQuery,
+      await carregarDadosRef.current({
+        search: debouncedSearchQueryRef.current,
         instituicaoFixaId: instituicaoSelecionada?.id,
         filtrosOverride: filtrosAaplicar,
       });
@@ -664,11 +670,14 @@ const TelaTransacoes = ({ navigation, route }) => {
         activeOpacity={0.7}
       >
         <View style={styles.transactionHeader}>
-          <View style={styles.transactionIcon}>
-              <MaterialIcons
+          <View style={[
+            styles.transactionIcon,
+            { backgroundColor: category?.cor || COLORS.primary },
+          ]}>
+            <MaterialIcons
               name={category?.icone || getCategoryIcon(categoryName)}
               size={24}
-              color={COLORS.textPrimary}
+              color={COLORS.white}
             />
           </View>
           <Text style={styles.transactionCategory}>{categoryName}</Text>

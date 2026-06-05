@@ -50,7 +50,7 @@ const InstitutionSelectionModal = ({ visible, onClose, onSelectInstitution, onAd
       <Pressable style={styles.overlay} onPress={onClose}>
         <Pressable style={styles.modalContainer} onPress={(e) => e.stopPropagation()}>
           <View style={styles.header}>
-            <Text style={styles.title}>Selecione uma Instituição</Text>
+            <Text style={styles.title}>Adicione uma Instituição</Text>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
               <Ionicons name="close" size={28} color={COLORS.textPrimary} />
             </TouchableOpacity>
