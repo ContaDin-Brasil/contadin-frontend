@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity, Switch, Animated, ActivityIndicator, Alert, Image, SafeAreaView, Platform, Modal, Pressable } from 'react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, Switch, Animated, ActivityIndicator, Image, SafeAreaView, Platform, Modal, Pressable } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import Toast from 'react-native-toast-message';
@@ -15,6 +15,7 @@ import { getLogoByName } from '../../componentes/modais/logosInstituicoes';
 import ModalSelecaoInstituicao from '../../componentes/modais/ModalSelecaoInstituicao';
 import ModalAdicionarInstituicao from '../../componentes/modais/ModalAdicionarInstituicao';
 import ModalCategoria from '../categorias/modals/ModalCategoria';
+import ModalAviso from '../../componentes/modais/ModalAviso';
 import { useFormularioTransacao } from './hooks/useFormularioTransacao';
 import { useProcessamentoIA } from './hooks/useProcessamentoIA';
 import { useAuth } from '../../contexts/AuthContext';
@@ -35,6 +36,10 @@ const TelaAdicionarTransacao = ({ navigation }) => {
   const [aiSuggestionModalVisible, setAiSuggestionModalVisible] = useState(false);
   const [salvando, setSalvando] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
+  const [modalAviso, setModalAviso] = useState({ visible: false, titulo: '', mensagem: '' });
+
+  const fecharAviso = () => setModalAviso((prev) => ({ ...prev, visible: false }));
+  const mostrarAviso = (titulo, mensagem) => setModalAviso({ visible: true, titulo, mensagem });
 
   // Hooks customizados
   const formState = useFormularioTransacao();
@@ -69,11 +74,11 @@ const TelaAdicionarTransacao = ({ navigation }) => {
       // Recarrega categorias
       await formState.carregarDados();
       
-      Alert.alert('Sucesso', 'Categoria criada com sucesso!');
+      mostrarAviso('Sucesso', 'Categoria criada com sucesso!');
       return true;
     } catch (error) {
       console.error('Erro ao criar categoria:', error);
-      Alert.alert('Erro', 'Não foi possível criar a categoria');
+      mostrarAviso('Erro', 'Não foi possível criar a categoria');
       return false;
     }
   };
@@ -200,7 +205,7 @@ const TelaAdicionarTransacao = ({ navigation }) => {
       // Valida data limite de recorrência
       const dataLimiteError = formState.validateRecurrenceEndDate();
       if (dataLimiteError) {
-        Alert.alert('Erro', dataLimiteError);
+        mostrarAviso('Erro', dataLimiteError);
         setSalvando(false);
         return;
       }
@@ -208,7 +213,7 @@ const TelaAdicionarTransacao = ({ navigation }) => {
       // Valida configurações de parcelamento
       const parcelamentoError = formState.validateInstallment();
       if (parcelamentoError) {
-        Alert.alert('Erro', parcelamentoError);
+        mostrarAviso('Erro', parcelamentoError);
         setSalvando(false);
         return;
       }
@@ -286,7 +291,7 @@ const TelaAdicionarTransacao = ({ navigation }) => {
         topOffset: 80,
       });
       
-      Alert.alert('Erro', 'Não foi possível salvar a transação');
+      mostrarAviso('Erro', 'Não foi possível salvar a transação');
     } finally {
       setSalvando(false);
     }
@@ -780,6 +785,13 @@ const TelaAdicionarTransacao = ({ navigation }) => {
         onClose={() => formState.setModalCategoriaVisible(false)}
         onSave={handleCreateCategoria}
         tipoInicial={formState.tipo}
+      />
+
+      <ModalAviso
+        visible={modalAviso.visible}
+        titulo={modalAviso.titulo}
+        mensagem={modalAviso.mensagem}
+        onClose={fecharAviso}
       />
 
       {/* Modal de Sugestão da IA */}

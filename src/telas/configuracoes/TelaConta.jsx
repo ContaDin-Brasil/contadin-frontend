@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import TituloPagina from '../../componentes/TituloPagina';
 import CustomButton from '../../componentes/BotaoCustomizado';
 import CustomModal from '../../componentes/modais/ModalBase';
+import ModalAviso from '../../componentes/modais/ModalAviso';
 import { useTheme } from '../../contexts/ThemeContext';
 import { getColorsByTheme } from '../../styles/colors';
 import { useGerenciarConta } from './hooks/useGerenciarConta';
@@ -91,6 +92,12 @@ const AccountScreen = ({ navigation }) => {
           <Text style={styles.modalText}>90 dias a partir de hoje ela será excluída.</Text>
         </View>
       </CustomModal>
+      <ModalAviso
+        visible={conta.avisoModal.visible}
+        titulo={conta.avisoModal.titulo}
+        mensagem={conta.avisoModal.mensagem}
+        onClose={conta.fecharAviso}
+      />
       </ScrollView>
     </SafeAreaView>
   );

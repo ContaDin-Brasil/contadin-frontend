@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity, Switch, ActivityIndicator, Alert, Image, SafeAreaView } from 'react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, Switch, ActivityIndicator, Image, SafeAreaView } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import TituloPagina from '../../componentes/TituloPagina';
@@ -9,6 +9,7 @@ import { getLogoByName } from '../../componentes/modais/logosInstituicoes';
 import ModalSelecaoInstituicao from '../../componentes/modais/ModalSelecaoInstituicao';
 import ModalAdicionarInstituicao from '../../componentes/modais/ModalAdicionarInstituicao';
 import ModalConfirmDelete from '../../componentes/modais/ModalConfirmDelete';
+import ModalAviso from '../../componentes/modais/ModalAviso';
 import ModalCategoria from '../categorias/modals/ModalCategoria';
 import { useEditarTransacao } from './hooks/useEditarTransacao';
 import { FREQUENCIES, INSTALLMENT_OPTIONS } from './constants/constantesTransacao';
@@ -31,6 +32,17 @@ const TelaEditarTransacao = ({ navigation, route }) => {
   const [salvando, setSalvando] = useState(false);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [isDeletando, setIsDeletando] = useState(false);
+  const [modalAviso, setModalAviso] = useState({ visible: false, titulo: '', mensagem: '', onClose: null });
+
+  const fecharAviso = () => {
+    const cb = modalAviso.onClose;
+    setModalAviso((prev) => ({ ...prev, visible: false }));
+    cb?.();
+  };
+
+  const mostrarAviso = (titulo, mensagem, onClose = null) => {
+    setModalAviso({ visible: true, titulo, mensagem, onClose });
+  };
 
   // Hook customizado para edição
   const editState = useEditarTransacao(transacaoId);
@@ -55,11 +67,11 @@ const TelaEditarTransacao = ({ navigation, route }) => {
       // Recarrega categorias
       await editState.carregarDados();
       
-      Alert.alert('Sucesso', 'Categoria criada com sucesso!');
+      mostrarAviso('Sucesso', 'Categoria criada com sucesso!');
       return true;
     } catch (error) {
       console.error('Erro ao criar categoria:', error);
-      Alert.alert('Erro', 'Não foi possível criar a categoria');
+      mostrarAviso('Erro', 'Não foi possível criar a categoria');
       return false;
     }
   };
@@ -71,7 +83,7 @@ const TelaEditarTransacao = ({ navigation, route }) => {
       // Valida data limite de recorrência antes de atualizar
       const dataLimiteError = editState.validateRecurrenceEndDate();
       if (dataLimiteError) {
-        Alert.alert('Erro', dataLimiteError);
+        mostrarAviso('Erro', dataLimiteError);
         setSalvando(false);
         return;
       }
@@ -79,19 +91,17 @@ const TelaEditarTransacao = ({ navigation, route }) => {
       // Valida configurações de parcelamento
       const parcelamentoError = editState.validateInstallment();
       if (parcelamentoError) {
-        Alert.alert('Erro', parcelamentoError);
+        mostrarAviso('Erro', parcelamentoError);
         setSalvando(false);
         return;
       }
 
       await editState.atualizarTransacao();
 
-      Alert.alert('Sucesso', 'Transação atualizada com sucesso!', [
-        { text: 'OK', onPress: () => navigation.goBack() }
-      ]);
+      mostrarAviso('Sucesso', 'Transação atualizada com sucesso!', () => navigation.goBack());
     } catch (error) {
       console.error('Erro ao atualizar transação:', error);
-      Alert.alert('Erro', error.message || 'Não foi possível atualizar a transação');
+      mostrarAviso('Erro', error.message || 'Não foi possível atualizar a transação');
     } finally {
       setSalvando(false);
     }
@@ -107,14 +117,12 @@ const TelaEditarTransacao = ({ navigation, route }) => {
       await editState.deletarTransacao();
       setDeleteModalVisible(false);
       setIsDeletando(false);
-      Alert.alert('Sucesso', 'Transação excluída com sucesso!', [
-        { text: 'OK', onPress: () => navigation.goBack() }
-      ]);
+      mostrarAviso('Sucesso', 'Transação excluída com sucesso!', () => navigation.goBack());
     } catch (error) {
       console.error('Erro ao deletar transação:', error);
       setDeleteModalVisible(false);
       setIsDeletando(false);
-      Alert.alert('Erro', error.message || 'Não foi possível excluir a transação');
+      mostrarAviso('Erro', error.message || 'Não foi possível excluir a transação');
     }
   };
 
@@ -567,6 +575,13 @@ const TelaEditarTransacao = ({ navigation, route }) => {
         onConfirm={handleConfirmDeleteTransaction}
         onClose={() => setDeleteModalVisible(false)}
         isLoading={isDeletando}
+      />
+
+      <ModalAviso
+        visible={modalAviso.visible}
+        titulo={modalAviso.titulo}
+        mensagem={modalAviso.mensagem}
+        onClose={fecharAviso}
       />
     </SafeAreaView>
   );

@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, TextInput, SafeAreaView } from 'react-native';
+import ModalAviso from '../../componentes/modais/ModalAviso';
 import { Ionicons } from '@expo/vector-icons';
 import TituloPagina from '../../componentes/TituloPagina';
 import BotoesAcaoFixo from '../../componentes/BotoesAcaoFixo';
@@ -189,6 +190,12 @@ const ChangePasswordScreen = ({ navigation }) => {
           primaryLoading={senha.loading}
         />
       </View>
+      <ModalAviso
+        visible={senha.avisoModal.visible}
+        titulo={senha.avisoModal.titulo}
+        mensagem={senha.avisoModal.mensagem}
+        onClose={senha.fecharAviso}
+      />
     </SafeAreaView>
   );
 };

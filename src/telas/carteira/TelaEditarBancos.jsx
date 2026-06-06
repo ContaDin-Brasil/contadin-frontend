@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Image, SafeAreaView, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Image, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import TituloPagina from '../../componentes/TituloPagina';
@@ -7,6 +7,7 @@ import InstitutionSelectionModal from '../../componentes/modais/ModalSelecaoInst
 import AddCustomInstitutionModal from '../../componentes/modais/ModalAdicionarInstituicao';
 import ModalEditarInstituicao from '../../componentes/modais/ModalEditarInstituicao';
 import ModalConfirmDelete from '../../componentes/modais/ModalConfirmDelete';
+import ModalAviso from '../../componentes/modais/ModalAviso';
 import { useEditarBancos } from './hooks/useEditarInstituicoes';
 import { getLogoByName } from '../../componentes/modais/logosInstituicoes';
 import { getStyles } from './styles/TelaEditarBancos.styles';
@@ -21,6 +22,10 @@ const EditBanksScreen = ({ navigation }) => {
   const [deleteModalVisible, setDeleteModalVisible] = React.useState(false);
   const [bankDeletando, setBankDeletando] = React.useState(null);
   const [isDeletando, setIsDeletando] = React.useState(false);
+  const [modalAviso, setModalAviso] = React.useState({ visible: false, titulo: '', mensagem: '' });
+
+  const fecharAviso = () => setModalAviso((prev) => ({ ...prev, visible: false }));
+  const mostrarAviso = (titulo, mensagem) => setModalAviso({ visible: true, titulo, mensagem });
 
   // Recarrega bancos quando a tela recebe foco
   useFocusEffect(
@@ -44,7 +49,7 @@ const EditBanksScreen = ({ navigation }) => {
       setBankDeletando(null);
     } catch (error) {
       console.error('Erro ao deletar banco:', error);
-      Alert.alert('Erro', 'Não foi possível deletar o banco');
+      mostrarAviso('Erro', 'Não foi possível deletar o banco');
     } finally {
       setIsDeletando(false);
     }
@@ -194,6 +199,13 @@ const EditBanksScreen = ({ navigation }) => {
           setBankDeletando(null);
         }}
         isLoading={isDeletando}
+      />
+
+      <ModalAviso
+        visible={modalAviso.visible}
+        titulo={modalAviso.titulo}
+        mensagem={modalAviso.mensagem}
+        onClose={fecharAviso}
       />
       </ScrollView>
     </SafeAreaView>

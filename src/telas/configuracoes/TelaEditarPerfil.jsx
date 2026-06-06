@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, TextInput, Switch, SafeAreaView, ActivityIndicator } from 'react-native';
 import TituloPagina from '../../componentes/TituloPagina';
+import ModalAviso from '../../componentes/modais/ModalAviso';
 import BotoesAcaoFixo from '../../componentes/BotoesAcaoFixo';
 import { useEditarPerfil } from './hooks/useEditarPerfil';
 import { confirmarAcao } from '../../utils/confirmarAcao';
@@ -168,6 +169,12 @@ const EditProfileScreen = ({ navigation }) => {
           />
         </View>
       )}
+      <ModalAviso
+        visible={perfil.avisoModal.visible}
+        titulo={perfil.avisoModal.titulo}
+        mensagem={perfil.avisoModal.mensagem}
+        onClose={perfil.fecharAviso}
+      />
     </SafeAreaView>
   );
 };
