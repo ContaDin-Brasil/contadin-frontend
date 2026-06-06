@@ -103,12 +103,20 @@ const TelaAdicionarTransacao = ({ navigation }) => {
       if (!instituicaoSugerida) {
         const nomeIA = aiState.aiSuggestion.instituicao;
         if (nomeIA && nomeIA !== 'Sem instituição') {
-          instituicaoSugerida = formState.instituicoes?.find(
-            inst => inst.nome.toLowerCase() === nomeIA.toLowerCase()
-          ) || null;
+          const normalize = (v) => String(v ?? '')
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .trim()
+            .toLowerCase();
+
+          const keyIA = normalize(nomeIA);
+          instituicaoSugerida = formState.instituicoes?.find((inst) => {
+            const instKey = normalize(inst.nome);
+            return instKey === keyIA || keyIA.includes(instKey) || instKey.includes(keyIA);
+          }) || null;
 
           if (instituicaoSugerida) {
-            console.log('✅ [SUGGESTION] Instituição encontrada por nome:', instituicaoSugerida.nome);
+            console.log('✅ [SUGGESTION] Instituição encontrada por nome (fuzzy):', instituicaoSugerida.nome);
           }
         }
       }

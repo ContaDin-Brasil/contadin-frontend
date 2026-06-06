@@ -20,6 +20,7 @@ import ModalCategoria from '../categorias/modals/ModalCategoria';
 import ModalAviso from '../../componentes/modais/ModalAviso';
 import ModalConfirmDelete from '../../componentes/modais/ModalConfirmDelete';
 import { categoriaService, importacaoPlanilhaService, instituicaoService } from '../../api';
+import { setAuthToken } from '../../api/config';
 import { useAuth } from '../../contexts/AuthContext';
 import { getStyles } from './styles/TelaImportarPlanilha.styles';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -164,6 +165,25 @@ const normalizeText = (value) =>
     .trim()
     .toLowerCase();
 
+// Tenta resolver o ID da instituição pelo nome com correspondência exata ou "fuzzy".
+// Ex: 'ITAÚ UNIBANCO S.A' -> corresponde a instituição cadastrada 'Itaú'.
+const findInstituicaoIdByName = (nome, listaInstituicoes, instituicaoByNomeMap) => {
+  if (!nome) return null;
+  const chave = normalizeText(nome);
+
+  // 1) correspondência exata normalizada
+  const exact = instituicaoByNomeMap.get(chave);
+  if (exact) return exact;
+
+  // 2) busca fuzzy: se o nome normalizado contém o nome cadastrado ou vice-versa
+  const found = listaInstituicoes.find((inst) => {
+    const instKey = normalizeText(inst.nome);
+    return chave.includes(instKey) || instKey.includes(chave);
+  });
+
+  return found ? found.id : null;
+};
+
 const mapSwaggerTransacao = (item, index) => ({
   localId: `swagger-${index}`,
   descricao: String(item?.descricao ?? ''),
@@ -195,6 +215,12 @@ const ETLImportScreen = ({ navigation, route }) => {
   const fromLoginSuccess = route?.params?.fromLoginSuccess === true;
 
   const effectiveUser = user || routeUser || null;
+
+  useEffect(() => {
+    if (routeToken) {
+      setAuthToken(routeToken);
+    }
+  }, [routeToken]);
 
   const [arquivo, setArquivo] = useState(null);
   const [loadingImport, setLoadingImport] = useState(false);
@@ -389,10 +415,11 @@ const ETLImportScreen = ({ navigation, route }) => {
       const ajustadas = importadas.map((item) => {
         const instituicaoNome = item?.instituicaoNome ?? item?.instituicao ?? '';
         const categoriaNome = item?.categoriaNome ?? item?.categoria ?? '';
-
-        const fkInstituicaoPorNome = instituicaoNome
-          ? instituicaoByNome.get(normalizeText(instituicaoNome)) ?? null
-          : null;
+        const fkInstituicaoPorNome = findInstituicaoIdByName(
+          instituicaoNome,
+          instituicoes,
+          instituicaoByNome,
+        );
         const fkCategoriaPorNome = categoriaNome
           ? categoriaByNome.get(normalizeText(categoriaNome)) ?? null
           : null;
@@ -448,10 +475,9 @@ const ETLImportScreen = ({ navigation, route }) => {
 
     setTransacoes((prev) =>
       prev.map((item) => {
-        const fkInstituicaoResolvida =
-          !item.fkInstituicao && item.instituicaoNome
-            ? instituicaoByNome.get(normalizeText(item.instituicaoNome)) ?? null
-            : item.fkInstituicao;
+        const fkInstituicaoResolvida = !item.fkInstituicao && item.instituicaoNome
+          ? findInstituicaoIdByName(item.instituicaoNome, listaInstituicoes, instituicaoByNome)
+          : item.fkInstituicao;
 
         const fkCategoriaResolvida =
           !item.fkCategoria && item.categoriaNome
@@ -478,10 +504,9 @@ const ETLImportScreen = ({ navigation, route }) => {
     setAccordionAbertos((prev) => {
       const next = { ...prev };
       transacoes.forEach((item) => {
-        const fkInstituicaoResolvida =
-          !item.fkInstituicao && item.instituicaoNome
-            ? instituicaoByNome.get(normalizeText(item.instituicaoNome)) ?? null
-            : item.fkInstituicao;
+        const fkInstituicaoResolvida = !item.fkInstituicao && item.instituicaoNome
+          ? findInstituicaoIdByName(item.instituicaoNome, listaInstituicoes, instituicaoByNome)
+          : item.fkInstituicao;
 
         const fkCategoriaResolvida =
           !item.fkCategoria && item.categoriaNome
