@@ -2,7 +2,6 @@
  * Hook para gerenciar edição de perfil
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Alert } from 'react-native';
 import { usuarioService } from '../../../api';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useTheme } from '../../../contexts/ThemeContext';
@@ -79,8 +78,11 @@ export const useEditarPerfil = () => {
     darkTheme: PERFIL_INICIAL.darkTheme,
   });
 
-  // Estados para validação
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [avisoModal, setAvisoModal] = useState({ visible: false, titulo: '', mensagem: '' });
+
+  const fecharAviso = () => setAvisoModal((prev) => ({ ...prev, visible: false }));
+  const mostrarAviso = (titulo: string, mensagem: string) => setAvisoModal({ visible: true, titulo, mensagem });
 
   const userAuth = user as UsuarioComId | null;
 
@@ -134,7 +136,7 @@ export const useEditarPerfil = () => {
         const perfil = await usuarioService.buscarPorId(userAuth.id);
         preencherDadosPerfil(perfil);
       } catch (error) {
-        Alert.alert('Erro ao carregar perfil', getErrorMessage(error));
+        mostrarAviso('Erro ao carregar perfil', getErrorMessage(error));
       } finally {
         setIsLoading(false);
       }
@@ -207,7 +209,7 @@ export const useEditarPerfil = () => {
     const erros = validarCampos();
     if (Object.keys(erros).length > 0) {
       setValidationErrors(erros);
-      Alert.alert('Erro', 'Por favor, corrija os erros nos campos antes de salvar.');
+      mostrarAviso('Erro', 'Por favor, corrija os erros nos campos antes de salvar.');
       return;
     }
 
@@ -241,9 +243,9 @@ export const useEditarPerfil = () => {
       setTelefone(formatarTelefone(usuarioAtualizado.telefone ?? perfil.telefone));
       setInitialSnapshot(currentSnapshot);
 
-      Alert.alert('Perfil atualizado', 'Suas alterações foram salvas com sucesso.');
+      mostrarAviso('Perfil atualizado', 'Suas alterações foram salvas com sucesso.');
     } catch (error) {
-      Alert.alert('Erro ao salvar perfil', getErrorMessage(error));
+      mostrarAviso('Erro ao salvar perfil', getErrorMessage(error));
     } finally {
       setIsSaving(false);
     }
@@ -267,6 +269,8 @@ export const useEditarPerfil = () => {
     isDirty,
     emailFoiAlterado,
     handleSaveProfile,
-    validationErrors
+    validationErrors,
+    avisoModal,
+    fecharAviso,
   };
 };

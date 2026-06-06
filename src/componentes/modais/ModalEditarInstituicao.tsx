@@ -9,11 +9,11 @@ import {
   ScrollView,
   Image,
   Pressable,
-  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getLogoByName } from './logosInstituicoes';
 import ModalConfirmDelete from './ModalConfirmDelete';
+import ModalAviso from './ModalAviso';
 import { getColorsByTheme } from '../../styles/colors';
 import { useTheme } from '../../contexts/ThemeContext';
 
@@ -49,6 +49,10 @@ const ModalEditarInstituicao: React.FC<ModalEditarInstituicaoProps> = ({
   const [showColorWheel, setShowColorWheel] = useState(false);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [isDeletando, setIsDeletando] = useState(false);
+  const [modalAviso, setModalAviso] = useState({ visible: false, titulo: '', mensagem: '' });
+
+  const fecharAviso = () => setModalAviso((prev) => ({ ...prev, visible: false }));
+  const mostrarAviso = (titulo: string, mensagem: string) => setModalAviso({ visible: true, titulo, mensagem });
 
   // Cores predefinidas organizadas em roda
   const coresPredefinidas = [
@@ -86,7 +90,7 @@ const ModalEditarInstituicao: React.FC<ModalEditarInstituicaoProps> = ({
 
   const handleSave = () => {
     if (!nome.trim()) {
-      Alert.alert('Nome obrigatório', 'Por favor, preencha o nome da instituição.');
+      mostrarAviso('Nome obrigatório', 'Por favor, preencha o nome da instituição.');
       return;
     }
     
@@ -111,7 +115,7 @@ const ModalEditarInstituicao: React.FC<ModalEditarInstituicaoProps> = ({
       setDeleteModalVisible(false);
     } catch (error) {
       console.error('Erro ao deletar instituição:', error);
-      Alert.alert('Erro', 'Não foi possível deletar a instituição');
+      mostrarAviso('Erro', 'Não foi possível deletar a instituição');
     } finally {
       setIsDeletando(false);
     }
@@ -308,6 +312,12 @@ const ModalEditarInstituicao: React.FC<ModalEditarInstituicaoProps> = ({
       />
     </Modal>
 
+      <ModalAviso
+        visible={modalAviso.visible}
+        titulo={modalAviso.titulo}
+        mensagem={modalAviso.mensagem}
+        onClose={fecharAviso}
+      />
     </>
   );
 };

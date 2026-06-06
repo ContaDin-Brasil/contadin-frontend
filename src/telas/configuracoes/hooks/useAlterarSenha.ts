@@ -2,7 +2,6 @@
  * Hook para gerenciar alteração de senha
  */
 import { useCallback, useMemo, useState } from 'react';
-import { Alert } from 'react-native';
 import { AlterarSenha } from '../types/configuracoes.types';
 import { validarSenha } from '../constants/constantesConfiguracao';
 import { authService } from '../../../api';
@@ -19,6 +18,9 @@ export const useAlterarSenha = () => {
   const [confirmarSenha, setConfirmarSenha] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [avisoModal, setAvisoModal] = useState({ visible: false, titulo: '', mensagem: '' });
+
+  const fecharAviso = () => setAvisoModal((prev) => ({ ...prev, visible: false }));
 
   const userAuth = user as UsuarioAuth | null;
 
@@ -93,7 +95,7 @@ export const useAlterarSenha = () => {
       setSenhaAtual('');
       setNovaSenha('');
       setConfirmarSenha('');
-      Alert.alert('Senha atualizada', 'Sua senha foi alterada com sucesso.');
+      setAvisoModal({ visible: true, titulo: 'Senha atualizada', mensagem: 'Sua senha foi alterada com sucesso.' });
     } catch (err: unknown) {
       const msg =
         (err as { response?: { data?: { message?: string; mensagem?: string } } })
@@ -118,6 +120,8 @@ export const useAlterarSenha = () => {
     senhaValida,
     loading,
     error,
-    handleSavePassword
+    handleSavePassword,
+    avisoModal,
+    fecharAviso,
   };
 };
