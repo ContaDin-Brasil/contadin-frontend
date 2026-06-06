@@ -6,7 +6,6 @@ import {
   Dimensions,
   ScrollView,
   ActivityIndicator,
-  Platform,
 } from 'react-native';
 import { LineChart } from 'react-native-gifted-charts';
 import { buscarSaldoDiario } from '../../../api/services/dashboardService';
@@ -65,6 +64,7 @@ export const GraficoSaldoDiario: React.FC<GraficoSaldoDiarioProps> = ({
   const [mesVisivel, setMesVisivel] = useState(0);
   const mesVisivelRef = useRef(0);
   const scrollRef = useRef<ScrollView>(null);
+  const scrollProgramaticoRef = useRef(false);
 
   const periodos = useMemo(() => [0, 1, 2].map(offset => ({ offset, ...periodoParaDatas(offset) })), []);
   const hojeISO = toISO(new Date());
@@ -104,19 +104,21 @@ export const GraficoSaldoDiario: React.FC<GraficoSaldoDiarioProps> = ({
   }, [cache]);
 
   // ── Navegação por aba: rola o gráfico até o mês selecionado ─────────────
+  const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const handleSelecionarMes = useCallback((offset: number) => {
+    mesVisivelRef.current = offset;
+    setMesVisivel(offset);
+    scrollProgramaticoRef.current = true;
+    if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+    scrollTimeoutRef.current = setTimeout(() => { scrollProgramaticoRef.current = false; }, 800);
     const x = limitesMeses[offset] * CHART_SPACING;
-    if (!scrollRef.current) return;
-    if (Platform.OS === 'web') {
-      const node = (scrollRef.current as any).getScrollableNode?.();
-      node?.scrollTo?.({ left: x, behavior: 'smooth' });
-    } else {
-      scrollRef.current.scrollTo({ x, animated: true });
-    }
+    scrollRef.current?.scrollTo({ x, animated: true });
   }, [limitesMeses]);
 
   // ── Detecção do mês visível pelo scroll ───────────────────────────────────
   const handleScroll = useCallback((event: any) => {
+    if (scrollProgramaticoRef.current) return;
     const x = event.nativeEvent.contentOffset.x;
     let novoMes = 0;
     for (let i = limitesMeses.length - 1; i >= 0; i--) {
@@ -130,6 +132,11 @@ export const GraficoSaldoDiario: React.FC<GraficoSaldoDiarioProps> = ({
       setMesVisivel(novoMes);
     }
   }, [limitesMeses, cache]);
+
+  const handleScrollEnd = useCallback(() => {
+    scrollProgramaticoRef.current = false;
+    if (scrollTimeoutRef.current) { clearTimeout(scrollTimeoutRef.current); scrollTimeoutRef.current = null; }
+  }, []);
 
   // ── KPIs calculados por mês ───────────────────────────────────────────────
   const kpis = useMemo(() => {
@@ -224,7 +231,11 @@ export const GraficoSaldoDiario: React.FC<GraficoSaldoDiarioProps> = ({
   const valorMax = useMemo(() => {
     if (!dadosLinha.length) return 5000;
     const max = Math.max(...dadosLinha.map(d => d.value), 0);
-    return Math.ceil(max * 1.15 / 500) * 500 || 5000;
+    if (max === 0) return 5000;
+    const sectionRaw = (max * 1.05) / N_SECTIONS;
+    const magnitude = Math.pow(10, Math.floor(Math.log10(sectionRaw)));
+    const step = [1, 1.5, 2, 2.5, 3, 4, 5, 7.5, 10].map(s => s * magnitude).find(s => s >= sectionRaw) ?? magnitude * 10;
+    return step * N_SECTIONS;
   }, [dadosLinha]);
 
   const yLabels = useMemo(() =>
@@ -307,6 +318,8 @@ export const GraficoSaldoDiario: React.FC<GraficoSaldoDiarioProps> = ({
             style={{ flex: 1 }}
             onScroll={handleScroll}
             scrollEventThrottle={80}
+            onMomentumScrollEnd={handleScrollEnd}
+            onScrollEndDrag={handleScrollEnd}
           >
             <LineChart
               data={dadosLinha}
