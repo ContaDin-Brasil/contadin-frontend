@@ -11,10 +11,20 @@ import {
   Platform
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import TituloPagina from '../../componentes/TituloPagina';
+import { useTranslation } from 'react-i18next';
 import { useAjuda } from './hooks/useAjuda';
-import { CONTATOS, FAQ_ITENS, OUTROS_CONTATOS } from './constants/constantesConfiguracao';
-import { styles } from './styles/TelaAjuda.styles';
+import { useLayoutRtl } from './hooks/useLayoutRtl';
+import {
+  CONTATOS,
+  EXIBIR_CHATBOT_AJUDA,
+  EXIBIR_OUTROS_CANAIS_AJUDA,
+  FAQ_ITENS,
+  OUTROS_CONTATOS,
+} from './constants/constantesConfiguracao';
+import SeletorIdiomaAjuda from './componentes/SeletorIdiomaAjuda';
+import { useTheme } from '../../contexts/ThemeContext';
+import { getColorsByTheme } from '../../styles/colors';
+import { getStyles } from './styles/TelaAjuda.styles';
 
 const CHAT_MENSAGENS = [
   {
@@ -50,13 +60,19 @@ const CHAT_MENSAGENS = [
   {
     id: 'chat-06',
     from: 'bot',
-    text: 'Quer que eu crie categorias basicas e metas de gasto para voce?',
+    text: 'Quer que eu crie categorias basicas e objetivos de gasto para voce?',
     time: '10:27'
   }
 ];
 
 const HelpScreen = ({ navigation }) => {
   const ajuda = useAjuda();
+  const { t } = useTranslation();
+  const rtl = useLayoutRtl();
+  const { isDarkMode } = useTheme();
+  const styles = getStyles(isDarkMode);
+  const COLORS = getColorsByTheme(isDarkMode);
+  const exibirSeletorIdioma = ajuda.selectedTab === 'FAQ';
 
   const handleOpenEmail = () => {
     Linking.openURL(`mailto:${CONTATOS.email}`);
@@ -68,37 +84,59 @@ const HelpScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <TituloPagina 
-        mostrarBotaoVoltar={true} 
-        onVoltar={() => navigation.goBack()}
-      >
-        Ajuda e Contato
-      </TituloPagina>
+      <View style={styles.headerContainer}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+          accessibilityLabel="Voltar"
+          accessibilityRole="button"
+        >
+          <Ionicons
+            name={rtl.isRtl ? 'arrow-forward' : 'arrow-back'}
+            size={28}
+            color={COLORS.textPrimary}
+          />
+        </TouchableOpacity>
+        <Text style={[styles.headerTitle, rtl.texto]}>{t('ajuda.titulo')}</Text>
+        {exibirSeletorIdioma && (
+          <View style={styles.seletorIdiomaHeader}>
+            <SeletorIdiomaAjuda />
+          </View>
+        )}
+      </View>
       <View style={styles.body}>
         <View style={styles.tabsContainer}>
           <TouchableOpacity 
             style={[styles.tab, ajuda.selectedTab === 'FAQ' && styles.activeTab]}
             onPress={() => ajuda.setSelectedTab('FAQ')}
           >
-            <Text style={[styles.tabText, ajuda.selectedTab === 'FAQ' && styles.activeTabText]}>FAQ</Text>
+            <Text style={[styles.tabText, ajuda.selectedTab === 'FAQ' && styles.activeTabText]}>
+              {t('ajuda.tab_faq')}
+            </Text>
           </TouchableOpacity>
           
           <TouchableOpacity 
             style={[styles.tab, ajuda.selectedTab === 'Contato' && styles.activeTab]}
             onPress={() => ajuda.setSelectedTab('Contato')}
           >
-            <Text style={[styles.tabText, ajuda.selectedTab === 'Contato' && styles.activeTabText]}>Contato</Text>
+            <Text style={[styles.tabText, ajuda.selectedTab === 'Contato' && styles.activeTabText]}>
+              {t('ajuda.tab_contato')}
+            </Text>
           </TouchableOpacity>
           
-          <TouchableOpacity 
-            style={[styles.tab, ajuda.selectedTab === 'ChatBot' && styles.activeTab]}
-            onPress={() => ajuda.setSelectedTab('ChatBot')}
-          >
-            <Text style={[styles.tabText, ajuda.selectedTab === 'ChatBot' && styles.activeTabText]}>ChatBot</Text>
-          </TouchableOpacity>
+          {EXIBIR_CHATBOT_AJUDA && (
+            <TouchableOpacity
+              style={[styles.tab, ajuda.selectedTab === 'ChatBot' && styles.activeTab]}
+              onPress={() => ajuda.setSelectedTab('ChatBot')}
+            >
+              <Text style={[styles.tabText, ajuda.selectedTab === 'ChatBot' && styles.activeTabText]}>
+                ChatBot
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
 
-        {ajuda.selectedTab === 'ChatBot' ? (
+        {EXIBIR_CHATBOT_AJUDA && ajuda.selectedTab === 'ChatBot' ? (
           <KeyboardAvoidingView
             style={styles.chatContainer}
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -142,15 +180,15 @@ const HelpScreen = ({ navigation }) => {
             </ScrollView>
 
             <View style={styles.chatComposer}>
-              <Ionicons name="attach-outline" size={20} color="#666" />
+              <Ionicons name="attach-outline" size={20} color={COLORS.textSecondary} />
               <TextInput
                 style={styles.chatInput}
                 placeholder="Envie uma mensagem"
-                placeholderTextColor="#999"
+                placeholderTextColor={COLORS.textTertiary}
               />
               <View style={styles.chatComposerActions}>
-                <Ionicons name="mic-outline" size={20} color="#666" />
-                <Ionicons name="send" size={20} color="#0066FF" />
+                <Ionicons name="mic-outline" size={20} color={COLORS.textSecondary} />
+                <Ionicons name="send" size={20} color={COLORS.primary} />
               </View>
             </View>
           </KeyboardAvoidingView>
@@ -164,10 +202,10 @@ const HelpScreen = ({ navigation }) => {
                     onPressIn={ajuda.toggleEmail}
                   >
                     <View style={styles.contactHeader}>
-                      <Ionicons name="mail-outline" size={24} color="#000" />
+                      <Ionicons name="mail-outline" size={24} color={COLORS.textPrimary} />
                       <Text style={styles.contactTitle}>Email</Text>
                     </View>
-                    <Ionicons name={ajuda.emailExpanded ? 'chevron-up' : 'chevron-down'} size={24} color="#000" />
+                    <Ionicons name={ajuda.emailExpanded ? 'chevron-up' : 'chevron-down'} size={24} color={COLORS.textPrimary} />
                   </TouchableOpacity>
 
                   {ajuda.emailExpanded && (
@@ -178,7 +216,7 @@ const HelpScreen = ({ navigation }) => {
                         onPressIn={handleOpenEmail}
                       >
                         <Text style={styles.linkButtonText}>Enviar email</Text>
-                        <Ionicons name="open-outline" size={18} color="#1A73E8" />
+                        <Ionicons name="open-outline" size={18} color={COLORS.primary} />
                       </TouchableOpacity>
                     </View>
                   )}
@@ -188,10 +226,10 @@ const HelpScreen = ({ navigation }) => {
                     onPressIn={ajuda.toggleWhatsapp}
                   >
                     <View style={styles.contactHeader}>
-                      <Ionicons name="logo-whatsapp" size={24} color="#25D366" />
+                      <Ionicons name="logo-whatsapp" size={24} color={COLORS.success} />
                       <Text style={styles.contactTitle}>Whatsapp</Text>
                     </View>
-                    <Ionicons name={ajuda.whatsappExpanded ? 'chevron-up' : 'chevron-down'} size={24} color="#000" />
+                    <Ionicons name={ajuda.whatsappExpanded ? 'chevron-up' : 'chevron-down'} size={24} color={COLORS.textPrimary} />
                   </TouchableOpacity>
 
                   {ajuda.whatsappExpanded && (
@@ -202,58 +240,64 @@ const HelpScreen = ({ navigation }) => {
                         onPressIn={() => handleOpenLink(CONTATOS.whatsappLink)}
                       >
                         <Text style={styles.linkButtonText}>Abrir WhatsApp</Text>
-                        <Ionicons name="open-outline" size={18} color="#1A73E8" />
+                        <Ionicons name="open-outline" size={18} color={COLORS.primary} />
                       </TouchableOpacity>
                     </View>
                   )}
 
-                  <View style={styles.contactSection}>
-                    <Text style={styles.sectionTitle}>Outros canais</Text>
-                    {OUTROS_CONTATOS.map((item) => (
-                      <TouchableOpacity
-                        key={item.id}
-                        style={styles.channelItem}
-                        onPressIn={() => handleOpenLink(item.url)}
-                      >
-                        <View style={styles.channelHeader}>
-                          <Ionicons name={item.icon} size={22} color="#000" />
-                          <Text style={styles.channelTitle}>{item.titulo}</Text>
-                        </View>
-                        <View style={styles.channelRight}>
-                          <Text style={styles.channelValue}>{item.valor}</Text>
-                          <Ionicons name="open-outline" size={18} color="#666" />
-                        </View>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
+                  {EXIBIR_OUTROS_CANAIS_AJUDA && (
+                    <View style={styles.contactSection}>
+                      <Text style={styles.sectionTitle}>Outros canais</Text>
+                      {OUTROS_CONTATOS.map((item) => (
+                        <TouchableOpacity
+                          key={item.id}
+                          style={styles.channelItem}
+                          onPressIn={() => handleOpenLink(item.url)}
+                        >
+                          <View style={styles.channelHeader}>
+                            <Ionicons name={item.icon} size={22} color={COLORS.textPrimary} />
+                            <Text style={styles.channelTitle}>{item.titulo}</Text>
+                          </View>
+                          <View style={styles.channelRight}>
+                            <Text style={styles.channelValue}>{item.valor}</Text>
+                            <Ionicons name="open-outline" size={18} color={COLORS.textSecondary} />
+                          </View>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  )}
                 </View>
               )}
 
               {ajuda.selectedTab === 'FAQ' && (
-                <View>
+                <View style={rtl.container}>
                   {FAQ_ITENS.map((item) => {
                     const isExpanded = ajuda.faqExpandedIds.includes(item.id);
 
                     return (
                       <View key={item.id}>
                         <TouchableOpacity
-                          style={styles.accordionItem}
+                          style={[styles.accordionItem, rtl.row]}
                           onPressIn={() => ajuda.toggleFaqItem(item.id)}
                         >
-                          <View style={styles.accordionHeader}>
-                            <Ionicons name="help-circle-outline" size={22} color="#000" />
-                            <Text style={styles.accordionTitle}>{item.pergunta}</Text>
+                          <View style={[styles.accordionHeader, rtl.row]}>
+                            <Ionicons name="help-circle-outline" size={22} color={COLORS.textPrimary} />
+                            <Text style={[styles.accordionTitle, rtl.texto]}>
+                              {t(`faq.${item.id}.pergunta`)}
+                            </Text>
                           </View>
                           <Ionicons
                             name={isExpanded ? 'chevron-up' : 'chevron-down'}
                             size={24}
-                            color="#000"
+                            color={COLORS.textPrimary}
                           />
                         </TouchableOpacity>
 
                         {isExpanded && (
                           <View style={styles.accordionContent}>
-                            <Text style={styles.accordionText}>{item.resposta}</Text>
+                            <Text style={[styles.accordionText, rtl.texto]}>
+                              {t(`faq.${item.id}.resposta`)}
+                            </Text>
                           </View>
                         )}
                       </View>

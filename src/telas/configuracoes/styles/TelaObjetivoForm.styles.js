@@ -1,0 +1,297 @@
+import { StyleSheet } from 'react-native';
+import { getColorsByTheme } from '../../../styles/colors';
+import { FOOTER_HEIGHT } from '../../../componentes/BotoesAcaoFixo';
+
+export const getStyles = (isDarkMode) => {
+  const COLORS = getColorsByTheme(isDarkMode);
+
+  return StyleSheet.create({
+    safeArea: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+    paddingTop: 20,
+  },
+  container: {
+    flex: 1,
+  },
+  screen: {
+    flex: 1,
+  },
+  scroll: {
+    flex: 1,
+    marginBottom: FOOTER_HEIGHT,
+  },
+  content: {
+    paddingBottom: 20,
+  },
+  section: {
+    paddingHorizontal: 20,
+    marginBottom: 18,
+  },
+  label: {
+    fontSize: 15,
+    color: COLORS.textPrimary,
+    marginBottom: 8,
+    fontWeight: '600',
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 15,
+    color: COLORS.textPrimary,
+    backgroundColor: COLORS.backgroundLight,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    backgroundColor: COLORS.backgroundLight,
+    marginBottom: 10,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 14,
+    color: COLORS.textPrimary,
+  },
+  categoryButtons: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  categoryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    backgroundColor: COLORS.backgroundLight,
+  },
+  categoryButtonActive: {
+    backgroundColor: COLORS.primaryLight,
+    borderColor: COLORS.primaryLight,
+  },
+  categoryButtonText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: COLORS.textPrimary,
+  },
+  categoryButtonTextActive: {
+    color: COLORS.white,
+  },
+  addCategoryButton: {
+    borderColor: COLORS.primary,
+    borderStyle: 'dashed',
+    backgroundColor: `${COLORS.primaryLight}20`,
+  },
+  addCategoryButtonText: {
+    color: COLORS.primary,
+    fontWeight: '700',
+  },
+  categoryEmptyText: {
+    fontSize: 12,
+    color: COLORS.textTertiary,
+    marginTop: 4,
+  },
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 12,
+    backgroundColor: COLORS.backgroundLight,
+    overflow: 'hidden',
+  },
+  picker: {
+    height: 48,
+    color: COLORS.textPrimary,
+  },
+  datePickerInput: {
+    marginBottom: 0,
+  },
+  priorityBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 999,
+    alignSelf: 'flex-start',
+  },
+  priorityDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 999,
+  },
+  priorityBadgeText: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  priorityHelper: {
+    marginTop: 6,
+    fontSize: 12,
+    color: COLORS.textTertiary,
+  },
+  inputMultiline: {
+    minHeight: 90,
+    textAlignVertical: 'top',
+  },
+  helperText: {
+    marginTop: 6,
+    fontSize: 12,
+    color: COLORS.textTertiary,
+  },
+  typeButtons: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  typeButton: {
+    flex: 1,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    paddingVertical: 12,
+    alignItems: 'center',
+    backgroundColor: COLORS.backgroundLight,
+  },
+  typeButtonActive: {
+    backgroundColor: COLORS.primaryLight,
+    borderColor: COLORS.primaryLight,
+  },
+  typeButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.textPrimary,
+  },
+  typeButtonTextActive: {
+    color: COLORS.white,
+  },
+  amountInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    backgroundColor: COLORS.backgroundLight,
+  },
+  currencySymbol: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: COLORS.textPrimary,
+    marginRight: 8,
+  },
+  amountInput: {
+    flex: 1,
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.textPrimary,
+  },
+  row: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  rowItem: {
+    flex: 1,
+  },
+  switchRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    backgroundColor: COLORS.backgroundLight,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: COLORS.borderLight,
+    marginBottom: 18,
+  },
+  switchText: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    flexShrink: 1,
+  },
+  progressCard: {
+    backgroundColor: '#EEF4FF',
+    padding: 14,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#D5E4FF',
+  },
+  progressTitle: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    marginBottom: 8,
+    fontWeight: '600',
+  },
+  progressRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  progressValue: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: COLORS.textPrimary,
+  },
+  progressBar: {
+    height: 8,
+    backgroundColor: '#DDE7F5',
+    borderRadius: 999,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: COLORS.primary,
+    borderRadius: 999,
+  },
+  actionArea: {
+    paddingHorizontal: 20,
+    paddingBottom: 30,
+    gap: 12,
+  },
+  fixedActionArea: {
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    backgroundColor: COLORS.background,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.borderLight,
+  },
+  primaryButton: {
+    backgroundColor: COLORS.primary,
+    borderRadius: 14,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  primaryButtonText: {
+    color: COLORS.white,
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  dangerButton: {
+    backgroundColor: COLORS.errorLight,
+    borderRadius: 14,
+    paddingVertical: 12,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.errorBorder,
+  },
+  dangerButtonText: {
+    color: COLORS.error,
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  });
+};
+
+export const styles = getStyles(false);

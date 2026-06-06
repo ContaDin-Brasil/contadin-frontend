@@ -2,6 +2,8 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getLogoByName } from '../modais/logosInstituicoes';
+import { useTheme } from '../../contexts/ThemeContext';
+import { getColorsByTheme } from '../../styles/colors';
 
 const InstitutionCard = ({
   name,
@@ -10,17 +12,32 @@ const InstitutionCard = ({
   color = '#999',
   onPress,
 }) => {
+  const { isDarkMode } = useTheme();
+  const COLORS = getColorsByTheme(isDarkMode);
   const logo = getLogoByName(name);
   
   return (
     <TouchableOpacity
-      style={[styles.gridCard, { borderColor: color, borderWidth: 3 }]}
+      style={[
+        styles.gridCard,
+        {
+          backgroundColor: COLORS.cardBg,
+          borderColor: color,
+          borderWidth: 3,
+          shadowColor: COLORS.black,
+        },
+      ]}
       onPress={onPress}
       activeOpacity={0.7}
     >
       <View style={styles.gridCardContent}>
         <View style={styles.gridCardRow}>
-          <View style={[styles.gridIconContainer, { backgroundColor: logo ? '#FFF' : color }]}>
+          <View
+            style={[
+              styles.gridIconContainer,
+              { backgroundColor: logo ? COLORS.backgroundLight : color },
+            ]}
+          >
             {logo ? (
               <Image 
                 source={logo} 
@@ -31,18 +48,31 @@ const InstitutionCard = ({
               icon
             )}
           </View>
-          <Text style={styles.gridName}>{name}</Text>
+          <Text style={[styles.gridName, { color: COLORS.textPrimary }]}>{name}</Text>
         </View>
-        <Text style={styles.gridBalance}>Saldo Atual:{'\n'}{balance}</Text>
+        <Text style={[styles.gridBalance, { color: COLORS.textSecondary }]}>Saldo Atual:{'\n'}{balance}</Text>
       </View>
     </TouchableOpacity>
   );
 };
 
 const AddCard = ({ onPress }) => {
+  const { isDarkMode } = useTheme();
+  const COLORS = getColorsByTheme(isDarkMode);
+
   return (
-    <TouchableOpacity style={styles.addGridCard} onPress={onPress} activeOpacity={0.7}>
-      <Ionicons name="add" size={48} color="#999" />
+    <TouchableOpacity
+      style={[
+        styles.addGridCard,
+        {
+          backgroundColor: COLORS.backgroundLight,
+          borderColor: COLORS.border,
+        },
+      ]}
+      onPress={onPress}
+      activeOpacity={0.7}
+    >
+      <Ionicons name="add" size={48} color={COLORS.textTertiary} />
     </TouchableOpacity>
   );
 };
@@ -50,7 +80,6 @@ const AddCard = ({ onPress }) => {
 const styles = StyleSheet.create({
   // Grid styles
   gridCard: {
-    backgroundColor: '#FFF',
     borderRadius: 16,
     padding: 8,
     width: '48%',
@@ -98,10 +127,8 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   addGridCard: {
-    backgroundColor: '#FFF',
     borderRadius: 16,
     borderWidth: 2,
-    borderColor: '#E0E0E0',
     borderStyle: 'dashed',
     padding: 16,
     width: '48%',

@@ -1,7 +1,7 @@
 /**
  * Hook para a tela Solicitar Email (Frame 63).
  * Estado: email, loading, error.
- * handleEnviarCodigo: authService.recuperarSenha({ email }); em 204 retorna success; em erro setError.
+ * handleEnviarCodigo: authService.recuperarSenha({ email }); em 200 retorna success; em erro setError.
  */
 import { useState } from "react";
 import { authService } from "../../../../api";
@@ -41,8 +41,12 @@ export function useEsqueceuSenha(): UseEsqueceuSenhaResult {
       return true;
     } catch (err: unknown) {
       const msg =
-        (err as { response?: { data?: { message?: string } } })?.response?.data
+        (err as { response?: { data?: { message?: string; mensagem?: string } } })
+          ?.response?.data
           ?.message ||
+        (err as { response?: { data?: { message?: string; mensagem?: string } } })
+          ?.response?.data
+          ?.mensagem ||
         (err as { message?: string })?.message ||
         "Falha ao enviar código. Tente novamente.";
       setError(String(msg));

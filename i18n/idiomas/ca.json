@@ -1,0 +1,83 @@
+{
+  "bem_vindo": "Contadin",
+  "faq": {
+    "faq-01": {
+      "pergunta": "Com registrar la meva primera transacció?",
+      "resposta": "Ves a Transaccions, toca el botó +, omple descripció, import, tipus, institució i categoria. Després toca Desar. Si no hi ha institució o categoria, crea-les abans a la Cartera o a Categories."
+    },
+    "faq-02": {
+      "pergunta": "Com edito o elimino una despesa?",
+      "resposta": "Obre Transaccions, toca l'element desitjat per editar. A la pantalla d'edició pots actualitzar els camps i desar, o eliminar la transacció."
+    },
+    "faq-03": {
+      "pergunta": "Com filtro transaccions per trobar un registre ràpid?",
+      "resposta": "Fes servir la cerca de text a la part superior i combina-la amb filtres per tipus, institució, categoria, import i període. També pots ordenar per data, import i ordre alfabètic."
+    },
+    "faq-04": {
+      "pergunta": "Quina és la diferència entre transacció recurrent i fraccionada?",
+      "resposta": "Recurrent es repeteix automàticament (diària, setmanal, mensual o anual). Fraccionada divideix una compra en diversos terminis. Al formulari, les dues opcions són excloents."
+    },
+    "faq-05": {
+      "pergunta": "Per què no puc desar una transacció?",
+      "resposta": "Els camps obligatoris són descripció, import, institució i categoria. Comprova que l'import sigui superior a zero i la data estigui completa en format dd/mm/aaaa."
+    },
+    "faq-06": {
+      "pergunta": "Com afegeixo bancs i vals a la cartera?",
+      "resposta": "Obre la Cartera i fes servir Afegir a Comptes bancaris o Vals. Pots triar institucions predeterminades o registrar-ne una personalitzada amb nom, color i icona."
+    },
+    "faq-07": {
+      "pergunta": "Com creo i organitzo categories?",
+      "resposta": "Accedeix a Categories per crear, editar i eliminar. Fes servir GAST per despeses, INGRÉS per entrades i GLOBAL per als dos tipus."
+    },
+    "faq-08": {
+      "pergunta": "Com faig servir una foto per omplir una transacció amb IA?",
+      "resposta": "A Afegir transacció, toca Foto, tria càmera o galeria i espera el suggeriment. Pots acceptar les dades o descartar-les i omplir manualment."
+    },
+    "faq-09": {
+      "pergunta": "Com funciona el saldo a la cartera?",
+      "resposta": "El saldo de cada institució es calcula automàticament: suma d'ingressos menys suma de despeses vinculades a aquesta institució."
+    },
+    "faq-10": {
+      "pergunta": "Quins fitxers accepta la importació?",
+      "resposta": "La importació accepta .xlsx, .xls i .csv. Si el fitxer no és d'aquests formats, l'app mostra una alerta de fitxer no vàlid."
+    },
+    "faq-11": {
+      "pergunta": "Necessito institucions i categories registrades abans?",
+      "resposta": "Sí, és recomanable. L'app intenta vincular automàticament amb el que ja existeix. Si falta institució o categoria al full, pots registrar-la a la pantalla de revisió."
+    },
+    "faq-12": {
+      "pergunta": "Què significa transacció pendent a la importació?",
+      "resposta": "Pendent significa que falta algun camp obligatori (descripció, import, data, institució o categoria). Obre la targeta, ajusta els camps i marca per desar."
+    },
+    "faq-13": {
+      "pergunta": "Puc desar només part de les transaccions importades?",
+      "resposta": "Sí. Revises element per element i tries quines enviar. Al final, l'app mostra quantes s'han creat i quantes han fallat a la confirmació."
+    },
+    "faq-14": {
+      "pergunta": "Com recupero la meva contrasenya?",
+      "resposta": "A la pantalla d'inici de sessió, fes servir He oblidat la contrasenya. Introdueix el correu, valida el codi rebut i defineix una nova contrasenya segons els requisits de seguretat."
+    }
+  },
+  "ajuda": {
+    "titulo": "Ajuda i contacte",
+    "idioma_modal": "Idioma del FAQ",
+    "selecionar_idioma": "Seleccionar idioma del FAQ",
+    "tab_faq": "FAQ",
+    "tab_contato": "Contacte"
+  },
+  "idiomas": {
+    "pt-BR": "Portuguès (Brasil)",
+    "pt-PT": "Portuguès (Portugal)",
+    "ar": "Àrab",
+    "zh": "Mandarí",
+    "en-US": "Anglès (EUA)",
+    "en-GB": "Anglès (Regne Unit)",
+    "ru": "Rus",
+    "ja": "Japonès",
+    "fr": "Francès",
+    "es-419": "Espanyol (Amèrica Llatina)",
+    "es-ES": "Espanyol (Espanya)",
+    "ca": "Català",
+    "de": "Alemany"
+  }
+}

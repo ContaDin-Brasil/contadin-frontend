@@ -1,19 +1,38 @@
-import { Transaction, Category, Institution } from '../types/transacao.types';
+import { Transaction, Category, Institution, FiltrosTransacao } from '../types/transacao.types';
 
 export const parseTransacaoDate = (value: any): Date => {
   if (!value) return new Date(0);
 
   if (value instanceof Date) {
-    return value;
+    return Number.isNaN(value.getTime()) ? new Date(0) : value;
   }
 
   if (typeof value === 'string') {
-    const datePart = value.split('T')[0];
+    const trimmed = value.trim();
+    if (!trimmed) {
+      return new Date(0);
+    }
+
+    const datePart = trimmed.split('T')[0];
 
     if (datePart.includes('/')) {
-      const [day, month, year] = datePart.split('/');
-      if (year && month && day) {
-        return new Date(`${year}-${month}-${day}T00:00:00`);
+      const cleanDatePart = datePart.split(' ')[0];
+      const [dayRaw, monthRaw, yearRaw] = cleanDatePart.split('/');
+      const day = Number(dayRaw);
+      const month = Number(monthRaw);
+      const year = Number(yearRaw);
+
+      if (
+        Number.isFinite(day) &&
+        Number.isFinite(month) &&
+        Number.isFinite(year) &&
+        day > 0 &&
+        month > 0
+      ) {
+        const parsedBr = new Date(year, month - 1, day);
+        if (!Number.isNaN(parsedBr.getTime())) {
+          return parsedBr;
+        }
       }
     }
 
@@ -35,28 +54,64 @@ export const parseTransacaoDate = (value: any): Date => {
  * Formata um valor numérico para o formato de moeda brasileira
  */
 export const formatCurrency = (value: number): string => {
-  const formatted = Math.abs(value).toFixed(2).replace('.', ',');
-  return value >= 0 ? `+R$ ${formatted}` : `-R$ ${formatted}`;
+  const abs = Math.abs(Number(value) || 0);
+  const formatted = new Intl.NumberFormat('pt-BR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(abs);
+
+  return value >= 0 ? `R$ ${formatted}` : `-R$ ${formatted}`;
 };
 
 /**
  * Retorna o nome do mês abreviado
  */
 export const getMonthName = (dateString: string): string => {
+  if (!dateString || !dateString.includes('/')) {
+    return '';
+  }
+
   const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-  const month = parseInt(dateString.split('/')[1]) - 1;
-  return months[month] + ', ' + dateString.split('/')[2];
+  const parts = dateString.split('/');
+  if (parts.length < 3) {
+    return '';
+  }
+
+  const month = parseInt(parts[1], 10) - 1;
+  const year = parts[2];
+
+  if (Number.isNaN(month) || month < 0 || month > 11 || !year) {
+    return '';
+  }
+
+  return `${months[month]}, ${year}`;
 };
 
 /**
  * Formata o label da data, mostrando "Hoje" para data atual
  */
 export const formatDateLabel = (dateString: string): string => {
+  if (!dateString || dateString === 'Invalid Date') {
+    return 'Sem data';
+  }
+
   const today = new Date().toLocaleDateString('pt-BR');
   if (dateString === today) {
     return 'Hoje';
   }
-  return dateString.split('/')[0] + ' ' + getMonthName(dateString);
+
+  if (!dateString.includes('/')) {
+    return 'Sem data';
+  }
+
+  const day = dateString.split('/')[0];
+  const monthLabel = getMonthName(dateString);
+
+  if (!day || !monthLabel) {
+    return 'Sem data';
+  }
+
+  return `${day} ${monthLabel}`;
 };
 
 /**
@@ -65,7 +120,10 @@ export const formatDateLabel = (dateString: string): string => {
 export const groupTransactionsByDate = (transactions: Transaction[]): Record<string, Transaction[]> => {
   const grouped: Record<string, Transaction[]> = {};
   transactions.forEach(transaction => {
-    const dateKey = parseTransacaoDate(transaction.data_transacao).toLocaleDateString('pt-BR');
+    const parsedDate = parseTransacaoDate(transaction.dataTransacao);
+    const isDataValida = !Number.isNaN(parsedDate.getTime()) && parsedDate.getTime() > 0;
+    const dateKey = isDataValida ? parsedDate.toLocaleDateString('pt-BR') : 'Sem data';
+
     if (!grouped[dateKey]) {
       grouped[dateKey] = [];
     }
@@ -84,15 +142,15 @@ export const isTransactionValid = (descricao: string, valor?: number): boolean =
 /**
  * Busca uma categoria pelo ID
  */
-export const getCategoryById = (categories: Category[], id: number): Category | undefined => {
-  return categories.find(cat => cat.id === id);
+export const getCategoryById = (categories: Category[], id: string | number): Category | undefined => {
+  return categories.find(cat => String(cat.id) === String(id));
 };
 
 /**
  * Busca uma instituição pelo ID
  */
-export const getInstitutionById = (institutions: Institution[], id: number): Institution | undefined => {
-  return institutions.find(inst => inst.id === id);
+export const getInstitutionById = (institutions: Institution[], id: string | number): Institution | undefined => {
+  return institutions.find(inst => String(inst.id) === String(id));
 };
 
 /**
@@ -140,10 +198,10 @@ export const ordenarTransacoes = (transactions: Transaction[], criterio: string)
   
   switch (criterio) {
     case 'Mais recentes':
-      return sorted.sort((a, b) => parseTransacaoDate(b.data_transacao).getTime() - parseTransacaoDate(a.data_transacao).getTime());
+      return sorted.sort((a, b) => parseTransacaoDate(b.dataTransacao).getTime() - parseTransacaoDate(a.dataTransacao).getTime());
     
     case 'Mais antigas':
-      return sorted.sort((a, b) => parseTransacaoDate(a.data_transacao).getTime() - parseTransacaoDate(b.data_transacao).getTime());
+      return sorted.sort((a, b) => parseTransacaoDate(a.dataTransacao).getTime() - parseTransacaoDate(b.dataTransacao).getTime());
     
     case 'Maior valor':
       return sorted.sort((a, b) => Math.abs(b.valor) - Math.abs(a.valor));
@@ -158,21 +216,11 @@ export const ordenarTransacoes = (transactions: Transaction[], criterio: string)
       return sorted.sort((a, b) => b.descricao.toLowerCase().localeCompare(a.descricao.toLowerCase()));
     
     default:
-      return sorted.sort((a, b) => parseTransacaoDate(b.data_transacao).getTime() - parseTransacaoDate(a.data_transacao).getTime());
+      return sorted.sort((a, b) => parseTransacaoDate(b.dataTransacao).getTime() - parseTransacaoDate(a.dataTransacao).getTime());
   }
 };
 
-export interface Filtros {
-  tipo: 'TODOS' | 'RECEITA' | 'GASTO';
-  instituicoes: number[];
-  categorias: number[];
-  valorMin: string;
-  valorMax: string;
-  apenasParcelado: boolean;
-  apenasRecorrente: boolean;
-  dataInicio: string;
-  dataFim: string;
-}
+export type Filtros = FiltrosTransacao;
 
 /**
  * Aplica filtros às transações
@@ -187,12 +235,20 @@ export const aplicarFiltros = (transactions: Transaction[], filtros: Filtros): T
 
   // Filtro por instituições
   if (filtros.instituicoes.length > 0) {
-    filtered = filtered.filter(t => filtros.instituicoes.includes(t.fk_instituicao));
+    filtered = filtered.filter((t) =>
+      t.fkInstituicao !== null && t.fkInstituicao !== undefined
+        ? filtros.instituicoes.some((id) => String(id) === String(t.fkInstituicao))
+        : false,
+    );
   }
 
   // Filtro por categorias
   if (filtros.categorias.length > 0) {
-    filtered = filtered.filter(t => filtros.categorias.includes(t.fk_categoria));
+    filtered = filtered.filter((t) =>
+      t.fkCategoria !== null && t.fkCategoria !== undefined
+        ? filtros.categorias.some((id) => String(id) === String(t.fkCategoria))
+        : false,
+    );
   }
 
   // Filtro por valor mínimo
@@ -218,7 +274,7 @@ export const aplicarFiltros = (transactions: Transaction[], filtros: Filtros): T
 
   // Filtro por recorrente
   if (filtros.apenasRecorrente) {
-    filtered = filtered.filter(t => t.recorrencia !== null && t.recorrencia !== '');
+    filtered = filtered.filter(t => t.recorrencia !== null && t.recorrencia !== undefined);
   }
 
   // Filtro por período
@@ -228,7 +284,7 @@ export const aplicarFiltros = (transactions: Transaction[], filtros: Filtros): T
     const dataInicioDate = new Date(`${anoInicio}-${mesInicio}-${diaInicio}T00:00:00`);
     
     filtered = filtered.filter(t => {
-      const dataTransacao = parseTransacaoDate(t.data_transacao);
+      const dataTransacao = parseTransacaoDate(t.dataTransacao);
       return dataTransacao >= dataInicioDate;
     });
   }
@@ -239,7 +295,7 @@ export const aplicarFiltros = (transactions: Transaction[], filtros: Filtros): T
     const dataFimDate = new Date(`${anoFim}-${mesFim}-${diaFim}T23:59:59`);
     
     filtered = filtered.filter(t => {
-      const dataTransacao = parseTransacaoDate(t.data_transacao);
+      const dataTransacao = parseTransacaoDate(t.dataTransacao);
       return dataTransacao <= dataFimDate;
     });
   }

@@ -19,13 +19,13 @@ export interface GastoCategoria {
 }
 
 export interface SaldoInstituicao {
-  id: number;
+  id: string | number;
   nome: string;
   icone: string;
   valor: number;
   porcentagem: number;
   cor: string;
-  tipo: 'banco' | 'vale';
+  tipo: 'BANCO' | 'VALE';
 }
 
 export interface DadosDashboard {
@@ -46,4 +46,12 @@ export interface DadosPrevisaoSaldo {
   saldoAtual: number;
   saldoFinal: number;
   diasFuturos: number;
+}
+
+export interface SaldoDiario {
+  data: string;
+  saldoInicial: number;
+  totalReceitas: number;
+  totalGastos: number;
+  saldoFinal: number;
 }

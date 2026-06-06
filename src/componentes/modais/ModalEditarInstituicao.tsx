@@ -8,11 +8,14 @@ import {
   Modal,
   ScrollView,
   Image,
-  Alert,
   Pressable,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getLogoByName } from './logosInstituicoes';
+import ModalConfirmDelete from './ModalConfirmDelete';
+import { getColorsByTheme } from '../../styles/colors';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface ModalEditarInstituicaoProps {
   visible: boolean;
@@ -23,11 +26,11 @@ interface ModalEditarInstituicaoProps {
 }
 
 export interface InstituicaoEdit {
-  id: number;
+  id: string | number;
   nome: string;
   icone: string;
   cor: string;
-  tipoInstituicao: 'banco' | 'vale';
+  type: 'BANCO' | 'VALE';
 }
 
 const ModalEditarInstituicao: React.FC<ModalEditarInstituicaoProps> = ({
@@ -37,10 +40,15 @@ const ModalEditarInstituicao: React.FC<ModalEditarInstituicaoProps> = ({
   onDelete,
   instituicao,
 }) => {
+  const { isDarkMode } = useTheme();
+  const COLORS = getColorsByTheme(isDarkMode);
+  const styles = getStyles(isDarkMode);
   const [nome, setNome] = useState('');
   const [cor, setCor] = useState('#E31C23');
-  const [tipoInstituicao, setTipoInstituicao] = useState<'banco' | 'vale'>('banco');
+  const [type, setType] = useState<'BANCO' | 'VALE'>('BANCO');
   const [showColorWheel, setShowColorWheel] = useState(false);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [isDeletando, setIsDeletando] = useState(false);
 
   // Cores predefinidas organizadas em roda
   const coresPredefinidas = [
@@ -72,38 +80,41 @@ const ModalEditarInstituicao: React.FC<ModalEditarInstituicaoProps> = ({
     if (instituicao) {
       setNome(instituicao.nome);
       setCor(instituicao.cor);
-      setTipoInstituicao(instituicao.tipoInstituicao);
+      setType(instituicao.type);
     }
   }, [instituicao]);
 
   const handleSave = () => {
-    if (instituicao && nome.trim()) {
+    if (!nome.trim()) {
+      Alert.alert('Nome obrigatório', 'Por favor, preencha o nome da instituição.');
+      return;
+    }
+    
+    if (instituicao) {
       onSave({
         ...instituicao,
         nome: nome.trim(),
         cor,
-        tipoInstituicao,
+        type,
       });
     }
   };
 
   const handleDeleteConfirm = () => {
-    Alert.alert(
-      'Excluir Institui\u00e7\u00e3o',
-      `Tem certeza que deseja excluir "${instituicao?.nome}"?\n\n\u26a0\ufe0f Aten\u00e7\u00e3o: Todas as transa\u00e7\u00f5es vinculadas a esta institui\u00e7\u00e3o ser\u00e3o permanentemente deletadas.`,
-      [
-        {
-          text: 'Cancelar',
-          style: 'cancel',
-        },
-        {
-          text: 'Excluir',
-          style: 'destructive',
-          onPress: onDelete,
-        },
-      ],
-      { cancelable: true }
-    );
+    setDeleteModalVisible(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    setIsDeletando(true);
+    try {
+      await onDelete();
+      setDeleteModalVisible(false);
+    } catch (error) {
+      console.error('Erro ao deletar instituição:', error);
+      Alert.alert('Erro', 'Não foi possível deletar a instituição');
+    } finally {
+      setIsDeletando(false);
+    }
   };
 
   const renderIcone = () => {
@@ -111,7 +122,7 @@ const ModalEditarInstituicao: React.FC<ModalEditarInstituicaoProps> = ({
     
     if (logo) {
       return (
-        <View style={[styles.iconeGrande, { backgroundColor: '#FFF' }]}>
+        <View style={[styles.iconeGrande, { backgroundColor: COLORS.backgroundLight }]}>
           <Image 
             source={logo} 
             style={{ width: 64, height: 64, borderRadius: 16, objectFit: 'cover' }}
@@ -129,6 +140,7 @@ const ModalEditarInstituicao: React.FC<ModalEditarInstituicaoProps> = ({
   };
 
   return (
+    <>
     <Modal
       visible={visible}
       transparent={true}
@@ -149,7 +161,7 @@ const ModalEditarInstituicao: React.FC<ModalEditarInstituicaoProps> = ({
               style={styles.botaoExcluir}
               onPress={handleDeleteConfirm}
             >
-              <Ionicons name="trash-outline" size={20} color="#FFF" />
+              <Ionicons name="trash-outline" size={20} color={COLORS.white} />
               <Text style={styles.textoExcluir}>Excluir instituição</Text>
             </TouchableOpacity>
 
@@ -162,21 +174,10 @@ const ModalEditarInstituicao: React.FC<ModalEditarInstituicaoProps> = ({
                   value={nome}
                   onChangeText={setNome}
                   placeholder="Nome da instituição"
-                  placeholderTextColor="#999"
+                  placeholderTextColor={COLORS.textTertiary}
                 />
               </View>
             </View>
-
-            {/* Botão Alterar Ícone (preparado para futuro) */}
-            <TouchableOpacity 
-              style={styles.botaoAlterarIcone}
-              disabled={true}
-              activeOpacity={0.6}
-            >
-              <Ionicons name="images-outline" size={20} color="#666" />
-              <Text style={styles.textoAlterarIcone}>Alterar ícone</Text>
-              <Text style={styles.textoEmBreve}>(em breve)</Text>
-            </TouchableOpacity>
 
             {/* Seção de Tipo */}
             <View style={styles.secao}>
@@ -185,35 +186,35 @@ const ModalEditarInstituicao: React.FC<ModalEditarInstituicaoProps> = ({
                 <TouchableOpacity
                   style={[
                     styles.tipoButton,
-                    tipoInstituicao === 'banco' && styles.tipoButtonActive
+                    type === 'BANCO' && styles.tipoButtonActive
                   ]}
-                  onPress={() => setTipoInstituicao('banco')}
+                  onPress={() => setType('BANCO')}
                 >
                   <Ionicons 
                     name="business" 
                     size={18} 
-                    color={tipoInstituicao === 'banco' ? '#FFF' : '#666'}
+                    color={type === 'BANCO' ? COLORS.white : COLORS.textSecondary}
                   />
                   <Text style={[
                     styles.tipoButtonText,
-                    tipoInstituicao === 'banco' && styles.tipoButtonTextActive
+                    type === 'BANCO' && styles.tipoButtonTextActive
                   ]}>Banco</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[
                     styles.tipoButton,
-                    tipoInstituicao === 'vale' && styles.tipoButtonActive
+                    type === 'VALE' && styles.tipoButtonActive
                   ]}
-                  onPress={() => setTipoInstituicao('vale')}
+                  onPress={() => setType('VALE')}
                 >
                   <Ionicons 
                     name="card" 
                     size={18} 
-                    color={tipoInstituicao === 'vale' ? '#FFF' : '#666'}
+                    color={type === 'VALE' ? COLORS.white : COLORS.textSecondary}
                   />
                   <Text style={[
                     styles.tipoButtonText,
-                    tipoInstituicao === 'vale' && styles.tipoButtonTextActive
+                    type === 'VALE' && styles.tipoButtonTextActive
                   ]}>Vale</Text>
                 </TouchableOpacity>
               </View>
@@ -241,7 +242,7 @@ const ModalEditarInstituicao: React.FC<ModalEditarInstituicaoProps> = ({
                   <Ionicons 
                     name={showColorWheel ? 'chevron-up' : 'chevron-down'} 
                     size={20} 
-                    color="#666" 
+                    color={COLORS.textSecondary} 
                   />
                 </View>
               </TouchableOpacity>
@@ -265,7 +266,7 @@ const ModalEditarInstituicao: React.FC<ModalEditarInstituicaoProps> = ({
                       >
                         {cor === corOpcao && (
                           <View style={styles.checkContainer}>
-                            <Ionicons name="checkmark" size={20} color="#FFF" />
+                            <Ionicons name="checkmark" size={20} color={COLORS.white} />
                           </View>
                         )}
                       </TouchableOpacity>
@@ -297,18 +298,31 @@ const ModalEditarInstituicao: React.FC<ModalEditarInstituicaoProps> = ({
           </ScrollView>
         </Pressable>
       </Pressable>
+      <ModalConfirmDelete
+        visible={deleteModalVisible}
+        titulo="Excluir Instituição"
+        mensagem={`Tem certeza que deseja excluir "${instituicao?.nome}"?\n\n⚠️ Atenção: Todas as transações vinculadas a esta instituição serão permanentemente deletadas.`}
+        onConfirm={handleConfirmDelete}
+        onClose={() => setDeleteModalVisible(false)}
+        isLoading={isDeletando}
+      />
     </Modal>
+
+    </>
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (isDarkMode: boolean) => {
+  const COLORS = getColorsByTheme(isDarkMode);
+
+  return StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: COLORS.overlay,
     justifyContent: 'flex-end',
   },
   modalContainer: {
-    backgroundColor: '#FFF',
+    backgroundColor: COLORS.backgroundLight,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     maxHeight: '90%',
@@ -317,7 +331,7 @@ const styles = StyleSheet.create({
   handle: {
     width: 40,
     height: 5,
-    backgroundColor: '#DDD',
+    backgroundColor: COLORS.borderLight,
     borderRadius: 3,
     alignSelf: 'center',
     marginTop: 12,
@@ -330,7 +344,7 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   botaoExcluir: {
-    backgroundColor: '#FF6B6B',
+    backgroundColor: COLORS.error,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -338,14 +352,14 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     gap: 8,
     marginBottom: 24,
-    shadowColor: '#FF6B6B',
+    shadowColor: COLORS.error,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 3,
   },
   textoExcluir: {
-    color: '#FFF',
+    color: COLORS.white,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -361,7 +375,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: COLORS.black,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 8,
@@ -370,7 +384,7 @@ const styles = StyleSheet.create({
   iconeTexto: {
     fontSize: 40,
     fontWeight: 'bold',
-    color: '#FFF',
+    color: COLORS.white,
   },
   infoContainer: {
     flex: 1,
@@ -379,8 +393,8 @@ const styles = StyleSheet.create({
   inputNome: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#000',
-    backgroundColor: '#F5F5F5',
+    color: COLORS.textPrimary,
+    backgroundColor: COLORS.background,
     borderRadius: 10,
     paddingHorizontal: 16,
     paddingVertical: 12,
@@ -389,7 +403,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#F5F5F5',
+    backgroundColor: COLORS.background,
     paddingVertical: 12,
     borderRadius: 10,
     marginBottom: 24,
@@ -397,12 +411,12 @@ const styles = StyleSheet.create({
   },
   textoAlterarIcone: {
     fontSize: 15,
-    color: '#666',
+    color: COLORS.textSecondary,
     fontWeight: '500',
   },
   textoEmBreve: {
     fontSize: 12,
-    color: '#999',
+    color: COLORS.textTertiary,
     fontStyle: 'italic',
   },
   secao: {
@@ -411,7 +425,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#000',
+    color: COLORS.textPrimary,
     marginBottom: 12,
   },
   tipoButtonContainer: {
@@ -423,37 +437,37 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#F0F0F0',
+    backgroundColor: COLORS.background,
     paddingVertical: 14,
     borderRadius: 10,
     gap: 8,
     borderWidth: 2,
-    borderColor: '#F0F0F0',
+    borderColor: COLORS.border,
   },
   tipoButtonActive: {
-    backgroundColor: '#4A9EFF',
-    borderColor: '#4A9EFF',
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
   },
   tipoButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#666',
+    color: COLORS.textSecondary,
   },
   tipoButtonTextActive: {
-    color: '#FFF',
+    color: COLORS.white,
   },
   seletorCorExecutivo: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.background,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: COLORS.border,
     paddingVertical: 16,
     paddingHorizontal: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 16,
-    shadowColor: '#000',
+    shadowColor: COLORS.black,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 3,
@@ -470,8 +484,8 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 24,
     borderWidth: 3,
-    borderColor: '#F5F5F5',
-    shadowColor: '#000',
+    borderColor: COLORS.background,
+    shadowColor: COLORS.black,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 4,
@@ -482,14 +496,14 @@ const styles = StyleSheet.create({
   },
   corNomeLabel: {
     fontSize: 13,
-    color: '#888',
+    color: COLORS.textTertiary,
     fontWeight: '500',
     marginBottom: 2,
   },
   corHexCode: {
     fontSize: 17,
     fontWeight: '700',
-    color: '#000',
+    color: COLORS.textPrimary,
     letterSpacing: 0.5,
   },
   alterarCorContainer: {
@@ -500,14 +514,14 @@ const styles = StyleSheet.create({
   alterarCorTexto: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#666',
+    color: COLORS.textSecondary,
   },
   rodaDeCores: {
-    backgroundColor: '#FAFAFA',
+    backgroundColor: COLORS.background,
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#E8E8E8',
+    borderColor: COLORS.border,
   },
   gridCores: {
     flexDirection: 'row',
@@ -526,8 +540,8 @@ const styles = StyleSheet.create({
   },
   corSelecionadaBorda: {
     borderWidth: 3,
-    borderColor: '#FFF',
-    shadowColor: '#000',
+    borderColor: COLORS.white,
+    shadowColor: COLORS.black,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.4,
     shadowRadius: 4,
@@ -535,7 +549,7 @@ const styles = StyleSheet.create({
     transform: [{ scale: 1.1 }],
   },
   checkContainer: {
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    backgroundColor: COLORS.black,
     borderRadius: 15,
     width: 30,
     height: 30,
@@ -549,38 +563,39 @@ const styles = StyleSheet.create({
   },
   botaoCancelar: {
     flex: 1,
-    backgroundColor: '#E8E8E8',
+    backgroundColor: COLORS.background,
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
   },
   textoBotaoCancelar: {
-    color: '#666',
+    color: COLORS.textSecondary,
     fontSize: 16,
     fontWeight: '600',
   },
   botaoConfirmar: {
     flex: 1,
-    backgroundColor: '#4A9EFF',
+    backgroundColor: COLORS.primary,
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
-    shadowColor: '#4A9EFF',
+    shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 3,
   },
   botaoConfirmarDesabilitado: {
-    backgroundColor: '#B0D4FF',
+    backgroundColor: COLORS.primaryLight,
     shadowOpacity: 0,
     elevation: 0,
   },
   textoBotaoConfirmar: {
-    color: '#FFF',
+    color: COLORS.white,
     fontSize: 16,
     fontWeight: '600',
   },
-});
+  });
+};
 
 export default ModalEditarInstituicao;

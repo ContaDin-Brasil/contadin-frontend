@@ -1,12 +1,16 @@
 import React from 'react';
 import { TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import COLORS from '../styles/colors';
+import { getColorsByTheme } from '../styles/colors';
+import { useTheme } from '../contexts/ThemeContext';
 
 const BotaoFlutuanteAdicionar = ({ onPress, style, iconSize = 32 }) => {
+  const { isDarkMode } = useTheme();
+  const COLORS = getColorsByTheme(isDarkMode);
+
   return (
     <TouchableOpacity
-      style={[styles.botao, style]}
+      style={[styles.botao, { backgroundColor: COLORS.primary, shadowColor: COLORS.black }, style]}
       onPress={onPress}
       activeOpacity={0.8}
       accessibilityRole="button"
@@ -25,10 +29,8 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: COLORS.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: COLORS.black,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,

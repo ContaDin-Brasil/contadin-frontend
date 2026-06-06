@@ -1,10 +1,14 @@
 import { StyleSheet } from "react-native";
+import { getColorsByTheme } from '../../../styles/colors';
 
-export const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFF',
-  },
+export const getStyles = (isDarkMode) => {
+  const COLORS = getColorsByTheme(isDarkMode);
+
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: COLORS.background,
+    },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -16,7 +20,7 @@ export const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#333',
+    color: COLORS.textPrimary,
   },
   content: {
     paddingHorizontal: 20,
@@ -27,7 +31,7 @@ export const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#333',
+    color: COLORS.textPrimary,
     marginBottom: 10,
   },
   typeButtons: {
@@ -44,27 +48,27 @@ export const styles = StyleSheet.create({
     height: 20,
     borderRadius: 10,
     borderWidth: 2,
-    borderColor: '#CCC',
-    backgroundColor: '#FFF',
+    borderColor: COLORS.border,
+    backgroundColor: COLORS.background,
   },
   typeRadioActive: {
-    borderColor: '#4A9EFF',
-    backgroundColor: '#4A9EFF',
+    borderColor: COLORS.primary,
+    backgroundColor: COLORS.primary,
   },
   typeText: {
     fontSize: 16,
-    color: '#333',
+    color: COLORS.textPrimary,
   },
   typeButtonActive: {},
   input: {
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: COLORS.border,
     borderRadius: 10,
     paddingHorizontal: 15,
     paddingVertical: 12,
     fontSize: 16,
-    color: '#333',
-    backgroundColor: '#F5F5F5',
+    color: COLORS.textPrimary,
+    backgroundColor: COLORS.backgroundLight,
   },
   colorGrid: {
     flexDirection: 'row',
@@ -80,8 +84,8 @@ export const styles = StyleSheet.create({
   },
   colorButtonSelected: {
     borderWidth: 3,
-    borderColor: '#FFF',
-    shadowColor: '#000',
+    borderColor: COLORS.background,
+    shadowColor: COLORS.black,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
@@ -94,24 +98,24 @@ export const styles = StyleSheet.create({
     paddingVertical: 15,
     paddingHorizontal: 15,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: COLORS.border,
     borderRadius: 10,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: COLORS.backgroundLight,
   },
   iconCircle: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#E0E0E0',
+    backgroundColor: COLORS.border,
     alignItems: 'center',
     justifyContent: 'center',
   },
   iconSelectorText: {
     fontSize: 16,
-    color: '#666',
+    color: COLORS.textSecondary,
   },
   saveButton: {
-    backgroundColor: '#4A9EFF',
+    backgroundColor: COLORS.primary,
     paddingVertical: 15,
     borderRadius: 10,
     alignItems: 'center',
@@ -124,6 +128,9 @@ export const styles = StyleSheet.create({
   saveButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#FFF',
+    color: COLORS.white,
   },
-});
+  });
+};
+
+export const styles = getStyles(false);

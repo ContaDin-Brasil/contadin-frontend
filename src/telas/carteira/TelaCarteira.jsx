@@ -7,28 +7,33 @@ import { InstitutionCard, AddCard } from '../../componentes/cartoes/CartaoInstit
 import InstitutionSelectionModal from '../../componentes/modais/ModalSelecaoInstituicao';
 import AddCustomInstitutionModal from '../../componentes/modais/ModalAdicionarInstituicao';
 import { useGerenciarCarteira } from './hooks/useGerenciarCarteira';
-import { styles } from './styles/TelaCarteira.styles';
+import { getStyles } from './styles/TelaCarteira.styles';
+import { getColorsByTheme } from '../../styles/colors';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const WalletScreen = ({ navigation }) => {
   const carteira = useGerenciarCarteira();
+  const { isDarkMode } = useTheme();
+  const styles = getStyles(isDarkMode);
+  const COLORS = getColorsByTheme(isDarkMode);
 
   // Recarrega dados quando a tela recebe foco
   useFocusEffect(
     React.useCallback(() => {
-      carteira.carregarInstituicoes();
+      carteira.carregarInstituicoes(true); // forceRefresh=true para sempre buscar dados frescos
     }, [])
   );
 
   const renderIcon = (text, color) => (
-    <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#FFF' }}>{text}</Text>
+    <Text style={{ fontSize: 14, fontWeight: 'bold', color: COLORS.white }}>{text}</Text>
   );
 
   // Mostra loading enquanto carrega dados
   if (carteira.loading) {
     return (
       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color="#8A05BE" />
-        <Text style={{ marginTop: 16, color: '#666' }}>Carregando instituições...</Text>
+        <ActivityIndicator size="large" color={COLORS.primary} />
+        <Text style={{ marginTop: 16, color: COLORS.textSecondary }}>Carregando instituições...</Text>
       </View>
     );
   }
@@ -37,13 +42,13 @@ const WalletScreen = ({ navigation }) => {
   if (carteira.error) {
     return (
       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center', padding: 20 }]}>
-        <Ionicons name="alert-circle-outline" size={64} color="#E31C23" />
-        <Text style={{ marginTop: 16, color: '#E31C23', textAlign: 'center' }}>{carteira.error}</Text>
+        <Ionicons name="alert-circle-outline" size={64} color={COLORS.error} />
+        <Text style={{ marginTop: 16, color: COLORS.error, textAlign: 'center' }}>{carteira.error}</Text>
         <TouchableOpacity 
           style={[styles.addButton, { marginTop: 20 }]}
           onPress={carteira.carregarInstituicoes}
         >
-          <Ionicons name="refresh" size={20} color="#FFF" />
+          <Ionicons name="refresh" size={20} color={COLORS.white} />
           <Text style={styles.addButtonText}>Tentar Novamente</Text>
         </TouchableOpacity>
       </View>
@@ -59,15 +64,14 @@ const WalletScreen = ({ navigation }) => {
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <View style={styles.sectionTitleContainer}>
-            <Ionicons name="information-circle-outline" size={24} color="#000" />
+            <Ionicons name="information-circle-outline" size={24} color={COLORS.textPrimary} />
             <View style={styles.sectionTitleText}>
               <Text style={styles.sectionTitle}>Contas Bancárias</Text>
-              <Text style={styles.sectionSubtitle}>Valor das faturas: R$ 0,00</Text>
             </View>
           </View>
-          <TouchableOpacity onPress={() => navigation.navigate('EditBanks')}>
+          <TouchableOpacity onPress={() => navigation.navigate('EditarBanco')}>
             <View style={styles.editButton}>
-              <Ionicons name="create-outline" size={20} color="#FFF" />
+              <Ionicons name="create-outline" size={20} color={COLORS.white} />
             </View>
           </TouchableOpacity>
         </View>
@@ -81,8 +85,8 @@ const WalletScreen = ({ navigation }) => {
               color={bank.cor}
               icon={renderIcon(bank.icone, bank.cor)}
               onPress={() => {
-                navigation.navigate('Transactions', {
-                  screen: 'TransactionsMain',
+                navigation.navigate('Transacoes', {
+                  screen: 'Transacao',
                   params: {
                     instituicao: {
                       id: bank.id,
@@ -105,7 +109,7 @@ const WalletScreen = ({ navigation }) => {
           style={styles.addButton}
           onPress={() => carteira.setBankSelectionModalVisible(true)}
         >
-          <Ionicons name="add" size={20} color="#FFF" />
+          <Ionicons name="add" size={20} color={COLORS.white} />
           <Text style={styles.addButtonText}>Adicionar</Text>
         </TouchableOpacity>
       </View>
@@ -114,15 +118,14 @@ const WalletScreen = ({ navigation }) => {
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <View style={styles.sectionTitleContainer}>
-            <Ionicons name="information-circle-outline" size={24} color="#000" />
+            <Ionicons name="information-circle-outline" size={24} color={COLORS.textPrimary} />
             <View style={styles.sectionTitleText}>
               <Text style={styles.sectionTitle}>Vales</Text>
-              <Text style={styles.sectionSubtitle}>Valor das faturas: R$ 0,00</Text>
             </View>
           </View>
-          <TouchableOpacity onPress={() => navigation.navigate('EditVouchers')}>
+          <TouchableOpacity onPress={() => navigation.navigate('EditarVouchers')}>
             <View style={styles.editButton}>
-              <Ionicons name="create-outline" size={20} color="#FFF" />
+              <Ionicons name="create-outline" size={20} color={COLORS.white} />
             </View>
           </TouchableOpacity>
         </View>
@@ -136,8 +139,8 @@ const WalletScreen = ({ navigation }) => {
               color={voucher.cor}
               icon={renderIcon(voucher.icone, voucher.cor)}
               onPress={() => {
-                navigation.navigate('Transactions', {
-                  screen: 'TransactionsMain',
+                navigation.navigate('Transacoes', {
+                  screen: 'Transacao',
                   params: {
                     instituicao: {
                       id: voucher.id,
@@ -159,7 +162,7 @@ const WalletScreen = ({ navigation }) => {
           style={styles.addButton}
           onPress={() => carteira.setVoucherSelectionModalVisible(true)}
         >
-          <Ionicons name="add" size={20} color="#FFF" />
+          <Ionicons name="add" size={20} color={COLORS.white} />
           <Text style={styles.addButtonText}>Adicionar</Text>
         </TouchableOpacity>
       </View>

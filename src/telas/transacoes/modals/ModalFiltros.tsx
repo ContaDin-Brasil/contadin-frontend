@@ -1,27 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet, ScrollView, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import COLORS from '../../../styles/colors';
+import { useTheme } from '../../../contexts/ThemeContext';
+import { getColorsByTheme } from '../../../styles/colors';
+import type { Category, FiltrosTransacao, Institution } from '../types/transacao.types';
 
-interface Filtros {
-  tipo: 'TODOS' | 'RECEITA' | 'GASTO';
-  instituicoes: number[];
-  categorias: number[];
-  valorMin: string;
-  valorMax: string;
-  apenasParcelado: boolean;
-  apenasRecorrente: boolean;
-  dataInicio: string;
-  dataFim: string;
-}
+type Filtros = FiltrosTransacao;
+type TipoFiltroTransacao = Filtros['tipo'];
+type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
+
+const TIPOS_TRANSACAO: Array<{ value: TipoFiltroTransacao; label: string; icon: IoniconName }> = [
+  { value: 'TODOS', label: 'Todos', icon: 'list-outline' },
+  { value: 'RECEITA', label: 'Receitas', icon: 'arrow-up-circle' },
+  { value: 'GASTO', label: 'Despesas', icon: 'arrow-down-circle' },
+];
 
 interface ModalFiltrosProps {
   visible: boolean;
   onClose: () => void;
   filtrosAtuais: Filtros;
   onAplicarFiltros: (filtros: Filtros) => void;
-  instituicoes: any[];
-  categorias: any[];
+  instituicoes: Institution[];
+  categorias: Category[];
 }
 
 export const ModalFiltros: React.FC<ModalFiltrosProps> = ({
@@ -32,6 +32,9 @@ export const ModalFiltros: React.FC<ModalFiltrosProps> = ({
   instituicoes,
   categorias,
 }) => {
+  const { isDarkMode } = useTheme();
+  const COLORS = getColorsByTheme(isDarkMode);
+  const styles = getModalFiltrosStyles(COLORS);
   const [filtrosTemp, setFiltrosTemp] = useState<Filtros>(filtrosAtuais);
 
   // Atualiza filtros temporários quando o modal abre
@@ -45,16 +48,16 @@ export const ModalFiltros: React.FC<ModalFiltrosProps> = ({
     setFiltrosTemp({ ...filtrosTemp, tipo });
   };
 
-  const toggleInstituicao = (id: number) => {
-    const instituicoesSelecionadas = filtrosTemp.instituicoes.includes(id)
-      ? filtrosTemp.instituicoes.filter(i => i !== id)
+  const toggleInstituicao = (id: string | number) => {
+    const instituicoesSelecionadas = filtrosTemp.instituicoes.some((i) => String(i) === String(id))
+      ? filtrosTemp.instituicoes.filter((i) => String(i) !== String(id))
       : [...filtrosTemp.instituicoes, id];
     setFiltrosTemp({ ...filtrosTemp, instituicoes: instituicoesSelecionadas });
   };
 
-  const toggleCategoria = (id: number) => {
-    const categoriasSelecionadas = filtrosTemp.categorias.includes(id)
-      ? filtrosTemp.categorias.filter(c => c !== id)
+  const toggleCategoria = (id: string | number) => {
+    const categoriasSelecionadas = filtrosTemp.categorias.some((c) => String(c) === String(id))
+      ? filtrosTemp.categorias.filter((c) => String(c) !== String(id))
       : [...filtrosTemp.categorias, id];
     setFiltrosTemp({ ...filtrosTemp, categorias: categoriasSelecionadas });
   };
@@ -122,21 +125,17 @@ export const ModalFiltros: React.FC<ModalFiltrosProps> = ({
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Tipo de Transação</Text>
               <View style={styles.typeButtons}>
-                {[
-                  { value: 'TODOS', label: 'Todos', icon: 'list-outline' },
-                  { value: 'RECEITA', label: 'Receitas', icon: 'arrow-up-circle' },
-                  { value: 'GASTO', label: 'Despesas', icon: 'arrow-down-circle' },
-                ].map((tipo) => (
+                {TIPOS_TRANSACAO.map((tipo) => (
                   <TouchableOpacity
                     key={tipo.value}
                     style={[
                       styles.typeButton,
                       filtrosTemp.tipo === tipo.value && styles.typeButtonActive,
                     ]}
-                    onPress={() => handleTipoChange(tipo.value as any)}
+                    onPress={() => handleTipoChange(tipo.value)}
                   >
                     <Ionicons
-                      name={tipo.icon as any}
+                      name={tipo.icon}
                       size={20}
                       color={filtrosTemp.tipo === tipo.value ? COLORS.white : COLORS.textSecondary}
                     />
@@ -171,10 +170,10 @@ export const ModalFiltros: React.FC<ModalFiltrosProps> = ({
                       <View
                         style={[
                           styles.checkbox,
-                          filtrosTemp.instituicoes.includes(instituicao.id) && styles.checkboxActive,
+                          filtrosTemp.instituicoes.some((id) => String(id) === String(instituicao.id)) && styles.checkboxActive,
                         ]}
                       >
-                        {filtrosTemp.instituicoes.includes(instituicao.id) && (
+                        {filtrosTemp.instituicoes.some((id) => String(id) === String(instituicao.id)) && (
                           <Ionicons name="checkmark" size={16} color={COLORS.white} />
                         )}
                       </View>
@@ -211,10 +210,10 @@ export const ModalFiltros: React.FC<ModalFiltrosProps> = ({
                       <View
                         style={[
                           styles.checkbox,
-                          filtrosTemp.categorias.includes(categoria.id) && styles.checkboxActive,
+                          filtrosTemp.categorias.some((id) => String(id) === String(categoria.id)) && styles.checkboxActive,
                         ]}
                       >
-                        {filtrosTemp.categorias.includes(categoria.id) && (
+                        {filtrosTemp.categorias.some((id) => String(id) === String(categoria.id)) && (
                           <Ionicons name="checkmark" size={16} color={COLORS.white} />
                         )}
                       </View>
@@ -268,7 +267,9 @@ export const ModalFiltros: React.FC<ModalFiltrosProps> = ({
               <Text style={styles.sectionTitle}>Características</Text>
               <TouchableOpacity
                 style={styles.switchItem}
-                onPress={() => setFiltrosTemp({ ...filtrosTemp, apenasParcelado: !filtrosTemp.apenasParcelado })}
+                onPress={() =>
+                  setFiltrosTemp({ ...filtrosTemp, apenasParcelado: !filtrosTemp.apenasParcelado })
+                }
               >
                 <View style={styles.switchLabel}>
                   <Ionicons name="card-outline" size={20} color={COLORS.textSecondary} />
@@ -290,7 +291,12 @@ export const ModalFiltros: React.FC<ModalFiltrosProps> = ({
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.switchItem}
-                onPress={() => setFiltrosTemp({ ...filtrosTemp, apenasRecorrente: !filtrosTemp.apenasRecorrente })}
+                onPress={() =>
+                  setFiltrosTemp({
+                    ...filtrosTemp,
+                    apenasRecorrente: !filtrosTemp.apenasRecorrente,
+                  })
+                }
               >
                 <View style={styles.switchLabel}>
                   <Ionicons name="repeat-outline" size={20} color={COLORS.textSecondary} />
@@ -330,14 +336,14 @@ export const ModalFiltros: React.FC<ModalFiltrosProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const getModalFiltrosStyles = (COLORS) => StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: COLORS.overlay,
     justifyContent: 'flex-end',
   },
   modalContainer: {
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.backgroundLight,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     maxHeight: '90%',
@@ -384,6 +390,7 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: 20,
+    backgroundColor: COLORS.backgroundLight,
   },
   section: {
     paddingVertical: 20,
@@ -410,7 +417,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: COLORS.border,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.background,
     gap: 6,
   },
   typeButtonActive: {
@@ -489,7 +496,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.background,
   },
   currencySymbol: {
     fontSize: 14,
@@ -536,7 +543,7 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.background,
     shadowColor: COLORS.black,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
@@ -563,7 +570,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: COLORS.border,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.background,
     gap: 6,
   },
   clearButtonText: {
@@ -618,7 +625,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: COLORS.border,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.background,
     gap: 4,
   },
   periodButtonText: {
@@ -646,7 +653,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.background,
     gap: 8,
   },
   dateInputText: {

@@ -12,7 +12,9 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { Category, CategoryType } from '../types/categoria.types';
 import { CATEGORY_COLORS } from '../constants/constantesCategorias';
 import ModalSelecaoIcone from './ModalSelecaoIcone';
-import { styles } from '../style/ModalCategoria.style';
+import { getColorsByTheme } from '../../../styles/colors';
+import { useTheme } from '../../../contexts/ThemeContext';
+import { getStyles } from '../style/ModalCategoria.style';
 
 interface ModalCategoriaProps {
   visible: boolean;
@@ -20,6 +22,7 @@ interface ModalCategoriaProps {
   onSave: (data: { nome: string; tipo: CategoryType; cor: string; icone: string }) => Promise<boolean>;
   categoria?: Category | null;
   tipoInicial?: CategoryType;
+  nomeInicial?: string;
 }
 
 const ModalCategoria: React.FC<ModalCategoriaProps> = ({
@@ -28,11 +31,16 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
   onSave,
   categoria,
   tipoInicial,
+  nomeInicial,
 }) => {
+  const { isDarkMode } = useTheme();
+  const styles = getStyles(isDarkMode);
+  const COLORS = getColorsByTheme(isDarkMode);
   const [nome, setNome] = useState('');
   const [tipo, setTipo] = useState<CategoryType>('GASTO');
   const [cor, setCor] = useState(CATEGORY_COLORS[0]);
   const [icone, setIcone] = useState('shopping-cart');
+  const [iconeEscolhido, setIconeEscolhido] = useState(false);
   const [iconModalVisible, setIconModalVisible] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -42,16 +50,24 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
       setTipo(categoria.tipo || 'GASTO');
       setCor(categoria.cor || CATEGORY_COLORS[0]);
       setIcone(categoria.icone || 'shopping-cart');
+      setIconeEscolhido(true);
+    } else if (nomeInicial) {
+      setNome(nomeInicial);
+      setTipo(tipoInicial || 'GASTO');
+      setCor(CATEGORY_COLORS[0]);
+      setIcone('shopping-cart');
+      setIconeEscolhido(false);
     } else {
       resetForm();
     }
-  }, [categoria, visible]);
+  }, [categoria, visible, nomeInicial, tipoInicial]);
 
   const resetForm = () => {
     setNome('');
     setTipo(tipoInicial);
     setCor(CATEGORY_COLORS[0]);
     setIcone('shopping-cart');
+    setIconeEscolhido(false);
   };
 
   const handleSave = async () => {
@@ -66,7 +82,10 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
 
     if (success) {
       resetForm();
-      onClose();
+      // Usar setTimeout para garantir que o estado foi atualizado antes de fechar
+      setTimeout(() => {
+        onClose();
+      }, 100);
     }
   };
 
@@ -85,8 +104,8 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
       >
         <ScrollView style={styles.container}>
           <View style={styles.header}>
-            <TouchableOpacity onPress={handleClose}>
-              <MaterialIcons name="arrow-back" size={24} color="#333" />
+              <TouchableOpacity onPress={handleClose}>
+              <MaterialIcons name="arrow-back" size={24} color={COLORS.textPrimary} />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>
               {categoria ? 'Editar Categoria' : 'Criar Categoria'}
@@ -124,7 +143,7 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
                     styles.typeRadio,
                     tipo === 'GASTO' && styles.typeRadioActive,
                   ]} />
-                  <Text style={styles.typeText}>Despesa</Text>
+                  <Text style={styles.typeText}>Gasto</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -149,7 +168,7 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
               <TextInput
                 style={styles.input}
                 placeholder="Digite o nome"
-                placeholderTextColor="#999"
+                placeholderTextColor={COLORS.textTertiary}
                 value={nome}
                 onChangeText={setNome}
               />
@@ -170,7 +189,7 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
                     onPress={() => setCor(color)}
                   >
                     {cor === color && (
-                      <MaterialIcons name="check" size={20} color="#FFF" />
+                      <MaterialIcons name="check" size={20} color={COLORS.white} />
                     )}
                   </TouchableOpacity>
                 ))}
@@ -184,10 +203,19 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
                 style={styles.iconSelector}
                 onPress={() => setIconModalVisible(true)}
               >
-                <View style={styles.iconCircle}>
-                  <MaterialIcons name={icone as any} size={24} color="#666" />
+                <View style={[styles.iconCircle, iconeEscolhido && { backgroundColor: cor }]}>
+                  <MaterialIcons
+                    name={icone as any}
+                    size={24}
+                    color={iconeEscolhido ? COLORS.white : COLORS.textSecondary}
+                  />
                 </View>
-                <Text style={styles.iconSelectorText}>Selecione um ícone</Text>
+                <Text style={styles.iconSelectorText}>
+                  {iconeEscolhido ? 'Toque para alterar o ícone' : 'Selecione um ícone'}
+                </Text>
+                {iconeEscolhido && (
+                  <MaterialIcons name="check-circle" size={18} color={cor} style={{ marginLeft: 'auto' }} />
+                )}
               </TouchableOpacity>
             </View>
 
@@ -208,7 +236,10 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
       <ModalSelecaoIcone
         visible={iconModalVisible}
         onClose={() => setIconModalVisible(false)}
-        onSelect={setIcone}
+        onSelect={(novoIcone) => {
+          setIcone(novoIcone);
+          setIconeEscolhido(true);
+        }}
         selectedIcon={icone}
       />
     </>

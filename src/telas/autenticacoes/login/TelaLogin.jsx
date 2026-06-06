@@ -10,11 +10,16 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import TituloPagina from "../../../componentes/TituloPagina";
 import { useLogin } from "./hooks/useLogin";
-import { styles } from "./styles/TelaLogin.styles";
+import { useTheme } from "../../../contexts/ThemeContext";
+import { getColorsByTheme } from "../../../styles/colors";
+import { getStyles } from "./styles/TelaLogin.styles";
 
 function TelaLogin({ navigation }) {
   const login = useLogin();
   const [mostrarSenha, setMostrarSenha] = useState(false);
+  const { isDarkMode } = useTheme();
+  const COLORS = getColorsByTheme(isDarkMode);
+  const styles = getStyles(isDarkMode);
 
   const onLogin = async () => {
     const result = await login.handleLogin();
@@ -66,7 +71,7 @@ function TelaLogin({ navigation }) {
               <Ionicons
                 name={mostrarSenha ? "eye-off-outline" : "eye-outline"}
                 size={22}
-                color="#666"
+                color={COLORS.textTertiary}
               />
             </TouchableOpacity>
           </View>
@@ -90,14 +95,6 @@ function TelaLogin({ navigation }) {
             activeOpacity={0.8}
           >
             <Text style={styles.linkTexto}>Esqueceu a senha?</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.areaGoogle}>
-          <Text style={styles.ouConecte}>Ou conecte-se com</Text>
-          <TouchableOpacity style={styles.botaoGoogle} activeOpacity={0.8}>
-            <Ionicons name="logo-google" size={24} color="#333" />
-            <Text style={styles.botaoGoogleText}>Google</Text>
           </TouchableOpacity>
         </View>
 

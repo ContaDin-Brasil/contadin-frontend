@@ -1,0 +1,83 @@
+{
+  "bem_vindo": "Contadin",
+  "faq": {
+    "faq-01": {
+      "pergunta": "¿Cómo registro mi primera transacción?",
+      "resposta": "Ve a Transacciones, toca el botón +, completa descripción, monto, tipo, institución y categoría. Luego toca Guardar. Si no hay institución o categoría, créalas antes en Cartera o Categorías."
+    },
+    "faq-02": {
+      "pergunta": "¿Cómo edito o elimino un gasto?",
+      "resposta": "Abre Transacciones, toca el ítem deseado para editar. En la pantalla de edición puedes actualizar los campos y guardar, o eliminar la transacción."
+    },
+    "faq-03": {
+      "pergunta": "¿Cómo filtro transacciones para encontrar un registro rápido?",
+      "resposta": "Usa la búsqueda de texto arriba en Transacciones y combínala con filtros por tipo, institución, categoría, monto y período. También puedes ordenar por fecha, monto y orden alfabético."
+    },
+    "faq-04": {
+      "pergunta": "¿Cuál es la diferencia entre transacción recurrente y en cuotas?",
+      "resposta": "Recurrente se repite automáticamente (diaria, semanal, mensual o anual). En cuotas divide una compra en varios pagos. En el formulario, las dos opciones son excluyentes."
+    },
+    "faq-05": {
+      "pergunta": "¿Por qué no puedo guardar una transacción?",
+      "resposta": "Los campos obligatorios son descripción, monto, institución y categoría. Verifica que el monto sea mayor que cero y la fecha esté completa en formato dd/mm/aaaa."
+    },
+    "faq-06": {
+      "pergunta": "¿Cómo agrego bancos y vales en la cartera?",
+      "resposta": "Abre Cartera y usa Agregar en Cuentas bancarias o Vales. Puedes elegir instituciones predeterminadas o registrar una personalizada con nombre, color e ícono."
+    },
+    "faq-07": {
+      "pergunta": "¿Cómo creo y organizo categorías?",
+      "resposta": "Entra a Categorías para crear, editar y eliminar. Usa GASTO para egresos, INGRESO para entradas y GLOBAL para ambos tipos."
+    },
+    "faq-08": {
+      "pergunta": "¿Cómo uso una foto para completar una transacción con IA?",
+      "resposta": "En Agregar transacción, toca Foto, elige cámara o galería y espera la sugerencia. Puedes aceptar los datos o descartarlos y completar manualmente."
+    },
+    "faq-09": {
+      "pergunta": "¿Cómo funciona el saldo en la cartera?",
+      "resposta": "El saldo de cada institución se calcula automáticamente: suma de ingresos menos suma de gastos vinculados a esa institución."
+    },
+    "faq-10": {
+      "pergunta": "¿Qué archivos acepta la importación?",
+      "resposta": "La importación acepta .xlsx, .xls y .csv. Si el archivo no es de esos formatos, la app muestra una alerta de archivo inválido."
+    },
+    "faq-11": {
+      "pergunta": "¿Necesito instituciones y categorías registradas antes?",
+      "resposta": "Sí, es recomendable. La app intenta vincular automáticamente con lo existente. Si falta institución o categoría en la hoja, puedes registrarla en la pantalla de revisión."
+    },
+    "faq-12": {
+      "pergunta": "¿Qué significa transacción pendiente en la importación?",
+      "resposta": "Pendiente significa que falta un campo obligatorio (descripción, monto, fecha, institución o categoría). Abre la tarjeta, ajusta los campos y márcala para guardar."
+    },
+    "faq-13": {
+      "pergunta": "¿Puedo guardar solo parte de las transacciones importadas?",
+      "resposta": "Sí. Revisas ítem por ítem y eliges cuáles enviar. Al final, la app muestra cuántas se crearon y cuántas fallaron en la confirmación."
+    },
+    "faq-14": {
+      "pergunta": "¿Cómo recupero mi contraseña?",
+      "resposta": "En el inicio de sesión, usa Olvidé mi contraseña. Ingresa tu correo, valida el código recibido y define una nueva contraseña según los requisitos de seguridad."
+    }
+  },
+  "ajuda": {
+    "titulo": "Ayuda y contacto",
+    "idioma_modal": "Idioma del FAQ",
+    "selecionar_idioma": "Seleccionar idioma del FAQ",
+    "tab_faq": "FAQ",
+    "tab_contato": "Contacto"
+  },
+  "idiomas": {
+    "pt-BR": "Portugués (Brasil)",
+    "pt-PT": "Portugués (Portugal)",
+    "ar": "Árabe",
+    "zh": "Chino (mandarín)",
+    "en-US": "Inglés (EE. UU.)",
+    "en-GB": "Inglés (Reino Unido)",
+    "ru": "Ruso",
+    "ja": "Japonés",
+    "fr": "Francés",
+    "es-419": "Español (Latinoamérica)",
+    "es-ES": "Español (España)",
+    "ca": "Catalán",
+    "de": "Alemán"
+  }
+}

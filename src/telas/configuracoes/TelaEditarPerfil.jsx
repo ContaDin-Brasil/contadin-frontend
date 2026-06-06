@@ -1,97 +1,173 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView, TextInput, Switch, SafeAreaView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import React, { useCallback, useEffect, useRef } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, TextInput, Switch, SafeAreaView, ActivityIndicator } from 'react-native';
 import TituloPagina from '../../componentes/TituloPagina';
+import BotoesAcaoFixo from '../../componentes/BotoesAcaoFixo';
 import { useEditarPerfil } from './hooks/useEditarPerfil';
-import { styles } from './styles/TelaEditarPerfil.styles';
+import { confirmarAcao } from '../../utils/confirmarAcao';
+import { getColorsByTheme } from '../../styles/colors';
+import { useTheme } from '../../contexts/ThemeContext';
+import { getStyles } from './styles/TelaEditarPerfil.styles';
 
 const EditProfileScreen = ({ navigation }) => {
   const perfil = useEditarPerfil();
+  const { isDarkMode } = useTheme();
+  const styles = getStyles(isDarkMode);
+  const COLORS = getColorsByTheme(isDarkMode);
+  const permitirSaidaRef = useRef(false);
+
+  const confirmarSaidaSemSalvar = useCallback(
+    (onConfirmarSaida) => {
+      if (!perfil.isDirty) {
+        onConfirmarSaida();
+        return;
+      }
+
+      const mensagem = 'Você tem mudanças não salvas no perfil. Se sair agora, elas serão perdidas.';
+
+      confirmarAcao({
+        titulo: 'Descartar alterações?',
+        mensagem,
+        textoConfirmar: 'Sair sem salvar',
+        onConfirmar: onConfirmarSaida,
+      });
+    },
+    [perfil.isDirty],
+  );
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', (event) => {
+      if (permitirSaidaRef.current || !perfil.isDirty) {
+        return;
+      }
+
+      event.preventDefault();
+      confirmarSaidaSemSalvar(() => {
+        permitirSaidaRef.current = true;
+        navigation.dispatch(event.data.action);
+      });
+    });
+
+    return unsubscribe;
+  }, [confirmarSaidaSemSalvar, navigation, perfil.isDirty]);
+
+  const handleVoltar = useCallback(() => {
+    navigation.goBack();
+  }, [navigation]);
 
   return (
     <SafeAreaView style={styles.container}>
       <TituloPagina 
         mostrarBotaoVoltar={true} 
-        onVoltar={() => navigation.goBack()}
+        onVoltar={handleVoltar}
       >
         Editar Perfil
       </TituloPagina>
-      <ScrollView contentContainerStyle={styles.contentContainer}>
 
-      <View style={styles.avatarContainer}>
-        <View style={styles.avatar}>
-          <View style={styles.avatarIcon}>
-            <View style={styles.avatarHead} />
-            <View style={styles.avatarBody} />
-          </View>
+      {perfil.isLoading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={COLORS.primary} />
+          <Text style={styles.loadingText}>Carregando perfil...</Text>
         </View>
-        <TouchableOpacity style={styles.changePhotoContainer}>
-          <Text style={styles.changePhotoText}>Alterar Foto</Text>
-          <Ionicons name="pencil" size={16} color="#333" style={styles.editIcon} />
-        </TouchableOpacity>
-      </View>
+      ) : (
+        <View style={styles.screen}>
+          <ScrollView
+            style={styles.scroll}
+            contentContainerStyle={styles.contentContainer}
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.formContainer}>
+              <Text style={styles.sectionTitle}>Dados pessoais</Text>
 
-      <View style={styles.formContainer}>
-        <Text style={styles.label}>Nome</Text>
-        <TextInput
-          style={styles.input}
-          value={perfil.nome}
-          onChangeText={perfil.setNome}
-          placeholder=""
-        />
+              <Text style={styles.label}>Nome</Text>
+              <TextInput
+                style={styles.input}
+                value={perfil.nome}
+                onChangeText={perfil.setNome}
+                placeholder=""
+                placeholderTextColor={COLORS.textSecondary}
+              />
+              {perfil.validationErrors?.nome && (
+                <Text style={{ color: COLORS.error, fontSize: 12, marginTop: 4 }}>
+                  {perfil.validationErrors.nome}
+                </Text>
+              )}
 
-        <Text style={styles.label}>Sobrenome</Text>
-        <TextInput
-          style={styles.input}
-          value={perfil.sobrenome}
-          onChangeText={perfil.setSobrenome}
-          placeholder=""
-        />
+              <Text style={styles.label}>Sobrenome</Text>
+              <TextInput
+                style={styles.input}
+                value={perfil.sobrenome}
+                onChangeText={perfil.setSobrenome}
+                placeholder=""
+                placeholderTextColor={COLORS.textSecondary}
+              />
+              {perfil.validationErrors?.sobrenome && (
+                <Text style={{ color: COLORS.error, fontSize: 12, marginTop: 4 }}>
+                  {perfil.validationErrors.sobrenome}
+                </Text>
+              )}
 
-        <Text style={styles.label}>Telefone</Text>
-        <TextInput
-          style={styles.input}
-          value={perfil.tel}
-          onChangeText={perfil.setTel}
-          placeholder=""
-          keyboardType="phone-pad"
-        />
+              <Text style={styles.label}>Telefone</Text>
+              <TextInput
+                style={styles.input}
+                value={perfil.telefone}
+                onChangeText={perfil.setTelefone}
+                placeholder=""
+                keyboardType="phone-pad"
+                placeholderTextColor={COLORS.textSecondary}
+              />
+              {perfil.validationErrors?.telefone && (
+                <Text style={{ color: COLORS.error, fontSize: 12, marginTop: 4 }}>
+                  {perfil.validationErrors.telefone}
+                </Text>
+              )}
 
-        <Text style={styles.label}>Email</Text>
-        <TextInput
-          style={styles.input}
-          value={perfil.email}
-          onChangeText={perfil.setEmail}
-          placeholder=""
-          keyboardType="email-address"
-        />
+              <Text style={styles.label}>Email</Text>
+              <TextInput
+                style={styles.input}
+                value={perfil.email}
+                onChangeText={perfil.setEmail}
+                placeholder=""
+                keyboardType="email-address"
+                autoCapitalize="none"
+                placeholderTextColor={COLORS.textSecondary}
+              />
+              {perfil.validationErrors?.email && (
+                <Text style={{ color: COLORS.error, fontSize: 12, marginTop: 4 }}>
+                  {perfil.validationErrors.email}
+                </Text>
+              )}
 
-        <View style={styles.switchContainer}>
-          <Text style={styles.switchLabel}>Notificações Push</Text>
-          <Switch
-            value={perfil.pushNotifications}
-            onValueChange={perfil.setPushNotifications}
-            trackColor={{ false: '#D3D3D3', true: '#6BA7FF' }}
-            thumbColor={perfil.pushNotifications ? '#FFF' : '#f4f3f4'}
+              {perfil.emailFoiAlterado ? (
+                <Text style={styles.impactText}>
+                  Este email sera usado para login e recuperação.
+                </Text>
+              ) : null}
+
+              <View style={styles.sectionDivider} />
+
+              <Text style={styles.sectionTitle}>Preferencias do app</Text>
+
+              <View style={styles.switchContainer}>
+                <Text style={styles.switchLabel}>Tema Escuro</Text>
+                <Switch
+                  value={perfil.darkTheme}
+                  onValueChange={perfil.setDarkTheme}
+                  trackColor={{ false: COLORS.border, true: COLORS.primaryLight }}
+                  thumbColor={perfil.darkTheme ? COLORS.primary : COLORS.backgroundLight}
+                />
+              </View>
+            </View>
+          </ScrollView>
+
+          <BotoesAcaoFixo
+            primaryLabel="Salvar Alterações"
+            primaryLoadingLabel="Salvando..."
+            onPrimaryPress={perfil.handleSaveProfile}
+            primaryDisabled={perfil.isSaving || !perfil.isDirty || Object.keys(perfil.validationErrors || {}).length > 0}
+            primaryLoading={perfil.isSaving}
           />
         </View>
-
-        <View style={styles.switchContainer}>
-          <Text style={styles.switchLabel}>Tema Escuro</Text>
-          <Switch
-            value={perfil.darkTheme}
-            onValueChange={perfil.setDarkTheme}
-            trackColor={{ false: '#D3D3D3', true: '#6BA7FF' }}
-            thumbColor={perfil.darkTheme ? '#FFF' : '#f4f3f4'}
-          />
-        </View>
-
-        <TouchableOpacity style={styles.saveButton} onPress={perfil.handleSaveProfile}>
-          <Ionicons name="save-outline" size={24} color="#000" />
-          <Text style={styles.saveButtonText}>Salvar Alterações</Text>
-        </TouchableOpacity>
-      </View>
-      </ScrollView>
+      )}
     </SafeAreaView>
   );
 };

@@ -20,7 +20,7 @@ export const limparDadosOrfaos = async (usuarioId = 1): Promise<ResultadoLimpeza
       console.log(`✅ Limpeza concluída: ${resultado.deletadas} transações órfãs removidas`);
       console.log('\n📋 Transações removidas:');
       resultado.transacoesOrfas.forEach((t) => {
-        console.log(`  • ID ${t.id}: ${t.descricao} (instituição ${t.fk_instituicao})`);
+        console.log(`  • ID ${t.id}: ${t.descricao} (instituição ${t.fkInstituicao})`);
       });
     } else {
       console.log('✅ Nenhuma transação órfã encontrada. Banco de dados está limpo!');

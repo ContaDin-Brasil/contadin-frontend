@@ -1,17 +1,31 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { styles } from '../styles/TelaInicial.styles';
+import { getStyles } from '../styles/TelaInicial.styles';
+import { useTheme } from '../../../contexts/ThemeContext';
 import type { GastoCategoria } from '../types/dashboard.types';
 
 interface ItemCategoriaProps {
   categoria: GastoCategoria;
   formatarMoeda: (valor: number) => string;
+  onPress?: () => void;
 }
 
-export const ItemCategoria: React.FC<ItemCategoriaProps> = ({ categoria, formatarMoeda }) => {
+export const ItemCategoria: React.FC<ItemCategoriaProps> = ({ categoria, formatarMoeda, onPress }) => {
+  const { isDarkMode } = useTheme();
+  const styles = getStyles(isDarkMode);
+  
+  // Validar categoria
+  if (!categoria || !categoria.valor) {
+    return null;
+  }
+
   return (
-    <View style={styles.itemCategoria}>
+    <TouchableOpacity
+      onPress={onPress}
+      activeOpacity={onPress ? 0.7 : 1}
+      style={styles.itemCategoria}
+    >
       <View style={styles.itemCategoriaHeader}>
         <View style={[styles.itemCategoriaIcone, { backgroundColor: categoria.cor + '20' }]}>
           <MaterialIcons name={categoria.icone as any} size={20} color={categoria.cor} />
@@ -35,6 +49,6 @@ export const ItemCategoria: React.FC<ItemCategoriaProps> = ({ categoria, formata
           ]} 
         />
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };

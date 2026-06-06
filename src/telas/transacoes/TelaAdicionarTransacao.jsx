@@ -1,29 +1,53 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity, Switch, Animated, ActivityIndicator, Alert, Image, SafeAreaView, Platform } from 'react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, Switch, Animated, ActivityIndicator, Alert, Image, SafeAreaView, Platform, Modal, Pressable } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
+import Toast from 'react-native-toast-message';
 import TituloPagina from '../../componentes/TituloPagina';
+import BotoesAcaoFixo from '../../componentes/BotoesAcaoFixo';
 import { DatePickerInput } from '../../componentes/DatePickerInput';
+import { ImagePreview } from '../../componentes/ImagePreview';
+import ModalConfirmarAudio from '../../componentes/ModalConfirmarAudio';
+import AIProcessingModal from './componentes/AIProcessingModal';
+import AIProcessingErrorModal from './componentes/AIProcessingErrorModal';
+import { ErrorMessage } from './componentes/ErrorMessage';
 import { getLogoByName } from '../../componentes/modais/logosInstituicoes';
 import ModalSelecaoInstituicao from '../../componentes/modais/ModalSelecaoInstituicao';
 import ModalAdicionarInstituicao from '../../componentes/modais/ModalAdicionarInstituicao';
 import ModalCategoria from '../categorias/modals/ModalCategoria';
 import { useFormularioTransacao } from './hooks/useFormularioTransacao';
 import { useProcessamentoIA } from './hooks/useProcessamentoIA';
+import { useAuth } from '../../contexts/AuthContext';
 import { transacaoService, categoriaService } from '../../api';
 import { FREQUENCIES, INSTALLMENT_OPTIONS } from './constants/constantesTransacao';
 import { getCategoryIcon } from './utils/utilitariosTransacao';
-import COLORS from '../../styles/colors';
-import { styles } from './styles/TelaAdicionarTransacao.styles';
+import { getColorsByTheme } from '../../styles/colors';
+import { useTheme } from '../../contexts/ThemeContext';
+import { getStyles } from './styles/TelaAdicionarTransacao.styles';
 
 const TelaAdicionarTransacao = ({ navigation }) => {
+  const { isDarkMode } = useTheme();
+  const COLORS = getColorsByTheme(isDarkMode);
+  const styles = getStyles(isDarkMode);
+  const { user } = useAuth();
   const [selectionModalVisible, setSelectionModalVisible] = useState(false);
   const [customModalVisible, setCustomModalVisible] = useState(false);
+  const [aiSuggestionModalVisible, setAiSuggestionModalVisible] = useState(false);
   const [salvando, setSalvando] = useState(false);
+  const [validationErrors, setValidationErrors] = useState({});
 
   // Hooks customizados
   const formState = useFormularioTransacao();
   const aiState = useProcessamentoIA();
+  const semInstituicoesDisponiveis = !formState.loading && formState.instituicoes.length === 0;
+  const semCategoriasDisponiveis = !formState.loading && formState.categorias.length === 0;
+
+  // Efeito para abrir modal quando sugestão de IA aparece
+  React.useEffect(() => {
+    if (aiState.aiSuggestion && !aiState.isProcessing) {
+      setAiSuggestionModalVisible(true);
+    }
+  }, [aiState.aiSuggestion, aiState.isProcessing]);
 
   const handleSelectInstitution = (institution) => {
     formState.handleSelectInstitution(institution);
@@ -39,7 +63,7 @@ const TelaAdicionarTransacao = ({ navigation }) => {
     try {
       await categoriaService.criar({
         ...data,
-        fk_usuario: 1 // ID do usuário
+        fkUsuario: user?.id ?? null,
       });
       
       // Recarrega categorias
@@ -56,9 +80,53 @@ const TelaAdicionarTransacao = ({ navigation }) => {
 
   const applyAISuggestion = () => {
     if (aiState.aiSuggestion) {
-      formState.applyAISuggestion(aiState.aiSuggestion);
+      // Encontra a instituição sugerida no array disponível
+      let instituicaoSugerida = null;
+      
+      if (aiState.ocrMetadata?.idInstituicaoExistente) {
+        // Prioriza instituição existente encontrada pela IA via ID
+        instituicaoSugerida = formState.instituicoes?.find(
+          inst => inst.id === aiState.ocrMetadata.idInstituicaoExistente
+        ) || null;
+        
+        if (instituicaoSugerida) {
+          console.log('✅ [SUGGESTION] Instituição encontrada por ID:', instituicaoSugerida.nome);
+        }
+      }
+
+      // Fallback: busca por nome (usado no fluxo de áudio, que não retorna id_existente)
+      if (!instituicaoSugerida) {
+        const nomeIA = aiState.aiSuggestion.instituicao;
+        if (nomeIA && nomeIA !== 'Sem instituição') {
+          instituicaoSugerida = formState.instituicoes?.find(
+            inst => inst.nome.toLowerCase() === nomeIA.toLowerCase()
+          ) || null;
+
+          if (instituicaoSugerida) {
+            console.log('✅ [SUGGESTION] Instituição encontrada por nome:', instituicaoSugerida.nome);
+          }
+        }
+      }
+      
+      // Fecha o modal e descarta a sugestão
+      setAiSuggestionModalVisible(false);
+      // Aplica sugestão com instituição e categoria
+      formState.applyAISuggestion(
+        aiState.aiSuggestion,
+        instituicaoSugerida, // Instituição pode ser nula
+        aiState.ocrMetadata?.fkCategoria || null // Categoria sugerida
+      );
+      
       aiState.dismissAISuggestion();
     }
+  };
+
+  const handleCamera = async () => {
+    aiState.captureFromCamera();
+  };
+
+  const handleGallery = async () => {
+    aiState.captureFromGallery();
   };
 
   const handleSuccessNavigation = () => {
@@ -67,29 +135,68 @@ const TelaAdicionarTransacao = ({ navigation }) => {
       return;
     }
 
-    navigation.navigate('TransactionsMain');
+    navigation.navigate('Transacao');
   };
 
   const handleSaveTransaction = async () => {
+    if (semInstituicoesDisponiveis) {
+      Toast.show({
+        type: 'error',
+        position: 'top',
+        text1: 'Nenhuma instituição cadastrada',
+        text2: 'Adicione uma instituição antes de salvar a transação.',
+        visibilityTime: 3500,
+        autoHide: true,
+        topOffset: 80,
+      });
+      return;
+    }
+
+    if (semCategoriasDisponiveis) {
+      Toast.show({
+        type: 'error',
+        position: 'top',
+        text1: 'Nenhuma categoria cadastrada',
+        text2: 'Crie uma categoria antes de salvar a transação.',
+        visibilityTime: 3500,
+        autoHide: true,
+        topOffset: 80,
+      });
+      return;
+    }
+
+    // Validar os 5 campos obrigatórios
+    const validation = formState.validateOnSubmit();
+    
+    if (!validation.isValid) {
+      // Mostrar erros inline
+      setValidationErrors(validation.errors);
+      
+      // Preparar mensagem de erro consolidada para toast
+      const errorMessages = Object.values(validation.errors).join('\n');
+      
+      // Mostrar toast com lista de erros
+      Toast.show({
+        type: 'error',
+        position: 'top',
+        text1: '❌ Preencha os campos obrigatórios',
+        text2: errorMessages,
+        visibilityTime: 4000,
+        autoHide: true,
+        topOffset: 80,
+      });
+      
+      return;
+    }
+    
+    // Limpar erros se passou na validação
+    setValidationErrors({});
+    
     setSalvando(true);
     
     try {
       const data = formState.getFormData();
       
-      // Valida dados básicos
-      if (!data.descricao || !data.valor) {
-        Alert.alert('Erro', 'Preencha descrição e valor');
-        setSalvando(false);
-        return;
-      }
-
-      // Valida se uma instituição foi selecionada
-      if (!data.selectedInstitution) {
-        Alert.alert('Erro', 'Selecione uma instituição');
-        setSalvando(false);
-        return;
-      }
-
       // Valida data limite de recorrência
       const dataLimiteError = formState.validateRecurrenceEndDate();
       if (dataLimiteError) {
@@ -106,29 +213,30 @@ const TelaAdicionarTransacao = ({ navigation }) => {
         return;
       }
 
-      // Converte data DD/MM/YYYY para ISO
+      // Converte data DD/MM/YYYY para o formato esperado pelo backend: yyyy-MM-dd'T'HH:mm:ss
       const [day, month, year] = data.date.split('/');
-      const dataISO = new Date(`${year}-${month}-${day}`).toISOString();
+      const dataTransacao = `${year}-${month}-${day}T00:00:00`;
 
-      // Converte data fim de recorrência se houver
-      let fimRecorrenciaISO = null;
+      // Converte data fim de recorrência para yyyy-MM-dd (sem horário)
+      let fimRecorrencia = null;
       if (data.hasRecurrenceEndDate && data.recurrenceEndDate) {
         const [endDay, endMonth, endYear] = data.recurrenceEndDate.split('/');
-        fimRecorrenciaISO = new Date(`${endYear}-${endMonth}-${endDay}`).toISOString();
+        fimRecorrencia = `${endYear}-${endMonth}-${endDay}`;
       }
 
-      // Prepara dados para envio
+      // Prepara dados para envio (campos em camelCase conforme TransacaoRequest)
       const transacao = {
         descricao: data.descricao,
-        valor: parseFloat(data.valor),
+        valor: data.valor,
         tipo: data.tipo,
-        data_transacao: dataISO,
+        dataTransacao,
         parcelado: data.parcelado,
-        qtdParcelas: data.qtdParcelas,
-        recorrencia: data.isRecurring ? data.frequency : null,
-        fim_recorrencia: fimRecorrenciaISO,
-        fk_instituicao: data.selectedInstitution.id,
-        fk_categoria: data.selectedCategory,
+        qtdParcelas: data.qtdParcelas ?? 1,
+        recorrencia: data.frequency ?? null,
+        fimRecorrencia,
+        ativo: true,
+        fkInstituicao: String(data.selectedInstitution.id),
+        fkCategoria: String(data.selectedCategory),
       };
 
       console.log('\n' + '='.repeat(60));
@@ -147,16 +255,37 @@ const TelaAdicionarTransacao = ({ navigation }) => {
       console.log('📥 Resposta do servidor:', JSON.stringify(resultado, null, 2));
       console.log('='.repeat(60) + '\n');
       
-      if (Platform.OS === 'web') {
-        Alert.alert('Sucesso', 'Transação criada com sucesso!');
+      // Mostrar toast de sucesso
+      Toast.show({
+        type: 'success',
+        position: 'top',
+        text1: '✅ Transação criada com sucesso!',
+        text2: formState.descricao,
+        visibilityTime: 3000,
+        autoHide: true,
+        topOffset: 80,
+      });
+
+      // Navegar de volta após o sucesso
+      setTimeout(() => {
         handleSuccessNavigation();
-      } else {
-        Alert.alert('Sucesso', 'Transação criada com sucesso!', [
-          { text: 'OK', onPress: handleSuccessNavigation }
-        ]);
-      }
+      }, 500);
+      
+      
     } catch (error) {
       console.error('Erro ao salvar transação:', error);
+      
+      // Mostrar toast de erro
+      Toast.show({
+        type: 'error',
+        position: 'top',
+        text1: '❌ Erro ao salvar transação',
+        text2: 'Tente novamente mais tarde',
+        visibilityTime: 4000,
+        autoHide: true,
+        topOffset: 80,
+      });
+      
       Alert.alert('Erro', 'Não foi possível salvar a transação');
     } finally {
       setSalvando(false);
@@ -171,93 +300,59 @@ const TelaAdicionarTransacao = ({ navigation }) => {
       >
         Adicionar Transação
       </TituloPagina>
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <View style={styles.screen}>
+        <ScrollView
+          style={styles.scroll}
+          contentContainerStyle={styles.contentContainer}
+          showsVerticalScrollIndicator={false}
+        >
 
-      {/* Botões de OCR/Áudio */}
+      {/* Botões de Sugestão via IA */}
       <View style={styles.aiSection}>
-        <Text style={styles.aiSectionTitle}>✨ Adicionar via IA</Text>
+        <Text style={styles.aiSectionTitle}>Adicionar via IA</Text>
         <View style={styles.aiButtons}>
           <TouchableOpacity 
             style={styles.aiButton}
-            onPress={aiState.handlePhotoOCR}
+            onPress={handleCamera}
             disabled={aiState.isProcessing}
           >
             <Ionicons name="camera" size={24} color={COLORS.primaryLight} />
-            <Text style={styles.aiButtonText}>Foto</Text>
+            <Text style={styles.aiButtonText}>Câmera</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.aiButton}
+            onPress={handleGallery}
+            disabled={aiState.isProcessing}
+          >
+            <Ionicons name="image" size={24} color={COLORS.primaryLight} />
+            <Text style={styles.aiButtonText}>Galeria</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.aiButton, aiState.isRecording && { borderColor: COLORS.error }]}
             onPress={aiState.handleAudioInput}
             disabled={aiState.isProcessing}
           >
-            <Ionicons name="mic" size={24} color={COLORS.primaryLight} />
-            <Text style={styles.aiButtonText}>Áudio</Text>
+            <Ionicons
+              name={aiState.isRecording ? 'stop-circle' : 'mic'}
+              size={24}
+              color={aiState.isRecording ? COLORS.error : COLORS.primaryLight}
+            />
+            <Text style={[styles.aiButtonText, aiState.isRecording && { color: COLORS.error }]}>
+              {aiState.isRecording ? 'Parar' : 'Áudio'}
+            </Text>
           </TouchableOpacity>
         </View>
 
-        {/* Indicador de processamento */}
-        {aiState.isProcessing && (
-          <View style={styles.processingCard}>
-            <View style={styles.processingHeader}>
-              <Animated.View style={[
-                styles.loadingDot, 
-                { transform: [{ scale: aiState.pulseAnim }] }
-              ]} />
-              <Text style={styles.processingText}>
-                {aiState.processingType === 'photo' ? 'Analisando foto...' : 'Transcrevendo áudio...'}
-              </Text>
-            </View>
-            <Text style={styles.processingSubtext}>
-              A IA está extraindo as informações da transação
-            </Text>
-          </View>
-        )}
-
-        {/* Card de sugestão da IA */}
-        {aiState.aiSuggestion && !aiState.isProcessing && (
-          <View style={styles.suggestionCard}>
-            <View style={styles.suggestionHeader}>
-              <Ionicons name="sparkles" size={20} color={COLORS.primaryLight} />
-              <Text style={styles.suggestionTitle}>Sugestão da IA</Text>
-            </View>
-            <View style={styles.suggestionContent}>
-              <View style={styles.suggestionRow}>
-                <Text style={styles.suggestionLabel}>Descrição:</Text>
-                <Text style={styles.suggestionValue}>{aiState.aiSuggestion.descricao}</Text>
-              </View>
-              <View style={styles.suggestionRow}>
-                <Text style={styles.suggestionLabel}>Valor:</Text>
-                <Text style={styles.suggestionValue}>R$ {aiState.aiSuggestion.valor}</Text>
-              </View>
-              {aiState.aiSuggestion.data && (
-                <View style={styles.suggestionRow}>
-                  <Text style={styles.suggestionLabel}>Data:</Text>
-                  <Text style={styles.suggestionValue}>{aiState.aiSuggestion.data}</Text>
-                </View>
-              )}
-              <View style={styles.suggestionRow}>
-                <Text style={styles.suggestionLabel}>Tipo:</Text>
-                <Text style={styles.suggestionValue}>
-                  {aiState.aiSuggestion.tipo === 'RECEITA' ? 'Receita' : 'Gasto'}
-                </Text>
-              </View>
-            </View>
-            <View style={styles.suggestionButtons}>
-              <TouchableOpacity 
-                style={styles.suggestionButtonReject}
-                onPress={aiState.dismissAISuggestion}
-              >
-                <Text style={styles.suggestionButtonRejectText}>Descartar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={styles.suggestionButtonAccept}
-                onPress={applyAISuggestion}
-              >
-                <Ionicons name="checkmark" size={18} color="#FFF" />
-                <Text style={styles.suggestionButtonAcceptText}>Aplicar</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+        {/* Preview da imagem capturada */}
+        {aiState.capturedImage && !aiState.isProcessing && (
+          <ImagePreview
+            imageUri={aiState.capturedImage.uri}
+            onRemove={() => {
+              setAiSuggestionModalVisible(false);
+              aiState.dismissAISuggestion();
+            }}
+            size={150}
+          />
         )}
       </View>
 
@@ -265,12 +360,14 @@ const TelaAdicionarTransacao = ({ navigation }) => {
       <View style={styles.section}>
         <Text style={styles.label}>Descrição da transação:</Text>
         <TextInput
-          style={styles.input}
-          placeholder="Salário Avanade"
+          style={[styles.input, (salvando || formState.loading) && { opacity: 0.6 }]}
+          placeholder="Ex: Salário, Conta de Luz, Compras no mercado..."
           placeholderTextColor="#999"
           value={formState.descricao}
           onChangeText={formState.setDescricao}
+          editable={!salvando && !formState.loading}
         />
+        <ErrorMessage message={validationErrors.descricao} />
       </View>
 
       {/* Valor da transação */}
@@ -279,32 +376,27 @@ const TelaAdicionarTransacao = ({ navigation }) => {
         <View style={styles.amountInputContainer}>
           <Text style={styles.currencySymbol}>R$</Text>
           <TextInput
-            style={styles.amountInput}
+            style={[styles.amountInput, (salvando || formState.loading) && { opacity: 0.6 }]}
             placeholder="0,00"
             placeholderTextColor="#999"
             value={formState.valor}
             onChangeText={formState.handleValorChange}
             onBlur={formState.handleValorBlur}
             keyboardType="numeric"
+            editable={!salvando && !formState.loading}
           />
         </View>
+        <ErrorMessage message={validationErrors.valor} />
       </View>
 
       {/* Data da transação */}
       <View style={styles.section}>
-        <Text style={styles.label}>Data:</Text>
-        <View style={styles.dateInputContainer}>
-          <Ionicons name="calendar-outline" size={20} color={COLORS.primaryLight} />
-          <TextInput
-            style={styles.dateInput}
-            placeholder="DD/MM/AAAA"
-            placeholderTextColor="#999"
-            value={formState.date}
-            onChangeText={formState.handleDateChange}
-            keyboardType="numeric"
-            maxLength={10}
-          />
-        </View>
+        <DatePickerInput
+          label="Data:"
+          value={formState.date}
+          onChangeDate={formState.handleDateChange}
+          placeholder="DD/MM/AAAA"
+        />
       </View>
 
       {/* Tipo da transação */}
@@ -347,11 +439,11 @@ const TelaAdicionarTransacao = ({ navigation }) => {
       <View style={styles.section}>
         <Text style={styles.label}>Categoria:</Text>
         <View style={styles.searchContainer}>
-          <Ionicons name="search" size={20} color="#999" />
+          <Ionicons name="search" size={20} color={COLORS.textTertiary} />
           <TextInput
             style={styles.searchInput}
             placeholder="Pesquisar categorias..."
-            placeholderTextColor="#999"
+            placeholderTextColor={COLORS.textTertiary}
             value={formState.categorySearch}
             onChangeText={formState.setCategorySearch}
           />
@@ -362,18 +454,18 @@ const TelaAdicionarTransacao = ({ navigation }) => {
               key={category.id}
               style={[
                 styles.categoryButton,
-                formState.selectedCategory === category.id && styles.categoryButtonActive
+                String(formState.selectedCategory) === String(category.id) && styles.categoryButtonActive
               ]}
-              onPress={() => formState.setSelectedCategory(category.id)}
+              onPress={() => formState.setSelectedCategory(String(category.id))}
             >
               <MaterialIcons
                 name={category.icone || getCategoryIcon(category.nome)}
                 size={20}
-                color={formState.selectedCategory === category.id ? '#FFF' : '#333'}
+                color={String(formState.selectedCategory) === String(category.id) ? COLORS.white : COLORS.textPrimary}
               />
               <Text style={[
                 styles.categoryButtonText,
-                formState.selectedCategory === category.id && styles.categoryButtonTextActive
+                String(formState.selectedCategory) === String(category.id) && styles.categoryButtonTextActive
               ]}>
                 {category.nome}
               </Text>
@@ -391,6 +483,13 @@ const TelaAdicionarTransacao = ({ navigation }) => {
             </Text>
           </TouchableOpacity>
         </View>
+        {semCategoriasDisponiveis && (
+          <View style={{ marginTop: 8 }}>
+            <Text style={{ color: COLORS.warning, fontSize: 13 }}>
+              Nenhuma categoria encontrada. Crie uma categoria para continuar.
+            </Text>
+          </View>
+        )}
       </View>
 
       {/* Recorrência e Parcelamento */}
@@ -401,8 +500,8 @@ const TelaAdicionarTransacao = ({ navigation }) => {
             <Switch
               value={formState.isRecurring}
               onValueChange={formState.handleToggleRecurring}
-              trackColor={{ false: COLORS.borderDark, true: COLORS.primaryLight }}
-              thumbColor={COLORS.white}
+              trackColor={{ false: COLORS.border, true: COLORS.primaryLight }}
+              thumbColor={formState.isRecurring ? COLORS.primary : COLORS.backgroundLight}
             />
             <Text style={styles.recurringText}>Recorrência</Text>
           </View>
@@ -432,8 +531,8 @@ const TelaAdicionarTransacao = ({ navigation }) => {
               <Switch
                 value={formState.hasRecurrenceEndDate}
                 onValueChange={formState.setHasRecurrenceEndDate}
-                trackColor={{ false: COLORS.borderDark, true: COLORS.primaryLight }}
-                thumbColor={COLORS.white}
+                trackColor={{ false: COLORS.border, true: COLORS.primaryLight }}
+                thumbColor={formState.hasRecurrenceEndDate ? COLORS.primary : COLORS.backgroundLight}
               />
               <Text style={styles.recurringText}>Data limite da recorrência</Text>
             </View>
@@ -456,8 +555,8 @@ const TelaAdicionarTransacao = ({ navigation }) => {
             <Switch
               value={formState.isInstallment}
               onValueChange={formState.handleToggleInstallment}
-              trackColor={{ false: COLORS.borderDark, true: COLORS.primaryLight }}
-              thumbColor={COLORS.white}
+              trackColor={{ false: COLORS.border, true: COLORS.primaryLight }}
+              thumbColor={formState.isInstallment ? COLORS.primary : COLORS.backgroundLight}
             />
             <Text style={styles.recurringText}>Parcelado</Text>
           </View>
@@ -500,6 +599,7 @@ const TelaAdicionarTransacao = ({ navigation }) => {
                   }
                 }}
                 style={styles.picker}
+                itemStyle={{ color: COLORS.textPrimary }}
                 dropdownIconColor={COLORS.primary}
               >
                 {INSTALLMENT_OPTIONS.map(option => (
@@ -512,13 +612,13 @@ const TelaAdicionarTransacao = ({ navigation }) => {
               </Picker>
             </View>
 
-            {/* Campo customizado quando seleciona "Outro valor" */}
+        {/* Campo customizado quando seleciona "Outro valor" */}
             {formState.installmentCount === 0 && (
               <View style={styles.customInstallmentContainer}>
                 <Text style={styles.label}>Digite a quantidade de parcelas (máx. 720):</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder="Ex: 24"
+                  placeholder="Ex: 12, 24, 35..."
                   placeholderTextColor="#999"
                   value={formState.customInstallmentValue}
                   onChangeText={formState.handleCustomInstallmentChange}
@@ -555,9 +655,10 @@ const TelaAdicionarTransacao = ({ navigation }) => {
         
         {/* Campo de seleção com chip */}
         <TouchableOpacity
-          style={styles.institutionChipContainer}
-          onPress={() => setSelectionModalVisible(true)}
+          style={[styles.institutionChipContainer, (salvando || formState.loading) && { opacity: 0.6 }]}
+          onPress={() => !salvando && !formState.loading && setSelectionModalVisible(true)}
           activeOpacity={0.7}
+          disabled={salvando || formState.loading}
         >
           {formState.selectedInstitution ? (
             <View style={styles.institutionChipWrapper}>
@@ -566,7 +667,7 @@ const TelaAdicionarTransacao = ({ navigation }) => {
                   const institutionLogo = getLogoByName(formState.selectedInstitution.nome);
                   return (
                     <>
-                      <View style={[styles.chipIconContainer, { backgroundColor: institutionLogo ? '#FFF' : formState.selectedInstitution.cor }]}>
+                      <View style={[styles.chipIconContainer, { backgroundColor: institutionLogo ? COLORS.white : formState.selectedInstitution.cor }]}>
                         {institutionLogo ? (
                           <Image 
                             source={institutionLogo} 
@@ -586,7 +687,7 @@ const TelaAdicionarTransacao = ({ navigation }) => {
                         }}
                         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                       >
-                        <Ionicons name="close-circle" size={20} color="#666" />
+                        <Ionicons name="close-circle" size={20} color={COLORS.textSecondary} />
                       </TouchableOpacity>
                     </>
                   );
@@ -595,42 +696,68 @@ const TelaAdicionarTransacao = ({ navigation }) => {
             </View>
           ) : (
             <View style={styles.institutionPlaceholderContainer}>
-              <Ionicons name="business-outline" size={20} color="#999" />
+              <Ionicons name="business-outline" size={20} color={COLORS.textTertiary} />
               <Text style={styles.institutionPlaceholderText}>Toque para selecionar uma instituição</Text>
             </View>
           )}
-          <Ionicons name="chevron-forward" size={20} color="#999" />
+          <Ionicons name="chevron-forward" size={20} color={COLORS.textTertiary} />
         </TouchableOpacity>
+        {semInstituicoesDisponiveis && (
+          <View style={{ marginTop: 8 }}>
+            <Text style={{ color: COLORS.warning, fontSize: 13 }}>
+              Nenhuma instituição encontrada. Adicione uma instituição para continuar.
+            </Text>
+            <TouchableOpacity
+              onPress={() => setCustomModalVisible(true)}
+              style={{ marginTop: 6 }}
+            >
+              <Text style={{ color: COLORS.primary, fontWeight: '600' }}>Adicionar instituição</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+        <ErrorMessage message={validationErrors.instituicao} />
       </View>
 
-      {/* Botão Salvar */}
-      <TouchableOpacity 
-        style={[styles.saveButton, salvando && { opacity: 0.6 }]} 
-        onPress={handleSaveTransaction}
-        disabled={salvando || formState.loading}
-      >
-        {salvando ? (
-          <>
-            <ActivityIndicator size="small" color="#FFF" />
-            <Text style={[styles.saveButtonText, { marginLeft: 8 }]}>Salvando...</Text>
-          </>
-        ) : (
-          <>
-            <Ionicons name="save-outline" size={24} color="#FFF" />
-            <Text style={styles.saveButtonText}>Salvar Transação</Text>
-          </>
-        )}
-      </TouchableOpacity>
+          {/* Indicador de carregamento de dados */}
+          {formState.loading && (
+            <View style={{ padding: 20, alignItems: 'center' }}>
+              <ActivityIndicator size="small" color={COLORS.primary} />
+              <Text style={{ marginTop: 8, color: COLORS.textSecondary }}>Carregando dados...</Text>
+            </View>
+          )}
+        </ScrollView>
 
-      {/* Indicador de carregamento de dados */}
-      {formState.loading && (
-        <View style={{ padding: 20, alignItems: 'center' }}>
-          <ActivityIndicator size="small" color={COLORS.primary} />
-          <Text style={{ marginTop: 8, color: '#666' }}>Carregando dados...</Text>
-        </View>
-      )}
+        <BotoesAcaoFixo
+          primaryLabel="Salvar Transação"
+          primaryLoadingLabel="Salvando..."
+          onPrimaryPress={handleSaveTransaction}
+          primaryDisabled={salvando || formState.loading || semInstituicoesDisponiveis || semCategoriasDisponiveis}
+          primaryLoading={salvando}
+        />
+      </View>
 
       {/* Modais */}
+      <ModalConfirmarAudio
+        visible={aiState.audioConfirmModalVisible}
+        audioUri={aiState.pendingAudioUri}
+        onConfirm={aiState.confirmAudioSend}
+        onCancel={aiState.cancelAudioSend}
+      />
+
+      <AIProcessingModal
+        visible={aiState.isProcessing}
+        mode={aiState.processingType}
+        progress={aiState.uploadProgress}
+        statusMessage={aiState.statusMessage}
+      />
+
+      <AIProcessingErrorModal
+        visible={!!aiState.processingError}
+        error={aiState.processingError}
+        onClose={aiState.clearProcessingError}
+        onRetry={aiState.retryProcessing}
+      />
+
       <ModalSelecaoInstituicao
         visible={selectionModalVisible}
         onClose={() => setSelectionModalVisible(false)}
@@ -654,7 +781,100 @@ const TelaAdicionarTransacao = ({ navigation }) => {
         onSave={handleCreateCategoria}
         tipoInicial={formState.tipo}
       />
-      </ScrollView>
+
+      {/* Modal de Sugestão da IA */}
+      <Modal
+        visible={aiSuggestionModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => {
+          setAiSuggestionModalVisible(false);
+          aiState.dismissAISuggestion();
+        }}
+      >
+        <Pressable 
+          style={styles.modalOverlay}
+          onPress={() => {
+            setAiSuggestionModalVisible(false);
+            aiState.dismissAISuggestion();
+          }}
+        >
+          <Pressable 
+            style={styles.modalContainer}
+            onPress={(e) => e.stopPropagation()}
+          >
+            {/* Handle bar */}
+            <View style={styles.modalHandle} />
+
+            {/* Header */}
+            <View style={styles.modalHeader}>
+              <View style={styles.modalTitleContainer}>
+                <Ionicons name="sparkles" size={24} color={COLORS.primaryLight} />
+                <Text style={styles.modalTitle}>Sugestão da IA</Text>
+              </View>
+              <TouchableOpacity 
+                onPress={() => {
+                  setAiSuggestionModalVisible(false);
+                  aiState.dismissAISuggestion();
+                }}
+              >
+                <Ionicons name="close" size={28} color="#333" />
+              </TouchableOpacity>
+            </View>
+
+            {/* Content */}
+            <View style={styles.modalContent}>
+              {aiState.aiSuggestion && (
+                <>
+                  <View style={styles.modalSuggestionRow}>
+                    <Text style={styles.modalSuggestionLabel}>Descrição:</Text>
+                    <Text style={styles.modalSuggestionValue}>{aiState.aiSuggestion.descricao}</Text>
+                  </View>
+
+                  <View style={styles.modalSuggestionRow}>
+                    <Text style={styles.modalSuggestionLabel}>Valor:</Text>
+                    <Text style={styles.modalSuggestionValue}>R$ {aiState.aiSuggestion.valor}</Text>
+                  </View>
+
+                  {aiState.aiSuggestion.data && (
+                    <View style={styles.modalSuggestionRow}>
+                      <Text style={styles.modalSuggestionLabel}>Data:</Text>
+                      <Text style={styles.modalSuggestionValue}>{aiState.aiSuggestion.data}</Text>
+                    </View>
+                  )}
+
+                  <View style={styles.modalSuggestionRow}>
+                    <Text style={styles.modalSuggestionLabel}>Tipo:</Text>
+                    <Text style={styles.modalSuggestionValue}>
+                      {aiState.aiSuggestion.tipo === 'RECEITA' ? 'Receita' : 'Gasto'}
+                    </Text>
+                  </View>
+                </>
+              )}
+            </View>
+
+            {/* Buttons */}
+            <View style={styles.modalButtonContainer}>
+              <TouchableOpacity
+                style={styles.modalButtonCancel}
+                onPress={() => {
+                  setAiSuggestionModalVisible(false);
+                  aiState.dismissAISuggestion();
+                }}
+              >
+                <Text style={styles.modalButtonCancelText}>Descartar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalButtonConfirm}
+                onPress={applyAISuggestion}
+              >
+                <Ionicons name="checkmark" size={18} color={COLORS.white} />
+                <Text style={styles.modalButtonConfirmText}>Aplicar</Text>
+              </TouchableOpacity>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 };

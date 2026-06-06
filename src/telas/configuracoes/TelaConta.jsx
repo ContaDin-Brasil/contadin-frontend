@@ -4,11 +4,16 @@ import { Ionicons } from '@expo/vector-icons';
 import TituloPagina from '../../componentes/TituloPagina';
 import CustomButton from '../../componentes/BotaoCustomizado';
 import CustomModal from '../../componentes/modais/ModalBase';
+import { useTheme } from '../../contexts/ThemeContext';
+import { getColorsByTheme } from '../../styles/colors';
 import { useGerenciarConta } from './hooks/useGerenciarConta';
-import { styles } from './styles/TelaConta.styles';
+import { getStyles } from './styles/TelaConta.styles';
 
 const AccountScreen = ({ navigation }) => {
+  const { isDarkMode } = useTheme();
+  const COLORS = getColorsByTheme(isDarkMode);
   const conta = useGerenciarConta();
+  const styles = getStyles(isDarkMode);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -23,15 +28,15 @@ const AccountScreen = ({ navigation }) => {
       <View style={styles.buttonsContainer}>
         <CustomButton 
           title="Alterar Senha" 
-          onPress={() => navigation.navigate('ChangePassword')}
-          icon={<Ionicons name="key-outline" size={24} color="#000" />}
+          onPress={() => navigation.navigate('AlterarSenha')}
+          icon={<Ionicons name="key-outline" size={24} color={COLORS.textPrimary} />}
         />
         
         <CustomButton 
           title="Excluir Conta" 
           variant="danger"
           onPress={() => conta.setDeleteModalVisible(true)}
-          icon={<Ionicons name="person-remove-outline" size={24} color="#000" />}
+          icon={<Ionicons name="person-remove-outline" size={24} color={COLORS.textPrimary} />}
         />
       </View>
 
@@ -58,7 +63,7 @@ const AccountScreen = ({ navigation }) => {
         onClose={conta.handleCloseConfirmModal}
         title="Para Excluir:"
         onConfirm={conta.handleConfirmDelete}
-        confirmText="Continuar"
+        confirmText={conta.isDeactivating ? "Desativando..." : "Continuar"}
         cancelText="Cancelar"
       >
         <View style={styles.modalContent}>

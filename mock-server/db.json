@@ -2,11 +2,11 @@
   "usuario": [
     {
       "id": 1,
-      "nome": "João",
-      "sobrenome": "Silva",
+      "nome": "Joãozinho",
+      "sobrenome": "Gomez",
       "email": "joao.silva@email.com",
-      "senha": "$2a$10$hash_exemplo_senha",
-      "tel": "(11) 98765-4321",
+      "senha": "AuraFarm67@",
+      "tel": "11964217580",
       "ativo": true
     },
     {
@@ -117,28 +117,20 @@
       "fk_usuario": null
     },
     {
-      "nome": "Personal trainer ",
-      "tipo": "GLOBAL",
-      "cor": "#52B788",
-      "icone": "fitness-center",
+      "nome": "Teste de categorias",
+      "tipo": "GASTO",
+      "cor": "#85C1E2",
+      "icone": "spa",
       "fk_usuario": 1,
       "id": 12
     },
     {
       "nome": "Teste",
       "tipo": "GLOBAL",
-      "cor": "#98D8C8",
-      "icone": "computer",
+      "cor": "#2A9D8F",
+      "icone": "local-drink",
       "fk_usuario": 1,
       "id": 13
-    },
-    {
-      "nome": "Gavassa",
-      "tipo": "GASTO",
-      "cor": "#4ECDC4",
-      "icone": "local-bar",
-      "fk_usuario": 1,
-      "id": 14
     }
   ],
   "instituicao": [
@@ -185,7 +177,7 @@
     {
       "nome": "Itaú",
       "icone": "I",
-      "cor": "#FF6600",
+      "cor": "#005CA9",
       "tipoInstituicao": "banco",
       "fk_usuario": 1,
       "id": 20
@@ -193,7 +185,7 @@
     {
       "nome": "PicPay",
       "icone": "PP",
-      "cor": "#21C25E",
+      "cor": "#FFD700",
       "tipoInstituicao": "banco",
       "fk_usuario": 1,
       "id": 23
@@ -253,6 +245,38 @@
       "tipoInstituicao": "vale",
       "fk_usuario": 1,
       "id": 30
+    },
+    {
+      "nome": "Next",
+      "icone": "Nx",
+      "cor": "#00AB63",
+      "tipoInstituicao": "banco",
+      "fk_usuario": 1,
+      "id": 31
+    },
+    {
+      "nome": "Alelo",
+      "icone": "Al",
+      "cor": "#FF9800",
+      "tipoInstituicao": "vale",
+      "fk_usuario": 1,
+      "id": 32
+    },
+    {
+      "nome": "Sodexo",
+      "icone": "Sd",
+      "cor": "#E31C23",
+      "tipoInstituicao": "vale",
+      "fk_usuario": 1,
+      "id": 33
+    },
+    {
+      "nome": "Banco do Brasil",
+      "icone": "BB",
+      "cor": "#FFED00",
+      "tipoInstituicao": "banco",
+      "fk_usuario": 1,
+      "id": 34
     }
   ],
   "transacao": [
@@ -1087,6 +1111,71 @@
       "fk_instituicao": 14,
       "fk_categoria": 1,
       "id": 64
+    },
+    {
+      "id": 65,
+      "descricao": "Compra no Supermercado Extra",
+      "valor": 145.8,
+      "tipo": "GASTO",
+      "data_transacao": "2026-03-21T00:00:00.000Z",
+      "parcelado": true,
+      "qtdParcelas": 8,
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 14,
+      "fk_categoria": 1
+    },
+    {
+      "id": 66,
+      "descricao": "Compra no Supermercado Extra",
+      "valor": 145.8,
+      "tipo": "GASTO",
+      "data_transacao": "2026-03-21T00:00:00.000Z",
+      "parcelado": true,
+      "qtdParcelas": 9,
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 14,
+      "fk_categoria": 12
+    },
+    {
+      "descricao": "Teste IA zero",
+      "valor": 160,
+      "tipo": "GASTO",
+      "data_transacao": "2026-03-31T00:00:00.000Z",
+      "parcelado": false,
+      "qtdParcelas": 1,
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 27,
+      "fk_categoria": 7,
+      "id": 67
+    },
+    {
+      "descricao": "Pix para Keeta Delivery Brazil Ltda",
+      "valor": 48.46,
+      "tipo": "GASTO",
+      "data_transacao": "2026-03-26T00:00:00.000Z",
+      "parcelado": false,
+      "qtdParcelas": 1,
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 34,
+      "fk_categoria": 1,
+      "id": 68
+    },
+    {
+      "descricao": "Teste",
+      "valor": 100,
+      "tipo": "RECEITA",
+      "data_transacao": "2026-04-11T00:00:00.000Z",
+      "parcelado": false,
+      "qtdParcelas": 1,
+      "recorrencia": null,
+      "fim_recorrencia": null,
+      "fk_instituicao": 31,
+      "fk_categoria": 10,
+      "id": 69
     }
   ],
   "meta_gasto": [

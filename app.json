@@ -4,26 +4,64 @@
     "slug": "ContaDIN",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/adaptive-icon.png",
+    "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/adaptive-icon.png",
+      "image": "./assets/icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#03408E"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "Precisamos de acesso à câmera para capturar fotos para OCR",
+        "NSPhotoLibraryUsageDescription": "Precisamos de acesso à galeria para selecionar imagens para OCR",
+        "NSPhotoLibraryAddOnlyUsageDescription": "Precisamos de permissão para salvar fotos",
+        "NSMicrophoneUsageDescription": "Precisamos de acesso ao microfone para gravar áudio e extrair informações de transações"
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#03408E"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": false,
+      "statusBarBackgroundColor": "#FFFFFF",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS"
+      ],
+      "package": "com.joaoglima.ContaDIN"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/icon.png"
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Precisamos de acesso à galeria para selecionar imagens",
+          "cameraPermission": "Precisamos de acesso à câmera para capturar fotos"
+        }
+      ],
+      [
+        "expo-av",
+        {
+          "microphonePermission": "Precisamos de acesso ao microfone para gravar áudio e extrair informações de transações"
+        }
+      ],
+      "@react-native-community/datetimepicker",
+      "expo-font",
+      "expo-localization"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "8d65e7f9-b00e-4c25-a9e3-cc240fab1676"
+      }
     }
   }
 }

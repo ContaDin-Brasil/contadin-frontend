@@ -1,62 +1,138 @@
 import { StyleSheet } from 'react-native';
+import { getColorsByTheme } from '../../../styles/colors';
 
-export const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F5F5F5',
-    paddingTop: 20,
-  },
-  contentContainer: {
-    paddingHorizontal: 20,
-    paddingBottom: 100,
-  },
-  avatarContainer: {
-    alignItems: 'center',
-    marginBottom: 30,
-  },
-  avatar: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: '#B8DBFF',
-    borderWidth: 4,
-    borderColor: '#4A9EFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  avatarIcon: {
-    alignItems: 'center',
-  },
-  avatarHead: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    borderWidth: 2,
-    borderColor: '#333',
-    marginBottom: 5,
-  },
-  avatarBody: {
-    width: 45,
-    height: 35,
-    borderTopLeftRadius: 25,
-    borderTopRightRadius: 25,
-    borderWidth: 2,
-    borderColor: '#333',
-    borderBottomWidth: 0,
-  },
-  greeting: {
-    fontSize: 20,
-    fontWeight: '600',
-  },
-  buttonsContainer: {
-    marginBottom: 20,
-  },
-  logoutContainer: {
-    marginTop: 10,
-  },
-  modalText: {
-    fontSize: 16,
-    color: '#666',
-  },
-});
+export const getStyles = (isDarkMode) => {
+  const COLORS = getColorsByTheme(isDarkMode);
+
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: COLORS.background,
+      paddingTop: 20,
+    },
+    contentContainer: {
+      paddingHorizontal: 16,
+      paddingBottom: 100,
+    },
+
+    /* Seções */
+    section: {
+      marginBottom: 28,
+    },
+    sectionTitle: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: COLORS.textSecondary,
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+      marginBottom: 12,
+      marginLeft: 4,
+    },
+    sectionContent: {
+      backgroundColor: COLORS.backgroundLight,
+      borderRadius: 12,
+      overflow: 'hidden',
+      elevation: 2,
+      shadowColor: COLORS.black,
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.05,
+      shadowRadius: 3,
+    },
+
+    /* Items de Configuração */
+    settingItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingVertical: 16,
+      paddingHorizontal: 16,
+    },
+    settingItemContent: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      flex: 1,
+      gap: 12,
+    },
+    settingIconContainer: {
+      width: 40,
+      height: 40,
+      borderRadius: 10,
+      backgroundColor: COLORS.primaryLighter,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    settingTextContainer: {
+      flex: 1,
+    },
+    settingTitle: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: COLORS.textPrimary,
+    },
+    settingSubtitle: {
+      fontSize: 13,
+      color: COLORS.textSecondary,
+      marginTop: 4,
+    },
+
+    /* Divisor */
+    divider: {
+      height: 1,
+      backgroundColor: COLORS.border,
+      marginHorizontal: 16,
+    },
+
+    /* Botão de Logout */
+    logoutButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: 16,
+      paddingHorizontal: 20,
+      backgroundColor: COLORS.errorLight,
+      gap: 10,
+    },
+    logoutButtonText: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: COLORS.error,
+    },
+
+    /* Modal */
+    modalText: {
+      fontSize: 16,
+      color: COLORS.textSecondary,
+      textAlign: 'center',
+    },
+    modalContent: {
+      marginVertical: 10,
+    },
+    bulletPoint: {
+      fontSize: 15,
+      color: COLORS.textPrimary,
+      marginBottom: 12,
+      lineHeight: 20,
+    },
+    modalQuestion: {
+      fontSize: 16,
+      color: COLORS.textPrimary,
+      marginTop: 10,
+      fontWeight: '500',
+    },
+    boldText: {
+      fontWeight: 'bold',
+    },
+    input: {
+      backgroundColor: COLORS.backgroundLight,
+      padding: 16,
+      borderRadius: 8,
+      fontSize: 16,
+      marginTop: 8,
+      borderWidth: 1,
+      borderColor: COLORS.border,
+      color: COLORS.textPrimary,
+    },
+  });
+};
+
+export const styles = getStyles(false);

@@ -11,41 +11,36 @@ import { Ionicons } from "@expo/vector-icons";
 import TituloPagina from "../../../componentes/TituloPagina";
 import { useNovaSenha } from "./hooks/useNovaSenha";
 import { REQUISITOS_SENHA } from "../../configuracoes/constants/constantesConfiguracao";
-import { styles } from "./styles/TelaNovaSenha.styles";
-
-const VALIDACOES_SENHA = [
-  { msg: REQUISITOS_SENHA[0], testar: (s) => s.length >= 8 },
-  { msg: REQUISITOS_SENHA[1], testar: (s) => /\d/.test(s) },
-  { msg: REQUISITOS_SENHA[2], testar: (s) => /[!@$%&_]/.test(s) },
-  {
-    msg: REQUISITOS_SENHA[3],
-    testar: (s) =>
-      !/(123|234|345|456|567|678|789|321|432|543|654|765|876|987)/.test(s),
-  },
-  { msg: REQUISITOS_SENHA[4], testar: (s) => !/(\d)\1{2}/.test(s) },
-];
+import {
+  obterResultadosValidacaoSenha,
+  verificarSenhasConferem,
+} from "../../../utils/senhaUtils";
+import { useTheme } from "../../../contexts/ThemeContext";
+import { getColorsByTheme } from "../../../styles/colors";
+import { getStyles } from "./styles/TelaNovaSenha.styles";
 
 function TelaNovaSenha({ navigation, route }) {
+  const email = route.params?.email ?? "";
   const token = route.params?.token ?? "";
-  const novaSenha = useNovaSenha(token);
+  const novaSenha = useNovaSenha(email, token);
+  const { isDarkMode } = useTheme();
+  const COLORS = getColorsByTheme(isDarkMode);
+  const styles = getStyles(isDarkMode);
   const [showSenha, setShowSenha] = useState(false);
   const [showConfirmar, setShowConfirmar] = useState(false);
   const [tooltipVisivel, setTooltipVisivel] = useState(false);
   const [senhaTocada, setSenhaTocada] = useState(false);
 
   const resultadosValidacao = useMemo(
-    () =>
-      VALIDACOES_SENHA.map((v) => ({
-        msg: v.msg,
-        valido: v.testar(novaSenha.senha),
-      })),
+    () => obterResultadosValidacaoSenha(novaSenha.senha),
     [novaSenha.senha],
   );
 
   const todasValidas = resultadosValidacao.every((r) => r.valido);
-  const senhasConferem =
-    novaSenha.senha.length > 0 &&
-    novaSenha.senha === novaSenha.confirmarSenha;
+  const senhasConferem = verificarSenhasConferem(
+    novaSenha.senha,
+    novaSenha.confirmarSenha,
+  );
 
   const onAtualizar = async () => {
     await novaSenha.handleAtualizar(navigation);
@@ -75,7 +70,7 @@ function TelaNovaSenha({ navigation, route }) {
               <Ionicons
                 name="information-circle-outline"
                 size={20}
-                color={tooltipVisivel ? "#2D85F8" : "#999"}
+                color={tooltipVisivel ? COLORS.primary : COLORS.textTertiary}
               />
             </TouchableOpacity>
           </View>
@@ -110,7 +105,7 @@ function TelaNovaSenha({ navigation, route }) {
               <Ionicons
                 name={showSenha ? "eye-off-outline" : "eye-outline"}
                 size={22}
-                color="#666"
+                color={COLORS.textTertiary}
               />
             </TouchableOpacity>
           </View>
@@ -122,7 +117,7 @@ function TelaNovaSenha({ navigation, route }) {
                   <Ionicons
                     name={r.valido ? "checkmark-circle" : "close-circle"}
                     size={16}
-                    color={r.valido ? "#21C25E" : "#E53935"}
+                    color={r.valido ? COLORS.success : COLORS.error}
                   />
                   <Text
                     style={[
@@ -157,7 +152,7 @@ function TelaNovaSenha({ navigation, route }) {
               <Ionicons
                 name={showConfirmar ? "eye-off-outline" : "eye-outline"}
                 size={22}
-                color="#666"
+                color={COLORS.textTertiary}
               />
             </TouchableOpacity>
           </View>
@@ -166,7 +161,7 @@ function TelaNovaSenha({ navigation, route }) {
             novaSenha.confirmarSenha.length > 0 &&
             !senhasConferem && (
               <View style={styles.validacaoItem}>
-                <Ionicons name="close-circle" size={16} color="#E53935" />
+                <Ionicons name="close-circle" size={16} color={COLORS.error} />
                 <Text style={styles.validacaoTextoErro}>
                   As senhas não coincidem.
                 </Text>
@@ -178,7 +173,7 @@ function TelaNovaSenha({ navigation, route }) {
             onPress={onAtualizar}
             disabled={novaSenha.loading}
           >
-            <Ionicons name="key-outline" size={24} color="#FFF" />
+            <Ionicons name="key-outline" size={24} color={COLORS.white} />
             <Text style={styles.saveButtonText}>
               {novaSenha.loading ? "Atualizando..." : "Atualizar Senha"}
             </Text>

@@ -3,25 +3,34 @@ import { View, Text, ScrollView, TextInput, TouchableOpacity, Switch, ActivityIn
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import TituloPagina from '../../componentes/TituloPagina';
+import BotoesAcaoFixo from '../../componentes/BotoesAcaoFixo';
 import { DatePickerInput } from '../../componentes/DatePickerInput';
 import { getLogoByName } from '../../componentes/modais/logosInstituicoes';
 import ModalSelecaoInstituicao from '../../componentes/modais/ModalSelecaoInstituicao';
 import ModalAdicionarInstituicao from '../../componentes/modais/ModalAdicionarInstituicao';
+import ModalConfirmDelete from '../../componentes/modais/ModalConfirmDelete';
 import ModalCategoria from '../categorias/modals/ModalCategoria';
 import { useEditarTransacao } from './hooks/useEditarTransacao';
 import { FREQUENCIES, INSTALLMENT_OPTIONS } from './constants/constantesTransacao';
 import { getCategoryIcon } from './utils/utilitariosTransacao';
 import { categoriaService } from '../../api';
-import COLORS from '../../styles/colors';
-import { styles } from './styles/TelaAdicionarTransacao.styles';
+import { useAuth } from '../../contexts/AuthContext';
+import { getColorsByTheme } from '../../styles/colors';
+import { useTheme } from '../../contexts/ThemeContext';
+import { getStyles } from './styles/TelaAdicionarTransacao.styles';
 
 const TelaEditarTransacao = ({ navigation, route }) => {
+  const { isDarkMode } = useTheme();
+  const COLORS = getColorsByTheme(isDarkMode);
+  const styles = getStyles(isDarkMode);
+  const { user } = useAuth();
   const transacaoId = route.params?.transacaoId || null;
   
   const [selectionModalVisible, setSelectionModalVisible] = useState(false);
   const [customModalVisible, setCustomModalVisible] = useState(false);
   const [salvando, setSalvando] = useState(false);
-  const [deletando, setDeletando] = useState(false);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [isDeletando, setIsDeletando] = useState(false);
 
   // Hook customizado para edição
   const editState = useEditarTransacao(transacaoId);
@@ -40,7 +49,7 @@ const TelaEditarTransacao = ({ navigation, route }) => {
     try {
       await categoriaService.criar({
         ...data,
-        fk_usuario: 1 // ID do usuário
+        fkUsuario: user?.id ?? null,
       });
       
       // Recarrega categorias
@@ -76,7 +85,7 @@ const TelaEditarTransacao = ({ navigation, route }) => {
       }
 
       await editState.atualizarTransacao();
-      
+
       Alert.alert('Sucesso', 'Transação atualizada com sucesso!', [
         { text: 'OK', onPress: () => navigation.goBack() }
       ]);
@@ -89,33 +98,24 @@ const TelaEditarTransacao = ({ navigation, route }) => {
   };
 
   const handleDeleteTransaction = () => {
-    Alert.alert(
-      'Confirmar exclusão',
-      'Tem certeza que deseja excluir esta transação? Esta ação não pode ser desfeita.',
-      [
-        {
-          text: 'Cancelar',
-          style: 'cancel'
-        },
-        {
-          text: 'Excluir',
-          style: 'destructive',
-          onPress: async () => {
-            setDeletando(true);
-            try {
-              await editState.deletarTransacao();
-              Alert.alert('Sucesso', 'Transação excluída com sucesso!', [
-                { text: 'OK', onPress: () => navigation.goBack() }
-              ]);
-            } catch (error) {
-              console.error('Erro ao deletar transação:', error);
-              Alert.alert('Erro', 'Não foi possível excluir a transação');
-              setDeletando(false);
-            }
-          }
-        }
-      ]
-    );
+    setDeleteModalVisible(true);
+  };
+
+  const handleConfirmDeleteTransaction = async () => {
+    setIsDeletando(true);
+    try {
+      await editState.deletarTransacao();
+      setDeleteModalVisible(false);
+      setIsDeletando(false);
+      Alert.alert('Sucesso', 'Transação excluída com sucesso!', [
+        { text: 'OK', onPress: () => navigation.goBack() }
+      ]);
+    } catch (error) {
+      console.error('Erro ao deletar transação:', error);
+      setDeleteModalVisible(false);
+      setIsDeletando(false);
+      Alert.alert('Erro', error.message || 'Não foi possível excluir a transação');
+    }
   };
 
   // Mostra loading enquanto carrega a transação
@@ -130,7 +130,7 @@ const TelaEditarTransacao = ({ navigation, route }) => {
         </TituloPagina>
         <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
           <ActivityIndicator size="large" color={COLORS.primary} />
-          <Text style={{ marginTop: 16, color: '#666' }}>Carregando transação...</Text>
+          <Text style={{ marginTop: 16, color: COLORS.textSecondary }}>Carregando transação...</Text>
         </View>
       </SafeAreaView>
     );
@@ -147,8 +147,8 @@ const TelaEditarTransacao = ({ navigation, route }) => {
           Editar Transação
         </TituloPagina>
         <View style={[styles.container, { justifyContent: 'center', alignItems: 'center', padding: 20 }]}>
-          <Ionicons name="alert-circle-outline" size={64} color="#E31C23" />
-          <Text style={{ marginTop: 16, color: '#E31C23', textAlign: 'center' }}>
+          <Ionicons name="alert-circle-outline" size={64} color={COLORS.error} />
+          <Text style={{ marginTop: 16, color: COLORS.error, textAlign: 'center' }}>
             Transação não encontrada
           </Text>
           <TouchableOpacity 
@@ -170,15 +170,20 @@ const TelaEditarTransacao = ({ navigation, route }) => {
       >
         Editar Transação
       </TituloPagina>
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <View style={styles.screen}>
+        <ScrollView
+          style={styles.scroll}
+          contentContainerStyle={styles.contentContainer}
+          showsVerticalScrollIndicator={false}
+        >
 
       {/* Descrição da transação */}
       <View style={styles.section}>
         <Text style={styles.label}>Descrição da transação:</Text>
         <TextInput
           style={styles.input}
-          placeholder="Ex: Salário Avanade"
-          placeholderTextColor="#999"
+          placeholder="Ex: Salário, Conta de Luz, Compras no mercado..."
+          placeholderTextColor={COLORS.textTertiary}
           value={editState.descricao}
           onChangeText={editState.setDescricao}
         />
@@ -191,8 +196,8 @@ const TelaEditarTransacao = ({ navigation, route }) => {
           <Text style={styles.currencySymbol}>R$</Text>
           <TextInput
             style={styles.amountInput}
-            placeholder="0,00"
-            placeholderTextColor="#999"
+            placeholder="Digite o valor (ex: 100,00)"
+            placeholderTextColor={COLORS.textTertiary}
             value={editState.valor}
             onChangeText={editState.handleValorChange}
             onBlur={editState.handleValorBlur}
@@ -203,19 +208,12 @@ const TelaEditarTransacao = ({ navigation, route }) => {
 
       {/* Data da transação */}
       <View style={styles.section}>
-        <Text style={styles.label}>Data:</Text>
-        <View style={styles.dateInputContainer}>
-          <Ionicons name="calendar-outline" size={20} color={COLORS.primaryLight} />
-          <TextInput
-            style={styles.dateInput}
-            placeholder="DD/MM/AAAA"
-            placeholderTextColor="#999"
-            value={editState.date}
-            onChangeText={editState.handleDateChange}
-            keyboardType="numeric"
-            maxLength={10}
-          />
-        </View>
+        <DatePickerInput
+          label="Data:"
+          value={editState.date}
+          onChangeDate={editState.handleDateChange}
+          placeholder="DD/MM/AAAA"
+        />
       </View>
 
       {/* Tipo da transação */}
@@ -258,11 +256,11 @@ const TelaEditarTransacao = ({ navigation, route }) => {
       <View style={styles.section}>
         <Text style={styles.label}>Categoria:</Text>
         <View style={styles.searchContainer}>
-          <Ionicons name="search" size={20} color="#999" />
+          <Ionicons name="search" size={20} color={COLORS.textTertiary} />
           <TextInput
             style={styles.searchInput}
             placeholder="Pesquisar categorias..."
-            placeholderTextColor="#999"
+            placeholderTextColor={COLORS.textTertiary}
             value={editState.categorySearch}
             onChangeText={editState.setCategorySearch}
           />
@@ -273,18 +271,18 @@ const TelaEditarTransacao = ({ navigation, route }) => {
               key={category.id}
               style={[
                 styles.categoryButton,
-                editState.selectedCategory === category.id && styles.categoryButtonActive
+                String(editState.selectedCategory) === String(category.id) && styles.categoryButtonActive
               ]}
-              onPress={() => editState.setSelectedCategory(category.id)}
+              onPress={() => editState.setSelectedCategory(String(category.id))}
             >
               <MaterialIcons
                 name={category.icone || getCategoryIcon(category.nome)}
                 size={20}
-                color={editState.selectedCategory === category.id ? '#FFF' : '#333'}
+                color={String(editState.selectedCategory) === String(category.id) ? COLORS.white : COLORS.textPrimary}
               />
               <Text style={[
                 styles.categoryButtonText,
-                editState.selectedCategory === category.id && styles.categoryButtonTextActive
+                String(editState.selectedCategory) === String(category.id) && styles.categoryButtonTextActive
               ]}>
                 {category.nome}
               </Text>
@@ -312,8 +310,8 @@ const TelaEditarTransacao = ({ navigation, route }) => {
             <Switch
               value={editState.isRecurring}
               onValueChange={editState.handleToggleRecurring}
-              trackColor={{ false: COLORS.borderDark, true: COLORS.primaryLight }}
-              thumbColor={COLORS.white}
+              trackColor={{ false: COLORS.border, true: COLORS.primaryLight }}
+              thumbColor={editState.isRecurring ? COLORS.primary : COLORS.backgroundLight}
             />
             <Text style={styles.recurringText}>Recorrência</Text>
           </View>
@@ -343,8 +341,8 @@ const TelaEditarTransacao = ({ navigation, route }) => {
               <Switch
                 value={editState.hasRecurrenceEndDate}
                 onValueChange={editState.setHasRecurrenceEndDate}
-                trackColor={{ false: COLORS.borderDark, true: COLORS.primaryLight }}
-                thumbColor={COLORS.white}
+                trackColor={{ false: COLORS.border, true: COLORS.primaryLight }}
+                thumbColor={editState.hasRecurrenceEndDate ? COLORS.primary : COLORS.backgroundLight}
               />
               <Text style={styles.recurringText}>Data limite da recorrência</Text>
             </View>
@@ -367,8 +365,8 @@ const TelaEditarTransacao = ({ navigation, route }) => {
             <Switch
               value={editState.isInstallment}
               onValueChange={editState.handleToggleInstallment}
-              trackColor={{ false: COLORS.borderDark, true: COLORS.primaryLight }}
-              thumbColor={COLORS.white}
+              trackColor={{ false: COLORS.border, true: COLORS.primaryLight }}
+              thumbColor={editState.isInstallment ? COLORS.primary : COLORS.backgroundLight}
             />
             <Text style={styles.recurringText}>Parcelado</Text>
           </View>
@@ -411,6 +409,7 @@ const TelaEditarTransacao = ({ navigation, route }) => {
                   }
                 }}
                 style={styles.picker}
+                itemStyle={{ color: COLORS.textPrimary }}
                 dropdownIconColor={COLORS.primary}
               >
                 {INSTALLMENT_OPTIONS.map(option => (
@@ -476,7 +475,7 @@ const TelaEditarTransacao = ({ navigation, route }) => {
                   const institutionLogo = getLogoByName(editState.selectedInstitution.nome);
                   return (
                     <>
-                      <View style={[styles.chipIconContainer, { backgroundColor: institutionLogo ? '#FFF' : editState.selectedInstitution.cor }]}>
+                      <View style={[styles.chipIconContainer, { backgroundColor: institutionLogo ? COLORS.white : editState.selectedInstitution.cor }]}>
                         {institutionLogo ? (
                           <Image 
                             source={institutionLogo} 
@@ -487,7 +486,12 @@ const TelaEditarTransacao = ({ navigation, route }) => {
                           <Text style={styles.chipIconText}>{editState.selectedInstitution.icone}</Text>
                         )}
                       </View>
-                      <Text style={styles.chipText}>{editState.selectedInstitution.nome}</Text>
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.chipText}>{editState.selectedInstitution.nome}</Text>
+                        <Text style={{ fontSize: 12, color: COLORS.textTertiary, marginTop: 2, marginLeft: 2 }}>
+                          {editState.selectedInstitution.tipoInstituicao === 'VALE' ? 'Vale' : 'Banco'}
+                        </Text>
+                      </View>
                       <TouchableOpacity 
                         style={styles.chipRemoveButton}
                         onPress={(e) => {
@@ -496,7 +500,7 @@ const TelaEditarTransacao = ({ navigation, route }) => {
                         }}
                         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                       >
-                        <Ionicons name="close-circle" size={20} color="#666" />
+                        <Ionicons name="close-circle" size={20} color={COLORS.error} />
                       </TouchableOpacity>
                     </>
                   );
@@ -505,58 +509,30 @@ const TelaEditarTransacao = ({ navigation, route }) => {
             </View>
           ) : (
             <View style={styles.institutionPlaceholderContainer}>
-              <Ionicons name="business-outline" size={20} color="#999" />
-              <Text style={styles.institutionPlaceholderText}>Toque para selecionar uma instituição</Text>
+              <Ionicons name="business-outline" size={20} color={COLORS.textTertiary} />
+              <Text style={styles.institutionPlaceholderText}>Selecione uma instituição</Text>
+              <Text style={{ fontSize: 12, color: COLORS.textTertiary, marginTop: 4 }}>(obrigatório)</Text>
             </View>
           )}
           <Ionicons name="chevron-forward" size={20} color="#999" />
         </TouchableOpacity>
       </View>
 
-      {/* Botões de Ação */}
-      <View style={{ marginBottom: 30 }}>
-        {/* Botão Salvar Alterações */}
-        <TouchableOpacity 
-          style={[styles.saveButton, salvando && { opacity: 0.6 }]} 
-          onPress={handleUpdateTransaction}
-          disabled={salvando || deletando}
-        >
-          {salvando ? (
-            <>
-              <ActivityIndicator size="small" color="#FFF" />
-              <Text style={[styles.saveButtonText, { marginLeft: 8 }]}>Salvando...</Text>
-            </>
-          ) : (
-            <>
-              <Ionicons name="checkmark-circle-outline" size={24} color="#FFF" />
-              <Text style={styles.saveButtonText}>Salvar Alterações</Text>
-            </>
-          )}
-        </TouchableOpacity>
+        </ScrollView>
 
-        {/* Botão Deletar */}
-        <TouchableOpacity 
-          style={[styles.saveButton, { 
-            backgroundColor: '#FFF', 
-            borderWidth: 2, 
-            borderColor: COLORS.error,
-            marginTop: 12
-          }, deletando && { opacity: 0.6 }]} 
-          onPress={handleDeleteTransaction}
-          disabled={salvando || deletando}
-        >
-          {deletando ? (
-            <>
-              <ActivityIndicator size="small" color={COLORS.error} />
-              <Text style={[styles.saveButtonText, { color: COLORS.error, marginLeft: 8 }]}>Excluindo...</Text>
-            </>
-          ) : (
-            <>
-              <Ionicons name="trash-outline" size={24} color={COLORS.error} />
-              <Text style={[styles.saveButtonText, { color: COLORS.error }]}>Excluir Transação</Text>
-            </>
-          )}
-        </TouchableOpacity>
+        <BotoesAcaoFixo
+          primaryLabel="Salvar Alterações"
+          primaryLoadingLabel="Salvando..."
+          onPrimaryPress={handleUpdateTransaction}
+          primaryDisabled={salvando || isDeletando}
+          primaryLoading={salvando}
+          secondaryLabel="Excluir Transação"
+          secondaryLoadingLabel="Excluindo..."
+          onSecondaryPress={handleDeleteTransaction}
+          secondaryDisabled={salvando || isDeletando}
+          secondaryLoading={isDeletando}
+          secondaryVariant="danger"
+        />
       </View>
 
       {/* Modais */}
@@ -583,7 +559,15 @@ const TelaEditarTransacao = ({ navigation, route }) => {
         onSave={handleCreateCategoria}
         tipoInicial={editState.tipo}
       />
-      </ScrollView>
+
+      <ModalConfirmDelete
+        visible={deleteModalVisible}
+        titulo="Confirmar exclusão"
+        mensagem="Tem certeza que deseja excluir esta transação? Esta ação não pode ser desfeita."
+        onConfirm={handleConfirmDeleteTransaction}
+        onClose={() => setDeleteModalVisible(false)}
+        isLoading={isDeletando}
+      />
     </SafeAreaView>
   );
 };

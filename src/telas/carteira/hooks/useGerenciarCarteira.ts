@@ -2,8 +2,17 @@ import { useState, useEffect } from 'react';
 import { Banco, Vale, Instituicao } from '../types/carteira.types';
 import { instituicaoService } from '../../../api';
 import transacaoService from '../../../api/services/transacaoService';
+import type { InstituicaoApi, TransacaoApi } from '../../../api/types';
 import { useCache } from '../../../contexts/CacheContext';
+import { useAuth } from '../../../contexts/AuthContext';
 import { getInstituicoesPadrao } from '../constants/instituicoesPadrao';
+import {
+  extrairUsuarioId,
+  idsIguais,
+  normalizarId,
+  obterUsuarioIdOuErro,
+  normalizarTipoInstituicaoDaEntidade,
+} from '../../../utils/normalizacao';
 
 /**
  * Hook customizado para gerenciar o estado da carteira
@@ -26,15 +35,22 @@ export const useGerenciarCarteira = () => {
   const [voucherSelectionModalVisible, setVoucherSelectionModalVisible] = useState(false);
   const [voucherCustomModalVisible, setVoucherCustomModalVisible] = useState(false);
 
-  // ID do usuário mockado (usuário 1)
-  const usuarioId = 1;
+  const { user } = useAuth();
+
+  const usuarioId = extrairUsuarioId(user);
+
+  const getTransacaoInstituicaoId = (transacao: TransacaoApi): string | number | null => {
+    const source = transacao as unknown as Record<string, unknown>;
+    const raw = transacao?.fkInstituicao ?? source.fk_instituicao;
+    return normalizarId(raw);
+  };
 
   /**
    * Carrega instituições da API ao montar o componente
    */
   useEffect(() => {
     carregarInstituicoes();
-  }, []);
+  }, [usuarioId]);
 
   /**
    * Busca as instituições do usuário na API (com cache)
@@ -44,11 +60,18 @@ export const useGerenciarCarteira = () => {
     setError(null);
     
     try {
-      const cacheKey = `instituicoes:user:${usuarioId}`;
+      const usuarioIdValido = obterUsuarioIdOuErro(usuarioId, (message) => setError(message));
+      if (!usuarioIdValido) {
+        setBanks([]);
+        setVouchers([]);
+        return;
+      }
+
+      const cacheKey = `instituicoes:user:${usuarioIdValido}`;
       
       // Tenta buscar do cache primeiro (a menos que force refresh)
       if (!forceRefresh) {
-        const cached = await getCache<any[]>(cacheKey);
+        const cached = await getCache<InstituicaoApi[]>(cacheKey);
         if (cached) {
           // Cache só guarda instituições; busca transações sempre (sem cache)
           const transacoes = await transacaoService.listar();
@@ -60,7 +83,7 @@ export const useGerenciarCarteira = () => {
       
       // Se não tem cache ou forçou refresh, busca da API
       const [instituicoes, transacoes] = await Promise.all([
-        instituicaoService.listarPorUsuario(usuarioId),
+        instituicaoService.listarPorUsuario(usuarioIdValido),
         transacaoService.listar(),
       ]);
 
@@ -87,39 +110,50 @@ export const useGerenciarCarteira = () => {
    * Calcula saldo de uma instituição a partir das transações
    * Saldo = soma de RECEITAs - soma de GASTOs
    */
-  const calcularSaldo = (instituicaoId: number, transacoes: any[]): number => {
+  const calcularSaldo = (instituicaoId: string | number, transacoes: TransacaoApi[]): number => {
     return transacoes
-      .filter(t => t.fk_instituicao === instituicaoId)
+      .filter((t) => idsIguais(getTransacaoInstituicaoId(t), normalizarId(instituicaoId)))
       .reduce((acc, t) => t.tipo === 'RECEITA' ? acc + t.valor : acc - t.valor, 0);
   };
 
   /**
    * Processa a lista de instituições e separa em bancos e vales
    */
-  const processarInstituicoes = (instituicoes: any[], transacoes: any[] = []) => {
+  const processarInstituicoes = (
+    instituicoes: InstituicaoApi[],
+    transacoes: TransacaoApi[] = [],
+  ) => {
+    const transacoesLista = Array.isArray(transacoes) ? transacoes : [];
     const bancosList: Banco[] = [];
     const valesList: Vale[] = [];
     
-    instituicoes.forEach((inst: any) => {
+    instituicoes.forEach((inst) => {
+      const type = normalizarTipoInstituicaoDaEntidade(inst);
+
       // Validação: ignorar instituições sem dados obrigatórios
-      if (!inst.nome || !inst.icone || !inst.cor || !inst.tipoInstituicao) {
+      if (!inst.nome || !inst.icone || !inst.cor || !type) {
         console.warn('Instituição com dados incompletos ignorada:', inst);
         return;
       }
 
-      const saldo = calcularSaldo(inst.id, transacoes);
-      const gastos = transacoes
-        .filter(t => t.fk_instituicao === inst.id && t.tipo === 'GASTO')
+      // Não renderizar instituições desativadas
+      if (inst.ativo === false) {
+        return;
+      }
+
+      const saldo = calcularSaldo(inst.id, transacoesLista);
+      const gastos = transacoesLista
+        .filter((t) => idsIguais(getTransacaoInstituicaoId(t), normalizarId(inst.id)) && t.tipo === 'GASTO')
         .reduce((acc, t) => acc + t.valor, 0);
 
-      if (inst.tipoInstituicao === 'vale') {
+      if (type === 'VALE') {
         valesList.push({
           id: inst.id,
           nome: inst.nome,
           balance: formatarSaldo(saldo),
           cor: inst.cor,
           icone: inst.icone,
-          tipoInstituicao: 'vale',
+          type: 'VALE',
         });
       } else {
         bancosList.push({
@@ -129,7 +163,7 @@ export const useGerenciarCarteira = () => {
           expenses: formatarSaldo(gastos),
           cor: inst.cor,
           icone: inst.icone,
-          tipoInstituicao: 'banco',
+          type: 'BANCO',
         });
       }
     });
@@ -143,6 +177,11 @@ export const useGerenciarCarteira = () => {
    */
   const handleSelectBank = async (institution: Instituicao) => {
     try {
+      const usuarioIdValido = obterUsuarioIdOuErro(usuarioId, (message) => setError(message));
+      if (!usuarioIdValido) {
+        return;
+      }
+
       // Verifica se o banco já existe
       const jaExiste = banks.some(bank => 
         bank.nome.toLowerCase() === institution.nome.toLowerCase()
@@ -157,8 +196,8 @@ export const useGerenciarCarteira = () => {
         nome: institution.nome,
         icone: institution.icone,
         cor: institution.cor,
-        tipoInstituicao: 'banco',
-        fk_usuario: usuarioId,
+        type: 'BANCO',
+        fkUsuario: usuarioIdValido,
       });
       
       // Invalida o cache e recarrega
@@ -183,12 +222,18 @@ export const useGerenciarCarteira = () => {
    */
   const handleAddCustomBankComplete = async (institution: Banco) => {
     try {
+      const usuarioIdValido = obterUsuarioIdOuErro(usuarioId, (message) => setError(message));
+      if (!usuarioIdValido) {
+        return;
+      }
+
+      const type = normalizarTipoInstituicaoDaEntidade(institution);
       await instituicaoService.criar({
         nome: institution.nome,
         icone: institution.icone,
         cor: institution.cor,
-        tipoInstituicao: institution.tipoInstituicao,
-        fk_usuario: usuarioId,
+        type,
+        fkUsuario: usuarioIdValido,
       });
       
       // Invalida o cache e recarrega
@@ -203,7 +248,7 @@ export const useGerenciarCarteira = () => {
   /**
    * Remove um banco da lista pelo ID
    */
-  const handleDeleteBank = async (id: number) => {
+  const handleDeleteBank = async (id: string | number) => {
     try {
       await instituicaoService.deletar(id);
       
@@ -221,6 +266,11 @@ export const useGerenciarCarteira = () => {
    */
   const handleSelectVoucher = async (institution: Instituicao) => {
     try {
+      const usuarioIdValido = obterUsuarioIdOuErro(usuarioId, (message) => setError(message));
+      if (!usuarioIdValido) {
+        return;
+      }
+
       // Verifica se o vale já existe
       const jaExiste = vouchers.some(voucher => 
         voucher.nome.toLowerCase() === institution.nome.toLowerCase()
@@ -235,8 +285,8 @@ export const useGerenciarCarteira = () => {
         nome: institution.nome,
         icone: institution.icone,
         cor: institution.cor,
-        tipoInstituicao: 'vale',
-        fk_usuario: usuarioId,
+        type: 'VALE',
+        fkUsuario: usuarioIdValido,
       });
       
       // Invalida o cache e recarrega
@@ -261,12 +311,18 @@ export const useGerenciarCarteira = () => {
    */
   const handleAddCustomVoucherComplete = async (institution: Vale) => {
     try {
+      const usuarioIdValido = obterUsuarioIdOuErro(usuarioId, (message) => setError(message));
+      if (!usuarioIdValido) {
+        return;
+      }
+
+      const type = normalizarTipoInstituicaoDaEntidade(institution);
       await instituicaoService.criar({
         nome: institution.nome,
         icone: institution.icone,
         cor: institution.cor,
-        tipoInstituicao: institution.tipoInstituicao,
-        fk_usuario: usuarioId,
+        type,
+        fkUsuario: usuarioIdValido,
       });
       
       // Invalida o cache e recarrega

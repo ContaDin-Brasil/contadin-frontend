@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { getColorsByTheme } from '../styles/colors';
+import { useTheme } from '../contexts/ThemeContext';
 
 /**
  * Componente de título padrão para todas as páginas
@@ -12,13 +14,16 @@ import { Ionicons } from '@expo/vector-icons';
  * @param {function} onVoltar - Função callback quando o botão de voltar é pressionado
  */
 const TituloPagina = ({ children, style, mostrarBotaoVoltar = false, onVoltar }) => {
+  const { isDarkMode } = useTheme();
+  const COLORS = getColorsByTheme(isDarkMode);
+
   if (mostrarBotaoVoltar) {
     return (
       <View style={styles.container}>
         <TouchableOpacity onPress={onVoltar} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={28} color="#000" />
+          <Ionicons name="arrow-back" size={28} color={COLORS.textPrimary} />
         </TouchableOpacity>
-        <Text style={[styles.titleWithButton, style]}>
+        <Text style={[styles.titleWithButton, { color: COLORS.textPrimary }, style]}>
           {children}
         </Text>
       </View>
@@ -26,7 +31,7 @@ const TituloPagina = ({ children, style, mostrarBotaoVoltar = false, onVoltar })
   }
 
   return (
-    <Text style={[styles.title, style]}>
+    <Text style={[styles.title, { color: COLORS.textPrimary }, style]}>
       {children}
     </Text>
   );
@@ -49,13 +54,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     paddingHorizontal: 20,
     marginBottom: 20,
-    color: '#000',
     marginTop: 24,
   },
   titleWithButton: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#000',
     flex: 1,
   },
 });

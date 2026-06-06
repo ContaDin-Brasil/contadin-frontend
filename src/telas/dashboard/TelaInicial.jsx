@@ -1,23 +1,34 @@
 import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  ScrollView, 
-  RefreshControl, 
-  ActivityIndicator, 
-  TouchableOpacity 
+import {
+  View,
+  Text,
+  ScrollView,
+  RefreshControl,
+  ActivityIndicator,
+  TouchableOpacity
 } from 'react-native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { styles } from './styles/TelaInicial.styles';
+import { getStyles } from './styles/TelaInicial.styles';
+import { getColorsByTheme } from '../../styles/colors';
+import { useTheme } from '../../contexts/ThemeContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { useGerenciarDashboard } from './hooks/useGerenciarDashboard';
 import { CardResumo } from './components/CardResumo';
 import { ItemCategoria } from './components/ItemCategoria';
-import { ItemInstituicao } from './components/ItemInstituicao';
-import { GraficoPrevisaoSaldo } from './components/GraficoPrevisaoSaldo';
-import { ModalGraficoPizza } from './components/ModalGraficoPizza';
+import { GraficoSaldoDiario } from './components/GraficoSaldoDiario';
+import { ModalGraficoCategorias } from './components/ModalGraficoCategorias';
+import { EmptyStateTransacoes } from './components/EmptyStateTransacoes';
 
 const TelaInicial = () => {
-  const [modalPizzaVisible, setModalPizzaVisible] = useState(false);
+  const { isDarkMode } = useTheme();
+  const styles = getStyles(isDarkMode);
+  const COLORS = getColorsByTheme(isDarkMode);
+  const navigation = useNavigation();
+  
+  const [modalGraficoCategoriasVisible, setModalGraficoCategoriasVisible] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const { user, loading: authLoading } = useAuth();
 
   const {
     dados,
@@ -29,25 +40,37 @@ const TelaInicial = () => {
     formatarMoeda,
     resumo,
     gastosPorCategoria,
-    saldosPorInstituicao,
-    previsaoSaldo,
-  } = useGerenciarDashboard(1); // TODO: Pegar ID do usuário logado
+    saldoConsolidado,
+    temTransacoes,
+  } = useGerenciarDashboard(); // ✅ Sem parâmetro - usa user.id do contexto
+
+  // Atualizar dados e gráfico quando a tela recebe foco,
+  // mas só depois que o AuthContext terminar de carregar o usuário.
+  useFocusEffect(
+    React.useCallback(() => {
+      if (authLoading || !user?.id) return;
+      atualizarDados();
+      setRefreshKey(prev => prev + 1);
+    }, [authLoading, user?.id, atualizarDados])
+  );
 
   // Loading inicial
   if (loading && !dados) {
+    console.log('[TelaInicial] Mostrando tela de loading - loading:', loading, 'dados:', dados ? 'existe' : 'null');
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#5BA3FF" />
+        <ActivityIndicator size="large" color={COLORS.primary} />
         <Text style={styles.loadingText}>Carregando dados...</Text>
       </View>
     );
   }
 
-  // Estado de erro
+  // Estado de erro - apenas se NÃO houver dados
   if (erro && !dados) {
+    console.log('[TelaInicial] Mostrando tela de erro:', erro);
     return (
       <View style={styles.erroContainer}>
-        <Ionicons name="alert-circle-outline" size={64} color="#E31C23" />
+        <Ionicons name="alert-circle-outline" size={64} color={COLORS.error} />
         <Text style={styles.erroTexto}>{erro}</Text>
         <TouchableOpacity 
           style={styles.botaoTentarNovamente}
@@ -55,6 +78,23 @@ const TelaInicial = () => {
         >
           <Text style={styles.botaoTentarNovamenteTexto}>Tentar Novamente</Text>
         </TouchableOpacity>
+      </View>
+    );
+  }
+
+  // ✅ Empty State - quando não há transações cadastradas
+  const temResumoMensal = resumo && (resumo.receitaTotal > 0 || resumo.gastoTotal > 0);
+  const mostrarEmptyState = !temTransacoes && !temResumoMensal;
+  
+  console.log('[TelaInicial] Estado final - dados:', dados ? 'existe' : 'null', 'loading:', loading, 'temResumoMensal:', temResumoMensal, 'temTransacoes:', temTransacoes);
+  
+  if (mostrarEmptyState && !loading) {
+    console.log('[TelaInicial] Mostrando empty state');
+    return (
+      <View style={styles.container}>
+        <EmptyStateTransacoes
+          onAdicionarTransacao={() => navigation.navigate('Transacoes', { screen: 'AdicionarTransacao' })}
+        />
       </View>
     );
   }
@@ -69,8 +109,8 @@ const TelaInicial = () => {
           <RefreshControl
             refreshing={atualizando}
             onRefresh={atualizarDados}
-            colors={['#5BA3FF']}
-            tintColor="#5BA3FF"
+            colors={[COLORS.primary]}
+            tintColor={COLORS.primary}
           />
         }
       >
@@ -79,17 +119,18 @@ const TelaInicial = () => {
           <View style={styles.headerTop}>
             <View style={styles.saudacao}>
               <Text style={styles.saudacaoTexto}>{obterSaudacao()},</Text>
-              <Text style={styles.nomeUsuario}>João</Text>
+              <Text style={styles.nomeUsuario}>{user?.nome || 'Usuário'}</Text>
             </View>
-            <TouchableOpacity style={styles.iconeNotificacao}>
-              <Ionicons name="notifications-outline" size={28} color="#FFFFFF" />
-            </TouchableOpacity>
           </View>
 
           <View style={styles.saldoTotal}>
-            <Text style={styles.saldoLabel}>Saldo Total</Text>
+            <Text style={styles.saldoLabel}>Saldo Atual</Text>
             <Text style={styles.saldoValor}>
-              {resumo ? formatarMoeda(resumo.saldoTotal) : 'R$ 0,00'}
+              {saldoConsolidado !== null
+                ? formatarMoeda(saldoConsolidado)
+                : resumo
+                  ? formatarMoeda(resumo.saldoTotal)
+                  : 'R$ 0,00'}
             </Text>
           </View>
 
@@ -112,56 +153,44 @@ const TelaInicial = () => {
         {/* Gastos por Categoria */}
         <View style={styles.secao}>
           <Text style={styles.secaoTitulo}>Gastos por Categoria</Text>
-          {gastosPorCategoria.length > 0 ? (
-            gastosPorCategoria.map((categoria) => (
-              <ItemCategoria 
-                key={categoria.id}
-                categoria={categoria}
-                formatarMoeda={formatarMoeda}
-              />
-            ))
-          ) : (
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyTexto}>Nenhum gasto registrado neste mês</Text>
-            </View>
-          )}
+          {(() => {
+            if (gastosPorCategoria && gastosPorCategoria.length > 0) {
+              return gastosPorCategoria.map((categoria) => (
+                <ItemCategoria 
+                  key={categoria.id}
+                  categoria={categoria}
+                  formatarMoeda={formatarMoeda}
+                  onPress={categoria.valor > 0 ? () => setModalGraficoCategoriasVisible(true) : undefined}
+                />
+              ));
+            }
+            return (
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyTexto}>Nenhum gasto registrado neste mês</Text>
+              </View>
+            );
+          })()}
         </View>
 
-        {/* Saldo por Instituição - exibe top 3 */}
-        <View style={styles.secao}>
-          <Text style={styles.secaoTitulo}>Saldo por Instituição</Text>
-          {saldosPorInstituicao.length > 0 ? (
-            saldosPorInstituicao.slice(0, 3).map((instituicao) => (
-              <ItemInstituicao 
-                key={instituicao.id}
-                instituicao={instituicao}
-                formatarMoeda={formatarMoeda}
-                onPress={instituicao.valor > 0 ? () => setModalPizzaVisible(true) : undefined}
-              />
-            ))
-          ) : (
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyTexto}>Nenhuma instituição com saldo</Text>
-            </View>
-          )}
-        </View>
-
-        {/* Previsão de Saldo */}
-        {previsaoSaldo && (
+        {/* Saldo Diário */}
+        {user?.id && (
           <View style={styles.secao}>
-            <GraficoPrevisaoSaldo
-              dados={previsaoSaldo}
+            <GraficoSaldoDiario
+              usuarioId={user.id}
               formatarMoeda={formatarMoeda}
+              refreshKey={refreshKey}
             />
           </View>
         )}
 
+
+
       </ScrollView>
 
-      <ModalGraficoPizza
-        visible={modalPizzaVisible}
-        onClose={() => setModalPizzaVisible(false)}
-        dados={saldosPorInstituicao}
+      <ModalGraficoCategorias
+        visible={modalGraficoCategoriasVisible}
+        onClose={() => setModalGraficoCategoriasVisible(false)}
+        dados={gastosPorCategoria}
         formatarMoeda={formatarMoeda}
       />
     </View>

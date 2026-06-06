@@ -19,6 +19,7 @@ const SENHA_ESPECIAL = /[!@$%&_]/;
 const SEQUENCIA_NUM =
   /(123|234|345|456|567|678|789|321|432|543|654|765|876|987)/;
 const TRES_IGUAIS = /(\d)\1{2}/;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /**
  * Valida a senha conforme REQUISITOS_SENHA. Retorna a mensagem de erro ou null se válida.
@@ -33,12 +34,52 @@ export function validarSenha(senha: string): string | null {
 }
 
 /**
+ * Valida nome (não vazio, mínimo 2 caracteres)
+ */
+export function validarNome(nome: string): string | null {
+  const nomeTrim = nome.trim();
+  if (!nomeTrim) return 'Informe o nome.';
+  if (nomeTrim.length < 2) return 'Nome deve ter pelo menos 2 caracteres.';
+  return null;
+}
+
+/**
+ * Valida sobrenome (não vazio, mínimo 2 caracteres)
+ */
+export function validarSobrenome(sobrenome: string): string | null {
+  const sobrenomeTrim = sobrenome.trim();
+  if (!sobrenomeTrim) return 'Informe o sobrenome.';
+  if (sobrenomeTrim.length < 2) return 'Sobrenome deve ter pelo menos 2 caracteres.';
+  return null;
+}
+
+/**
+ * Valida email (formato válido)
+ */
+export function validarEmail(email: string): string | null {
+  const emailTrim = email.trim();
+  if (!emailTrim) return 'Informe o email.';
+  if (!EMAIL_REGEX.test(emailTrim)) return 'Informe um email válido.';
+  return null;
+}
+
+/**
+ * Valida telefone (mínimo 10 dígitos)
+ */
+export function validarTelefone(telefone: string): string | null {
+  const digitos = telefone.replace(/\D/g, '');
+  if (!digitos) return 'Informe o telefone.';
+  if (digitos.length < 10) return 'Telefone deve ter pelo menos 10 dígitos.';
+  return null;
+}
+
+/**
  * Perfil inicial padrão (alinhado com DB)
  */
 export const PERFIL_INICIAL = {
   nome: '',
   sobrenome: '',
-  tel: '',
+  telefone: '',
   email: '',
   pushNotifications: true,
   darkTheme: false
@@ -81,32 +122,32 @@ export const OUTROS_CONTATOS = [
 ];
 
 /**
- * Itens do FAQ (ajuste os textos quando quiser)
+ * Identificadores dos itens do FAQ (textos em i18n/idiomas/*.json → faq.{id})
  */
 export const FAQ_ITENS = [
-  {
-    id: 'faq-01',
-    pergunta: 'Como cadastrar uma transacao?',
-    resposta: 'Resposta a definir.'
-  },
-  {
-    id: 'faq-02',
-    pergunta: 'Como editar ou excluir um gasto?',
-    resposta: 'Resposta a definir.'
-  },
-  {
-    id: 'faq-03',
-    pergunta: 'Como criar e organizar categorias?',
-    resposta: 'Resposta a definir.'
-  },
-  {
-    id: 'faq-04',
-    pergunta: 'Como recuperar minha senha?',
-    resposta: 'Resposta a definir.'
-  }
-];
+  { id: 'faq-01' },
+  { id: 'faq-02' },
+  { id: 'faq-03' },
+  { id: 'faq-04' },
+  { id: 'faq-05' },
+  { id: 'faq-06' },
+  { id: 'faq-07' },
+  { id: 'faq-08' },
+  { id: 'faq-09' },
+  { id: 'faq-10' },
+  { id: 'faq-11' },
+  { id: 'faq-12' },
+  { id: 'faq-13' },
+  { id: 'faq-14' },
+] as const;
 
 /**
  * Tabs disponíveis na tela de ajuda
  */
 export const TABS_AJUDA = ['FAQ', 'Contato', 'ChatBot'] as const;
+
+/** ChatBot mockado — oculto até a equipe implementar */
+export const EXIBIR_CHATBOT_AJUDA = false;
+
+/** Outros canais (site, Instagram, telefone) — oculto até validar dados */
+export const EXIBIR_OUTROS_CANAIS_AJUDA = false;

@@ -10,44 +10,50 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import TituloPagina from "../../../componentes/TituloPagina";
+import ModalBase from "../../../componentes/modais/ModalBase";
 import { useCriarConta } from "./hooks/useCriarConta";
 import { REQUISITOS_SENHA } from "../../configuracoes/constants/constantesConfiguracao";
-import { styles } from "./styles/TelaCriarConta.styles";
+import {
+  obterResultadosValidacaoSenha,
+  verificarSenhasConferem,
+} from "../../../utils/senhaUtils";
+import { useTheme } from "../../../contexts/ThemeContext";
+import { getColorsByTheme } from "../../../styles/colors";
+import { getStyles } from "./styles/TelaCriarConta.styles";
 
-const VALIDACOES_SENHA = [
-  { msg: REQUISITOS_SENHA[0], testar: (s) => s.length >= 8 },
-  { msg: REQUISITOS_SENHA[1], testar: (s) => /\d/.test(s) },
-  { msg: REQUISITOS_SENHA[2], testar: (s) => /[!@$%&_]/.test(s) },
-  {
-    msg: REQUISITOS_SENHA[3],
-    testar: (s) =>
-      !/(123|234|345|456|567|678|789|321|432|543|654|765|876|987)/.test(s),
-  },
-  { msg: REQUISITOS_SENHA[4], testar: (s) => !/(\d)\1{2}/.test(s) },
-];
+const TERMOS_DE_USO = `1. Aceitação dos termos\nAo criar uma conta no Contadin, você concorda com estes Termos de Uso. Se não concordar, não utilize o aplicativo.\n\n2. Descrição do serviço\nO Contadin oferece ferramentas de gestão financeira pessoal, como organização de transações, categorias, metas e relatórios. O serviço não fornece consultoria financeira, contabilidade, crédito ou investimentos.\n\n3. Cadastro e segurança\nVocê é responsável por manter a confidencialidade da sua conta, senha e dispositivos. Qualquer uso indevido deve ser comunicado imediatamente.\n\n4. Uso permitido e proibições\nÉ proibido: (a) praticar fraude, falsificação ou manipulação de dados; (b) acessar sistemas de forma não autorizada; (c) utilizar o app para atividades ilegais; (d) tentar burlar mecanismos de segurança.\n\n5. Propriedade intelectual\nO Contadin, suas marcas, layout, código, logotipos e conteúdos são protegidos por direitos autorais e outras leis de propriedade intelectual. Você não pode copiar, modificar, distribuir ou explorar comercialmente sem autorização.\n\n6. Cancelamento e reembolso\nSe houver planos pagos, o cancelamento pode ser solicitado a qualquer momento. Reembolsos seguem a legislação aplicável e as regras do provedor de pagamento. Em compras digitais, pode existir prazo legal para arrependimento.\n\n7. Limitação de responsabilidade\nO Contadin é fornecido "como está". Não garantimos disponibilidade ininterrupta, ausência de falhas ou resultados financeiros. Em nenhuma hipótese seremos responsáveis por perdas indiretas, lucros cessantes ou danos consequenciais.\n\n8. Privacidade e dados\nO tratamento de dados pessoais segue a Política de Privacidade. Ao usar o app, você concorda com a coleta e o uso de dados conforme descrito nela.\n\n9. Alterações dos termos\nPodemos atualizar estes Termos de Uso. A versão vigente será disponibilizada no app. O uso continuado após atualizações implica aceite.\n\n10. Contato\nDúvidas? Fale com a equipe pelo email: contadinbrasil01@gmail.com\n\nVigência: 28/05/2026`;
 
 function TelaCriarConta({ navigation }) {
   const criar = useCriarConta();
+  const { isDarkMode } = useTheme();
+  const COLORS = getColorsByTheme(isDarkMode);
+  const styles = getStyles(isDarkMode);
   const [showSenha, setShowSenha] = useState(false);
   const [showConfirmarSenha, setShowConfirmarSenha] = useState(false);
   const [tooltipVisivel, setTooltipVisivel] = useState(false);
   const [senhaTocada, setSenhaTocada] = useState(false);
+  const [termosVisivel, setTermosVisivel] = useState(false);
 
   const resultadosValidacao = useMemo(
-    () =>
-      VALIDACOES_SENHA.map((v) => ({
-        msg: v.msg,
-        valido: v.testar(criar.senha),
-      })),
+    () => obterResultadosValidacaoSenha(criar.senha),
     [criar.senha],
   );
 
   const todasValidas = resultadosValidacao.every((r) => r.valido);
-  const senhasConferem =
-    criar.senha.length > 0 && criar.senha === criar.confirmarSenha;
+  const senhasConferem = verificarSenhasConferem(
+    criar.senha,
+    criar.confirmarSenha,
+  );
 
   const onCadastrar = async () => {
     await criar.handleCadastrar(navigation);
+  };
+
+  const abrirTermos = () => setTermosVisivel(true);
+  const fecharTermos = () => setTermosVisivel(false);
+  const aceitarTermos = () => {
+    criar.setAceiteTermos(true);
+    setTermosVisivel(false);
   };
 
   return (
@@ -82,7 +88,7 @@ function TelaCriarConta({ navigation }) {
               <Ionicons
                 name="information-circle-outline"
                 size={20}
-                color={tooltipVisivel ? "#2D85F8" : "#999"}
+                color={tooltipVisivel ? COLORS.primary : COLORS.textTertiary}
               />
             </TouchableOpacity>
           </View>
@@ -117,7 +123,7 @@ function TelaCriarConta({ navigation }) {
               <Ionicons
                 name={showSenha ? "eye-off-outline" : "eye-outline"}
                 size={22}
-                color="#666"
+                color={COLORS.textTertiary}
               />
             </TouchableOpacity>
           </View>
@@ -129,7 +135,7 @@ function TelaCriarConta({ navigation }) {
                   <Ionicons
                     name={r.valido ? "checkmark-circle" : "close-circle"}
                     size={16}
-                    color={r.valido ? "#21C25E" : "#E53935"}
+                    color={r.valido ? COLORS.success : COLORS.error}
                   />
                   <Text
                     style={[
@@ -164,7 +170,7 @@ function TelaCriarConta({ navigation }) {
               <Ionicons
                 name={showConfirmarSenha ? "eye-off-outline" : "eye-outline"}
                 size={22}
-                color="#666"
+                color={COLORS.textTertiary}
               />
             </TouchableOpacity>
           </View>
@@ -173,7 +179,7 @@ function TelaCriarConta({ navigation }) {
             criar.confirmarSenha.length > 0 &&
             !senhasConferem && (
               <View style={styles.validacaoItem}>
-                <Ionicons name="close-circle" size={16} color="#E53935" />
+                <Ionicons name="close-circle" size={16} color={COLORS.error} />
                 <Text style={styles.validacaoTextoErro}>
                   As senhas não coincidem.
                 </Text>
@@ -184,13 +190,15 @@ function TelaCriarConta({ navigation }) {
             <Switch
               value={criar.aceiteTermos}
               onValueChange={criar.setAceiteTermos}
-              trackColor={{ false: "#D3D3D3", true: "#2D85F8" }}
-              thumbColor={criar.aceiteTermos ? "#FFF" : "#f4f3f4"}
+              trackColor={{ false: COLORS.border, true: COLORS.primary }}
+              thumbColor={criar.aceiteTermos ? COLORS.white : COLORS.backgroundLight}
             />
             <Text style={styles.termosTexto}>
               Li e aceito os{" "}
-              <Text style={styles.termosLink}>termos de serviço</Text> e a{" "}
-              <Text style={styles.termosLink}>política de privacidade</Text>.
+              <Text style={styles.termosLink} onPress={abrirTermos}>
+                Termos de Uso
+              </Text>
+              .
             </Text>
           </View>
 
@@ -209,14 +217,6 @@ function TelaCriarConta({ navigation }) {
           ) : null}
         </View>
 
-        <View style={styles.areaGoogle}>
-          <Text style={styles.ouConecte}>Ou conecte-se com</Text>
-          <TouchableOpacity style={styles.botaoGoogle} activeOpacity={0.8}>
-            <Ionicons name="logo-google" size={24} color="#333" />
-            <Text style={styles.botaoGoogleText}>Google</Text>
-          </TouchableOpacity>
-        </View>
-
         <Text style={styles.linkLogin}>
           Já possui conta?{" "}
           <Text
@@ -227,6 +227,22 @@ function TelaCriarConta({ navigation }) {
           </Text>
         </Text>
       </ScrollView>
+      <ModalBase
+        visible={termosVisivel}
+        onClose={fecharTermos}
+        title="Termos de uso"
+        onConfirm={aceitarTermos}
+        confirmText="Aceitar"
+        cancelText="Fechar"
+        confirmVariant="primary"
+      >
+        <ScrollView
+          style={styles.termosModalScroll}
+          contentContainerStyle={styles.termosModalContent}
+        >
+          <Text style={styles.termosModalTexto}>{TERMOS_DE_USO}</Text>
+        </ScrollView>
+      </ModalBase>
     </SafeAreaView>
   );
 }
