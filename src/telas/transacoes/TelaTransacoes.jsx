@@ -63,8 +63,8 @@ const TelaTransacoes = ({ navigation, route }) => {
   }, [debouncedSearchQuery]);
 
   /**
-   * Debounce para a busca (300ms)
-   * Evita múltiplas re-renderizações enquanto o usuário digita
+   * Debounce para a busca (4000ms = 4 segundos)
+   * Evita multiple chamadas ao backend enquanto o usuário digita/apaga
    */
   React.useEffect(() => {
     const timer = setTimeout(() => {
@@ -72,7 +72,7 @@ const TelaTransacoes = ({ navigation, route }) => {
       if (searchQuery) {
         console.log("🔍 [SEARCH] Buscando por:", searchQuery);
       }
-    }, 300);
+    }, 4000);
 
     return () => clearTimeout(timer);
   }, [searchQuery]);
