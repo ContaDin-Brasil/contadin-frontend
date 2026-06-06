@@ -2,7 +2,6 @@
  * Hook para gerenciar conta (exclusão, desativação)
  */
 import { useState } from 'react';
-import { Alert } from 'react-native';
 import { usuarioService } from '../../../api';
 import { useAuth } from '../../../contexts/AuthContext';
 
@@ -33,6 +32,10 @@ export const useGerenciarConta = () => {
   const [deactivatedModalVisible, setDeactivatedModalVisible] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [isDeactivating, setIsDeactivating] = useState(false);
+  const [avisoModal, setAvisoModal] = useState({ visible: false, titulo: '', mensagem: '' });
+
+  const fecharAviso = () => setAvisoModal((prev) => ({ ...prev, visible: false }));
+  const mostrarAviso = (titulo: string, mensagem: string) => setAvisoModal({ visible: true, titulo, mensagem });
 
   const handleDeleteAccount = () => {
     setDeleteModalVisible(false);
@@ -43,12 +46,12 @@ export const useGerenciarConta = () => {
     if (isDeactivating) return;
 
     if (deleteConfirmText.toLowerCase() !== 'excluir') {
-      Alert.alert('Confirmação inválida', 'Digite "excluir" para continuar.');
+      mostrarAviso('Confirmação inválida', 'Digite "excluir" para continuar.');
       return;
     }
 
     if (!userAuth?.id) {
-      Alert.alert('Erro', 'Não foi possível identificar o usuário logado.');
+      mostrarAviso('Erro', 'Não foi possível identificar o usuário logado.');
       return;
     }
 
@@ -59,7 +62,7 @@ export const useGerenciarConta = () => {
       setDeleteConfirmText('');
       setDeactivatedModalVisible(true);
     } catch (error) {
-      Alert.alert('Erro ao desativar conta', getErrorMessage(error));
+      mostrarAviso('Erro ao desativar conta', getErrorMessage(error));
     } finally {
       setIsDeactivating(false);
     }
@@ -70,7 +73,7 @@ export const useGerenciarConta = () => {
     try {
       await logout();
     } catch (error) {
-      Alert.alert(
+      mostrarAviso(
         'Erro ao sair',
         error instanceof Error && error.message
           ? error.message
@@ -97,6 +100,8 @@ export const useGerenciarConta = () => {
     handleDeleteAccount,
     handleConfirmDelete,
     handleFinalConfirm,
-    handleCloseConfirmModal
+    handleCloseConfirmModal,
+    avisoModal,
+    fecharAviso,
   };
 };

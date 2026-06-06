@@ -6,12 +6,12 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
-  Alert,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Category, CategoryType } from '../types/categoria.types';
 import { CATEGORY_COLORS } from '../constants/constantesCategorias';
 import ModalSelecaoIcone from './ModalSelecaoIcone';
+import ModalAviso from '../../../componentes/modais/ModalAviso';
 import { getColorsByTheme } from '../../../styles/colors';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { getStyles } from '../style/ModalCategoria.style';
@@ -43,6 +43,10 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
   const [iconeEscolhido, setIconeEscolhido] = useState(false);
   const [iconModalVisible, setIconModalVisible] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [modalAviso, setModalAviso] = useState({ visible: false, titulo: '', mensagem: '' });
+
+  const fecharAviso = () => setModalAviso((prev) => ({ ...prev, visible: false }));
+  const mostrarAviso = (titulo: string, mensagem: string) => setModalAviso({ visible: true, titulo, mensagem });
 
   useEffect(() => {
     if (categoria) {
@@ -72,7 +76,7 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
 
   const handleSave = async () => {
     if (!nome.trim()) {
-      Alert.alert('Erro', 'Digite um nome para a categoria');
+      mostrarAviso('Erro', 'Digite um nome para a categoria');
       return;
     }
 
@@ -241,6 +245,13 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
           setIconeEscolhido(true);
         }}
         selectedIcon={icone}
+      />
+
+      <ModalAviso
+        visible={modalAviso.visible}
+        titulo={modalAviso.titulo}
+        mensagem={modalAviso.mensagem}
+        onClose={fecharAviso}
       />
     </>
   );
