@@ -373,7 +373,7 @@ export const GraficoSaldoDiario: React.FC<GraficoSaldoDiarioProps> = ({
       )}
 
       <Text style={styles.legendaBaseStyle}>
-        * Projeção baseada em transações recorrentes e parceladas
+        * Projeção baseada em transações futuras, recorrentes e parceladas
       </Text>
     </View>
   );
